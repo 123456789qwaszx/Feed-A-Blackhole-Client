@@ -1,0 +1,586 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 165e9022097e4ead9e9b181d76230366, type: 3}
+  m_Name: NodeCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.NodeCatalog
+  tree:
+    Nodes:
+    - Id: start
+      Price: 10
+      Start: 1
+      X: 0
+      Y: 0
+      Links:
+      - damage-1
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 0
+        Value: 1
+    - Id: speed-1
+      Price: 25
+      Start: 0
+      X: 1
+      Y: 0
+      Links:
+      - start
+      Upgrades:
+      - Stat: breaker.speed
+        Operation: 1
+        Value: 0.25
+    - Id: speed-2
+      Price: 60
+      Start: 0
+      X: 2
+      Y: 0
+      Links:
+      - speed-1
+      Upgrades:
+      - Stat: breaker.speed
+        Operation: 1
+        Value: 0.25
+    - Id: growth-time
+      Price: 20
+      Start: 0
+      X: 0
+      Y: 1
+      Links:
+      - start
+      Upgrades:
+      - Stat: hq.growth-time
+        Operation: 0
+        Value: 3
+    - Id: asteroid-growth-supply
+      Price: 40
+      Start: 0
+      X: 1
+      Y: 1
+      Links:
+      - growth-time
+      Upgrades:
+      - Stat: enemy.asteroid.growth-supply
+        Operation: 0
+        Value: 4
+    - Id: damage-1
+      Price: 25
+      Start: 0
+      X: 0
+      Y: -1
+      Links:
+      - square-a
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 0
+        Value: 1
+    - Id: square-a
+      Price: 50
+      Start: 0
+      X: 0
+      Y: -2
+      Links:
+      - square-c
+      Upgrades:
+      - Stat: breaker.radius
+        Operation: 1
+        Value: 0.1
+    - Id: square-b
+      Price: 50
+      Start: 0
+      X: 2
+      Y: -3
+      Links:
+      - square-d
+      Upgrades:
+      - Stat: breaker.radius
+        Operation: 1
+        Value: 0.1
+    - Id: square-c
+      Price: 50
+      Start: 0
+      X: 0
+      Y: -3
+      Links:
+      - square-d
+      Upgrades:
+      - Stat: breaker.crit-chance
+        Operation: 0
+        Value: 0.05
+    - Id: square-d
+      Price: 120
+      Start: 0
+      X: 1
+      Y: -3
+      Links: []
+      Upgrades:
+      - Stat: breaker.crit-chance
+        Operation: 0
+        Value: 0.05
+    - Id: asteroid-mass-1
+      Price: 10
+      Start: 1
+      X: -2
+      Y: 0
+      Links: []
+      Upgrades:
+      - Stat: enemy.asteroid.mass-level
+        Operation: 0
+        Value: 1
+    - Id: asteroid-mass-2
+      Price: 30
+      Start: 0
+      X: -3
+      Y: 0
+      Links:
+      - asteroid-mass-1
+      Upgrades:
+      - Stat: enemy.asteroid.mass-level
+        Operation: 0
+        Value: 1
+    - Id: asteroid-mass-3
+      Price: 90
+      Start: 0
+      X: -4
+      Y: 0
+      Links:
+      - asteroid-mass-2
+      Upgrades:
+      - Stat: enemy.asteroid.mass-level
+        Operation: 0
+        Value: 1
+    - Id: asteroid-mass-4
+      Price: 270
+      Start: 0
+      X: -5
+      Y: 0
+      Links:
+      - asteroid-mass-3
+      Upgrades:
+      - Stat: enemy.asteroid.mass-level
+        Operation: 0
+        Value: 1
+    - Id: asteroid-mass-5
+      Price: 810
+      Start: 0
+      X: -6
+      Y: 0
+      Links:
+      - asteroid-mass-4
+      Upgrades:
+      - Stat: enemy.asteroid.mass-level
+        Operation: 0
+        Value: 1
+    - Id: asteroid-mass-6
+      Price: 2430
+      Start: 0
+      X: -7
+      Y: 0
+      Links:
+      - asteroid-mass-5
+      Upgrades:
+      - Stat: enemy.asteroid.mass-level
+        Operation: 0
+        Value: 1
+    - Id: asteroid-mass-7
+      Price: 7290
+      Start: 0
+      X: -8
+      Y: 0
+      Links:
+      - asteroid-mass-6
+      Upgrades:
+      - Stat: enemy.asteroid.mass-level
+        Operation: 0
+        Value: 1
+    - Id: asteroid-mass-8
+      Price: 21870
+      Start: 0
+      X: -9
+      Y: 0
+      Links:
+      - asteroid-mass-7
+      Upgrades:
+      - Stat: enemy.asteroid.mass-level
+        Operation: 0
+        Value: 1
+    - Id: asteroid-supply-1
+      Price: 100
+      Start: 0
+      X: -3
+      Y: 1
+      Links:
+      - asteroid-mass-2
+      Upgrades:
+      - Stat: enemy.asteroid.start-supply
+        Operation: 0
+        Value: 4
+    - Id: asteroid-supply-2
+      Price: 2000
+      Start: 0
+      X: -3
+      Y: 2
+      Links:
+      - asteroid-supply-1
+      Upgrades:
+      - Stat: enemy.asteroid.start-supply
+        Operation: 0
+        Value: 4
+    - Id: asteroid-supply-3
+      Price: 20000
+      Start: 0
+      X: -3
+      Y: 3
+      Links:
+      - asteroid-supply-2
+      Upgrades:
+      - Stat: enemy.asteroid.start-supply
+        Operation: 0
+        Value: 4
+    - Id: golden-asteroid
+      Price: 500
+      Start: 0
+      X: -5
+      Y: 1
+      Links:
+      - asteroid-mass-4
+      Upgrades:
+      - Stat: enemy.asteroid.golden-ratio
+        Operation: 0
+        Value: 0.1
+    - Id: electric-asteroid-chance-1
+      Price: 500
+      Start: 0
+      X: -5
+      Y: -1
+      Links:
+      - asteroid-mass-4
+      Upgrades:
+      - Stat: enemy.electric-asteroid.chance
+        Operation: 0
+        Value: 10
+    - Id: asteroid-to-planet-1
+      Price: 30000
+      Start: 0
+      X: -9
+      Y: -1
+      Links:
+      - asteroid-mass-8
+      Upgrades:
+      - Stat: enemy.asteroid.upgrade
+        Operation: 0
+        Value: 52
+    - Id: moon-chance-1
+      Price: 40000
+      Start: 0
+      X: -8
+      Y: -1
+      Links:
+      - asteroid-to-planet-1
+      Upgrades:
+      - Stat: enemy.moon.chance
+        Operation: 0
+        Value: 10
+    - Id: planet-mass-1
+      Price: 50000
+      Start: 0
+      X: -9
+      Y: -2
+      Links:
+      - asteroid-to-planet-1
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-2
+      Price: 150000
+      Start: 0
+      X: -8
+      Y: -2
+      Links:
+      - planet-mass-1
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-3
+      Price: 450000
+      Start: 0
+      X: -7
+      Y: -2
+      Links:
+      - planet-mass-2
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-4
+      Price: 1350000
+      Start: 0
+      X: -6
+      Y: -2
+      Links:
+      - planet-mass-3
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: comet-chance-1
+      Price: 2000000
+      Start: 0
+      X: -6
+      Y: -1
+      Links:
+      - planet-mass-4
+      Upgrades:
+      - Stat: enemy.comet.chance
+        Operation: 0
+        Value: 10
+    - Id: planet-mass-5
+      Price: 4050000
+      Start: 0
+      X: -5
+      Y: -2
+      Links:
+      - planet-mass-4
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-6
+      Price: 12150000
+      Start: 0
+      X: -4
+      Y: -2
+      Links:
+      - planet-mass-5
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-7
+      Price: 36450000
+      Start: 0
+      X: -3
+      Y: -2
+      Links:
+      - planet-mass-6
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-8
+      Price: 109350000
+      Start: 0
+      X: -2
+      Y: -2
+      Links:
+      - planet-mass-7
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-to-star-1
+      Price: 200000000
+      Start: 0
+      X: -2
+      Y: -5
+      Links:
+      - planet-mass-8
+      Upgrades:
+      - Stat: enemy.planet.upgrade
+        Operation: 0
+        Value: 10
+    - Id: star-mass-1
+      Price: 500000000
+      Start: 0
+      X: -2
+      Y: -6
+      Links:
+      - planet-to-star-1
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-2
+      Price: 1500000000
+      Start: 0
+      X: -3
+      Y: -6
+      Links:
+      - star-mass-1
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-3
+      Price: 4500000000
+      Start: 0
+      X: -4
+      Y: -6
+      Links:
+      - star-mass-2
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-4
+      Price: 13500000000
+      Start: 0
+      X: -5
+      Y: -6
+      Links:
+      - star-mass-3
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: supernova-chance-1
+      Price: 20000000000
+      Start: 0
+      X: -5
+      Y: -7
+      Links:
+      - star-mass-4
+      Upgrades:
+      - Stat: enemy.supernova.chance
+        Operation: 0
+        Value: 10
+    - Id: star-mass-5
+      Price: 40500000000
+      Start: 0
+      X: -6
+      Y: -6
+      Links:
+      - star-mass-4
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-6
+      Price: 121500000000
+      Start: 0
+      X: -7
+      Y: -6
+      Links:
+      - star-mass-5
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-7
+      Price: 364500000000
+      Start: 0
+      X: -8
+      Y: -6
+      Links:
+      - star-mass-6
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-8
+      Price: 1093500000000
+      Start: 0
+      X: -9
+      Y: -6
+      Links:
+      - star-mass-7
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: asteroid-to-planet-2
+      Price: 40000
+      Start: 0
+      X: -10
+      Y: -1
+      Links:
+      - asteroid-to-planet-1
+      Upgrades:
+      - Stat: enemy.asteroid.upgrade
+        Operation: 0
+        Value: 5
+    - Id: asteroid-to-planet-3
+      Price: 60000
+      Start: 0
+      X: -11
+      Y: -1
+      Links:
+      - asteroid-to-planet-2
+      Upgrades:
+      - Stat: enemy.asteroid.upgrade
+        Operation: 0
+        Value: 5
+    - Id: asteroid-to-planet-4
+      Price: 90000
+      Start: 0
+      X: -12
+      Y: -1
+      Links:
+      - asteroid-to-planet-3
+      Upgrades:
+      - Stat: enemy.asteroid.upgrade
+        Operation: 0
+        Value: 5
+    - Id: asteroid-to-planet-5
+      Price: 135000
+      Start: 0
+      X: -13
+      Y: -1
+      Links:
+      - asteroid-to-planet-4
+      Upgrades:
+      - Stat: enemy.asteroid.upgrade
+        Operation: 0
+        Value: 5
+    - Id: planet-to-star-2
+      Price: 300000000
+      Start: 0
+      X: -1
+      Y: -5
+      Links:
+      - planet-to-star-1
+      Upgrades:
+      - Stat: enemy.planet.upgrade
+        Operation: 0
+        Value: 5
+    - Id: planet-to-star-3
+      Price: 450000000
+      Start: 0
+      X: 0
+      Y: -5
+      Links:
+      - planet-to-star-2
+      Upgrades:
+      - Stat: enemy.planet.upgrade
+        Operation: 0
+        Value: 5
+    - Id: planet-to-star-4
+      Price: 675000000
+      Start: 0
+      X: 1
+      Y: -5
+      Links:
+      - planet-to-star-3
+      Upgrades:
+      - Stat: enemy.planet.upgrade
+        Operation: 0
+        Value: 5
+    - Id: planet-to-star-5
+      Price: 1000000000
+      Start: 0
+      X: 2
+      Y: -5
+      Links:
+      - planet-to-star-4
+      Upgrades:
+      - Stat: enemy.planet.upgrade
+        Operation: 0
+        Value: 5

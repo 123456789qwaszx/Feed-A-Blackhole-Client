@@ -393,6 +393,7 @@ MonoBehaviour:
   _enemySupply: {fileID: 11400000, guid: 1506d53a97654897bc5d7b4126a28333, type: 2}
   _hqGrowth: {fileID: 11400000, guid: 2218973c18e541949f58c6719fd25c5e, type: 2}
   _skillSetup: {fileID: 11400000, guid: 3ab44acfb37f427790e580c9f6a10538, type: 2}
+  _nodeCatalog: {fileID: 11400000, guid: dc906d29ddfc4d0089200fffb6c6e8be, type: 2}
   _rootLayer: {fileID: 238476925}
   _panelLayer: {fileID: 1238912222}
   _views:

@@ -57,7 +57,8 @@ namespace BlackHole.Unity
         }
 
         // 전투 진입을 위한 초기화. 준비된 상태가 아니면 무시하고 false를 돌려준다.
-        public bool TryStart()
+        // upgrades: 방장의 산 노드로 만든 업그레이드 표(NodePurchase.UpgradesFor). 전투 시스템은 노드 트리를 모른다.
+        public bool TryStart(UpgradeTable upgrades)
         {
             if (_state != State.Idle)
                 return false;
@@ -66,12 +67,12 @@ namespace BlackHole.Unity
             // 전투마다 seed를 새로 정한다. 쓴 seed는 판과 원자료에 남는다.
             int seed = Environment.TickCount;
 
-            // 1. 업그레이드에서 바뀐 수치 받기: 업그레이드 표(노드 트리가 붙기 전에는 빈 표)로
+            // 1. 업그레이드에서 바뀐 수치 받기: 업그레이드 표로
             //    이 판의 Breaker 수치, 판 구성과 적 수치 표를 확정한다. 판이 끝날 때까지 바뀌지 않는다.
-            //    조립이 실패하면 판이 없으므로 준비된 상태로 돌아간다.
+            //    조립이 실패하면(산 노드 조합이 한계 밖 등) 판이 없으므로 준비된 상태로 돌아간다.
             try
             {
-                Session = SessionAssembler.CreateBattle(_content, _progress, seed);
+                Session = SessionAssembler.CreateBattle(_content, _progress, seed, upgrades);
             }
             catch
             {

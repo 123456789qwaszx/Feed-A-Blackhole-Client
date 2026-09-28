@@ -39,7 +39,7 @@ namespace BlackHole.Unity
         {
             try
             {
-                if (_battle.TryStart())
+                if (_battle.TryStart(NodePurchase.UpgradesFor(_player, _tree)))
                     GoToBattle();
             }
             catch (Exception error) { Debug.LogException(error); }

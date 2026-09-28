@@ -6,7 +6,7 @@ using UnityEngine;
 namespace BlackHole.Unity
 {
     // 씬의 직렬화 설정으로 게임을 조립하는 Unity 진입점.
-    // - Awake: 콘텐츠 로드·검증, 적 화면·스킬 화면·사망 효과 화면·블랙홀 화면, 진행 상태, 전투 시스템, 조준 입력,
+    // - Awake: 콘텐츠·노드 트리 로드·검증, 적 화면·스킬 화면·사망 효과 화면·블랙홀 화면, 진행 상태, 전투 시스템, 조준 입력,
     //   UI(UIManager와 타이틀·업그레이드·전투·결산 화면), 화면 흐름, GameHost 조립.
     // - Start/Update: 조립한 GameHost에 Unity 수명을 전달한다.
     //
@@ -24,6 +24,7 @@ namespace BlackHole.Unity
         [SerializeField] private EnemySupplySetup _enemySupply;
         [SerializeField] private HqGrowthSetup _hqGrowth;
         [SerializeField] private SkillSetup _skillSetup;
+        [SerializeField] private NodeCatalog _nodeCatalog;
 
         [Header("UI Layers")]
         [SerializeField] private RectTransform _rootLayer;
@@ -47,6 +48,7 @@ namespace BlackHole.Unity
 
         private readonly List<UIPresentationSpec> _emptyPresentations = new List<UIPresentationSpec>();
         private GameContent _content;
+        private NodeTree _nodeTree;
         private EnemyLooks _enemyLooks;
         private EnemyView _enemyView;
         private SkillView _skillView;
@@ -61,7 +63,10 @@ namespace BlackHole.Unity
 
         private void Awake()
         {
-            if (!TryLoadContent(out _content) || !HasConfiguredUI())
+            if (!TryLoadContent(out _content)
+                || !TryLoadNodeTree(out _nodeTree)
+                || !NodesFitContent(_content, _nodeTree)
+                || !HasConfiguredUI())
             {
                 enabled = false;
                 return;
@@ -121,7 +126,7 @@ namespace BlackHole.Unity
                 OrEmpty(_upgradePresentation, "Upgrade"),
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
-                _battle, _viewer, _content.Growth);
+                _battle, _viewer, _nodeTree, _content.Growth);
         }
 
         private void BootstrapHost()
@@ -195,6 +200,38 @@ namespace BlackHole.Unity
 
             content = result.Content;
             return result.Succeeded;
+        }
+
+        // 오류가 있는 노드 트리로도 시작하지 않는다.
+        private bool TryLoadNodeTree(out NodeTree tree)
+        {
+            tree = null;
+
+            if (_nodeCatalog == null)
+            {
+                Debug.LogError("[노드 트리] GameBootstrap에 노드 목록(NodeCatalog)을 연결해야 한다.", this);
+                return false;
+            }
+
+            NodeTreeLoadResult result = NodeTreeLoader.Load(_nodeCatalog.ToData());
+
+            foreach (ContentDiagnostic diagnostic in result.Diagnostics)
+                Debug.LogError("[노드 트리] " + diagnostic, this);
+
+            tree = result.Tree;
+            return result.Succeeded;
+        }
+
+        // 노드를 모두 산 경우에도 판을 조립할 수 있어야 한다(질량 단계 범위, 황금이 되는 종류, 전체 개체 수 상한).
+        // 두 데이터는 따로 불러오므로 여기서 함께 본다. 오류가 있으면 언젠가 전투 시작이 실패하므로 시작하지 않는다.
+        private bool NodesFitContent(GameContent content, NodeTree tree)
+        {
+            IReadOnlyList<ContentDiagnostic> diagnostics = UpgradeContentCheck.Check(content, tree);
+
+            foreach (ContentDiagnostic diagnostic in diagnostics)
+                Debug.LogError("[노드 트리 × 콘텐츠] " + diagnostic, this);
+
+            return diagnostics.Count == 0;
         }
 
         private UIPresentationSpec OrEmpty(UIPresentationSpec presentation, string id)

@@ -15,13 +15,15 @@ namespace BlackHole.Unity
         private readonly UIPresentationSpec _settlementPresentation;
         private readonly BattleSystem _battle;
         private readonly PlayerState _player;
+        // 노드 트리. 전투를 시작할 때 방장의 산 노드를 업그레이드 표로 바꾸는 데 쓴다.
+        private readonly NodeTree _tree;
         // 블랙홀 성장(성장도별 Level 표·이정표). 업그레이드 화면의 목표 Level과 결산 화면의 이정표 진행도를 계산할 때 쓴다.
         private readonly HqGrowthDefinition _growth;
         private readonly Dictionary<UIBase, List<Action>> _cleanupByScreen = new Dictionary<UIBase, List<Action>>();
 
         public ScreenFlow(UIManager ui, UIPresentationSpec titlePresentation, UIPresentationSpec upgradePresentation,
             UIPresentationSpec battlePresentation, UIPresentationSpec settlementPresentation,
-            BattleSystem battle, PlayerState player, HqGrowthDefinition growth)
+            BattleSystem battle, PlayerState player, NodeTree tree, HqGrowthDefinition growth)
         {
             _ui = ui;
             _titlePresentation = titlePresentation;
@@ -30,6 +32,7 @@ namespace BlackHole.Unity
             _settlementPresentation = settlementPresentation;
             _battle = battle;
             _player = player;
+            _tree = tree;
             _growth = growth;
         }
 
