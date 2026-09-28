@@ -1,7 +1,7 @@
 {
   "name": "BlackHole.Authoring",
   "rootNamespace": "BlackHole.Authoring",
-  "references": ["BlackHole.Core.Common", "BlackHole.Core.Hq", "BlackHole.Core.Nodes"],
+  "references": ["BlackHole.Core.Common", "BlackHole.Core.Hq", "BlackHole.Core.Enemies", "BlackHole.Core.Battle", "BlackHole.Core.Nodes"],
   "includePlatforms": ["Editor"],
   "noEngineReferences": true
 }

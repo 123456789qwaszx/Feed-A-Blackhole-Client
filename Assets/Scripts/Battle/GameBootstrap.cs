@@ -194,11 +194,7 @@ namespace BlackHole.Unity
                 return false;
             }
 
-            ContentData data = SampleContent.Create();
-            _skillSetup.WriteTo(data);
-            _enemyCatalog.WriteTo(data.Enemies);
-            _enemySupply.WriteTo(data.Enemies);
-            data.Growth = _hqGrowth.ToData();
+            ContentData data = ContentDataFrom(_skillSetup, _enemyCatalog, _enemySupply, _hqGrowth);
             ContentLoadResult result = ContentLoader.Load(data);
 
             foreach (ContentDiagnostic diagnostic in result.Diagnostics)
@@ -206,6 +202,17 @@ namespace BlackHole.Unity
 
             content = result.Content;
             return result.Succeeded;
+        }
+
+        // 콘텐츠 에셋으로 Core 저작 형식을 채운다. 데이터 시트 가져오기도 같은 형식으로 게임과 같은 검사를 한다.
+        internal static ContentData ContentDataFrom(SkillSetup skills, EnemyCatalog enemies, EnemySupplySetup supply, HqGrowthSetup growth)
+        {
+            ContentData data = SampleContent.Create();
+            skills.WriteTo(data);
+            enemies.WriteTo(data.Enemies);
+            supply.WriteTo(data.Enemies);
+            data.Growth = growth.ToData();
+            return data;
         }
 
         // 오류가 있는 노드 트리로도 시작하지 않는다. 업그레이드 화면은 트리(규칙)와 함께 저작 데이터(격자 칸)도 받는다.

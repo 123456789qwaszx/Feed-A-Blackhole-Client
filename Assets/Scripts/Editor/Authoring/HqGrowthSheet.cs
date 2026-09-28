@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using BlackHole.Core;
+using static BlackHole.Authoring.SheetCells;
 
 namespace BlackHole.Authoring
 {
-    // 블랙홀 성장의 저작 형식(HqGrowthData)과 데이터 시트의 두 탭 사이의 변환.
+    // 블랙홀 성장(ContentData.Growth)과 데이터 시트의 두 탭 사이의 변환.
     // - Growth 탭: stage | goalLevel | 1 | 2 | … 한 행이 성장도 하나이고, 숫자 열은 그 Level에 닿는 누적 EXP다.
     //   숫자 열은 1부터 차례로 둔다. 숫자가 아닌 머리칸이 나오면 그 뒤 열은 읽지 않는다(메모·보조 수식 자리).
     //   한 행의 EXP는 왼쪽부터 채우고 빈 칸에서 끝난다.
     // - Milestones 탭: stage | reward.
     // 읽을 때는 칸의 모양(정수인가, 차례가 맞는가)을 먼저 보고, 통과하면 게임과 같은 로더(HqGrowthLoader)로 규칙을 본다.
-    // 진단 위치는 시트 좌표다("Growth!D12"). 시트의 이름 상자에 붙여 넣으면 그 칸으로 간다.
     public static class HqGrowthSheet
     {
         public const string StagesTab = "Growth";
@@ -57,7 +56,8 @@ namespace BlackHole.Authoring
             return Csv.Write(rows);
         }
 
-        public static HqGrowthSheetResult Read(string stagesCsv, string milestonesCsv)
+        // 두 탭을 읽어 통과하면 into.Growth를 바꾼다. 반환: 진단(없으면 통과).
+        public static List<ContentDiagnostic> Read(string stagesCsv, string milestonesCsv, ContentData into)
         {
             var diagnostics = new List<ContentDiagnostic>();
             var data = new HqGrowthData();
@@ -65,15 +65,18 @@ namespace BlackHole.Authoring
             List<int> milestoneRows = ReadMilestones(Csv.Parse(milestonesCsv ?? string.Empty), data.Milestones, diagnostics);
 
             if (diagnostics.Count > 0)
-                return new HqGrowthSheetResult(null, diagnostics);
+                return diagnostics;
 
             var rules = new List<ContentDiagnostic>();
             HqGrowthLoader.Load(data, rules);
 
             foreach (ContentDiagnostic rule in rules)
-                diagnostics.Add(new ContentDiagnostic(PlaceOf(rule.Path, stageRows, milestoneRows, lastLevelColumn), rule.Message));
+                diagnostics.Add(new ContentDiagnostic(PlaceOf(rule.Path, stageRows, milestoneRows, lastLevelColumn), RuleMessage(rule.Message)));
 
-            return new HqGrowthSheetResult(diagnostics.Count == 0 ? data : null, diagnostics);
+            if (diagnostics.Count == 0)
+                into.Growth = data;
+
+            return diagnostics;
         }
 
         // 반환: 성장도마다의 시트 행 번호.
@@ -90,10 +93,9 @@ namespace BlackHole.Authoring
 
             for (int c = FirstLevelColumn; c < header.Length; c++)
             {
-                string title = header[c].Trim();
                 int expected = c - FirstLevelColumn + 1;
 
-                if (!int.TryParse(title, NumberStyles.Integer, CultureInfo.InvariantCulture, out int level))
+                if (!int.TryParse(header[c].Trim(), out int level))
                     break;
 
                 if (level != expected)
@@ -185,104 +187,13 @@ namespace BlackHole.Authoring
 
                 return rest == ".GoalLevel"
                     ? Cell(StagesTab, 1, row)
-                    : $"{Cell(StagesTab, FirstLevelColumn, row)}:{Column(Math.Max(FirstLevelColumn, lastLevelColumn))}{row}";
+                    : Range(StagesTab, FirstLevelColumn, Math.Max(FirstLevelColumn, lastLevelColumn), row);
             }
 
             if (TryIndex(path, "Growth.Milestones[", out int mark, out _) && mark < milestoneRows.Count)
-                return $"{Cell(MilestonesTab, 0, milestoneRows[mark])}:B{milestoneRows[mark]}";
+                return Range(MilestonesTab, 0, 1, milestoneRows[mark]);
 
             return path.StartsWith("Growth.Milestones", StringComparison.Ordinal) ? MilestonesTab : StagesTab;
         }
-
-        private static bool TryIndex(string path, string prefix, out int index, out string rest)
-        {
-            index = -1;
-            rest = string.Empty;
-
-            if (!path.StartsWith(prefix, StringComparison.Ordinal))
-                return false;
-
-            int end = path.IndexOf(']', prefix.Length);
-
-            if (end < 0 || !int.TryParse(path.Substring(prefix.Length, end - prefix.Length), out index))
-                return false;
-
-            rest = path.Substring(end + 1);
-            return true;
-        }
-
-        private static bool HasHeader(List<string[]> rows, string tab, string[] titles, List<ContentDiagnostic> diagnostics)
-        {
-            if (rows.Count == 0)
-            {
-                diagnostics.Add(new ContentDiagnostic(tab, "비어 있다. 첫 행에 머리칸(" + string.Join(", ", titles) + ")이 필요하다."));
-                return false;
-            }
-
-            bool ok = true;
-
-            for (int c = 0; c < titles.Length; c++)
-            {
-                if (Text(rows[0], c) != titles[c])
-                {
-                    diagnostics.Add(new ContentDiagnostic(Cell(tab, c, 1), $"머리칸은 '{titles[c]}'이어야 한다."));
-                    ok = false;
-                }
-            }
-
-            return ok;
-        }
-
-        private static bool IsBlank(string[] row, int lastColumn)
-        {
-            for (int c = 0; c <= lastColumn; c++)
-            {
-                if (Text(row, c).Length > 0)
-                    return false;
-            }
-
-            return true;
-        }
-
-        private static int ReadInt(string[] row, int column, string tab, int sheetRow, List<ContentDiagnostic> diagnostics)
-        {
-            long value = ReadLong(row, column, tab, sheetRow, diagnostics);
-
-            if (value >= int.MinValue && value <= int.MaxValue)
-                return (int)value;
-
-            diagnostics.Add(new ContentDiagnostic(Cell(tab, column, sheetRow), "값이 너무 크다."));
-            return 0;
-        }
-
-        // 시트가 천 단위 쉼표를 붙여 내보내도("30,000") 읽는다.
-        private static long ReadLong(string[] row, int column, string tab, int sheetRow, List<ContentDiagnostic> diagnostics)
-        {
-            string text = Text(row, column);
-
-            if (long.TryParse(text, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out long value))
-                return value;
-
-            diagnostics.Add(new ContentDiagnostic(Cell(tab, column, sheetRow),
-                text.Length == 0 ? "비어 있다. 정수가 필요하다." : $"정수가 필요하다. 받은 값: '{text}'."));
-            return 0;
-        }
-
-        private static string Text(string[] row, int column) => column < row.Length ? row[column].Trim() : string.Empty;
-
-        private static string Cell(string tab, int column, int sheetRow) => $"{tab}!{Column(column)}{sheetRow}";
-
-        // 0 → A, 25 → Z, 26 → AA.
-        private static string Column(int index)
-        {
-            string name = string.Empty;
-
-            for (int n = index + 1; n > 0; n = (n - 1) / 26)
-                name = (char)('A' + (n - 1) % 26) + name;
-
-            return name;
-        }
-
-        private static string Number(long value) => value.ToString(CultureInfo.InvariantCulture);
     }
 }

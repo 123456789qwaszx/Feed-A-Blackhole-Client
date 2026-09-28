@@ -1,36 +1,29 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using BlackHole.Authoring;
 using BlackHole.Core;
-using BlackHole.Unity;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace BlackHole.EditorTools
 {
-    // 데이터 시트 창(메뉴 BlackHole > Data Sheets). 구글 시트의 값을 에셋으로 가져오고, 에셋의 값을 CSV로 낸다.
-    // 지금은 블랙홀 성장 설정(Growth·Milestones 탭)만 다룬다.
+    // 데이터 시트 창(메뉴 BlackHole > Data Sheets). 구글 시트의 값을 콘텐츠 에셋으로 가져오고, 에셋의 값을 CSV로 낸다.
+    // 탭과 에셋의 짝, 검사 순서는 DataSheetImport에 있다.
     //
-    // - 시트에서 가져오기(Ctrl+Alt+I): 탭마다 "웹에 게시"한 CSV 주소에서 받아, 칸 모양과 게임 규칙을 본 뒤 에셋에 쓴다.
-    //   오류가 하나라도 있으면 에셋을 건드리지 않고 시트 위치와 함께 알린다.
-    // - CSV 폴더에서 가져오기: 내려받은 Growth.csv·Milestones.csv로 같은 일을 한다.
-    // - CSV로 내보내기: 지금 에셋의 값을 시트에 붙여 넣을 CSV로 낸다.
+    // - 시트에서 가져오기(Ctrl+Alt+I): 탭마다 "웹에 게시"한 CSV 주소에서 받는다. 주소를 비운 탭은 가져오지 않는다.
+    // - CSV 폴더에서 가져오기: 폴더에 있는 <탭>.csv로 같은 일을 한다.
+    // - CSV로 내보내기: 지금 에셋의 값을 탭마다 CSV로 낸다.
     // 주소는 이 PC의 프로젝트 사용자 설정(UserSettings, 커밋하지 않음)에 둔다.
     internal sealed class DataSheetWindow : EditorWindow
     {
-        private const string GrowthUrlKey = "BlackHole.DataSheets.GrowthUrl";
-        private const string MilestonesUrlKey = "BlackHole.DataSheets.MilestonesUrl";
         private const string FolderKey = "BlackHole.DataSheets.Folder";
 
         private static readonly HttpClient _http = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
         private static readonly Color _errorText = new Color(1f, 0.55f, 0.55f);
         private static readonly Color _okText = new Color(0.5f, 0.9f, 0.5f);
-
-        [SerializeField] private HqGrowthSetup _setup;
 
         private VisualElement _results;
         private bool _busy;
@@ -53,21 +46,15 @@ namespace BlackHole.EditorTools
             if (_results != null)
                 return;
 
-            if (_setup == null)
-                _setup = HqGrowthSheetSync.FindSetup();
-
             VisualElement root = rootVisualElement;
             root.style.paddingLeft = 8;
             root.style.paddingRight = 8;
             root.style.paddingTop = 6;
 
-            var setupField = new ObjectField("블랙홀 성장 설정") { objectType = typeof(HqGrowthSetup), allowSceneObjects = false, value = _setup };
-            setupField.RegisterValueChangedCallback(evt => _setup = evt.newValue as HqGrowthSetup);
-            root.Add(setupField);
+            foreach (string tab in DataSheetImport.Tabs)
+                root.Add(UrlField(tab));
 
-            root.Add(UrlField("Growth 탭 CSV 주소", GrowthUrlKey));
-            root.Add(UrlField("Milestones 탭 CSV 주소", MilestonesUrlKey));
-            root.Add(Note("주소 얻기: 시트의 파일 → 공유 → 웹에 게시 → 탭을 고르고 형식을 CSV로 → 게시. 탭마다 한 번씩 한다."));
+            root.Add(Note("주소 얻기: 시트의 파일 → 공유 → 웹에 게시 → 탭을 고르고 형식을 CSV로 → 게시. 주소를 비운 탭은 가져오지 않는다."));
 
             root.Add(new Button(ImportFromSheets) { text = "시트에서 가져오기 (Ctrl+Alt+I)" });
             root.Add(new Button(ImportFromFolder) { text = "CSV 폴더에서 가져오기…" });
@@ -82,25 +69,43 @@ namespace BlackHole.EditorTools
         {
             BuildOnce();
 
-            if (_busy || !HasSetup())
+            if (_busy || !TryFindAssets(out ContentAssets assets))
                 return;
 
-            string growthUrl = EditorUserSettings.GetConfigValue(GrowthUrlKey);
-            string milestonesUrl = EditorUserSettings.GetConfigValue(MilestonesUrlKey);
+            var urls = new Dictionary<string, string>();
 
-            if (string.IsNullOrWhiteSpace(growthUrl) || string.IsNullOrWhiteSpace(milestonesUrl))
+            foreach (string tab in DataSheetImport.Tabs)
             {
-                ShowMessage("Growth·Milestones 탭의 CSV 주소를 먼저 넣는다.", _errorText);
+                string url = EditorUserSettings.GetConfigValue(UrlKey(tab));
+
+                if (!string.IsNullOrWhiteSpace(url))
+                    urls.Add(tab, url);
+            }
+
+            if (urls.Count == 0)
+            {
+                ShowMessage("탭의 CSV 주소를 먼저 넣는다.", _errorText);
                 return;
             }
 
             _busy = true;
-            ShowMessage("시트에서 받는 중…", Color.white);
+            ShowMessage($"시트에서 탭 {urls.Count}개를 받는 중…", Color.white);
 
             try
             {
-                string[] tables = await Task.WhenAll(Download(growthUrl), Download(milestonesUrl));
-                Apply(tables[0], tables[1], "시트");
+                var tables = new Dictionary<string, string>();
+                var downloads = new List<Task<string>>();
+
+                foreach (string url in urls.Values)
+                    downloads.Add(Download(url));
+
+                string[] texts = await Task.WhenAll(downloads);
+                int i = 0;
+
+                foreach (string tab in urls.Keys)
+                    tables.Add(tab, texts[i++]);
+
+                Import(assets, tables, "시트");
             }
             catch (Exception error) when (error is HttpRequestException || error is TaskCanceledException || error is InvalidDataException)
             {
@@ -116,32 +121,33 @@ namespace BlackHole.EditorTools
         {
             BuildOnce();
 
-            if (!HasSetup())
+            if (!TryFindAssets(out ContentAssets assets))
                 return;
 
-            string folder = EditorUtility.OpenFolderPanel("Growth.csv·Milestones.csv가 있는 폴더", LastFolder(), string.Empty);
+            string folder = EditorUtility.OpenFolderPanel("<탭>.csv가 있는 폴더", LastFolder(), string.Empty);
 
             if (string.IsNullOrEmpty(folder))
                 return;
 
             EditorUserSettings.SetConfigValue(FolderKey, folder);
-            string stagesPath = Path.Combine(folder, HqGrowthSheetSync.StagesFile);
-            string milestonesPath = Path.Combine(folder, HqGrowthSheetSync.MilestonesFile);
+            var tables = new Dictionary<string, string>();
 
-            if (!File.Exists(stagesPath) || !File.Exists(milestonesPath))
+            foreach (string tab in DataSheetImport.Tabs)
             {
-                ShowMessage($"폴더에 {HqGrowthSheetSync.StagesFile}와 {HqGrowthSheetSync.MilestonesFile}가 모두 있어야 한다.", _errorText);
-                return;
+                string path = Path.Combine(folder, DataSheetImport.FileOf(tab));
+
+                if (File.Exists(path))
+                    tables.Add(tab, File.ReadAllText(path));
             }
 
-            Apply(File.ReadAllText(stagesPath), File.ReadAllText(milestonesPath), "CSV 파일");
+            Import(assets, tables, "CSV 파일");
         }
 
         private void ExportToFolder()
         {
             BuildOnce();
 
-            if (!HasSetup())
+            if (!TryFindAssets(out ContentAssets assets))
                 return;
 
             string folder = EditorUtility.SaveFolderPanel("CSV를 낼 폴더", LastFolder(), string.Empty);
@@ -150,29 +156,36 @@ namespace BlackHole.EditorTools
                 return;
 
             EditorUserSettings.SetConfigValue(FolderKey, folder);
-            HqGrowthSheetSync.Export(_setup, folder);
-            ShowMessage($"{HqGrowthSheetSync.StagesFile}, {HqGrowthSheetSync.MilestonesFile}를 냈다. 시트의 같은 이름 탭에 가져오기(파일 → 가져오기 → 현재 시트 바꾸기)로 넣는다.", _okText);
-            EditorUtility.RevealInFinder(Path.Combine(folder, HqGrowthSheetSync.StagesFile));
+            DataSheetImport.Export(assets, folder);
+            ShowMessage($"탭 {DataSheetImport.Tabs.Length}개({string.Join(", ", DataSheetImport.Tabs)})를 CSV로 냈다. " +
+                "시트의 같은 이름 탭에 파일 → 가져오기 → 현재 시트 바꾸기로 넣는다.", _okText);
+            EditorUtility.RevealInFinder(Path.Combine(folder, DataSheetImport.FileOf(DataSheetImport.Tabs[0])));
         }
 
-        private void Apply(string stagesCsv, string milestonesCsv, string source)
+        private void Import(ContentAssets assets, Dictionary<string, string> tables, string source)
         {
-            bool changed = HqGrowthSheetSync.Apply(_setup, stagesCsv, milestonesCsv, out HqGrowthSheetResult result);
+            var written = new List<string>();
+            var unchanged = new List<string>();
+            List<ContentDiagnostic> errors = DataSheetImport.Import(assets, tables, written, unchanged);
+            _results.Clear();
 
-            if (!result.Succeeded)
+            if (errors.Count > 0)
             {
-                _results.Clear();
-                _results.Add(Line($"{source}에 오류가 {result.Diagnostics.Count}개 있어 에셋을 바꾸지 않았다.", _errorText));
+                _results.Add(Line($"{source}에 오류가 {errors.Count}개 있어 에셋을 바꾸지 않았다.", _errorText));
 
-                foreach (ContentDiagnostic diagnostic in result.Diagnostics)
-                    _results.Add(Line(diagnostic.ToString(), _errorText));
+                foreach (ContentDiagnostic error in errors)
+                    _results.Add(Line(error.ToString(), _errorText));
 
                 return;
             }
 
-            HqGrowthData data = result.Data;
-            string summary = $"성장도 {data.Stages.Count}개 · 이정표 {data.Milestones.Count}개";
-            ShowMessage(changed ? $"{source}의 값을 에셋에 썼다({summary})." : $"{source}의 값이 에셋과 같다({summary}). 바꾸지 않았다.", _okText);
+            _results.Add(Line($"{source}에서 탭 {tables.Count}개를 읽었다: {string.Join(", ", tables.Keys)}.", _okText));
+
+            if (written.Count > 0)
+                _results.Add(Line("에셋에 썼다: " + string.Join(", ", written), _okText));
+
+            if (unchanged.Count > 0)
+                _results.Add(Line("값이 같아 두었다: " + string.Join(", ", unchanged), _okText));
         }
 
         private static async Task<string> Download(string url)
@@ -188,20 +201,27 @@ namespace BlackHole.EditorTools
             return await response.Content.ReadAsStringAsync();
         }
 
-        private bool HasSetup()
+        private bool TryFindAssets(out ContentAssets assets)
         {
-            if (_setup != null)
+            assets = ContentAssets.Find();
+            string missing = assets.Missing();
+
+            if (missing == null)
                 return true;
 
-            ShowMessage("블랙홀 성장 설정 에셋(HqGrowthSetup)을 고른다.", _errorText);
+            ShowMessage(missing, _errorText);
             return false;
         }
 
+        // 처음 만든 Growth·Milestones 주소와 같은 이름이다(BlackHole.DataSheets.GrowthUrl).
+        private static string UrlKey(string tab) => $"BlackHole.DataSheets.{tab}Url";
+
         private static string LastFolder() => EditorUserSettings.GetConfigValue(FolderKey) ?? string.Empty;
 
-        private static TextField UrlField(string label, string key)
+        private static TextField UrlField(string tab)
         {
-            var field = new TextField(label) { value = EditorUserSettings.GetConfigValue(key) ?? string.Empty, isDelayed = true };
+            string key = UrlKey(tab);
+            var field = new TextField($"{tab} 탭 CSV 주소") { value = EditorUserSettings.GetConfigValue(key) ?? string.Empty, isDelayed = true };
             field.RegisterValueChangedCallback(evt => EditorUserSettings.SetConfigValue(key, evt.newValue.Trim()));
             return field;
         }

@@ -6,6 +6,7 @@ namespace BlackHole.Unity
     // 현재 아래 값은 모두 [임시].
     // 스킬 설정 에셋: 스킬 종류마다 기본 수치 칸을 따로 둔다(한 칸에 모든 종류의 수치를 섞지 않는다).
     // 칸의 값은 Core의 저작 형식(BreakerData)으로 옮겨져 ContentLoader가 검증한다.
+    // 값의 원본은 데이터 시트(Skills 탭)이고, 이 에셋은 가져오기가 채운다.
     [CreateAssetMenu(fileName = "SkillSetup", menuName = "BlackHole/Skill Setup")]
     public sealed class SkillSetup : ScriptableObject
     {
@@ -30,6 +31,21 @@ namespace BlackHole.Unity
         [SerializeField] private float laserTelegraphDuration = 0.4f;
         [Tooltip("시작점이 놓이는 경계 원의 반지름(HQ 중심). 시작점이 화면 밖에 있도록 화면을 덮는 값을 쓴다.")]
         [SerializeField] private float laserBoundaryRadius = 11;
+
+        // WriteTo의 반대. 데이터 시트 가져오기(메뉴 BlackHole > Data Sheets)만 부른다.
+        internal void Replace(BreakerData breaker, LaserData laser)
+        {
+            breakerDamage = breaker.Damage;
+            breakerInterval = breaker.Interval;
+            breakerRadius = breaker.Radius;
+            breakerCritChance = breaker.CritChance;
+            breakerCritMultiplier = breaker.CritMultiplier;
+            laserDamage = laser.Damage;
+            laserInterval = laser.Interval;
+            laserWidth = laser.Width;
+            laserTelegraphDuration = laser.TelegraphDuration;
+            laserBoundaryRadius = laser.BoundaryRadius;
+        }
 
         public void WriteTo(ContentData data)
         {
