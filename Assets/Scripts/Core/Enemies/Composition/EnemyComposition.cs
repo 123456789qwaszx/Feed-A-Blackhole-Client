@@ -69,6 +69,11 @@ namespace BlackHole.Core
             float upgrade = Percent(upgrades.Apply(EnemyUpgradeStats.Upgrade(kind.Id), kind.BaseUpgradeAt(stage)), kind.Id, "변환 비율");
             float chance = Percent(upgrades.Apply(EnemyUpgradeStats.Chance(kind.Id), 0), kind.Id, "생성 확률");
 
+            // 변환 대상이 없는 종류는 변환해 나올 종류가 없다. 기본 변환 비율에 거는 규칙(EnemyDefinition)을 노드가 더한 비율에도 건다.
+            // 판 조립과 로드 때의 검사(UpgradeContentCheck)가 이 예외를 본다.
+            if (upgrade > 0 && kind.UpgradesTo == null)
+                throw new ArgumentException($"'{kind.Id}'에는 변환 대상이 없어 변환 비율을 둘 수 없다. 업그레이드 합: {upgrade * 100:0.##}%.", nameof(upgrades));
+
             return new EnemyComposition(massLevel, goldenRatio, goldenMultiplier, startSupply, growthSupply, upgrade, chance);
         }
 
