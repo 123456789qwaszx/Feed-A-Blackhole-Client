@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using BlackHole.Core;
 
 namespace BlackHole.Authoring
@@ -159,6 +160,17 @@ namespace BlackHole.Authoring
 
         // 다시 읽으면 같은 float이 되는 가장 짧은 글자.
         public static string Number(float value) => value.ToString("R", CultureInfo.InvariantCulture);
+
+        // 정의 생성자의 예외 문장에 런타임이 덧붙인 매개변수 이름. 없으면 null. 어느 칸의 규칙인지 찾을 때 쓴다.
+        public static string ParameterOf(string message)
+        {
+            Match match = Regex.Match(message, @"Parameter name: (\w+)|\(Parameter '(\w+)'\)");
+
+            if (!match.Success)
+                return null;
+
+            return match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value;
+        }
 
         // 정의 생성자의 예외 문장에서 런타임이 덧붙인 매개변수 이름을 뗀다(로더가 넘긴 진단의 문장도 같다). 위치는 시트 좌표가 알려 준다.
         public static string RuleMessage(ArgumentException error) => RuleMessage(error.Message);

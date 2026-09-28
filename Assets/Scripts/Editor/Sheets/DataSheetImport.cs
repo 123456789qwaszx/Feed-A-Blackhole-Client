@@ -11,7 +11,8 @@ namespace BlackHole.EditorTools
 {
     // 데이터 시트와 콘텐츠 에셋 사이의 Unity 쪽. 탭(CSV)을 읽어 검사를 통과하면 에셋에 쓰고, 에셋을 CSV로 낸다.
     //
-    // 탭 묶음 하나가 에셋 하나를 채운다: Growth·Milestones → 블랙홀 성장 설정, Skills → 스킬 설정, Supply·StartSupply → 적 공급 설정.
+    // 탭 묶음이 에셋을 채운다: Growth·Milestones → 블랙홀 성장 설정, Skills → 스킬 설정,
+    // Enemies·EnemyTiers·EnemyStageColors·EnemyMassLevels → 적 종류 에셋들(ID로 짝짓는다), Supply·StartSupply → 적 공급 설정.
     // 가져오기는 받은 탭의 묶음만 다루고, 묶음의 탭이 일부만 오면 오류다.
     // 모두 통과해야 쓴다(부분 통과 금지): 탭마다의 칸·규칙 검사 → 게임 시작(GameBootstrap)과 같은 전체 검사.
     // 그래서 가져오기가 통과했으면 Play도 콘텐츠 오류 없이 시작한다.
@@ -19,7 +20,9 @@ namespace BlackHole.EditorTools
     {
         public static readonly string[] Tabs =
         {
-            HqGrowthSheet.StagesTab, HqGrowthSheet.MilestonesTab, SkillSheet.Tab, SupplySheet.SupplyTab, SupplySheet.StartSupplyTab,
+            HqGrowthSheet.StagesTab, HqGrowthSheet.MilestonesTab, SkillSheet.Tab,
+            EnemySheet.EnemiesTab, EnemySheet.TiersTab, EnemySheet.StageColorsTab, EnemySheet.MassLevelsTab,
+            SupplySheet.SupplyTab, SupplySheet.StartSupplyTab,
         };
 
         public static string FileOf(string tab) => tab + ".csv";
@@ -31,10 +34,18 @@ namespace BlackHole.EditorTools
             assets.Skills.WriteTo(skills);
             var supply = new EnemyContentData();
             assets.Supply.WriteTo(supply);
+            var enemies = new EnemyContentData();
+            assets.Enemies.WriteTo(enemies);
+            Dictionary<string, EnemyKind> kinds = KindsById(assets.Enemies);
+            string ColorOf(string id, int tier) => HexOf(kinds[id].ColorOf(tier));
 
             Write(folder, HqGrowthSheet.StagesTab, HqGrowthSheet.StagesCsv(growth));
             Write(folder, HqGrowthSheet.MilestonesTab, HqGrowthSheet.MilestonesCsv(growth));
             Write(folder, SkillSheet.Tab, SkillSheet.SkillsCsv(skills.Breaker, skills.Laser));
+            Write(folder, EnemySheet.EnemiesTab, EnemySheet.EnemiesCsv(enemies.Enemies));
+            Write(folder, EnemySheet.TiersTab, EnemySheet.TiersCsv(enemies.Enemies, ColorOf));
+            Write(folder, EnemySheet.StageColorsTab, EnemySheet.StageColorsCsv(enemies.Enemies));
+            Write(folder, EnemySheet.MassLevelsTab, EnemySheet.MassLevelsCsv(enemies.Enemies));
             Write(folder, SupplySheet.SupplyTab, SupplySheet.SupplyCsv(supply));
             Write(folder, SupplySheet.StartSupplyTab, SupplySheet.StartSupplyCsv(supply));
         }
@@ -46,9 +57,10 @@ namespace BlackHole.EditorTools
             var errors = new List<ContentDiagnostic>();
             bool growth = Has(csvByTab, errors, HqGrowthSheet.StagesTab, HqGrowthSheet.MilestonesTab);
             bool skills = Has(csvByTab, errors, SkillSheet.Tab);
+            bool enemies = Has(csvByTab, errors, EnemySheet.EnemiesTab, EnemySheet.TiersTab, EnemySheet.StageColorsTab, EnemySheet.MassLevelsTab);
             bool supply = Has(csvByTab, errors, SupplySheet.SupplyTab, SupplySheet.StartSupplyTab);
 
-            if (errors.Count == 0 && !growth && !skills && !supply)
+            if (errors.Count == 0 && !growth && !skills && !enemies && !supply)
                 errors.Add(new ContentDiagnostic(string.Empty, "가져올 탭이 없다."));
 
             if (errors.Count > 0)
@@ -62,6 +74,13 @@ namespace BlackHole.EditorTools
 
             if (skills)
                 errors.AddRange(SkillSheet.Read(csvByTab[SkillSheet.Tab], data));
+
+            // 공급 검사가 시트의 적 종류로 보도록 적 종류를 먼저 읽는다.
+            var colors = new Dictionary<string, List<string>>();
+
+            if (enemies)
+                errors.AddRange(EnemySheet.Read(csvByTab[EnemySheet.EnemiesTab], csvByTab[EnemySheet.TiersTab],
+                    csvByTab[EnemySheet.StageColorsTab], csvByTab[EnemySheet.MassLevelsTab], data, colors));
 
             if (supply)
                 errors.AddRange(SupplySheet.Read(csvByTab[SupplySheet.SupplyTab], csvByTab[SupplySheet.StartSupplyTab], data));
@@ -88,6 +107,9 @@ namespace BlackHole.EditorTools
                     SkillSheet.SkillsCsv(before.Breaker, before.Laser) == SkillSheet.SkillsCsv(data.Breaker, data.Laser),
                     () => assets.Skills.Replace(data.Breaker, data.Laser));
             }
+
+            if (enemies)
+                CollectEnemies(changes, written, unchanged, assets.Enemies, data.Enemies.Enemies, colors);
 
             if (supply)
             {
@@ -173,10 +195,7 @@ namespace BlackHole.EditorTools
         // 시트 검사가 적 종류 목록에 있는 ID만 통과시켰으므로 모두 찾는다.
         private static List<EnemySupplySetup.Entry> EntriesOf(List<SupplyData> supply, EnemyCatalog catalog)
         {
-            var kinds = new Dictionary<string, EnemyKind>();
-
-            foreach (EnemyKind kind in catalog.Kinds())
-                kinds[kind.Id] = kind;
+            Dictionary<string, EnemyKind> kinds = KindsById(catalog);
 
             var entries = new List<EnemySupplySetup.Entry>(supply.Count);
 
@@ -184,6 +203,58 @@ namespace BlackHole.EditorTools
                 entries.Add(new EnemySupplySetup.Entry { kind = kinds[item.Enemy], count = item.Count });
 
             return entries;
+        }
+
+        // 종류마다 따로 비교해 바뀐 종류의 에셋만 쓴다. 색은 글자가 같으면 지금 에셋의 Color를 그대로 둔다(float 끝자리가 흔들리지 않게).
+        private static void CollectEnemies(List<(Object, System.Action)> changes, List<string> written, List<string> unchanged,
+            EnemyCatalog catalog, List<EnemyData> sheet, Dictionary<string, List<string>> colors)
+        {
+            Dictionary<string, EnemyKind> kinds = KindsById(catalog);
+
+            foreach (EnemyData data in sheet)
+            {
+                EnemyKind kind = kinds[data.Id];
+                List<string> hexes = colors[data.Id];
+                EnemyData before = kind.ToData();
+                bool same = EnemyCsv(before, (id, tier) => HexOf(kind.ColorOf(tier))) == EnemyCsv(data, (id, tier) => hexes[tier]);
+
+                var resolved = new List<Color>(hexes.Count);
+
+                for (int i = 0; i < hexes.Count; i++)
+                {
+                    if (i < before.Tiers.Count && HexOf(kind.ColorOf(i)) == hexes[i])
+                        resolved.Add(kind.ColorOf(i));
+                    else
+                        resolved.Add(ColorUtility.TryParseHtmlString(hexes[i], out Color color) ? color : Color.white);
+                }
+
+                EnemyKind upgradesTo = data.UpgradesTo != null ? kinds[data.UpgradesTo] : null;
+                EnemyKind specialOf = data.SpecialOf != null ? kinds[data.SpecialOf] : null;
+                Collect(changes, written, unchanged, kind, same, () => kind.Replace(data, resolved, upgradesTo, specialOf));
+            }
+        }
+
+        private static Dictionary<string, EnemyKind> KindsById(EnemyCatalog catalog)
+        {
+            var kinds = new Dictionary<string, EnemyKind>();
+
+            foreach (EnemyKind kind in catalog.Kinds())
+                kinds[kind.Id] = kind;
+
+            return kinds;
+        }
+
+        // 불투명이면 #RRGGBB, 아니면 #RRGGBBAA.
+        private static string HexOf(Color color)
+        {
+            string rgba = ColorUtility.ToHtmlStringRGBA(color);
+            return "#" + (rgba.EndsWith("FF", System.StringComparison.Ordinal) ? rgba.Substring(0, 6) : rgba);
+        }
+
+        private static string EnemyCsv(EnemyData data, System.Func<string, int, string> colorOf)
+        {
+            var one = new List<EnemyData> { data };
+            return EnemySheet.EnemiesCsv(one) + EnemySheet.TiersCsv(one, colorOf) + EnemySheet.StageColorsCsv(one) + EnemySheet.MassLevelsCsv(one);
         }
 
         private static string GrowthCsv(HqGrowthData data) => HqGrowthSheet.StagesCsv(data) + HqGrowthSheet.MilestonesCsv(data);

@@ -1,0 +1,535 @@
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using BlackHole.Core;
+using static BlackHole.Authoring.SheetCells;
+
+namespace BlackHole.Authoring
+{
+    // 적 종류(ContentData.Enemies.Enemies)와 데이터 시트의 네 탭 사이의 변환. 한 종류가 네 탭에 걸쳐 있고 kind(ID)로 잇는다.
+    // - Enemies 탭: 한 행이 종류 하나. id | moveSpeed | goldenMultiplier | upgradesTo | baseUpgrade | baseUpgradeFromStage | specialOf
+    //   | deathEffect | effectDamage | effectRadius | effectMaxTargets | effectDuration | effectIntervalMultiplier
+    //   upgradesTo·specialOf는 다른 종류의 ID이고 비우면 없다. deathEffect는 비우면 없다.
+    //   효과 칸은 그 효과가 쓰는 것만 채운다(쓰지 않는 칸에 값이 있으면 오류).
+    // - EnemyTiers 탭: kind | tier | color | maxHealth | size | gold | exp. tier는 종류마다 0부터 차례로. color는 #RRGGBB(#RRGGBBAA).
+    // - EnemyStageColors 탭: kind | fromStage | 0 | 1 | … 숫자 열은 색 등급 번호이고 값은 그 색이 나오는 비율이다. 왼쪽부터 빈 칸 없이.
+    // - EnemyMassLevels 탭: kind | level | healthMultiplier | goldMultiplier. level은 종류마다 0부터 차례로.
+    // 종류의 목록과 순서는 적 종류 목록 에셋이 정한다: 시트는 그 종류를 모두, 그 종류만 담는다(종류를 더하고 빼는 것은 에셋에서 한다).
+    // 규칙은 게임과 같은 로더(EnemyContentLoader)로 본다.
+    public static class EnemySheet
+    {
+        public const string EnemiesTab = "Enemies";
+        public const string TiersTab = "EnemyTiers";
+        public const string StageColorsTab = "EnemyStageColors";
+        public const string MassLevelsTab = "EnemyMassLevels";
+
+        private static readonly string[] _enemyColumns =
+        {
+            "id", "moveSpeed", "goldenMultiplier", "upgradesTo", "baseUpgrade", "baseUpgradeFromStage", "specialOf",
+            "deathEffect", "effectDamage", "effectRadius", "effectMaxTargets", "effectDuration", "effectIntervalMultiplier",
+        };
+
+        private static readonly string[] _tierColumns = { "kind", "tier", "color", "maxHealth", "size", "gold", "exp" };
+        private static readonly string[] _massColumns = { "kind", "level", "healthMultiplier", "goldMultiplier" };
+        private const int FirstRatioColumn = 2;
+
+        // 사망 효과마다 쓰는 효과 칸(Enemies 탭 열 번호). 정의 생성자의 매개변수 이름과 같은 순서로 둔다.
+        private static readonly Dictionary<string, string[]> _effectParameters = new Dictionary<string, string[]>(StringComparer.Ordinal)
+        {
+            ["ChainLightning"] = new[] { "damage", "radius", "maxTargets" },
+            ["Explosion"] = new[] { "damage", "radius" },
+            ["AttackHaste"] = new[] { "duration", "intervalMultiplier" },
+            ["GuaranteedCritical"] = new[] { "duration" },
+        };
+
+        private static readonly Dictionary<string, int> _effectColumns = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            ["damage"] = 8, ["radius"] = 9, ["maxTargets"] = 10, ["duration"] = 11, ["intervalMultiplier"] = 12,
+        };
+
+        private static readonly Regex _hex = new Regex("^#?([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$");
+
+        // 종류마다 시트 행 번호. 규칙 진단을 시트 위치로 바꿀 때 쓴다.
+        private sealed class Rows
+        {
+            public int Enemy;
+            public readonly List<int> Tiers = new List<int>();
+            public readonly List<int> StageColors = new List<int>();
+            public readonly List<int> MassLevels = new List<int>();
+        }
+
+        // colorOf(종류 ID, 색 등급) → "#RRGGBB" 또는 "#RRGGBBAA".
+        public static string EnemiesCsv(IReadOnlyList<EnemyData> enemies)
+        {
+            var rows = new List<IReadOnlyList<string>> { _enemyColumns };
+
+            foreach (EnemyData enemy in enemies)
+            {
+                DeathEffectData effect = enemy.DeathEffect;
+                string kind = string.IsNullOrEmpty(effect?.Kind) ? string.Empty : effect.Kind;
+                string[] used = kind.Length > 0 && _effectParameters.TryGetValue(kind, out string[] names) ? names : Array.Empty<string>();
+
+                rows.Add(new[]
+                {
+                    enemy.Id, Number(enemy.MoveSpeed), Number(enemy.GoldenMultiplier), enemy.UpgradesTo ?? string.Empty,
+                    Number(enemy.BaseUpgrade), Number(enemy.BaseUpgradeFromStage), enemy.SpecialOf ?? string.Empty, kind,
+                    Used(used, "damage") ? Number(effect.Damage) : string.Empty,
+                    Used(used, "radius") ? Number(effect.Radius) : string.Empty,
+                    Used(used, "maxTargets") ? Number(effect.MaxTargets) : string.Empty,
+                    Used(used, "duration") ? Number(effect.Duration) : string.Empty,
+                    Used(used, "intervalMultiplier") ? Number(effect.IntervalMultiplier) : string.Empty,
+                });
+            }
+
+            return Csv.Write(rows);
+        }
+
+        public static string TiersCsv(IReadOnlyList<EnemyData> enemies, Func<string, int, string> colorOf)
+        {
+            var rows = new List<IReadOnlyList<string>> { _tierColumns };
+
+            foreach (EnemyData enemy in enemies)
+            {
+                for (int i = 0; i < enemy.Tiers.Count; i++)
+                {
+                    EnemyTierData tier = enemy.Tiers[i];
+                    rows.Add(new[]
+                    {
+                        enemy.Id, Number(i), colorOf(enemy.Id, i), Number(tier.MaxHealth), Number(tier.Size), Number(tier.Gold), Number(tier.Exp),
+                    });
+                }
+            }
+
+            return Csv.Write(rows);
+        }
+
+        public static string StageColorsCsv(IReadOnlyList<EnemyData> enemies)
+        {
+            int ratios = 0;
+
+            foreach (EnemyData enemy in enemies)
+            {
+                foreach (StageColorData row in enemy.StageColors)
+                    ratios = Math.Max(ratios, row.TierRatios?.Count ?? 0);
+            }
+
+            var header = new List<string> { "kind", "fromStage" };
+
+            for (int i = 0; i < ratios; i++)
+                header.Add(Number(i));
+
+            var rows = new List<IReadOnlyList<string>> { header };
+
+            foreach (EnemyData enemy in enemies)
+            {
+                foreach (StageColorData stageColor in enemy.StageColors)
+                {
+                    var row = new List<string> { enemy.Id, Number(stageColor.FromStage) };
+
+                    for (int i = 0; i < ratios; i++)
+                        row.Add(stageColor.TierRatios != null && i < stageColor.TierRatios.Count ? Number(stageColor.TierRatios[i]) : string.Empty);
+
+                    rows.Add(row);
+                }
+            }
+
+            return Csv.Write(rows);
+        }
+
+        public static string MassLevelsCsv(IReadOnlyList<EnemyData> enemies)
+        {
+            var rows = new List<IReadOnlyList<string>> { _massColumns };
+
+            foreach (EnemyData enemy in enemies)
+            {
+                for (int i = 0; i < enemy.MassLevels.Count; i++)
+                    rows.Add(new[] { enemy.Id, Number(i), Number(enemy.MassLevels[i].HealthMultiplier), Number(enemy.MassLevels[i].GoldMultiplier) });
+            }
+
+            return Csv.Write(rows);
+        }
+
+        // 네 탭을 읽어 통과하면 into.Enemies.Enemies를 바꾸고 colors에 종류마다의 색(#RRGGBB)을 채운다. 반환: 진단(없으면 통과).
+        // 종류의 목록과 순서는 into.Enemies.Enemies(적 종류 목록 에셋)의 것이다.
+        public static List<ContentDiagnostic> Read(string enemiesCsv, string tiersCsv, string stageColorsCsv, string massLevelsCsv,
+            ContentData into, Dictionary<string, List<string>> colors)
+        {
+            var diagnostics = new List<ContentDiagnostic>();
+            var byId = new Dictionary<string, EnemyData>(StringComparer.Ordinal);
+            var rows = new Dictionary<string, Rows>(StringComparer.Ordinal);
+            var sheetColors = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+            var order = new List<string>();
+
+            foreach (EnemyData existing in into.Enemies.Enemies)
+                order.Add(existing.Id);
+
+            ReadEnemies(Csv.Parse(enemiesCsv ?? string.Empty), order, byId, rows, diagnostics);
+            ReadTiers(Csv.Parse(tiersCsv ?? string.Empty), byId, rows, sheetColors, diagnostics);
+            ReadStageColors(Csv.Parse(stageColorsCsv ?? string.Empty), byId, rows, diagnostics, out int lastRatioColumn);
+            ReadMassLevels(Csv.Parse(massLevelsCsv ?? string.Empty), byId, rows, diagnostics);
+
+            if (diagnostics.Count > 0)
+                return diagnostics;
+
+            var enemies = new List<EnemyData>();
+
+            foreach (string id in order)
+                enemies.Add(byId[id]);
+
+            var check = new EnemyContentData
+            {
+                Enemies = enemies,
+                EnemyPlacement = into.Enemies.EnemyPlacement,
+                MaxAliveEnemies = into.Enemies.MaxAliveEnemies,
+                StartSupply = into.Enemies.StartSupply,
+            };
+            var rules = new List<ContentDiagnostic>();
+            EnemyContentLoader.Load(check, rules);
+
+            foreach (ContentDiagnostic rule in rules)
+                diagnostics.Add(new ContentDiagnostic(PlaceOf(rule, rows, lastRatioColumn), RuleMessage(rule.Message)));
+
+            if (diagnostics.Count > 0)
+                return diagnostics;
+
+            into.Enemies.Enemies = enemies;
+
+            foreach (KeyValuePair<string, List<string>> pair in sheetColors)
+                colors[pair.Key] = pair.Value;
+
+            return diagnostics;
+        }
+
+        private static void ReadEnemies(List<string[]> table, List<string> order, Dictionary<string, EnemyData> byId,
+            Dictionary<string, Rows> rows, List<ContentDiagnostic> diagnostics)
+        {
+            if (!HasHeader(table, EnemiesTab, _enemyColumns, diagnostics))
+                return;
+
+            var known = new HashSet<string>(order, StringComparer.Ordinal);
+
+            for (int r = 1; r < table.Count; r++)
+            {
+                string[] row = table[r];
+                int sheetRow = r + 1;
+
+                if (IsBlank(row, _enemyColumns.Length - 1))
+                    continue;
+
+                string id = Text(row, 0);
+
+                if (!known.Contains(id))
+                {
+                    diagnostics.Add(new ContentDiagnostic(Cell(EnemiesTab, 0, sheetRow),
+                        $"적 종류 목록 에셋에 없는 ID다: '{id}'. 종류를 더하려면 먼저 EnemyKind 에셋을 만들어 목록에 넣는다."));
+                    continue;
+                }
+
+                if (rows.TryGetValue(id, out Rows first))
+                {
+                    diagnostics.Add(new ContentDiagnostic(Cell(EnemiesTab, 0, sheetRow), $"'{id}'가 {first.Enemy}행에도 있다."));
+                    continue;
+                }
+
+                var enemy = new EnemyData
+                {
+                    Id = id,
+                    MoveSpeed = ReadFloat(row, 1, EnemiesTab, sheetRow, diagnostics),
+                    GoldenMultiplier = ReadFloat(row, 2, EnemiesTab, sheetRow, diagnostics),
+                    UpgradesTo = OrNull(Text(row, 3)),
+                    BaseUpgrade = ReadFloat(row, 4, EnemiesTab, sheetRow, diagnostics),
+                    BaseUpgradeFromStage = ReadInt(row, 5, EnemiesTab, sheetRow, diagnostics),
+                    SpecialOf = OrNull(Text(row, 6)),
+                    DeathEffect = ReadDeathEffect(row, sheetRow, diagnostics),
+                };
+
+                byId.Add(id, enemy);
+                rows.Add(id, new Rows { Enemy = sheetRow });
+            }
+
+            foreach (string id in order)
+            {
+                if (!byId.ContainsKey(id) && !HasError(diagnostics, EnemiesTab))
+                    diagnostics.Add(new ContentDiagnostic(EnemiesTab, $"'{id}' 행이 없다. 적 종류 목록 에셋의 종류는 모두 적는다."));
+            }
+        }
+
+        private static DeathEffectData ReadDeathEffect(string[] row, int sheetRow, List<ContentDiagnostic> diagnostics)
+        {
+            string kind = Text(row, 7);
+            string[] used = Array.Empty<string>();
+
+            if (kind.Length > 0 && !_effectParameters.TryGetValue(kind, out used))
+            {
+                diagnostics.Add(new ContentDiagnostic(Cell(EnemiesTab, 7, sheetRow),
+                    $"알 수 없는 사망 효과 '{kind}'. 쓸 수 있는 값: {string.Join(", ", _effectParameters.Keys)} (없으면 비운다)."));
+                return null;
+            }
+
+            foreach (KeyValuePair<string, int> column in _effectColumns)
+            {
+                if (!Used(used, column.Key) && Text(row, column.Value).Length > 0)
+                    diagnostics.Add(new ContentDiagnostic(Cell(EnemiesTab, column.Value, sheetRow),
+                        kind.Length == 0 ? "사망 효과가 없는데 효과 칸에 값이 있다." : $"{kind}는 이 칸을 쓰지 않는다. 비운다."));
+            }
+
+            if (kind.Length == 0)
+                return null;
+
+            return new DeathEffectData
+            {
+                Kind = kind,
+                Damage = Used(used, "damage") ? ReadFloat(row, 8, EnemiesTab, sheetRow, diagnostics) : 0,
+                Radius = Used(used, "radius") ? ReadFloat(row, 9, EnemiesTab, sheetRow, diagnostics) : 0,
+                MaxTargets = Used(used, "maxTargets") ? ReadInt(row, 10, EnemiesTab, sheetRow, diagnostics) : 0,
+                Duration = Used(used, "duration") ? ReadFloat(row, 11, EnemiesTab, sheetRow, diagnostics) : 0,
+                IntervalMultiplier = Used(used, "intervalMultiplier") ? ReadFloat(row, 12, EnemiesTab, sheetRow, diagnostics) : 0,
+            };
+        }
+
+        private static void ReadTiers(List<string[]> table, Dictionary<string, EnemyData> byId, Dictionary<string, Rows> rows,
+            Dictionary<string, List<string>> colors, List<ContentDiagnostic> diagnostics)
+        {
+            if (!HasHeader(table, TiersTab, _tierColumns, diagnostics))
+                return;
+
+            var lastTier = new Dictionary<string, int>(StringComparer.Ordinal);
+
+            for (int r = 1; r < table.Count; r++)
+            {
+                string[] row = table[r];
+                int sheetRow = r + 1;
+
+                if (IsBlank(row, _tierColumns.Length - 1) || !TryKind(row, TiersTab, sheetRow, byId, diagnostics, out EnemyData enemy))
+                    continue;
+
+                CheckOrder(row, TiersTab, sheetRow, enemy.Id, lastTier, "tier", diagnostics);
+
+                string color = Text(row, 2);
+
+                if (!_hex.IsMatch(color))
+                    diagnostics.Add(new ContentDiagnostic(Cell(TiersTab, 2, sheetRow), $"색은 #RRGGBB 또는 #RRGGBBAA로 적는다. 받은 값: '{color}'."));
+
+                enemy.Tiers.Add(new EnemyTierData
+                {
+                    MaxHealth = ReadFloat(row, 3, TiersTab, sheetRow, diagnostics),
+                    Size = ReadFloat(row, 4, TiersTab, sheetRow, diagnostics),
+                    Gold = ReadLong(row, 5, TiersTab, sheetRow, diagnostics),
+                    Exp = ReadLong(row, 6, TiersTab, sheetRow, diagnostics),
+                });
+
+                if (!colors.TryGetValue(enemy.Id, out List<string> list))
+                    colors.Add(enemy.Id, list = new List<string>());
+
+                list.Add(NormalizedColor(color));
+                rows[enemy.Id].Tiers.Add(sheetRow);
+            }
+        }
+
+        private static void ReadStageColors(List<string[]> table, Dictionary<string, EnemyData> byId, Dictionary<string, Rows> rows,
+            List<ContentDiagnostic> diagnostics, out int lastRatioColumn)
+        {
+            lastRatioColumn = FirstRatioColumn - 1;
+
+            if (!HasHeader(table, StageColorsTab, new[] { "kind", "fromStage" }, diagnostics))
+                return;
+
+            string[] header = table[0];
+
+            for (int c = FirstRatioColumn; c < header.Length; c++)
+            {
+                int expected = c - FirstRatioColumn;
+
+                if (!int.TryParse(header[c].Trim(), out int tier))
+                    break;
+
+                if (tier != expected)
+                {
+                    diagnostics.Add(new ContentDiagnostic(Cell(StageColorsTab, c, 1), $"색 등급 열은 0부터 차례로 둔다. 여기는 {expected}이어야 한다."));
+                    return;
+                }
+
+                lastRatioColumn = c;
+            }
+
+            for (int r = 1; r < table.Count; r++)
+            {
+                string[] row = table[r];
+                int sheetRow = r + 1;
+
+                if (IsBlank(row, lastRatioColumn) || !TryKind(row, StageColorsTab, sheetRow, byId, diagnostics, out EnemyData enemy))
+                    continue;
+
+                var ratios = new List<float>();
+                int firstBlank = -1;
+
+                for (int c = FirstRatioColumn; c <= lastRatioColumn; c++)
+                {
+                    if (Text(row, c).Length == 0)
+                    {
+                        if (firstBlank < 0)
+                            firstBlank = c;
+
+                        continue;
+                    }
+
+                    if (firstBlank >= 0)
+                    {
+                        diagnostics.Add(new ContentDiagnostic(Cell(StageColorsTab, c, sheetRow),
+                            $"{Cell(StageColorsTab, firstBlank, sheetRow)}이 비어 있다. 비율은 왼쪽부터 빈 칸 없이 채운다."));
+                        break;
+                    }
+
+                    ratios.Add(ReadFloat(row, c, StageColorsTab, sheetRow, diagnostics));
+                }
+
+                enemy.StageColors.Add(new StageColorData { FromStage = ReadInt(row, 1, StageColorsTab, sheetRow, diagnostics), TierRatios = ratios });
+                rows[enemy.Id].StageColors.Add(sheetRow);
+            }
+        }
+
+        private static void ReadMassLevels(List<string[]> table, Dictionary<string, EnemyData> byId, Dictionary<string, Rows> rows,
+            List<ContentDiagnostic> diagnostics)
+        {
+            if (!HasHeader(table, MassLevelsTab, _massColumns, diagnostics))
+                return;
+
+            var lastLevel = new Dictionary<string, int>(StringComparer.Ordinal);
+
+            for (int r = 1; r < table.Count; r++)
+            {
+                string[] row = table[r];
+                int sheetRow = r + 1;
+
+                if (IsBlank(row, _massColumns.Length - 1) || !TryKind(row, MassLevelsTab, sheetRow, byId, diagnostics, out EnemyData enemy))
+                    continue;
+
+                CheckOrder(row, MassLevelsTab, sheetRow, enemy.Id, lastLevel, "level", diagnostics);
+
+                enemy.MassLevels.Add(new MassLevelData
+                {
+                    HealthMultiplier = ReadFloat(row, 2, MassLevelsTab, sheetRow, diagnostics),
+                    GoldMultiplier = ReadFloat(row, 3, MassLevelsTab, sheetRow, diagnostics),
+                });
+                rows[enemy.Id].MassLevels.Add(sheetRow);
+            }
+        }
+
+        // 행의 kind가 Enemies 탭에 있는 종류인가. Enemies 탭에서 빠졌거나 틀린 종류는 거기서 이미 알렸으므로 여기서는 없는 ID만 알린다.
+        private static bool TryKind(string[] row, string tab, int sheetRow, Dictionary<string, EnemyData> byId, List<ContentDiagnostic> diagnostics,
+            out EnemyData enemy)
+        {
+            string id = Text(row, 0);
+
+            if (byId.TryGetValue(id, out enemy))
+                return true;
+
+            if (!HasError(diagnostics, EnemiesTab))
+                diagnostics.Add(new ContentDiagnostic(Cell(tab, 0, sheetRow), $"Enemies 탭에 없는 종류다: '{id}'."));
+
+            return false;
+        }
+
+        // 두 번째 칸(tier·level)이 그 종류의 바로 앞 행 번호 + 1인가(처음은 0). 틀려도 그 행은 읽는다:
+        // 다음 행은 이 행의 번호에 이어 보므로, 번호 하나가 틀리면 오류도 하나다.
+        private static void CheckOrder(string[] row, string tab, int sheetRow, string id, Dictionary<string, int> last, string label,
+            List<ContentDiagnostic> diagnostics)
+        {
+            int before = diagnostics.Count;
+            int index = ReadInt(row, 1, tab, sheetRow, diagnostics);
+            int expected = last.TryGetValue(id, out int previous) ? previous + 1 : 0;
+            bool read = diagnostics.Count == before;
+
+            if (read && index != expected)
+                diagnostics.Add(new ContentDiagnostic(Cell(tab, 1, sheetRow), $"{label} 칸은 종류마다 0부터 차례로 적는다. 여기는 {expected}이어야 한다."));
+
+            last[id] = read ? index : expected;
+        }
+
+        // 로더의 경로("Enemies[asteroid].Tiers[2]")와 문장의 매개변수 이름으로 시트 위치를 찾는다.
+        private static string PlaceOf(ContentDiagnostic rule, Dictionary<string, Rows> rows, int lastRatioColumn)
+        {
+            string path = rule.Path;
+            string parameter = ParameterOf(rule.Message);
+
+            if (!path.StartsWith("Enemies[", StringComparison.Ordinal))
+                return path;
+
+            int end = path.IndexOf(']');
+            string id = end > 0 ? path.Substring(8, end - 8) : string.Empty;
+
+            if (!rows.TryGetValue(id, out Rows at))
+                return path;
+
+            string rest = path.Substring(end + 1);
+
+            if (TryIndex(rest, ".Tiers[", out int tier, out _) && tier < at.Tiers.Count)
+                return Cell(TiersTab, ColumnOf(_tierColumns, parameter), at.Tiers[tier]);
+
+            if (TryIndex(rest, ".StageColors[", out int stageColor, out _) && stageColor < at.StageColors.Count)
+                return parameter == "fromStage"
+                    ? Cell(StageColorsTab, 1, at.StageColors[stageColor])
+                    : Range(StageColorsTab, FirstRatioColumn, Math.Max(FirstRatioColumn, lastRatioColumn), at.StageColors[stageColor]);
+
+            if (TryIndex(rest, ".MassLevels[", out int mass, out _) && mass < at.MassLevels.Count)
+                return Cell(MassLevelsTab, ColumnOf(_massColumns, parameter), at.MassLevels[mass]);
+
+            if (rest == ".DeathEffect.Kind")
+                return Cell(EnemiesTab, 7, at.Enemy);
+
+            if (rest == ".DeathEffect")
+                return Cell(EnemiesTab, parameter != null && _effectColumns.TryGetValue(parameter, out int column) ? column : 7, at.Enemy);
+
+            if (rest == ".UpgradesTo")
+                return Cell(EnemiesTab, 3, at.Enemy);
+
+            if (rest == ".SpecialOf")
+                return Cell(EnemiesTab, 6, at.Enemy);
+
+            // 종류 전체의 규칙(EnemyDefinition 생성자): 매개변수가 가리키는 탭·칸.
+            switch (parameter)
+            {
+                case "tiers": return Span(TiersTab, _tierColumns.Length - 1, at.Tiers, id);
+                case "stageColors": return Span(StageColorsTab, Math.Max(FirstRatioColumn, lastRatioColumn), at.StageColors, id);
+                case "massLevels": return Span(MassLevelsTab, _massColumns.Length - 1, at.MassLevels, id);
+            }
+
+            int enemyColumn = parameter == null ? -1 : Array.IndexOf(_enemyColumns, parameter);
+            return enemyColumn >= 0 ? Cell(EnemiesTab, enemyColumn, at.Enemy) : Range(EnemiesTab, 0, _enemyColumns.Length - 1, at.Enemy);
+        }
+
+        // 한 종류의 여러 행: 첫 행부터 끝 행까지. 행이 없으면 탭 이름과 종류.
+        private static string Span(string tab, int lastColumn, List<int> sheetRows, string id)
+        {
+            if (sheetRows.Count == 0)
+                return $"{tab}('{id}' 행 없음)";
+
+            return $"{tab}!A{sheetRows[0]}:{Column(lastColumn)}{sheetRows[sheetRows.Count - 1]}";
+        }
+
+        // 매개변수 이름과 같은 머리칸의 열. 없으면 첫 열(kind).
+        private static int ColumnOf(string[] columns, string parameter) => parameter == null ? 0 : Math.Max(0, Array.IndexOf(columns, parameter));
+
+        // "#rrggbb" → "#RRGGBB". 불투명(FF)이면 알파를 뗀다: 내보내기와 같은 글자로 맞춰 값이 같은지 비교할 수 있게.
+        private static string NormalizedColor(string color)
+        {
+            string hex = color.TrimStart('#').ToUpperInvariant();
+            return "#" + (hex.Length == 8 && hex.EndsWith("FF", StringComparison.Ordinal) ? hex.Substring(0, 6) : hex);
+        }
+
+        private static bool Used(string[] used, string parameter) => Array.IndexOf(used, parameter) >= 0;
+
+        private static string OrNull(string text) => text.Length == 0 ? null : text;
+
+        private static bool HasError(List<ContentDiagnostic> diagnostics, string tab)
+        {
+            foreach (ContentDiagnostic diagnostic in diagnostics)
+            {
+                if (diagnostic.Path.StartsWith(tab, StringComparison.Ordinal))
+                    return true;
+            }
+
+            return false;
+        }
+    }
+}

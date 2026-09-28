@@ -142,4 +142,10 @@ MonoBehaviour:
   - healthMultiplier: 1.8
     goldMultiplier: 1.8
   goldenMultiplier: 50
+  deathEffect: 0
+  effectDamage: 0
+  effectRadius: 0
+  effectMaxTargets: 0
+  effectDuration: 0
+  effectIntervalMultiplier: 0
   sprite: {fileID: 0}

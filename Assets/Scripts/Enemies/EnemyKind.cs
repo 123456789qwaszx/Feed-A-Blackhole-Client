@@ -9,6 +9,7 @@ namespace BlackHole.Unity
     // 에셋을 하나 만들어 적 종류 목록(EnemyCatalog)에 넣는다. 움직임은 모든 종류가 HQ 공전이다(EnemyBehaviors).
     // 규칙 칸은 Core의 저작 형식(EnemyData)으로 옮겨져 EnemyContentLoader가 검증한다.
     // 외형 칸(스프라이트, 색 등급의 색)은 Core로 가지 않고 화면(EnemyView)만 읽는다. 규칙과 외형이 한 에셋에 있어 외형 연결이 빠지지 않는다.
+    // ID와 스프라이트 말고는 값의 원본이 데이터 시트(Enemies·EnemyTiers·EnemyStageColors·EnemyMassLevels 탭)이고, 가져오기가 채운다.
     //
     // 종류는 계열(소행성·행성·별·달·혜성)이고 색은 종류 안에 둔다(BATTLE_COMPOSITION_PLAN 4.1).
     // - 색 등급: 같은 윤곽(스프라이트)에 색마다 색·크기·HP·Gold·EXP가 다르다. 색이 없는 종류는 한 줄이다.
@@ -105,6 +106,44 @@ namespace BlackHole.Unity
 
         // 색 등급의 색. 없는 번호는 흰색이다.
         public Color ColorOf(int tier) => tier >= 0 && tier < tiers.Count ? tiers[tier].color : Color.white;
+
+        // ToData의 반대. 데이터 시트 가져오기(메뉴 BlackHole > Data Sheets)만 부른다. ID와 스프라이트는 이 에셋의 것이라 두고,
+        // 색 등급의 색(colors)과 종류 사이의 연결(ID를 가져오기가 에셋으로 찾은 것)은 따로 받는다.
+        internal void Replace(EnemyData data, IReadOnlyList<Color> colors, EnemyKind upgradesToKind, EnemyKind specialOfKind)
+        {
+            moveSpeed = data.MoveSpeed;
+            upgradesTo = upgradesToKind;
+            baseUpgrade = data.BaseUpgrade;
+            baseUpgradeFromStage = data.BaseUpgradeFromStage;
+            specialOf = specialOfKind;
+            goldenMultiplier = data.GoldenMultiplier;
+
+            tiers = new List<Tier>();
+
+            for (int i = 0; i < data.Tiers.Count; i++)
+            {
+                EnemyTierData tier = data.Tiers[i];
+                tiers.Add(new Tier { color = colors[i], maxHealth = tier.MaxHealth, size = tier.Size, gold = tier.Gold, exp = tier.Exp });
+            }
+
+            stageColors = new List<StageColor>();
+
+            foreach (StageColorData row in data.StageColors)
+                stageColors.Add(new StageColor { fromStage = row.FromStage, tierRatios = new List<float>(row.TierRatios) });
+
+            massLevels = new List<MassLevel>();
+
+            foreach (MassLevelData level in data.MassLevels)
+                massLevels.Add(new MassLevel { healthMultiplier = level.HealthMultiplier, goldMultiplier = level.GoldMultiplier });
+
+            DeathEffectData effect = data.DeathEffect;
+            deathEffect = effect == null ? DeathEffectKind.None : (DeathEffectKind)Enum.Parse(typeof(DeathEffectKind), effect.Kind);
+            effectDamage = effect?.Damage ?? 0;
+            effectRadius = effect?.Radius ?? 0;
+            effectMaxTargets = effect?.MaxTargets ?? 0;
+            effectDuration = effect?.Duration ?? 0;
+            effectIntervalMultiplier = effect?.IntervalMultiplier ?? 0;
+        }
 
         internal EnemyData ToData()
         {
