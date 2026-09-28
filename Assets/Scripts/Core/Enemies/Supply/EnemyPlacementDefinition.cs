@@ -2,9 +2,8 @@ using System;
 
 namespace BlackHole.Core
 {
-    // 출현 위치의 공유 정의: HQ(원점)를 둘러싼 원형 띠. 적은 띠 안의 무작위 지점에 나온다.
-    // 띠 안에서 넓이가 고르게 퍼지도록 뽑는다(안쪽 가장자리에 몰리지 않는다).
-    // 겹침 방지와 전체 개체 수 상한은 아직 없다(SYSTEM_CATALOG S08의 남은 결정).
+    // 출현 위치의 공유 정의:
+    // - HQ(원점)를 둘러싼 원형 띠. 적은 띠 안의 무작위 지점에 나온다.
     public sealed class EnemyPlacementDefinition
     {
         public float MinDistance { get; }

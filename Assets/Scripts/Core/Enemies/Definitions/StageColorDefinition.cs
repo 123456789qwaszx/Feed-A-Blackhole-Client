@@ -3,12 +3,13 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 블랙홀 성장도별 색 비율 한 줄: 이 성장도부터 그 종류의 색이 이 비율로 나온다(GAME_RULES 3.2).
-    // 판을 시작할 때의 성장도로 한 줄을 고른다. 성장도는 결산 때만 오르므로 판 동안 그대로다.
+    // 블랙홀 성장도별 색 비율 한 줄:
+    // - 이 성장도부터 그 종류의 색이 특정 비율로 나온다는 의미.
     public sealed class StageColorDefinition
     {
         // 이 줄을 쓰기 시작하는 성장도(0 이상).
         public int FromStage { get; }
+
         // 색 등급 표와 같은 순서·길이. 0 이상이고 합이 0보다 크다. 합이 1이 아니어도 된다(비율로 읽는다).
         public IReadOnlyList<float> TierRatios { get; }
 

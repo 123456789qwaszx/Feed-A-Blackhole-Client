@@ -2,7 +2,7 @@ using System;
 
 namespace BlackHole.Core
 {
-    // 한 판 안에서 적 하나를 가리키는 식별자. 출현 순서대로 발급한다.
+    // 한 판 안에서 적 하나를 가리키는 식별자. 출현 순서대로 발급.
     public readonly struct EnemyId : IEquatable<EnemyId>
     {
         public int Value { get; }

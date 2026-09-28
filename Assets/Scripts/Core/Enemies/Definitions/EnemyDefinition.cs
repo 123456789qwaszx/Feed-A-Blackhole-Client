@@ -3,32 +3,50 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 적 종류 하나의 공유 정의: 이동 속도, 색 등급 표, 성장도별 색 비율, 질량 단계 표, 황금 배율, 행동, 사망 효과, 변환 대상·부모 종류.
-    // 종류는 계열(소행성·행성·별·달·혜성)이고 색은 종류 안에 둔다(BATTLE_COMPOSITION_PLAN 4.1). 색이 없는 종류는 색 등급이 한 줄이다.
-    // 사망 효과는 종류에 붙는 특성이다(전기·폭발·처치 버프). HQ EXP는 색 등급마다 적는다(블랙홀 성장). 외형은 Core가 모른다(Unity 쪽 종류 에셋이 가진다).
+    // (색이 다르더라도.)
+    // 적 한 종류의 정의:
+    // - 이동 속도,
+    // - 색 등급 표,
+    // - 성장도별 색 비율,
+    // - 질량 단계 표,
+    // - 황금 배율,
+    // - 행동,
+    // - 사망 효과
     public sealed class EnemyDefinition
     {
         public string Id { get; }
         public float MoveSpeed { get; }
+
         // 색 등급 표. 번호가 적의 색 등급(Enemy.Tier)이다.
         public IReadOnlyList<EnemyTier> Tiers { get; }
+
         // 블랙홀 성장도별 색 비율. FromStage가 커지는 순서다. 하나 이상.
         public IReadOnlyList<StageColorDefinition> StageColors { get; }
+
         // 질량 단계 표(HP·Gold 계수). MassLevels[i]가 질량 단계 i다(0 = 질량 증가를 사지 않음).
         public IReadOnlyList<MassLevelDefinition> MassLevels { get; }
+
         // 황금일 때 그 적의 Gold에 곱하는 기본값. 0이면 이 종류는 황금이 되지 않는다(원작은 소행성만, 기본 50배).
         // 황금은 종류가 아니라 생성 때 정해지는 특성이다. 얼마나 섞일지(황금 비율)와 노드로 오른 배율은 판 구성(EnemyComposition)이 가진다.
         public float GoldenMultiplier { get; }
+
         public bool CanBeGolden => GoldenMultiplier > 0;
-        // 이 종류가 죽을 때의 효과. 없으면 null이다. 효과를 가진 적은 사망 효과의 피해를 받지 않는다.
+
+        // 이 종류가 죽을 때의 효과. 없으면 null.
+        // 효과를 가진 적은 사망 효과의 피해를 받지 않는다.
         public DeathEffectDefinition DeathEffect { get; }
-        // 이 종류의 생성 요청 중 변환 비율만큼이 나오는 다음 종류의 ID(소행성 → 행성 → 별). 없으면 null이다(BATTLE_COMPOSITION_PLAN 3.4).
+
+        // 이 종류의 생성 요청 중 변환 비율만큼이 나오는 다음 종류의 ID(소행성 → 행성 → 별).
         public string UpgradesTo { get; }
-        // 노드 밖의 기본 변환 비율(%): 성장도가 BaseUpgradeFromStage 이상이면 이만큼이 변환 대상으로 나온다. 변환 노드는 여기에 더한다.
-        // 원작: 성장도 10(이정표)에 닿으면 행성이 기본 3%로 나오기 시작한다 [사용자].
+
+        // 특정 성장도 도달 시, 고급 적의 출현 보장:
+        // - 성장도가 BaseUpgradeFromStage 이상이면 적용 시작.
+        // e.g.) 성장도 10(이정표)에 도달 시, 행성이 기본 3%로 나오기 시작.
         public float BaseUpgrade { get; }
+
         public int BaseUpgradeFromStage { get; }
-        // 특수 종류이면 부모 종류의 ID. 부모로 정해진 생성 중 이 종류의 생성 확률만큼이 이 종류로 나온다. 없으면 null이다.
+
+        // 특수 종류이면 부모 종류의 ID. 부모로 정해진 생성 중 이 종류의 생성 확률만큼이 이 종류로 나온다. 없으면 null.
         public string SpecialOf { get; }
         public bool IsSpecial => SpecialOf != null;
 
