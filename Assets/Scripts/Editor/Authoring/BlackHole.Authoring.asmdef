@@ -1,0 +1,7 @@
+{
+  "name": "BlackHole.Authoring",
+  "rootNamespace": "BlackHole.Authoring",
+  "references": ["BlackHole.Core.Common", "BlackHole.Core.Nodes"],
+  "includePlatforms": ["Editor"],
+  "noEngineReferences": true
+}

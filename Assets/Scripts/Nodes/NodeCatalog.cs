@@ -16,6 +16,9 @@ namespace BlackHole.Unity
     {
         [SerializeField] private NodeTreeData tree = new();
 
+        // 노드 도구(메뉴 BlackHole > Node Tree)가 고치는 원본. 게임 코드는 ToData()로 읽는다.
+        internal NodeTreeData Tree => tree;
+
         public NodeTreeData ToData() =>
             new NodeTreeData
             {
