@@ -15,7 +15,7 @@ MonoBehaviour:
   tree:
     Nodes:
     - Id: start
-      Price: 1
+      Price: 5
       Start: 1
       X: -2
       Y: 0
@@ -25,8 +25,19 @@ MonoBehaviour:
       - Stat: breaker.damage
         Operation: 0
         Value: 1
+    - Id: damage-1
+      Price: 11
+      Start: 0
+      X: 0
+      Y: -1
+      Links:
+      - square-a
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 0
+        Value: 1
     - Id: speed-1
-      Price: 25
+      Price: 17
       Start: 0
       X: 1
       Y: 0
@@ -37,7 +48,7 @@ MonoBehaviour:
         Operation: 1
         Value: 0.25
     - Id: speed-2
-      Price: 60
+      Price: 180
       Start: 0
       X: 2
       Y: 0
@@ -48,7 +59,7 @@ MonoBehaviour:
         Operation: 1
         Value: 0.25
     - Id: growth-time
-      Price: 20
+      Price: 31
       Start: 0
       X: 0
       Y: 1
@@ -57,7 +68,7 @@ MonoBehaviour:
       Upgrades:
       - Stat: hq.growth-time
         Operation: 0
-        Value: 3
+        Value: 2
     - Id: asteroid-growth-supply
       Price: 40
       Start: 0
@@ -68,20 +79,9 @@ MonoBehaviour:
       Upgrades:
       - Stat: enemy.asteroid.growth-supply
         Operation: 0
-        Value: 4
-    - Id: damage-1
-      Price: 1
-      Start: 0
-      X: 0
-      Y: -1
-      Links:
-      - square-a
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 0
-        Value: 1
+        Value: 3
     - Id: square-a
-      Price: 50
+      Price: 34
       Start: 0
       X: 0
       Y: -2
@@ -92,7 +92,7 @@ MonoBehaviour:
         Operation: 1
         Value: 0.1
     - Id: square-b
-      Price: 50
+      Price: 510
       Start: 0
       X: 2
       Y: -3
@@ -103,7 +103,7 @@ MonoBehaviour:
         Operation: 1
         Value: 0.1
     - Id: square-c
-      Price: 50
+      Price: 92
       Start: 0
       X: 0
       Y: -3
@@ -114,7 +114,7 @@ MonoBehaviour:
         Operation: 0
         Value: 0.05
     - Id: square-d
-      Price: 120
+      Price: 3700
       Start: 0
       X: 1
       Y: -3
@@ -123,19 +123,348 @@ MonoBehaviour:
       - Stat: breaker.crit-chance
         Operation: 0
         Value: 0.05
+    - Id: damage-2
+      Price: 17
+      Start: 0
+      X: 1
+      Y: -1
+      Links:
+      - damage-1
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-3
+      Price: 100
+      Start: 0
+      X: 2
+      Y: -1
+      Links:
+      - damage-2
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-4
+      Price: 260
+      Start: 0
+      X: 3
+      Y: -1
+      Links:
+      - damage-3
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-5
+      Price: 4200
+      Start: 0
+      X: 4
+      Y: -1
+      Links:
+      - damage-4
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-6
+      Price: 12000
+      Start: 0
+      X: 5
+      Y: -1
+      Links:
+      - damage-5
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-7
+      Price: 64000
+      Start: 0
+      X: 6
+      Y: -1
+      Links:
+      - damage-6
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-8
+      Price: 160000
+      Start: 0
+      X: 7
+      Y: -1
+      Links:
+      - damage-7
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-9
+      Price: 190000
+      Start: 0
+      X: 8
+      Y: -1
+      Links:
+      - damage-8
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-10
+      Price: 230000
+      Start: 0
+      X: 9
+      Y: -1
+      Links:
+      - damage-9
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-11
+      Price: 280000
+      Start: 0
+      X: 10
+      Y: -1
+      Links:
+      - damage-10
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-12
+      Price: 340000
+      Start: 0
+      X: 11
+      Y: -1
+      Links:
+      - damage-11
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-13
+      Price: 510000
+      Start: 0
+      X: 12
+      Y: -1
+      Links:
+      - damage-12
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-14
+      Price: 1100000
+      Start: 0
+      X: 13
+      Y: -1
+      Links:
+      - damage-13
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-15
+      Price: 1300000
+      Start: 0
+      X: 14
+      Y: -1
+      Links:
+      - damage-14
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-16
+      Price: 1600000
+      Start: 0
+      X: 15
+      Y: -1
+      Links:
+      - damage-15
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-17
+      Price: 1900000
+      Start: 0
+      X: 16
+      Y: -1
+      Links:
+      - damage-16
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-18
+      Price: 5600000
+      Start: 0
+      X: 17
+      Y: -1
+      Links:
+      - damage-17
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-19
+      Price: 13000000
+      Start: 0
+      X: 18
+      Y: -1
+      Links:
+      - damage-18
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: damage-20
+      Price: 30000000
+      Start: 0
+      X: 19
+      Y: -1
+      Links:
+      - damage-19
+      Upgrades:
+      - Stat: breaker.damage
+        Operation: 2
+        Value: 1.5
+    - Id: speed-3
+      Price: 120000
+      Start: 0
+      X: 3
+      Y: 0
+      Links:
+      - speed-2
+      Upgrades:
+      - Stat: breaker.speed
+        Operation: 1
+        Value: 0.25
+    - Id: speed-4
+      Price: 480000
+      Start: 0
+      X: 4
+      Y: 0
+      Links:
+      - speed-3
+      Upgrades:
+      - Stat: breaker.speed
+        Operation: 1
+        Value: 0.25
+    - Id: speed-5
+      Price: 7200000
+      Start: 0
+      X: 5
+      Y: 0
+      Links:
+      - speed-4
+      Upgrades:
+      - Stat: breaker.speed
+        Operation: 1
+        Value: 0.25
+    - Id: square-e
+      Price: 120000
+      Start: 0
+      X: 3
+      Y: -3
+      Links:
+      - square-b
+      Upgrades:
+      - Stat: breaker.radius
+        Operation: 1
+        Value: 0.1
+    - Id: square-f
+      Price: 1100000
+      Start: 0
+      X: 4
+      Y: -3
+      Links:
+      - square-e
+      Upgrades:
+      - Stat: breaker.radius
+        Operation: 1
+        Value: 0.1
+    - Id: square-g
+      Price: 120000
+      Start: 0
+      X: 5
+      Y: -3
+      Links:
+      - square-f
+      Upgrades:
+      - Stat: breaker.crit-chance
+        Operation: 0
+        Value: 0.05
+    - Id: square-h
+      Price: 1100000
+      Start: 0
+      X: 6
+      Y: -3
+      Links:
+      - square-g
+      Upgrades:
+      - Stat: breaker.crit-chance
+        Operation: 0
+        Value: 0.05
+    - Id: growth-time-2
+      Price: 25000
+      Start: 0
+      X: 0
+      Y: 2
+      Links:
+      - growth-time
+      Upgrades:
+      - Stat: hq.growth-time
+        Operation: 0
+        Value: 1
+    - Id: growth-time-3
+      Price: 200000
+      Start: 0
+      X: 0
+      Y: 3
+      Links:
+      - growth-time-2
+      Upgrades:
+      - Stat: hq.growth-time
+        Operation: 0
+        Value: 1
+    - Id: asteroid-growth-supply-2
+      Price: 8600
+      Start: 0
+      X: 2
+      Y: 1
+      Links:
+      - asteroid-growth-supply
+      Upgrades:
+      - Stat: enemy.asteroid.growth-supply
+        Operation: 0
+        Value: 3
+    - Id: asteroid-growth-supply-3
+      Price: 58000
+      Start: 0
+      X: 3
+      Y: 1
+      Links:
+      - asteroid-growth-supply-2
+      Upgrades:
+      - Stat: enemy.asteroid.growth-supply
+        Operation: 0
+        Value: 3
     - Id: asteroid-mass-1
-      Price: 1
+      Price: 15
       Start: 1
       X: -2
       Y: 1
-      Links:
-      - qqqqqq
+      Links: []
       Upgrades:
       - Stat: enemy.asteroid.mass-level
         Operation: 0
         Value: 1
     - Id: asteroid-mass-2
-      Price: 1
+      Price: 41
       Start: 0
       X: -3
       Y: 0
@@ -146,7 +475,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-mass-3
-      Price: 1
+      Price: 130
       Start: 0
       X: -4
       Y: 0
@@ -157,7 +486,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-mass-4
-      Price: 1
+      Price: 260
       Start: 0
       X: -5
       Y: 0
@@ -168,7 +497,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-mass-5
-      Price: 1
+      Price: 780
       Start: 0
       X: -6
       Y: 0
@@ -179,7 +508,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-mass-6
-      Price: 1
+      Price: 8600
       Start: 0
       X: -7
       Y: 0
@@ -190,7 +519,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-mass-7
-      Price: 7290
+      Price: 26000
       Start: 0
       X: -8
       Y: 0
@@ -201,7 +530,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-mass-8
-      Price: 21870
+      Price: 63000
       Start: 0
       X: -9
       Y: 0
@@ -212,7 +541,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-supply-1
-      Price: 100
+      Price: 31
       Start: 0
       X: -3
       Y: 1
@@ -223,7 +552,7 @@ MonoBehaviour:
         Operation: 0
         Value: 4
     - Id: asteroid-supply-2
-      Price: 2000
+      Price: 180
       Start: 0
       X: -3
       Y: 2
@@ -234,7 +563,7 @@ MonoBehaviour:
         Operation: 0
         Value: 4
     - Id: asteroid-supply-3
-      Price: 20000
+      Price: 3700
       Start: 0
       X: -3
       Y: 3
@@ -244,9 +573,42 @@ MonoBehaviour:
       - Stat: enemy.asteroid.start-supply
         Operation: 0
         Value: 4
+    - Id: asteroid-supply-4
+      Price: 8600
+      Start: 0
+      X: -3
+      Y: 4
+      Links:
+      - asteroid-supply-3
+      Upgrades:
+      - Stat: enemy.asteroid.start-supply
+        Operation: 0
+        Value: 4
+    - Id: asteroid-supply-5
+      Price: 25000
+      Start: 0
+      X: -3
+      Y: 5
+      Links:
+      - asteroid-supply-4
+      Upgrades:
+      - Stat: enemy.asteroid.start-supply
+        Operation: 0
+        Value: 4
+    - Id: asteroid-supply-6
+      Price: 58000
+      Start: 0
+      X: -3
+      Y: 6
+      Links:
+      - asteroid-supply-5
+      Upgrades:
+      - Stat: enemy.asteroid.start-supply
+        Operation: 0
+        Value: 4
     - Id: golden-asteroid
-      Price: 1
-      Start: 1
+      Price: 510
+      Start: 0
       X: -5
       Y: 1
       Links:
@@ -255,8 +617,41 @@ MonoBehaviour:
       - Stat: enemy.asteroid.golden-ratio
         Operation: 0
         Value: 0.1
+    - Id: golden-multiplier-1
+      Price: 25000
+      Start: 0
+      X: -5
+      Y: 2
+      Links:
+      - golden-asteroid
+      Upgrades:
+      - Stat: enemy.asteroid.golden-multiplier
+        Operation: 2
+        Value: 2
+    - Id: golden-multiplier-2
+      Price: 120000
+      Start: 0
+      X: -5
+      Y: 3
+      Links:
+      - golden-multiplier-1
+      Upgrades:
+      - Stat: enemy.asteroid.golden-multiplier
+        Operation: 2
+        Value: 2
+    - Id: golden-multiplier-3
+      Price: 940000
+      Start: 0
+      X: -5
+      Y: 4
+      Links:
+      - golden-multiplier-2
+      Upgrades:
+      - Stat: enemy.asteroid.golden-multiplier
+        Operation: 2
+        Value: 2
     - Id: electric-asteroid-chance-1
-      Price: 500
+      Price: 3700
       Start: 0
       X: -5
       Y: -1
@@ -267,7 +662,7 @@ MonoBehaviour:
         Operation: 0
         Value: 10
     - Id: asteroid-to-planet-1
-      Price: 30000
+      Price: 690000
       Start: 0
       X: -9
       Y: -1
@@ -277,228 +672,8 @@ MonoBehaviour:
       - Stat: enemy.asteroid.upgrade
         Operation: 0
         Value: 52
-    - Id: moon-chance-1
-      Price: 40000
-      Start: 0
-      X: -8
-      Y: -1
-      Links:
-      - asteroid-to-planet-1
-      Upgrades:
-      - Stat: enemy.moon.chance
-        Operation: 0
-        Value: 10
-    - Id: planet-mass-1
-      Price: 50000
-      Start: 0
-      X: -9
-      Y: -2
-      Links:
-      - asteroid-to-planet-1
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-2
-      Price: 150000
-      Start: 0
-      X: -8
-      Y: -2
-      Links:
-      - planet-mass-1
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-3
-      Price: 450000
-      Start: 0
-      X: -7
-      Y: -2
-      Links:
-      - planet-mass-2
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-4
-      Price: 1350000
-      Start: 0
-      X: -6
-      Y: -2
-      Links:
-      - planet-mass-3
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: comet-chance-1
-      Price: 2000000
-      Start: 0
-      X: -6
-      Y: -1
-      Links:
-      - planet-mass-4
-      Upgrades:
-      - Stat: enemy.comet.chance
-        Operation: 0
-        Value: 10
-    - Id: planet-mass-5
-      Price: 4050000
-      Start: 0
-      X: -5
-      Y: -2
-      Links:
-      - planet-mass-4
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-6
-      Price: 12150000
-      Start: 0
-      X: -4
-      Y: -2
-      Links:
-      - planet-mass-5
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-7
-      Price: 36450000
-      Start: 0
-      X: -3
-      Y: -2
-      Links:
-      - planet-mass-6
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-8
-      Price: 109350000
-      Start: 0
-      X: -2
-      Y: -2
-      Links:
-      - planet-mass-7
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-to-star-1
-      Price: 200000000
-      Start: 0
-      X: -2
-      Y: -5
-      Links:
-      - planet-mass-8
-      Upgrades:
-      - Stat: enemy.planet.upgrade
-        Operation: 0
-        Value: 10
-    - Id: star-mass-1
-      Price: 500000000
-      Start: 0
-      X: -2
-      Y: -6
-      Links:
-      - planet-to-star-1
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-2
-      Price: 1500000000
-      Start: 0
-      X: -3
-      Y: -6
-      Links:
-      - star-mass-1
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-3
-      Price: 4500000000
-      Start: 0
-      X: -4
-      Y: -6
-      Links:
-      - star-mass-2
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-4
-      Price: 13500000000
-      Start: 0
-      X: -5
-      Y: -6
-      Links:
-      - star-mass-3
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: supernova-chance-1
-      Price: 20000000000
-      Start: 0
-      X: -5
-      Y: -7
-      Links:
-      - star-mass-4
-      Upgrades:
-      - Stat: enemy.supernova.chance
-        Operation: 0
-        Value: 10
-    - Id: star-mass-5
-      Price: 40500000000
-      Start: 0
-      X: -6
-      Y: -6
-      Links:
-      - star-mass-4
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-6
-      Price: 121500000000
-      Start: 0
-      X: -7
-      Y: -6
-      Links:
-      - star-mass-5
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-7
-      Price: 364500000000
-      Start: 0
-      X: -8
-      Y: -6
-      Links:
-      - star-mass-6
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-8
-      Price: 1093500000000
-      Start: 0
-      X: -9
-      Y: -6
-      Links:
-      - star-mass-7
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
     - Id: asteroid-to-planet-2
-      Price: 40000
+      Price: 120000
       Start: 0
       X: -10
       Y: -1
@@ -509,7 +684,7 @@ MonoBehaviour:
         Operation: 0
         Value: 5
     - Id: asteroid-to-planet-3
-      Price: 60000
+      Price: 150000
       Start: 0
       X: -11
       Y: -1
@@ -520,7 +695,7 @@ MonoBehaviour:
         Operation: 0
         Value: 5
     - Id: asteroid-to-planet-4
-      Price: 90000
+      Price: 200000
       Start: 0
       X: -12
       Y: -1
@@ -531,7 +706,7 @@ MonoBehaviour:
         Operation: 0
         Value: 5
     - Id: asteroid-to-planet-5
-      Price: 135000
+      Price: 380000
       Start: 0
       X: -13
       Y: -1
@@ -541,8 +716,162 @@ MonoBehaviour:
       - Stat: enemy.asteroid.upgrade
         Operation: 0
         Value: 5
+    - Id: moon-chance-1
+      Price: 120000
+      Start: 0
+      X: -8
+      Y: -1
+      Links:
+      - asteroid-to-planet-1
+      Upgrades:
+      - Stat: enemy.moon.chance
+        Operation: 0
+        Value: 10
+    - Id: planet-mass-1
+      Price: 150000
+      Start: 0
+      X: -9
+      Y: -2
+      Links:
+      - asteroid-to-planet-1
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-2
+      Price: 180000
+      Start: 0
+      X: -8
+      Y: -2
+      Links:
+      - planet-mass-1
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-3
+      Price: 220000
+      Start: 0
+      X: -7
+      Y: -2
+      Links:
+      - planet-mass-2
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-4
+      Price: 260000
+      Start: 0
+      X: -6
+      Y: -2
+      Links:
+      - planet-mass-3
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-5
+      Price: 310000
+      Start: 0
+      X: -5
+      Y: -2
+      Links:
+      - planet-mass-4
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-6
+      Price: 370000
+      Start: 0
+      X: -4
+      Y: -2
+      Links:
+      - planet-mass-5
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-7
+      Price: 510000
+      Start: 0
+      X: -3
+      Y: -2
+      Links:
+      - planet-mass-6
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: planet-mass-8
+      Price: 930000
+      Start: 0
+      X: -2
+      Y: -2
+      Links:
+      - planet-mass-7
+      Upgrades:
+      - Stat: enemy.planet.mass-level
+        Operation: 0
+        Value: 1
+    - Id: comet-chance-1
+      Price: 200000
+      Start: 0
+      X: -6
+      Y: -1
+      Links:
+      - planet-mass-4
+      Upgrades:
+      - Stat: enemy.comet.chance
+        Operation: 0
+        Value: 10
+    - Id: planet-growth-supply
+      Price: 120000
+      Start: 0
+      X: -10
+      Y: -2
+      Links:
+      - planet-mass-1
+      Upgrades:
+      - Stat: enemy.planet.growth-supply
+        Operation: 0
+        Value: 2
+    - Id: planet-growth-supply-2
+      Price: 140000
+      Start: 0
+      X: -11
+      Y: -2
+      Links:
+      - planet-growth-supply
+      Upgrades:
+      - Stat: enemy.planet.growth-supply
+        Operation: 0
+        Value: 2
+    - Id: planet-growth-supply-3
+      Price: 480000
+      Start: 0
+      X: -12
+      Y: -2
+      Links:
+      - planet-growth-supply-2
+      Upgrades:
+      - Stat: enemy.planet.growth-supply
+        Operation: 0
+        Value: 2
+    - Id: planet-to-star-1
+      Price: 5600000
+      Start: 0
+      X: -2
+      Y: -5
+      Links:
+      - planet-mass-8
+      Upgrades:
+      - Stat: enemy.planet.upgrade
+        Operation: 0
+        Value: 10
     - Id: planet-to-star-2
-      Price: 300000000
+      Price: 1100000
       Start: 0
       X: -1
       Y: -5
@@ -551,9 +880,9 @@ MonoBehaviour:
       Upgrades:
       - Stat: enemy.planet.upgrade
         Operation: 0
-        Value: 5
+        Value: 2
     - Id: planet-to-star-3
-      Price: 450000000
+      Price: 2200000
       Start: 0
       X: 0
       Y: -5
@@ -562,9 +891,9 @@ MonoBehaviour:
       Upgrades:
       - Stat: enemy.planet.upgrade
         Operation: 0
-        Value: 5
+        Value: 2
     - Id: planet-to-star-4
-      Price: 675000000
+      Price: 7200000
       Start: 0
       X: 1
       Y: -5
@@ -573,9 +902,9 @@ MonoBehaviour:
       Upgrades:
       - Stat: enemy.planet.upgrade
         Operation: 0
-        Value: 5
+        Value: 2
     - Id: planet-to-star-5
-      Price: 1000000000
+      Price: 16000000
       Start: 0
       X: 2
       Y: -5
@@ -584,11 +913,136 @@ MonoBehaviour:
       Upgrades:
       - Stat: enemy.planet.upgrade
         Operation: 0
-        Value: 5
-    - Id: qqqqqq
-      Price: 1
+        Value: 2
+    - Id: star-mass-1
+      Price: 1400000
       Start: 0
-      X: -1
-      Y: 2
-      Links: []
-      Upgrades: []
+      X: -2
+      Y: -6
+      Links:
+      - planet-to-star-1
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-2
+      Price: 1700000
+      Start: 0
+      X: -3
+      Y: -6
+      Links:
+      - star-mass-1
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-3
+      Price: 2000000
+      Start: 0
+      X: -4
+      Y: -6
+      Links:
+      - star-mass-2
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-4
+      Price: 2500000
+      Start: 0
+      X: -5
+      Y: -6
+      Links:
+      - star-mass-3
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-5
+      Price: 6600000
+      Start: 0
+      X: -6
+      Y: -6
+      Links:
+      - star-mass-4
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-6
+      Price: 12000000
+      Start: 0
+      X: -7
+      Y: -6
+      Links:
+      - star-mass-5
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-7
+      Price: 25000000
+      Start: 0
+      X: -8
+      Y: -6
+      Links:
+      - star-mass-6
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: star-mass-8
+      Price: 46000000
+      Start: 0
+      X: -9
+      Y: -6
+      Links:
+      - star-mass-7
+      Upgrades:
+      - Stat: enemy.star.mass-level
+        Operation: 0
+        Value: 1
+    - Id: supernova-chance-1
+      Price: 1700000
+      Start: 0
+      X: -5
+      Y: -7
+      Links:
+      - star-mass-4
+      Upgrades:
+      - Stat: enemy.supernova.chance
+        Operation: 0
+        Value: 10
+    - Id: star-growth-supply
+      Price: 1100000
+      Start: 0
+      X: -2
+      Y: -7
+      Links:
+      - star-mass-1
+      Upgrades:
+      - Stat: enemy.star.growth-supply
+        Operation: 0
+        Value: 1
+    - Id: star-growth-supply-2
+      Price: 4300000
+      Start: 0
+      X: -2
+      Y: -8
+      Links:
+      - star-growth-supply
+      Upgrades:
+      - Stat: enemy.star.growth-supply
+        Operation: 0
+        Value: 1
+    - Id: star-growth-supply-3
+      Price: 24000000
+      Start: 0
+      X: -2
+      Y: -9
+      Links:
+      - star-growth-supply-2
+      Upgrades:
+      - Stat: enemy.star.growth-supply
+        Operation: 0
+        Value: 1

@@ -20,10 +20,10 @@ MonoBehaviour:
   specialOf: {fileID: 11400000, guid: 05425233efee43ed8109228e30eff09f, type: 2}
   tiers:
   - color: {r: 0.45, g: 0.75, b: 1, a: 1}
-    maxHealth: 10
+    maxHealth: 24
     size: 0.25
-    gold: 3
-    exp: 3
+    gold: 20
+    exp: 4
   stageColors:
   - fromStage: 0
     tierRatios:
@@ -33,7 +33,7 @@ MonoBehaviour:
     goldMultiplier: 1
   goldenMultiplier: 0
   deathEffect: 1
-  effectDamage: 5
+  effectDamage: 40
   effectRadius: 2.5
   effectMaxTargets: 3
   effectDuration: 0

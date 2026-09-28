@@ -20,10 +20,10 @@ MonoBehaviour:
   specialOf: {fileID: 11400000, guid: 3875f6a9833f4cf2893d251eb303b445, type: 2}
   tiers:
   - color: {r: 0.6, g: 0.95, b: 1, a: 1}
-    maxHealth: 8
+    maxHealth: 1
     size: 0.2
-    gold: 2
-    exp: 2
+    gold: 5000
+    exp: 40
   stageColors:
   - fromStage: 0
     tierRatios:
