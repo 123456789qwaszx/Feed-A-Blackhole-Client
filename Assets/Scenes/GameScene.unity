@@ -401,10 +401,12 @@ MonoBehaviour:
   - {fileID: 1121777911348522489}
   - {fileID: 4382389360324423850}
   - {fileID: 6708037386641071553}
+  - {fileID: 1736560926}
   _titlePresentation: {fileID: 0}
   _upgradePresentation: {fileID: 0}
   _battlePresentation: {fileID: 0}
   _settlementPresentation: {fileID: 0}
+  _nodeTreePresentation: {fileID: 0}
   _themeId: Light
   _localeId: ko-KR
   _displayRefreshDriver: {fileID: 0}
@@ -1185,6 +1187,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6406faadaf414334be5b361a83fcbf0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BlackHole.Unity::BlackHole.Unity.SettlementScreen
+--- !u!114 &1736560926 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3491472609319745806, guid: 10757f2c9ca7163439df7631e97328d9, type: 3}
+  m_PrefabInstance: {fileID: 1121777911348522487}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14fadfd6481646dcb4239ff2b8486106, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.NodeTreeView
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

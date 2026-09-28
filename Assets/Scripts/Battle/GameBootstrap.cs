@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BlackHole.Core;
 using BlackHole.Sample;
@@ -38,6 +39,7 @@ namespace BlackHole.Unity
         [SerializeField] private UIPresentationSpec _upgradePresentation;
         [SerializeField] private UIPresentationSpec _battlePresentation;
         [SerializeField] private UIPresentationSpec _settlementPresentation;
+        [SerializeField] private UIPresentationSpec _nodeTreePresentation;
 
         [Header("UI Context")]
         [SerializeField] private string _themeId = "Light";
@@ -48,6 +50,7 @@ namespace BlackHole.Unity
 
         private readonly List<UIPresentationSpec> _emptyPresentations = new List<UIPresentationSpec>();
         private GameContent _content;
+        private NodeTreeData _layout;
         private NodeTree _nodeTree;
         private EnemyLooks _enemyLooks;
         private EnemyView _enemyView;
@@ -64,7 +67,7 @@ namespace BlackHole.Unity
         private void Awake()
         {
             if (!TryLoadContent(out _content)
-                || !TryLoadNodeTree(out _nodeTree)
+                || !TryLoadNodeTree(out _layout, out _nodeTree)
                 || !NodesFitContent(_content, _nodeTree)
                 || !HasConfiguredUI())
             {
@@ -126,7 +129,8 @@ namespace BlackHole.Unity
                 OrEmpty(_upgradePresentation, "Upgrade"),
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
-                _battle, _viewer, _nodeTree, _content.Growth);
+                OrEmpty(_nodeTreePresentation, "NodeTree"),
+                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth);
         }
 
         private void BootstrapHost()
@@ -155,6 +159,7 @@ namespace BlackHole.Unity
                 bool hasUpgrade = false;
                 bool hasBattle = false;
                 bool hasSettlement = false;
+                bool hasNodeTree = false;
 
                 foreach (UIBase view in _views)
                 {
@@ -162,15 +167,16 @@ namespace BlackHole.Unity
                     hasUpgrade |= view is UpgradeScreen;
                     hasBattle |= view is BattleScreen;
                     hasSettlement |= view is SettlementScreen;
+                    hasNodeTree |= view is NodeTreeView;
                 }
 
-                if (hasTitle && hasUpgrade && hasBattle && hasSettlement)
+                if (hasTitle && hasUpgrade && hasBattle && hasSettlement && hasNodeTree)
                     return true;
             }
 
             Debug.LogError(
-                "[UI] GameBootstrap에 Root Layer, Panel Layer와 TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen을 " +
-                "Registered Views로 연결해야 한다.",
+                "[UI] GameBootstrap에 Root Layer, Panel Layer와 TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen, " +
+                "업그레이드 화면 안의 트리 보기 페이지(NodeTreeView)를 Registered Views로 연결해야 한다.",
                 this);
             return false;
         }
@@ -202,9 +208,10 @@ namespace BlackHole.Unity
             return result.Succeeded;
         }
 
-        // 오류가 있는 노드 트리로도 시작하지 않는다.
-        private bool TryLoadNodeTree(out NodeTree tree)
+        // 오류가 있는 노드 트리로도 시작하지 않는다. 업그레이드 화면은 트리(규칙)와 함께 저작 데이터(격자 칸)도 받는다.
+        private bool TryLoadNodeTree(out NodeTreeData layout, out NodeTree tree)
         {
+            layout = null;
             tree = null;
 
             if (_nodeCatalog == null)
@@ -213,7 +220,8 @@ namespace BlackHole.Unity
                 return false;
             }
 
-            NodeTreeLoadResult result = NodeTreeLoader.Load(_nodeCatalog.ToData());
+            layout = _nodeCatalog.ToData();
+            NodeTreeLoadResult result = NodeTreeLoader.Load(layout);
 
             foreach (ContentDiagnostic diagnostic in result.Diagnostics)
                 Debug.LogError("[노드 트리] " + diagnostic, this);
@@ -232,6 +240,27 @@ namespace BlackHole.Unity
                 Debug.LogError("[노드 트리 × 콘텐츠] " + diagnostic, this);
 
             return diagnostics.Count == 0;
+        }
+
+        // 업그레이드 화면에 그릴 노드. 격자 칸은 화면 배치용이라 규칙 트리가 아니라 같은 저작 데이터에서 읽는다.
+        // 로더가 같은 데이터로 트리를 만들었으니 트리의 모든 노드에 칸이 있다.
+        private static IReadOnlyList<NodeTreeView.NodeItem> BuildNodeItems(NodeTree tree, NodeTreeData layout)
+        {
+            var cells = new Dictionary<string, (int X, int Y)>(StringComparer.Ordinal);
+            foreach (NodeData node in layout.Nodes)
+            {
+                if (node?.Id != null && !cells.ContainsKey(node.Id))
+                    cells.Add(node.Id, (node.X, node.Y));
+            }
+
+            var nodes = new List<NodeTreeView.NodeItem>(tree.Nodes.Count);
+            foreach (NodeDefinition node in tree.Nodes)
+            {
+                (int x, int y) = cells.TryGetValue(node.Id, out (int X, int Y) cell) ? cell : (0, 0);
+                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, node.Price));
+            }
+
+            return nodes;
         }
 
         private UIPresentationSpec OrEmpty(UIPresentationSpec presentation, string id)

@@ -738,6 +738,7 @@ GameObject:
   - component: {fileID: 7313910385008343083}
   - component: {fileID: 3621421830726942497}
   - component: {fileID: 3378677319718071240}
+  - component: {fileID: 3491472609319745806}
   m_Layer: 0
   m_Name: TreeViewport
   m_TagString: Untagged
@@ -816,6 +817,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
   m_Padding: {x: 0, y: 0, z: 0, w: 0}
   m_Softness: {x: 0, y: 0}
+--- !u!114 &3491472609319745806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7767468224880645369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14fadfd6481646dcb4239ff2b8486106, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.NodeTreeView
 --- !u!1 &1095632662211728333
 GameObject:
   m_ObjectHideFlags: 0

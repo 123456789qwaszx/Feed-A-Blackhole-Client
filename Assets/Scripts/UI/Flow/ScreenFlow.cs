@@ -5,7 +5,7 @@ using BlackHole.Core;
 namespace BlackHole.Unity
 {
     // 화면 연결과 전환. 버튼과 시간 종료에서 전투 수명을 요청하고, 성공 결과로 다음 화면을 연다.
-    // 타이틀 → 업그레이드 → 전투 → 결산 → 업그레이드.
+    // 타이틀 → 업그레이드(노드 트리 페이지) → 전투 → 결산 → 업그레이드.
     internal sealed partial class ScreenFlow : IDisposable
     {
         private readonly UIManager _ui;
@@ -13,26 +13,31 @@ namespace BlackHole.Unity
         private readonly UIPresentationSpec _upgradePresentation;
         private readonly UIPresentationSpec _battlePresentation;
         private readonly UIPresentationSpec _settlementPresentation;
+        private readonly UIPresentationSpec _nodeTreePresentation;
         private readonly BattleSystem _battle;
         private readonly PlayerState _player;
-        // 노드 트리. 전투를 시작할 때 방장의 산 노드를 업그레이드 표로 바꾸는 데 쓴다.
+        // 노드 트리. 업그레이드 화면의 노드 상태·구매와, 전투를 시작할 때 방장의 산 노드를 업그레이드 표로 바꾸는 데 쓴다.
         private readonly NodeTree _tree;
+        // 업그레이드 화면에 그릴 노드(칸·가격). 조립 때 저작 데이터의 격자 칸으로 만들어 받는다.
+        private readonly IReadOnlyList<NodeTreeView.NodeItem> _nodes;
         // 블랙홀 성장(성장도별 Level 표·이정표). 업그레이드 화면의 목표 Level과 결산 화면의 이정표 진행도를 계산할 때 쓴다.
         private readonly HqGrowthDefinition _growth;
         private readonly Dictionary<UIBase, List<Action>> _cleanupByScreen = new Dictionary<UIBase, List<Action>>();
 
         public ScreenFlow(UIManager ui, UIPresentationSpec titlePresentation, UIPresentationSpec upgradePresentation,
-            UIPresentationSpec battlePresentation, UIPresentationSpec settlementPresentation,
-            BattleSystem battle, PlayerState player, NodeTree tree, HqGrowthDefinition growth)
+            UIPresentationSpec battlePresentation, UIPresentationSpec settlementPresentation, UIPresentationSpec nodeTreePresentation,
+            BattleSystem battle, PlayerState player, NodeTree tree, IReadOnlyList<NodeTreeView.NodeItem> nodes, HqGrowthDefinition growth)
         {
             _ui = ui;
             _titlePresentation = titlePresentation;
             _upgradePresentation = upgradePresentation;
             _battlePresentation = battlePresentation;
             _settlementPresentation = settlementPresentation;
+            _nodeTreePresentation = nodeTreePresentation;
             _battle = battle;
             _player = player;
             _tree = tree;
+            _nodes = nodes;
             _growth = growth;
         }
 

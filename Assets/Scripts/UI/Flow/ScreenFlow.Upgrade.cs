@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using BlackHole.Core;
+
 namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
@@ -9,6 +13,7 @@ namespace BlackHole.Unity
                 afterPresented: root =>
                 {
                     BindView(root, ApplyBindings);
+                    SwitchToNodeTreePage(root);
                     RefreshUpgrade();
                 },
                 afterClosed: Unbind);
@@ -23,7 +28,7 @@ namespace BlackHole.Unity
 
         private void HandleUpgradeStartBattleClicked() => RequestStart();
 
-        // 진행 상태를 화면 값(Gold, 블랙홀 성장도·다음 판의 목표 Level)으로 바꿔 넘긴다.
+        // 진행 상태를 화면 값(Gold, 블랙홀 성장도·다음 판의 목표 Level, 노드마다의 상태)으로 바꿔 넘긴다.
         private void RefreshUpgrade()
         {
             if (!(_ui.CurrentRoot is UpgradeScreen root))
@@ -33,6 +38,12 @@ namespace BlackHole.Unity
 
             int stage = _player.GrowthStage;
             root.ShowHq(stage, _growth.StageAt(stage).GoalLevel);
+
+            var states = new Dictionary<string, NodeState>(_tree.Nodes.Count, StringComparer.Ordinal);
+            foreach (NodeDefinition node in _tree.Nodes)
+                states.Add(node.Id, NodePurchase.StateOf(_player, _tree, node.Id));
+
+            _ui.GetUI<NodeTreeView>().Show(states);
         }
     }
 }
