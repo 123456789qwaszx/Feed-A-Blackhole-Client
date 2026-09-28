@@ -1,13 +1,22 @@
+using BlackHole.Core;
+
 namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
-        // 결산할 판이 없으므로 결과 값을 넘기지 않는다. 글자는 프리팹에 적힌 그대로다.
-        public void GoToSettlement()
+        // 끝난 판의 원자료와 결산을 마친 진행 상태를 보여 준다(성장도는 이미 올라 있다).
+        public void GoToSettlement(BattleRawData raw)
         {
             _ui.SwitchRoot<SettlementScreen>(
                 _settlementPresentation,
-                afterPresented: root => BindView(root, ApplyBindings),
+                afterPresented: root =>
+                {
+                    BindView(root, ApplyBindings);
+                    root.ShowResult(raw.PlayedSeconds, raw.ReachedLevel, raw.Stage, raw.NextStage, raw.ReachedMilestone);
+                    root.ShowKills(raw.TotalKills, raw.Kills);
+                    root.ShowGold(raw.EarnedGold, raw.SettledGold, raw.ReachedMilestone, _player.Gold);
+                    root.ShowProgress(_growth.MilestonesReachedBy(_player.GrowthStage), _growth.Milestones.Count);
+                },
                 afterClosed: Unbind);
         }
 

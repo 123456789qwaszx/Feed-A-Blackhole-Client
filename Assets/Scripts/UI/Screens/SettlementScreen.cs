@@ -1,12 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
+using BlackHole.Core;
 using TMPro;
 using UnityEngine.EventSystems;
 
 namespace BlackHole.Unity
 {
     // 결산 화면: 끝난 판의 결과(진행 시간, 블랙홀의 도달 Level·성장도 변화, 이정표로 끝났는가, 처치 수, 결산한 Gold)와
-    // 결산 뒤의 진행 상태(Gold, 이정표 진행도, 산 노드 수)를 보여 주고, 계속하기를 알린다.
+    // 결산 뒤의 진행 상태(Gold, 이정표 진행도)를 보여 주고, 계속하기를 알린다.
     // 보여 주기만 한다 — Gold는 이 화면이 열리기 전에 결산(GameSession.Settle)이 이미 더했다. ScreenFlow가 완료 사건에서 표시 값을 넘긴다.
     public sealed class SettlementScreen : UIRoot<SettlementScreen.Refs>
     {
@@ -23,8 +26,10 @@ namespace BlackHole.Unity
 
         public event Action ContinueClicked;
 
+        private readonly StringBuilder _builder = new StringBuilder();
         private TMP_Text _result;
         private TMP_Text _time;
+        private TMP_Text _kills;
         private TMP_Text _earned;
         private TMP_Text _total;
         private TMP_Text _progress;
@@ -35,6 +40,7 @@ namespace BlackHole.Unity
 
             _result = View.Text(Refs.ResultText);
             _time = View.Text(Refs.TimeText);
+            _kills = View.Text(Refs.KillsText);
             _earned = View.Text(Refs.EarnedGoldText);
             _total = View.Text(Refs.TotalGoldText);
             _progress = View.Text(Refs.ProgressText);
@@ -63,6 +69,21 @@ namespace BlackHole.Unity
             _time.text = text;
         }
 
+        // 처치 수 합계와 종류별 처치 수(처음 처치한 순서).
+        public void ShowKills(int total, IReadOnlyList<EnemyKillCount> kills)
+        {
+            if (_kills == null)
+                return;
+
+            _builder.Clear();
+            _builder.Append("Kills  ").Append(total.ToString("N0", CultureInfo.InvariantCulture));
+
+            foreach (EnemyKillCount kill in kills)
+                _builder.Append("\n  ").Append(kill.Enemy.Id).Append("  ").Append(kill.Count.ToString("N0", CultureInfo.InvariantCulture));
+
+            _kills.text = _builder.ToString();
+        }
+
         // earned: 이 판이 번 Gold. total: 결산을 마친 뒤 진행 상태의 Gold.
         // settled: 결산이 더한 Gold. 이정표로 끝난 판은 번 Gold(earned) 대신 이정표의 고정 보상이다. total: 결산을 마친 뒤 진행 상태의 Gold.
         public void ShowGold(long earned, long settled, bool milestone, long total)
@@ -76,19 +97,16 @@ namespace BlackHole.Unity
                 _total.text = "Total  " + total.ToString("N0", CultureInfo.InvariantCulture) + " Gold";
         }
 
-        // 결산 뒤의 진행: 이정표 진행도(닿은 수 / 전체)와 산 노드 수(산 수 / 전체).
-        public void ShowProgress(int milestonesReached, int milestoneCount, int ownedNodes, int totalNodes)
+        // 결산 뒤의 진행: 이정표 진행도(닿은 수 / 전체). 이정표가 없으면 비운다.
+        public void ShowProgress(int milestonesReached, int milestoneCount)
         {
             if (_progress == null)
                 return;
 
-            string text = ownedNodes.ToString(CultureInfo.InvariantCulture) + " / " + totalNodes.ToString(CultureInfo.InvariantCulture) + " nodes";
-
-            if (milestoneCount > 0)
-                text = "Milestone " + milestonesReached.ToString(CultureInfo.InvariantCulture)
-                    + " / " + milestoneCount.ToString(CultureInfo.InvariantCulture) + "    " + text;
-
-            _progress.text = text;
+            _progress.text = milestoneCount > 0
+                ? "Milestone " + milestonesReached.ToString(CultureInfo.InvariantCulture)
+                    + " / " + milestoneCount.ToString(CultureInfo.InvariantCulture)
+                : string.Empty;
         }
     }
 }

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using BlackHole.Core;
 
 namespace BlackHole.Unity
 {
-    // 화면 연결과 전환. 화면 버튼의 사건을 받아 다음 화면을 연다.
-    // 전투는 아직 없다 — 타이틀 → 업그레이드 → 전투 → 결산 → 업그레이드를 버튼으로만 오가고, 화면에 게임 값을 넘기지 않는다.
+    // 화면 연결과 전환. 버튼과 시간 종료에서 전투 수명을 요청하고, 성공 결과로 다음 화면을 연다.
+    // 타이틀 → 업그레이드 → 전투 → 결산 → 업그레이드.
     internal sealed partial class ScreenFlow : IDisposable
     {
         private readonly UIManager _ui;
@@ -12,16 +13,26 @@ namespace BlackHole.Unity
         private readonly UIPresentationSpec _upgradePresentation;
         private readonly UIPresentationSpec _battlePresentation;
         private readonly UIPresentationSpec _settlementPresentation;
+        private readonly BattleSystem _battle;
+        private readonly BattleOrchestrator _orchestrator;
+        private readonly PlayerState _player;
+        // 블랙홀 성장(성장도별 Level 표·이정표). 업그레이드 화면의 목표 Level과 결산 화면의 이정표 진행도를 계산할 때 쓴다.
+        private readonly HqGrowthDefinition _growth;
         private readonly Dictionary<UIBase, List<Action>> _cleanupByScreen = new Dictionary<UIBase, List<Action>>();
 
         public ScreenFlow(UIManager ui, UIPresentationSpec titlePresentation, UIPresentationSpec upgradePresentation,
-            UIPresentationSpec battlePresentation, UIPresentationSpec settlementPresentation)
+            UIPresentationSpec battlePresentation, UIPresentationSpec settlementPresentation,
+            BattleSystem battle, BattleOrchestrator orchestrator, PlayerState player, HqGrowthDefinition growth)
         {
             _ui = ui;
             _titlePresentation = titlePresentation;
             _upgradePresentation = upgradePresentation;
             _battlePresentation = battlePresentation;
             _settlementPresentation = settlementPresentation;
+            _battle = battle;
+            _orchestrator = orchestrator;
+            _player = player;
+            _growth = growth;
         }
 
         private void BindView<T>(T screen, Action<T> apply) where T : UIBase
