@@ -4,8 +4,6 @@ namespace BlackHole.Core
 {
     public sealed class Enemy
     {
-        private readonly IEnemyBehavior _behavior;
-
         public EnemyId Id { get; }
         public EnemyDefinition Definition { get; }
         // 색 등급(종류의 색 등급 표 번호). 출현 때 정해지고 바뀌지 않는다. 화면은 이 번호의 색으로 그린다.
@@ -21,21 +19,20 @@ namespace BlackHole.Core
         public PlayerId? LastDamageSource { get; private set; }
 
         internal Enemy(
-            EnemyId id, EnemyDefinition definition, int tier, bool golden, EnemyStats stats, Point2 position, IEnemyBehavior behavior)
+            EnemyId id, EnemyDefinition definition, int tier, bool golden, EnemyStats stats, Point2 position)
         {
             Id = id;
-            Definition = definition;
+            Definition = definition ?? throw new ArgumentNullException(nameof(definition));
             Tier = tier;
             IsGolden = golden;
             Stats = stats;
             Health = stats.MaxHealth;
             Position = position;
-            _behavior = behavior ?? throw new ArgumentNullException(nameof(behavior));
         }
 
         internal void Move(float delta)
         {
-            Position = _behavior.NextPosition(Position, Stats, delta);
+            Position = EnemyBehaviors.NextPosition(Definition.Behavior, Position, Stats, delta);
         }
 
         // true는 이번 피해로 처음 죽었다는 뜻이다. 이미 죽은 적은 피해를 받지 않는다.

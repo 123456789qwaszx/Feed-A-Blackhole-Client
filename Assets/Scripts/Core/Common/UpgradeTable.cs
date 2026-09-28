@@ -37,7 +37,9 @@ namespace BlackHole.Core
             if (stat == null)
                 throw new ArgumentNullException(nameof(stat));
 
-            return _sums.TryGetValue(stat, out Sum sum) ? sum.Apply(baseValue) : baseValue;
+            return _sums.TryGetValue(stat, out Sum sum)
+                ? sum.Apply(baseValue)
+                : baseValue;
         }
 
         private static int Compare(Upgrade a, Upgrade b)
@@ -48,7 +50,10 @@ namespace BlackHole.Core
                 return byStat;
 
             int byOperation = a.Operation.CompareTo(b.Operation);
-            return byOperation != 0 ? byOperation : a.Value.CompareTo(b.Value);
+
+            return byOperation != 0
+                ? byOperation
+                : a.Value.CompareTo(b.Value);
         }
 
         // 한 수치에 모인 업그레이드.

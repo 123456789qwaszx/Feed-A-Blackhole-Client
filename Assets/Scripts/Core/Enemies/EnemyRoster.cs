@@ -56,8 +56,7 @@ namespace BlackHole.Core
                 tier,
                 golden,
                 stats,
-                position,
-                EnemyBehaviors.Create(definition.Behavior));
+                position);
 
             _alive.Add(enemy);
             _aliveByKind[definition] = CountAlive(definition) + 1;
