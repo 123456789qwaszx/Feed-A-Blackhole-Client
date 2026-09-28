@@ -32,7 +32,7 @@ namespace BlackHole.Core
 
         internal void Move(float delta)
         {
-            Position = EnemyBehaviors.NextPosition(Definition.Behavior, Position, Stats, delta);
+            Position = EnemyBehaviors.NextPosition(Position, Stats, delta);
         }
 
         // true는 이번 피해로 처음 죽었다는 뜻이다. 이미 죽은 적은 피해를 받지 않는다.

@@ -20,7 +20,6 @@ namespace BlackHole.Core
         // 황금은 종류가 아니라 생성 때 정해지는 특성이다. 얼마나 섞일지(황금 비율)와 노드로 오른 배율은 판 구성(EnemyComposition)이 가진다.
         public float GoldenMultiplier { get; }
         public bool CanBeGolden => GoldenMultiplier > 0;
-        public OrbitBehaviorDefinition Behavior { get; }
         // 이 종류가 죽을 때의 효과. 없으면 null이다. 효과를 가진 적은 사망 효과의 피해를 받지 않는다.
         public DeathEffectDefinition DeathEffect { get; }
         // 이 종류의 생성 요청 중 변환 비율만큼이 나오는 다음 종류의 ID(소행성 → 행성 → 별). 없으면 null이다(BATTLE_COMPOSITION_PLAN 3.4).
@@ -40,7 +39,6 @@ namespace BlackHole.Core
             IReadOnlyList<StageColorDefinition> stageColors,
             IReadOnlyList<MassLevelDefinition> massLevels,
             float goldenMultiplier,
-            OrbitBehaviorDefinition behavior,
             DeathEffectDefinition deathEffect = null,
             string upgradesTo = null,
             string specialOf = null,
@@ -105,7 +103,6 @@ namespace BlackHole.Core
             StageColors = Array.AsReadOnly(Copy(stageColors));
             MassLevels = Array.AsReadOnly(Copy(massLevels));
             GoldenMultiplier = goldenMultiplier;
-            Behavior = behavior ?? throw new ArgumentNullException(nameof(behavior), "행동 정의가 필요하다.");
             DeathEffect = deathEffect;
             UpgradesTo = string.IsNullOrEmpty(upgradesTo) ? null : upgradesTo;
             SpecialOf = string.IsNullOrEmpty(specialOf) ? null : specialOf;
