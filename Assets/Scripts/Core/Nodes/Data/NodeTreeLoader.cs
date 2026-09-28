@@ -3,15 +3,14 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // NodeTreeData(저작 형식) → NodeTree(그래프 + 노드 정의).
-    // 저작 형식은 노드 하나에 그래프 칸(ID, 시작 노드, 선)과 구매 칸(가격, 업그레이드)을 함께 담고, 여기서 둘로 나눈다.
-    // 격자 칸(X, Y)은 표시용이라 읽지 않는다.
-    // 오류가 하나라도 있으면 트리 없이 모든 진단을 돌려준다. 경로는 "Nodes[a].Links[0]"처럼 고칠 자리를 가리킨다.
+    // NodeTreeData(저작 형식) -> NodeTree(그래프 + 노드 정의).
+    // 저작 형식은
+    // 노드 하나에 그래프 칸(ID, 시작 노드, 선)과 구매 칸(가격, 업그레이드)을 함께 담음.
     //
-    // 세 단계로 읽는다. 앞 단계에 오류가 있으면 뒤 단계를 보지 않는다(잘못된 노드가 거짓 연결 오류를 만들지 않게).
-    // 1. 노드 하나씩: ID, 가격, 업그레이드. 수치 규칙은 NodeDefinition·Upgrade 생성자를 그대로 부른다.
-    // 2. 노드 사이: ID 유일, 선이 가리키는 노드가 있고 자기 자신이 아니다.
-    // 3. 그래프 전체: 노드가 있으면 시작 노드가 하나 이상이고, 모든 노드가 시작 노드에서 선을 따라 닿는다.
+    // 세 단계에 걸쳐 로드.
+    // 1. 노드 하나씩: ID, 가격, 업그레이드. 수치 규칙은 NodeDefinition·Upgrade 생성자를 그대로 부름.
+    // 2. 노드 사이: ID 유일, 선이 가리키는 노드가 있고 자기 자신이 아님.
+    // 3. 그래프 전체: 노드가 있으면 시작 노드가 하나 이상이고, 모든 노드가 시작 노드에서 선을 따라 닿음.
     public static class NodeTreeLoader
     {
         public static NodeTreeLoadResult Load(NodeTreeData data)
