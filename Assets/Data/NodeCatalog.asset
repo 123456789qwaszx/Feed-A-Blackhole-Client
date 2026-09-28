@@ -15,9 +15,9 @@ MonoBehaviour:
   tree:
     Nodes:
     - Id: start
-      Price: 10
+      Price: 1
       Start: 1
-      X: 0
+      X: -2
       Y: 0
       Links:
       - damage-1
@@ -70,7 +70,7 @@ MonoBehaviour:
         Operation: 0
         Value: 4
     - Id: damage-1
-      Price: 25
+      Price: 1
       Start: 0
       X: 0
       Y: -1
@@ -124,17 +124,17 @@ MonoBehaviour:
         Operation: 0
         Value: 0.05
     - Id: asteroid-mass-1
-      Price: 10
+      Price: 1
       Start: 1
       X: -2
-      Y: 0
+      Y: 1
       Links: []
       Upgrades:
       - Stat: enemy.asteroid.mass-level
         Operation: 0
         Value: 1
     - Id: asteroid-mass-2
-      Price: 30
+      Price: 1
       Start: 0
       X: -3
       Y: 0
@@ -145,7 +145,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-mass-3
-      Price: 90
+      Price: 1
       Start: 0
       X: -4
       Y: 0
@@ -156,7 +156,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-mass-4
-      Price: 270
+      Price: 1
       Start: 0
       X: -5
       Y: 0
@@ -167,7 +167,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-mass-5
-      Price: 810
+      Price: 1
       Start: 0
       X: -6
       Y: 0
@@ -178,7 +178,7 @@ MonoBehaviour:
         Operation: 0
         Value: 1
     - Id: asteroid-mass-6
-      Price: 2430
+      Price: 1
       Start: 0
       X: -7
       Y: 0
@@ -244,8 +244,8 @@ MonoBehaviour:
         Operation: 0
         Value: 4
     - Id: golden-asteroid
-      Price: 500
-      Start: 0
+      Price: 1
+      Start: 1
       X: -5
       Y: 1
       Links:
