@@ -128,7 +128,8 @@ MonoBehaviour:
       Start: 1
       X: -2
       Y: 1
-      Links: []
+      Links:
+      - qqqqqq
       Upgrades:
       - Stat: enemy.asteroid.mass-level
         Operation: 0
@@ -584,3 +585,10 @@ MonoBehaviour:
       - Stat: enemy.planet.upgrade
         Operation: 0
         Value: 5
+    - Id: qqqqqq
+      Price: 1
+      Start: 0
+      X: -1
+      Y: 2
+      Links: []
+      Upgrades: []

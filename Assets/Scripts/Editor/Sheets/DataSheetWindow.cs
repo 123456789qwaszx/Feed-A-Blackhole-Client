@@ -24,6 +24,7 @@ namespace BlackHole.EditorTools
         private static readonly HttpClient _http = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
         private static readonly Color _errorText = new Color(1f, 0.55f, 0.55f);
         private static readonly Color _okText = new Color(0.5f, 0.9f, 0.5f);
+        private static readonly Color _warningText = new Color(1f, 0.85f, 0.45f);
 
         private VisualElement _results;
         private bool _busy;
@@ -157,8 +158,9 @@ namespace BlackHole.EditorTools
 
             EditorUserSettings.SetConfigValue(FolderKey, folder);
             DataSheetImport.Export(assets, folder);
-            ShowMessage($"탭 {DataSheetImport.Tabs.Length}개({string.Join(", ", DataSheetImport.Tabs)})를 CSV로 냈다. " +
-                "시트의 같은 이름 탭에 파일 → 가져오기 → 현재 시트 바꾸기로 넣는다.", _okText);
+            ShowMessage($"탭 {DataSheetImport.Tabs.Length + 1}개({string.Join(", ", DataSheetImport.Tabs)}, {DataSheetImport.ReferenceTab})를 CSV로 냈다. " +
+                "시트의 같은 이름 탭에 파일 → 가져오기 → 현재 시트 바꾸기로 넣는다. " +
+                $"{DataSheetImport.ReferenceTab}는 가져오지 않는다(NodeUpgrades의 stat 열 드롭다운 원본).", _okText);
             EditorUtility.RevealInFinder(Path.Combine(folder, DataSheetImport.FileOf(DataSheetImport.Tabs[0])));
         }
 
@@ -166,7 +168,8 @@ namespace BlackHole.EditorTools
         {
             var written = new List<string>();
             var unchanged = new List<string>();
-            List<ContentDiagnostic> errors = DataSheetImport.Import(assets, tables, written, unchanged);
+            var warnings = new List<ContentDiagnostic>();
+            List<ContentDiagnostic> errors = DataSheetImport.Import(assets, tables, written, unchanged, warnings);
             _results.Clear();
 
             if (errors.Count > 0)
@@ -186,6 +189,9 @@ namespace BlackHole.EditorTools
 
             if (unchanged.Count > 0)
                 _results.Add(Line("값이 같아 두었다: " + string.Join(", ", unchanged), _okText));
+
+            foreach (ContentDiagnostic warning in warnings)
+                _results.Add(Line("확인: " + warning, _warningText));
         }
 
         private static async Task<string> Download(string url)

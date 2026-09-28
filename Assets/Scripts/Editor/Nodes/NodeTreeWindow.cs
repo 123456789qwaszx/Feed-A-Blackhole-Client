@@ -13,6 +13,7 @@ namespace BlackHole.EditorTools
 {
     // 노드 도구(F03, 메뉴 BlackHole > Node Tree). 노드 목록 에셋(NodeCatalog)을 격자 위에서 고친다.
     //
+    // 가격·업그레이드는 데이터 시트가 원본이라 이 도구에서는 보기만 한다(칸·선·시작 노드·ID는 이 도구가 원본).
     // - 편집: 선은 그은 것만이다. 놓기·옮기기는 선을 건드리지 않는다(좌표는 표시용, 선은 게임 규칙).
     //   잇기는 Shift+끌기, 끊기는 선을 눌러 Delete. 여러 노드를 고르면 명령이 나온다:
     //   둘 잇기, 이웃끼리 잇기(격자 이웃을 그 순간 잇는 저작 명령), 선택끼리 끊기, 선 모두 지우기. 편집 규칙은 NodeTreeAuthoring에 있다.
@@ -62,6 +63,13 @@ namespace BlackHole.EditorTools
 
         [MenuItem("BlackHole/Node Tree")]
         private static void Open() => GetWindow<NodeTreeWindow>("Node Tree");
+
+        // 데이터 시트 가져오기가 가격·업그레이드를 바꾼 뒤 부른다.
+        internal static void RefreshOpen()
+        {
+            foreach (NodeTreeWindow window in Resources.FindObjectsOfTypeAll<NodeTreeWindow>())
+                window.Rebuild();
+        }
 
         private void OnEnable() => Undo.undoRedoPerformed += Rebuild;
 
@@ -516,8 +524,8 @@ namespace BlackHole.EditorTools
             _panel.Add(id);
             _panel.Add(Note("ID는 산 노드를 기록하는 저장 키다. 플레이어가 산 뒤에는 바꾸지 않는다."));
 
-            var price = new LongField("가격") { value = node.Price, isDelayed = true };
-            price.RegisterValueChangedCallback(evt => Edit("가격 바꾸기", tree => NodeTreeAuthoring.Find(tree, node.Id).Price = evt.newValue));
+            var price = new LongField("가격") { value = node.Price };
+            price.SetEnabled(false);
             _panel.Add(price);
 
             var start = new Toggle("시작 노드") { value = node.Start };
@@ -547,56 +555,19 @@ namespace BlackHole.EditorTools
 
             _panel.Add(Header("업그레이드"));
 
-            for (int i = 0; i < node.Upgrades.Count; i++)
-                _panel.Add(UpgradeRow(node, i));
+            foreach (UpgradeData upgrade in node.Upgrades)
+                _panel.Add(new Label($"{upgrade.Stat}  {NodeTreeAuthoring.Notation(upgrade.Operation, upgrade.Value)}"));
 
-            _panel.Add(new Button(() => Edit("업그레이드 더하기", tree =>
-                NodeTreeAuthoring.Find(tree, node.Id).Upgrades.Add(new UpgradeData { Stat = string.Empty, Operation = UpgradeOperation.Add, Value = 1 })))
-            {
-                text = "업그레이드 더하기",
-            });
+            if (node.Upgrades.Count == 0)
+                _panel.Add(Note("없음."));
+
+            _panel.Add(Note("가격과 업그레이드는 데이터 시트(Nodes·NodeUpgrades 탭)에서 고치고 BlackHole > Data Sheets에서 가져온다. " +
+                "새 노드는 시트에 행을 더해야 가져오기가 통과한다."));
 
             var remove = new Button(OnDeletePressed) { text = "노드 지우기" };
             remove.style.marginTop = 12;
             _panel.Add(remove);
         }
-
-        // 업그레이드 한 줄: 수치 이름, 연산, 값, 값의 뜻(+1 / +25% / ×10), 지우기.
-        private VisualElement UpgradeRow(NodeData node, int index)
-        {
-            UpgradeData upgrade = node.Upgrades[index];
-            string nodeId = node.Id;
-            var box = new VisualElement();
-            box.style.marginBottom = 6;
-
-            var stat = new TextField("수치") { value = upgrade.Stat, isDelayed = true };
-            stat.RegisterValueChangedCallback(evt => Edit("수치 이름 바꾸기", tree => UpgradeAt(tree, nodeId, index).Stat = evt.newValue));
-            box.Add(stat);
-
-            var row = Row();
-            var operation = new EnumField(upgrade.Operation);
-            operation.style.width = 90;
-            operation.RegisterValueChangedCallback(evt => Edit("연산 바꾸기", tree => UpgradeAt(tree, nodeId, index).Operation = (UpgradeOperation)evt.newValue));
-            row.Add(operation);
-
-            var value = new FloatField { value = upgrade.Value, isDelayed = true };
-            value.style.width = 70;
-            value.RegisterValueChangedCallback(evt => Edit("값 바꾸기", tree => UpgradeAt(tree, nodeId, index).Value = evt.newValue));
-            row.Add(value);
-
-            var meaning = new Label(NodeTreeAuthoring.Notation(upgrade.Operation, upgrade.Value));
-            meaning.style.unityTextAlign = TextAnchor.MiddleLeft;
-            meaning.style.minWidth = 60;
-            meaning.style.marginLeft = 6;
-            row.Add(Grow(meaning));
-
-            row.Add(new Button(() => Edit("업그레이드 지우기", tree => NodeTreeAuthoring.Find(tree, nodeId).Upgrades.RemoveAt(index))) { text = "지우기" });
-            box.Add(row);
-            return box;
-        }
-
-        private static UpgradeData UpgradeAt(NodeTreeData tree, string nodeId, int index) =>
-            NodeTreeAuthoring.Find(tree, nodeId).Upgrades[index];
 
         // 여러 노드를 골랐을 때: 저작 명령.
         private void BuildSelectionPanel(List<NodeData> selected)
