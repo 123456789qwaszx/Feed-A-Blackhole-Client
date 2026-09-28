@@ -14,7 +14,6 @@ namespace BlackHole.Unity
         private readonly UIPresentationSpec _battlePresentation;
         private readonly UIPresentationSpec _settlementPresentation;
         private readonly BattleSystem _battle;
-        private readonly BattleOrchestrator _orchestrator;
         private readonly PlayerState _player;
         // 블랙홀 성장(성장도별 Level 표·이정표). 업그레이드 화면의 목표 Level과 결산 화면의 이정표 진행도를 계산할 때 쓴다.
         private readonly HqGrowthDefinition _growth;
@@ -22,7 +21,7 @@ namespace BlackHole.Unity
 
         public ScreenFlow(UIManager ui, UIPresentationSpec titlePresentation, UIPresentationSpec upgradePresentation,
             UIPresentationSpec battlePresentation, UIPresentationSpec settlementPresentation,
-            BattleSystem battle, BattleOrchestrator orchestrator, PlayerState player, HqGrowthDefinition growth)
+            BattleSystem battle, PlayerState player, HqGrowthDefinition growth)
         {
             _ui = ui;
             _titlePresentation = titlePresentation;
@@ -30,7 +29,6 @@ namespace BlackHole.Unity
             _battlePresentation = battlePresentation;
             _settlementPresentation = settlementPresentation;
             _battle = battle;
-            _orchestrator = orchestrator;
             _player = player;
             _growth = growth;
         }

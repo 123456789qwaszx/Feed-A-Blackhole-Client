@@ -9,9 +9,11 @@ namespace BlackHole.Unity
     // 적·전투 시스템: 한 판(GameSession)과 그 표현(적 화면 EnemyView, 스킬 화면 SkillView, 사망 효과 화면 DeathEffectView, 블랙홀 화면 HqView)의 수명을 가진다.
     // 스킬은 판의 일부다 — 판 조립 때 참가자마다 생기고 판과 함께 버려진다. 그래서 스킬 화면도 적 화면과 같이 정리한다.
     //
-    // 스스로 시작하거나 끝내지 않는다. 상위 오케스트레이터(BattleOrchestrator)가 정해진 순서 안에서 부를 때만
-    // 시작(StartAsync)하고 정리(ShutdownAsync)한다. Tick은 판을 진행하고 종료에 도달한 순간을 돌려준다.
-    // 사운드 같은 다른 시스템의 정리는 이 시스템의 일이 아니다.
+    // 스스로 시작하거나 끝내지 않는다. 화면 흐름(ScreenFlow)이 버튼·시간 만료에서 부를 때만 시작(TryStart)하고 정리(TryEndAsync)한다.
+    // 할 수 없는 때(진행 중인 판이 있을 때의 시작, 판이 없거나 정리 중일 때의 종료)의 요청은 무시한다.
+    // Tick은 판을 진행하고 종료에 도달한 순간을 돌려준다.
+    //
+    // 진행 상태(PlayerState: Gold, 성장도)는 방장의 것 하나다. 판을 조립할 때 읽고, 결산 때 바뀐다. 전투 사이에 이어진다(저장은 없다).
     //
     // 시작 단계:
     //   1. 업그레이드에서 바뀐 수치 받기 — 판을 조립한다: 업그레이드 표로
@@ -28,6 +30,7 @@ namespace BlackHole.Unity
         private enum State { Idle, Starting, Running, ShuttingDown, Faulted }
 
         private readonly GameContent _content;
+        private readonly PlayerState _progress;
         private readonly EnemyView _enemyView;
         private readonly SkillView _skillView;
         private readonly DeathEffectView _deathEffectView;
@@ -38,35 +41,37 @@ namespace BlackHole.Unity
         public GameSession Session { get; private set; }
         // 마지막으로 정리한 판의 원자료. 정리가 끝난 뒤에도 남는다.
         public BattleRawData LastRawData { get; private set; }
-        public bool IsIdle => _state == State.Idle;
         public bool IsRunning => _state == State.Running;
         // 정리를 요청할 수 있는가: 진행 중이거나, 앞선 정리가 실패해 멈춘 상태.
-        public bool CanShutdown => _state == State.Running || _state == State.Faulted;
+        private bool CanShutdown => _state == State.Running || _state == State.Faulted;
 
-        public BattleSystem(GameContent content, EnemyView enemyView, SkillView skillView, DeathEffectView deathEffectView,
+        public BattleSystem(GameContent content, PlayerState progress, EnemyView enemyView, SkillView skillView, DeathEffectView deathEffectView,
             HqView hqView)
         {
             _content = content;
+            _progress = progress;
             _enemyView = enemyView;
             _skillView = skillView;
             _deathEffectView = deathEffectView;
             _hqView = hqView;
         }
 
-        // 전투 진입을 위한 초기화. 오케스트레이터만 부른다.
-        public Task StartAsync(PlayerState progress, int seed)
+        // 전투 진입을 위한 초기화. 준비된 상태가 아니면 무시하고 false를 돌려준다.
+        public bool TryStart()
         {
             if (_state != State.Idle)
-                throw new InvalidOperationException($"준비된 상태에서만 시작할 수 있다. 지금: {_state}.");
+                return false;
 
             _state = State.Starting;
+            // 전투마다 seed를 새로 정한다. 쓴 seed는 판과 원자료에 남는다.
+            int seed = Environment.TickCount;
 
             // 1. 업그레이드에서 바뀐 수치 받기: 업그레이드 표(노드 트리가 붙기 전에는 빈 표)로
             //    이 판의 Breaker 수치, 판 구성과 적 수치 표를 확정한다. 판이 끝날 때까지 바뀌지 않는다.
             //    조립이 실패하면 판이 없으므로 준비된 상태로 돌아간다.
             try
             {
-                Session = SessionAssembler.CreateBattle(_content, progress, seed);
+                Session = SessionAssembler.CreateBattle(_content, _progress, seed);
             }
             catch
             {
@@ -83,7 +88,7 @@ namespace BlackHole.Unity
             _hqView.Reset();
 
             _state = State.Running;
-            return Task.CompletedTask;
+            return true;
         }
 
         // 전투 Step과 적·스킬·사망 효과·블랙홀 표현을 진행한다. 이번 Step에서 판이 끝났을 때만 true를 반환한다.
@@ -108,12 +113,12 @@ namespace BlackHole.Unity
                 Session.TogglePause();
         }
 
-        // 전투 종료 뒤 자신의 모든 것을 정리한다. 오케스트레이터만 부른다.
+        // 전투 종료 뒤 자신의 모든 것을 정리하고 원자료를 돌려준다. 정리할 판이 없거나 정리 중이면 무시하고 null을 돌려준다.
         // 단계 하나라도 확인에 실패하면 멈추고(Faulted) 완전 초기화하지 않는다. 다시 부르면 처음부터 확인한다.
-        public async Task<BattleRawData> ShutdownAsync()
+        public async Task<BattleRawData> TryEndAsync()
         {
             if (!CanShutdown)
-                throw new InvalidOperationException($"진행 중인 판이 없다. 지금: {_state}.");
+                return null;
 
             _state = State.ShuttingDown;
 

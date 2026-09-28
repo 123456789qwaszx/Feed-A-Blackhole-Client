@@ -35,11 +35,11 @@ namespace BlackHole.Unity
         internal void HandleBattleTimeExpired() => RequestEnd();
 
         // 화면 버튼과 시간 종료가 같은 전환 경로를 사용한다.
-        private async void RequestStart()
+        private void RequestStart()
         {
             try
             {
-                if (await _orchestrator.StartBattleAsync())
+                if (_battle.TryStart())
                     GoToBattle();
             }
             catch (Exception error) { Debug.LogException(error); }
@@ -49,7 +49,7 @@ namespace BlackHole.Unity
         {
             try
             {
-                BattleRawData raw = await _orchestrator.EndBattleAsync();
+                BattleRawData raw = await _battle.TryEndAsync();
                 if (raw != null)
                     GoToSettlement(raw);
             }

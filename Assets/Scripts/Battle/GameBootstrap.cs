@@ -6,7 +6,7 @@ using UnityEngine;
 namespace BlackHole.Unity
 {
     // 씬의 직렬화 설정으로 게임을 조립하는 Unity 진입점.
-    // - Awake: 콘텐츠 로드·검증, 적 화면·스킬 화면·사망 효과 화면·블랙홀 화면, 전투 시스템, 오케스트레이터, 조준 입력,
+    // - Awake: 콘텐츠 로드·검증, 적 화면·스킬 화면·사망 효과 화면·블랙홀 화면, 진행 상태, 전투 시스템, 조준 입력,
     //   UI(UIManager와 타이틀·업그레이드·전투·결산 화면), 화면 흐름, GameHost 조립.
     // - Start/Update: 조립한 GameHost에 Unity 수명을 전달한다.
     //
@@ -53,7 +53,6 @@ namespace BlackHole.Unity
         private DeathEffectView _deathEffectView;
         private HqView _hqView;
         private BattleSystem _battle;
-        private BattleOrchestrator _orchestrator;
         private PlayerState _viewer;
         private AimInput _aim;
         private UIManager _ui;
@@ -86,10 +85,9 @@ namespace BlackHole.Unity
 
         private void BootstrapBattle()
         {
-            _battle = new BattleSystem(_content, _enemyView, _skillView, _deathEffectView, _hqView);
-            _orchestrator = new BattleOrchestrator(_battle, Host);
-            // 화면이 보는 진행 상태: 방장의 것.
-            _viewer = _orchestrator.Progress;
+            // 화면이 보는 진행 상태: 방장의 것. 전투 사이에 이어진다(저장은 없다).
+            _viewer = new PlayerState(Host);
+            _battle = new BattleSystem(_content, _viewer, _enemyView, _skillView, _deathEffectView, _hqView);
             // 마우스가 조준하는 참가자: 방장.
             _aim = new AimInput(_battle, _viewer.Id);
         }
@@ -123,7 +121,7 @@ namespace BlackHole.Unity
                 OrEmpty(_upgradePresentation, "Upgrade"),
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
-                _battle, _orchestrator, _viewer, _content.Growth);
+                _battle, _viewer, _content.Growth);
         }
 
         private void BootstrapHost()
