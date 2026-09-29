@@ -86,6 +86,16 @@ public abstract class UIBase : MonoBehaviour, IUIPresentationRefProvider
                 eventHandler.OnEndDragHandler += action;
                 break;
 
+            case ETouchEvent.PointerEnter:
+                eventHandler.OnPointerEnterHandler -= action;
+                eventHandler.OnPointerEnterHandler += action;
+                break;
+
+            case ETouchEvent.PointerExit:
+                eventHandler.OnPointerExitHandler -= action;
+                eventHandler.OnPointerExitHandler += action;
+                break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
