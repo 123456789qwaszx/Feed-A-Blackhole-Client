@@ -129,12 +129,9 @@ $RECYCLE.BIN/
 *.swo
 *~
 
-# Keep only the team's shared VS Code configuration
-/.vscode/*
-!/.vscode/extensions.json
-!/.vscode/launch.json
-!/.vscode/settings.json
-!/.vscode/tasks.json
+# Visual Studio configuration and VS Code workspace files
+.vsconfig
+.vscode/
 
 # Local environment configuration (commit examples without credentials)
 .env
