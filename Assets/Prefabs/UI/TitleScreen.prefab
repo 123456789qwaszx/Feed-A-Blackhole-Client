@@ -151,6 +151,7 @@ GameObject:
   - component: {fileID: 6118488671205032642}
   - component: {fileID: 8151121143034354233}
   - component: {fileID: 2747505063151264984}
+  - component: {fileID: 6184417980207720058}
   m_Layer: 0
   m_Name: StartBtn_Button
   m_TagString: Untagged
@@ -199,7 +200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.26, b: 0.42, a: 1}
+  m_Color: {r: 0.26666668, g: 0.34666666, b: 0.56, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -237,13 +238,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_PressedColor: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+    m_SelectedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    m_DisabledColor: {r: 0.75, g: 0.75, b: 0.75, a: 0.5019608}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -295,6 +296,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UIPresentationFlow.Runtime::UI_EventHandler
   _longPressDuration: 1
+--- !u!114 &6184417980207720058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3009758772298478583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c519a3761f1d4e71bb6c99d4993ed8e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.ButtonAnimation
+  _hoverScale: 1.06
+  _pressScale: 0.93
+  _stiffness: 500
+  _damping: 18
 --- !u!1 &3056792073996533339
 GameObject:
   m_ObjectHideFlags: 0
@@ -446,6 +463,7 @@ GameObject:
   - component: {fileID: 5124687160350821642}
   - component: {fileID: 4094866758601847462}
   - component: {fileID: 2771943372326382870}
+  - component: {fileID: 1066009716111153402}
   m_Layer: 0
   m_Name: SettingsBtn_Button
   m_TagString: Untagged
@@ -494,7 +512,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.26, b: 0.42, a: 1}
+  m_Color: {r: 0.26666668, g: 0.34666666, b: 0.56, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -532,13 +550,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_PressedColor: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+    m_SelectedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    m_DisabledColor: {r: 0.75, g: 0.75, b: 0.75, a: 0.5019608}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -590,6 +608,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UIPresentationFlow.Runtime::UI_EventHandler
   _longPressDuration: 1
+--- !u!114 &1066009716111153402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3669975813497582340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c519a3761f1d4e71bb6c99d4993ed8e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.ButtonAnimation
+  _hoverScale: 1.06
+  _pressScale: 0.93
+  _stiffness: 500
+  _damping: 18
 --- !u!1 &4487131491147466403
 GameObject:
   m_ObjectHideFlags: 0
@@ -958,6 +992,7 @@ GameObject:
   - component: {fileID: 6797557491282253343}
   - component: {fileID: 7549969844884585088}
   - component: {fileID: 9065785923866777992}
+  - component: {fileID: 5394200566597588051}
   m_Layer: 0
   m_Name: QuitBtn_Button
   m_TagString: Untagged
@@ -1006,7 +1041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2, g: 0.26, b: 0.42, a: 1}
+  m_Color: {r: 0.26666668, g: 0.34666666, b: 0.56, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1044,13 +1079,13 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_PressedColor: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+    m_SelectedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    m_DisabledColor: {r: 0.75, g: 0.75, b: 0.75, a: 0.5019608}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0.08
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -1102,6 +1137,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UIPresentationFlow.Runtime::UI_EventHandler
   _longPressDuration: 1
+--- !u!114 &5394200566597588051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8208738680765757342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c519a3761f1d4e71bb6c99d4993ed8e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.ButtonAnimation
+  _hoverScale: 1.06
+  _pressScale: 0.93
+  _stiffness: 500
+  _damping: 18
 --- !u!1 &8224989261396393259
 GameObject:
   m_ObjectHideFlags: 0
