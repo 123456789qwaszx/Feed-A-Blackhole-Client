@@ -148,6 +148,7 @@ namespace BlackHole.Unity
         {
             AudioSource audioSource = GetComponent<AudioSource>();
             _soundManager = new SoundManager(audioSource, _uiSoundSetup);
+            UIBase.OnGlobalUIClick = _soundManager.PlayClick;
         }
 
         private void Start() => _host?.Start();

@@ -411,6 +411,7 @@ MonoBehaviour:
   _themeId: Light
   _localeId: ko-KR
   _displayRefreshDriver: {fileID: 0}
+  _uiSoundSetup: {fileID: 11400000, guid: 00a9bdf1b2c46864882598139d680101, type: 2}
 --- !u!82 &900000004
 AudioSource:
   m_ObjectHideFlags: 0

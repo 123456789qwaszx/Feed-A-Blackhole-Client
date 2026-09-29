@@ -5,7 +5,7 @@ using UnityEngine;
 public class UISoundSetup : ScriptableObject
 {
     
-    [Header("사운드"), SerializeField] private AudioClip _audioClip;
+    [Header("클릭"), SerializeField] private AudioClip _clickSound;
 
-    public AudioClip Click { get { return _audioClip; }}
+    public AudioClip Click { get { return _clickSound; }}
 }

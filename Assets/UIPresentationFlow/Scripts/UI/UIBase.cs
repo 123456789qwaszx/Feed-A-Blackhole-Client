@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public abstract class UIBase : MonoBehaviour, IUIPresentationRefProvider
 {
+    public static Action OnGlobalUIClick; // 전역 UI 클릭 사운드 이벤트를 위한 델리게이트
+
     private bool _initialized;
 
     protected virtual void Awake()
@@ -54,6 +56,9 @@ public abstract class UIBase : MonoBehaviour, IUIPresentationRefProvider
             case ETouchEvent.Click:
                 eventHandler.OnClickHandler -= action;
                 eventHandler.OnClickHandler += action;
+
+                eventHandler.OnClickHandler -= PlayClickSound;
+                eventHandler.OnClickHandler += PlayClickSound;
                 break;
 
             case ETouchEvent.PointerDown:
@@ -89,6 +94,11 @@ public abstract class UIBase : MonoBehaviour, IUIPresentationRefProvider
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
+    }
+
+    private static void PlayClickSound(PointerEventData eventData) // 클릭음 델리게이트
+    {
+        OnGlobalUIClick?.Invoke();
     }
 
     private static T GetOrAddComponent<T>(GameObject target)
