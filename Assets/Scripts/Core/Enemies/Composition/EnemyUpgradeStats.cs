@@ -18,5 +18,7 @@ namespace BlackHole.Core
         public static string Upgrade(string kindId) => $"enemy.{kindId}.upgrade";
         // 특수 종류의 생성 확률(원작 "전기 소행성 생성 확률" 등). %, 기본값 0 — 노드를 사야 나온다.
         public static string Chance(string kindId) => $"enemy.{kindId}.chance";
+        // 크기 배율. 모든 색 등급의 크기(반지름, 곧 지름도)에 곱한다. 기본값 1.
+        public static string Size(string kindId) => $"enemy.{kindId}.size";
     }
 }
