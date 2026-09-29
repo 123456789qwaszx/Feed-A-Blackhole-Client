@@ -22,8 +22,8 @@ MonoBehaviour:
   - color: {r: 0.6, g: 0.95, b: 1, a: 1}
     maxHealth: 1
     size: 0.2
-    gold: 5000
-    exp: 40
+    gold: 0
+    exp: 0
   stageColors:
   - fromStage: 0
     tierRatios:

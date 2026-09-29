@@ -13,7 +13,8 @@ namespace BlackHole.EditorTools
 {
     // 노드 도구(F03, 메뉴 BlackHole > Node Tree). 노드 목록 에셋(NodeCatalog)을 격자 위에서 고친다.
     //
-    // 가격·업그레이드는 데이터 시트가 원본이라 이 도구에서는 보기만 한다(칸·선·시작 노드·ID는 이 도구가 원본).
+    // 가격·업그레이드는 데이터 시트가 원본이다(칸·선·시작 노드·ID는 이 도구가 원본). 업그레이드는 보기만 하고, 가격은 여기서도 고친다.
+    // 여기서 고친 가격은 다음 가져오기 때 시트 값으로 덮이므로, 남기려면 CSV로 내보내 시트에 옮긴다.
     // - 편집: 선은 그은 것만이다. 놓기·옮기기는 선을 건드리지 않는다(좌표는 표시용, 선은 게임 규칙).
     //   잇기는 Shift+끌기, 끊기는 선을 눌러 Delete. 여러 노드를 고르면 명령이 나온다:
     //   둘 잇기, 이웃끼리 잇기(격자 이웃을 그 순간 잇는 저작 명령), 선택끼리 끊기, 선 모두 지우기. 편집 규칙은 NodeTreeAuthoring에 있다.
@@ -524,8 +525,8 @@ namespace BlackHole.EditorTools
             _panel.Add(id);
             _panel.Add(Note("ID는 산 노드를 기록하는 저장 키다. 플레이어가 산 뒤에는 바꾸지 않는다."));
 
-            var price = new LongField("가격") { value = node.Price };
-            price.SetEnabled(false);
+            var price = new LongField("가격") { value = node.Price, isDelayed = true };
+            price.RegisterValueChangedCallback(evt => Edit("가격 바꾸기", tree => NodeTreeAuthoring.Find(tree, node.Id).Price = evt.newValue));
             _panel.Add(price);
 
             var start = new Toggle("시작 노드") { value = node.Start };
@@ -561,7 +562,8 @@ namespace BlackHole.EditorTools
             if (node.Upgrades.Count == 0)
                 _panel.Add(Note("없음."));
 
-            _panel.Add(Note("가격과 업그레이드는 데이터 시트(Nodes·NodeUpgrades 탭)에서 고치고 BlackHole > Data Sheets에서 가져온다. " +
+            _panel.Add(Note("업그레이드는 데이터 시트(NodeUpgrades 탭)에서 고치고 BlackHole > Data Sheets에서 가져온다. " +
+                "가격은 여기서도 고치지만 다음 가져오기 때 시트(Nodes 탭) 값으로 덮이니, 남기려면 CSV로 내보낸다. " +
                 "새 노드는 시트에 행을 더해야 가져오기가 통과한다."));
 
             var remove = new Button(OnDeletePressed) { text = "노드 지우기" };
