@@ -13,6 +13,7 @@ namespace BlackHole.Core
         public const int LaserStream = 3;
         public const int CriticalStream = 4;
         public const int KindStream = 5;
+        public const int SizeStream = 6;
 
         private uint _state;
 

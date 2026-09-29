@@ -10,8 +10,9 @@ namespace BlackHole.Core
     // 적이 생기고 죽는 일은 요청으로 들어와 쌓이고, Step의 정해진 자리에서 요청 순서대로 처리된다.
     // - 파괴 요청(RequestDestroy) → 13절 3. Damage / Death 자리: 그 적의 사망을 확정한다(피해·HP 계산 없음).
     // - 생성 요청(RequestSpawn)  → 13절 7. Enemy Supply 자리: 생성 여과 장치를 거쳐 한 마리씩 생성한다.
-    //   한 마리마다: 생성 여과(전체 상한) → 종류(변환 사슬 → 특수 종류) → 색 등급(그 종류의 색 비율) → 황금 여부(그 종류의 황금 비율) → 위치.
-    //   색과 황금은 몫 방식(QuotaPicker)으로 정한다. 수치(Gold 포함)는 판의 적 수치 표에서 (종류, 색 등급, 황금)의 값이다.
+    //   한 마리마다: 생성 여과(전체 상한) → 종류(변환 사슬 → 특수 종류) → 색 등급(그 종류의 색 비율) → 황금 여부(그 종류의 황금 비율)
+    //   → 크기 등급(열린 크기 등급이 같은 몫) → 위치.
+    //   색·황금·크기는 몫 방식(QuotaPicker)으로 정한다. 수치(Gold 포함)는 판의 적 수치 표에서 (종류, 색 등급, 황금, 크기 등급)의 값이다.
     // 같은 Step에서 사망이 생성보다 먼저다. 그래서 죽어서 비운 자리(전체 상한)에 같은 Step의 생성이 들어갈 수 있다.
     // 생성된 적은 다음 Step부터 움직이고 공격 대상이 된다. 처리되지 않은 요청은 판 정리가 버린다.
     //
@@ -27,6 +28,8 @@ namespace BlackHole.Core
         // 황금 몫은 황금 비율이 0보다 큰 종류에만 있고, 칸은 (보통, 황금) 둘이다.
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _tierPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _goldenPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
+        // 크기 몫은 크기 노드로 크기 등급이 둘 이상 열린 종류에만 있고, 칸은 열린 크기 등급(0 ~ SizeLevel)이다.
+        private readonly Dictionary<EnemyDefinition, QuotaPicker> _sizePickers = new Dictionary<EnemyDefinition, QuotaPicker>();
         // 종류마다 어떤 종류로 나오는가를 고르는 몫(BLACKHOLE_LEVEL_PLAN 4.3). 변환 몫은 칸이 (그대로, 변환 대상) 둘이고 변환 비율이 0보다 큰 종류에만,
         // 특수 몫은 칸이 (그대로, 특수 종류들…)이고 특수 종류의 생성 확률 합이 0보다 큰 부모에만 있다.
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _upgradePickers = new Dictionary<EnemyDefinition, QuotaPicker>();
@@ -76,6 +79,7 @@ namespace BlackHole.Core
             var tierRandom = new BattleRandom(seed, BattleRandom.TierStream);
             var goldenRandom = new BattleRandom(seed, BattleRandom.GoldenStream);
             var kindRandom = new BattleRandom(seed, BattleRandom.KindStream);
+            var sizeRandom = new BattleRandom(seed, BattleRandom.SizeStream);
 
             foreach (EnemyDefinition kind in stats.Kinds)
             {
@@ -85,6 +89,18 @@ namespace BlackHole.Core
 
                 if (golden > 0)
                     _goldenPickers.Add(kind, new QuotaPicker(new[] { 1 - golden, golden }, goldenRandom));
+
+                int sizeLevel = stats.CompositionOf(kind).SizeLevel;
+
+                if (sizeLevel > 0)
+                {
+                    var sizes = new float[sizeLevel + 1];
+
+                    for (int i = 0; i < sizes.Length; i++)
+                        sizes[i] = 1;
+
+                    _sizePickers.Add(kind, new QuotaPicker(sizes, sizeRandom));
+                }
 
                 float upgrade = stats.CompositionOf(kind).UpgradeRatio;
 
@@ -195,7 +211,8 @@ namespace BlackHole.Core
                     EnemyDefinition kind = KindOf(request.Enemy);
                     int tier = _tierPickers[kind].Pick();
                     bool golden = _goldenPickers.TryGetValue(kind, out QuotaPicker goldenPicker) && goldenPicker.Pick() == 1;
-                    _enemies.Spawn(kind, tier, golden, Stats.Of(kind, tier, golden), _placement.Pick(_placementRandom));
+                    int size = _sizePickers.TryGetValue(kind, out QuotaPicker sizePicker) ? sizePicker.Pick() : 0;
+                    _enemies.Spawn(kind, tier, golden, Stats.Of(kind, tier, golden, size), _placement.Pick(_placementRandom));
                 }
             }
 

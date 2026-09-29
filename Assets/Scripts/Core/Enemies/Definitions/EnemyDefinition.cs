@@ -9,6 +9,7 @@ namespace BlackHole.Core
     // - 색 등급 표,
     // - 성장도별 색 비율,
     // - 질량 단계 표,
+    // - 크기 등급 표,
     // - 황금 배율,
     // - 행동,
     // - 사망 효과
@@ -25,6 +26,10 @@ namespace BlackHole.Core
 
         // 질량 단계 표(HP·Gold 계수). MassLevels[i]가 질량 단계 i다(0 = 질량 증가를 사지 않음).
         public IReadOnlyList<MassLevelDefinition> MassLevels { get; }
+
+        // 크기 등급 표(크기·HP·Gold·EXP 계수). SizeClasses[i]가 크기 등급 i다(0 = 크기 노드를 사지 않아도 나옴).
+        // 크기 등급이 없는 종류는 모든 계수가 1인 한 줄이다(SizeClassDefinition.Base).
+        public IReadOnlyList<SizeClassDefinition> SizeClasses { get; }
 
         // 황금일 때 그 적의 Gold에 곱하는 기본값. 0이면 이 종류는 황금이 되지 않는다(원작은 소행성만, 기본 50배).
         // 황금은 종류가 아니라 생성 때 정해지는 특성이다. 얼마나 섞일지(황금 비율)와 노드로 오른 배율은 판 구성(EnemyComposition)이 가진다.
@@ -61,7 +66,8 @@ namespace BlackHole.Core
             string upgradesTo = null,
             string specialOf = null,
             float baseUpgrade = 0,
-            int baseUpgradeFromStage = HqGrowthDefinition.StartStage)
+            int baseUpgradeFromStage = HqGrowthDefinition.StartStage,
+            IReadOnlyList<SizeClassDefinition> sizeClasses = null)
         {
             if (float.IsNaN(goldenMultiplier) || float.IsInfinity(goldenMultiplier) || goldenMultiplier < 0)
                 throw new ArgumentOutOfRangeException(nameof(goldenMultiplier), "0 이상의 유한한 값이 필요하다.");
@@ -96,6 +102,12 @@ namespace BlackHole.Core
                     throw new ArgumentException($"질량 단계 {i}가 null이다.", nameof(massLevels));
             }
 
+            for (int i = 0; sizeClasses != null && i < sizeClasses.Count; i++)
+            {
+                if (sizeClasses[i] == null)
+                    throw new ArgumentException($"크기 등급 {i}가 null이다.", nameof(sizeClasses));
+            }
+
             if (stageColors == null || stageColors.Count == 0)
                 throw new ArgumentException("성장도별 색 비율이 하나 이상 필요하다.", nameof(stageColors));
 
@@ -120,6 +132,9 @@ namespace BlackHole.Core
             Tiers = Array.AsReadOnly(Copy(tiers));
             StageColors = Array.AsReadOnly(Copy(stageColors));
             MassLevels = Array.AsReadOnly(Copy(massLevels));
+            SizeClasses = sizeClasses == null || sizeClasses.Count == 0
+                ? Array.AsReadOnly(new[] { SizeClassDefinition.Base })
+                : Array.AsReadOnly(Copy(sizeClasses));
             GoldenMultiplier = goldenMultiplier;
             DeathEffect = deathEffect;
             UpgradesTo = string.IsNullOrEmpty(upgradesTo) ? null : upgradesTo;
@@ -145,12 +160,14 @@ namespace BlackHole.Core
             return chosen.TierRatios;
         }
 
-        // 판 구성 composition에서 색 등급 tier의 실행 수치.
-        // HP = 색의 기본 HP × 질량 단계의 HP 계수, Gold = 색의 기본 Gold × 질량 단계의 Gold 계수(반올림 [임시]),
-        // 크기 = 색의 크기, 속도 = 종류의 속도, EXP = 색의 EXP(질량 단계·황금과 무관).
+        // 판 구성 composition에서 색 등급 tier·크기 등급 sizeClass의 실행 수치.
+        // HP = 색의 기본 HP × 질량 단계의 HP 계수 × 크기 등급의 HP 계수,
+        // Gold = 색의 기본 Gold × 질량 단계의 Gold 계수 × 크기 등급의 Gold 계수(반올림 [임시]),
+        // 크기 = 색의 크기 × 크기 등급의 크기 계수, 속도 = 종류의 속도,
+        // EXP = 색의 EXP × 크기 등급의 EXP 계수(반올림, 질량 단계·황금과 무관).
         // 황금이면 Gold에 판 구성의 황금 배율을 한 번 더 곱한다(반올림). HP·크기는 같은 색과 같다 [임시].
         // 판 조립(EnemyStatTable)과 다음 판을 미리 보는 콘솔이 같은 계산을 쓴다.
-        public EnemyStats StatsAt(EnemyComposition composition, int tier, bool golden = false)
+        public EnemyStats StatsAt(EnemyComposition composition, int tier, bool golden = false, int sizeClass = 0)
         {
             if (golden && !CanBeGolden)
                 throw new ArgumentException($"'{Id}'는 황금이 되지 않는다.", nameof(golden));
@@ -165,18 +182,28 @@ namespace BlackHole.Core
                 throw new ArgumentOutOfRangeException(
                     nameof(tier), $"'{Id}'의 색 등급은 0부터 {Tiers.Count - 1}까지다. 받은 값: {tier}.");
 
+            if (sizeClass < 0 || sizeClass >= SizeClasses.Count)
+                throw new ArgumentOutOfRangeException(
+                    nameof(sizeClass), $"'{Id}'의 크기 등급은 0부터 {SizeClasses.Count - 1}까지다. 받은 값: {sizeClass}.");
+
             MassLevelDefinition level = MassLevels[massLevel];
+            SizeClassDefinition size = SizeClasses[sizeClass];
             EnemyTier row = Tiers[tier];
-            long gold = Multiply(row.Gold, level.GoldMultiplier);
+            long gold = Multiply(row.Gold, (double)level.GoldMultiplier * size.GoldMultiplier);
 
             if (golden)
                 gold = Multiply(gold, composition.GoldenMultiplier);
 
-            return new EnemyStats(row.MaxHealth * level.HealthMultiplier, MoveSpeed, row.Size, gold, row.Exp);
+            return new EnemyStats(
+                row.MaxHealth * level.HealthMultiplier * size.HealthMultiplier,
+                MoveSpeed,
+                row.Size * size.SizeMultiplier,
+                gold,
+                Multiply(row.Exp, size.ExpMultiplier));
         }
 
-        private static long Multiply(long gold, float multiplier) =>
-            checked((long)Math.Round(gold * (double)multiplier, MidpointRounding.AwayFromZero));
+        private static long Multiply(long value, double multiplier) =>
+            checked((long)Math.Round(value * multiplier, MidpointRounding.AwayFromZero));
 
         private static T[] Copy<T>(IReadOnlyList<T> source)
         {

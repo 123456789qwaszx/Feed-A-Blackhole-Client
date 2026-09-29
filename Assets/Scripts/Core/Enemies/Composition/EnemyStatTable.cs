@@ -38,15 +38,24 @@ namespace BlackHole.Core
                 if (composition.GoldenRatio > 0 && !kind.CanBeGolden)
                     throw new ArgumentException($"'{kind.Id}'는 황금이 되지 않는다.", nameof(compositions));
 
-                var stats = new EnemyStats[kind.Tiers.Count];
-                EnemyStats[] goldenStats = kind.CanBeGolden ? new EnemyStats[kind.Tiers.Count] : null;
+                // [크기 등급][색 등급]. 크기 등급은 이 판에 열린 것(0 ~ SizeLevel)만 있다.
+                var stats = new EnemyStats[composition.SizeLevel + 1][];
+                EnemyStats[][] goldenStats = kind.CanBeGolden ? new EnemyStats[stats.Length][] : null;
 
-                for (int tier = 0; tier < stats.Length; tier++)
+                for (int size = 0; size < stats.Length; size++)
                 {
-                    stats[tier] = kind.StatsAt(composition, tier);
+                    stats[size] = new EnemyStats[kind.Tiers.Count];
 
                     if (goldenStats != null)
-                        goldenStats[tier] = kind.StatsAt(composition, tier, golden: true);
+                        goldenStats[size] = new EnemyStats[kind.Tiers.Count];
+
+                    for (int tier = 0; tier < kind.Tiers.Count; tier++)
+                    {
+                        stats[size][tier] = kind.StatsAt(composition, tier, sizeClass: size);
+
+                        if (goldenStats != null)
+                            goldenStats[size][tier] = kind.StatsAt(composition, tier, golden: true, sizeClass: size);
+                    }
                 }
 
                 _rows.Add(kind, new Row(composition, stats, goldenStats));
@@ -122,7 +131,7 @@ namespace BlackHole.Core
             return kind;
         }
 
-        // 이 판에서 이 종류의 판 구성(질량 단계·황금 비율·황금 배율·공급·변환·특수 확률).
+        // 이 판에서 이 종류의 판 구성(질량 단계·황금 비율·황금 배율·공급·변환·특수 확률·크기 등급).
         public EnemyComposition CompositionOf(EnemyDefinition kind) => RowOf(kind).Composition;
 
         // 이 판에서 이 종류의 색 비율(색 등급 표 순서). 판을 시작할 때의 성장도로 고른 줄이다.
@@ -132,21 +141,25 @@ namespace BlackHole.Core
             return kind.TierRatiosAt(Stage);
         }
 
-        // 이 판에서 이 종류·색 등급(황금이면 황금)이 받는 수치.
-        public EnemyStats Of(EnemyDefinition kind, int tier, bool golden = false)
+        // 이 판에서 이 종류·색 등급·크기 등급(황금이면 황금)이 받는 수치.
+        public EnemyStats Of(EnemyDefinition kind, int tier, bool golden = false, int sizeClass = 0)
         {
             Row row = RowOf(kind);
 
-            if (tier < 0 || tier >= row.Stats.Length)
-                throw new ArgumentOutOfRangeException(nameof(tier), $"'{kind.Id}'의 색 등급은 0부터 {row.Stats.Length - 1}까지다. 받은 값: {tier}.");
+            if (sizeClass < 0 || sizeClass >= row.Stats.Length)
+                throw new ArgumentOutOfRangeException(
+                    nameof(sizeClass), $"이 판에서 '{kind.Id}'의 크기 등급은 0부터 {row.Stats.Length - 1}까지다. 받은 값: {sizeClass}.");
+
+            if (tier < 0 || tier >= row.Stats[sizeClass].Length)
+                throw new ArgumentOutOfRangeException(nameof(tier), $"'{kind.Id}'의 색 등급은 0부터 {row.Stats[sizeClass].Length - 1}까지다. 받은 값: {tier}.");
 
             if (!golden)
-                return row.Stats[tier];
+                return row.Stats[sizeClass][tier];
 
             if (row.GoldenStats == null)
                 throw new ArgumentException($"'{kind.Id}'는 황금이 되지 않는다.", nameof(golden));
 
-            return row.GoldenStats[tier];
+            return row.GoldenStats[sizeClass][tier];
         }
 
         // 이 판의 종류가 아니면 예외다.
@@ -163,11 +176,12 @@ namespace BlackHole.Core
         private readonly struct Row
         {
             public readonly EnemyComposition Composition;
-            public readonly EnemyStats[] Stats;
+            // [크기 등급][색 등급].
+            public readonly EnemyStats[][] Stats;
             // 황금이 되지 않는 종류는 null이다.
-            public readonly EnemyStats[] GoldenStats;
+            public readonly EnemyStats[][] GoldenStats;
 
-            public Row(EnemyComposition composition, EnemyStats[] stats, EnemyStats[] goldenStats)
+            public Row(EnemyComposition composition, EnemyStats[][] stats, EnemyStats[][] goldenStats)
             {
                 Composition = composition;
                 Stats = stats;

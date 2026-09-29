@@ -141,6 +141,19 @@ MonoBehaviour:
     goldMultiplier: 3.58
   - healthMultiplier: 1.48
     goldMultiplier: 4.3
+  sizeClasses:
+  - sizeMultiplier: 1
+    healthMultiplier: 1
+    goldMultiplier: 1
+    expMultiplier: 1
+  - sizeMultiplier: 1.5
+    healthMultiplier: 2
+    goldMultiplier: 2
+    expMultiplier: 2
+  - sizeMultiplier: 2
+    healthMultiplier: 3
+    goldMultiplier: 3
+    expMultiplier: 3
   goldenMultiplier: 50
   deathEffect: 0
   effectDamage: 0

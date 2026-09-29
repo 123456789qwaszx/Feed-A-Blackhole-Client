@@ -77,13 +77,14 @@ namespace BlackHole.Core
                 List<EnemyTier> tiers = LoadTiers(item.Tiers, at + ".Tiers", into);
                 List<StageColorDefinition> stageColors = LoadStageColors(item.StageColors, at + ".StageColors", into);
                 List<MassLevelDefinition> massLevels = LoadMassLevels(item.MassLevels, at + ".MassLevels", into);
+                List<SizeClassDefinition> sizeClasses = LoadSizeClasses(item.SizeClasses, at + ".SizeClasses", into);
 
                 if (into.Count > errors)
                     continue;
 
                 EnemyDefinition enemy = Guard(at, into, () =>
                     new EnemyDefinition(item.Id, item.MoveSpeed, tiers, stageColors, massLevels, item.GoldenMultiplier, deathEffect, item.UpgradesTo, item.SpecialOf,
-                        item.BaseUpgrade, item.BaseUpgradeFromStage));
+                        item.BaseUpgrade, item.BaseUpgradeFromStage, sizeClasses));
 
                 if (enemy != null)
                     enemies.Add(enemy);
@@ -138,6 +139,31 @@ namespace BlackHole.Core
             }
 
             return levels;
+        }
+
+        // 비어 있으면 크기 등급이 없는 종류다(EnemyDefinition이 모든 계수 1인 한 줄로 둔다).
+        private static List<SizeClassDefinition> LoadSizeClasses(List<SizeClassData> items, string at, List<ContentDiagnostic> into)
+        {
+            var classes = new List<SizeClassDefinition>();
+
+            for (int i = 0; items != null && i < items.Count; i++)
+            {
+                SizeClassData item = items[i];
+
+                if (item == null)
+                {
+                    into.Add(new ContentDiagnostic($"{at}[{i}]", "데이터가 없다."));
+                    continue;
+                }
+
+                SizeClassDefinition size = Guard($"{at}[{i}]", into,
+                    () => new SizeClassDefinition(item.SizeMultiplier, item.HealthMultiplier, item.GoldMultiplier, item.ExpMultiplier));
+
+                if (size != null)
+                    classes.Add(size);
+            }
+
+            return classes;
         }
 
         // 줄마다 시작 성장도와 색 비율을 검사한다. 줄 수·순서·색 등급과의 길이 맞춤은 EnemyDefinition이 검사한다.

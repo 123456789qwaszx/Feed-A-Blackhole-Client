@@ -14,6 +14,8 @@ namespace BlackHole.Core
         public List<StageColorData> StageColors = new List<StageColorData>();
         // 질량 단계 표(HP·Gold 계수). MassLevels[i]가 질량 단계 i다(0 = 질량 증가를 사지 않음). 하나 이상.
         public List<MassLevelData> MassLevels = new List<MassLevelData>();
+        // 크기 등급 표. SizeClasses[i]가 크기 등급 i다(0 = 크기 노드를 사지 않아도 나옴). 비어 있으면 크기 등급이 없다(모든 계수 1).
+        public List<SizeClassData> SizeClasses = new List<SizeClassData>();
         // 황금일 때 Gold에 곱하는 값. 0이면 황금이 되지 않는다.
         public float GoldenMultiplier;
         // 없거나 종류 이름이 비어 있으면 사망 효과가 없다.

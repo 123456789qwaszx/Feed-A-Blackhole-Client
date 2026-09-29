@@ -8,7 +8,8 @@ namespace BlackHole.Authoring
     //
     // 이름은 가져가는 시스템의 것(BreakerUpgradeStats, HqUpgradeStats, EnemyUpgradeStats)을 그대로 쓴다.
     // 새 수치 이름을 Core에 더하면 여기에도 더한다.
-    // 적 종류의 수치는 그 종류에 뜻이 있을 때만 낸다: 황금은 황금이 되는 종류, 변환은 변환 대상이 있는 종류, 생성 확률은 특수 종류.
+    // 적 종류의 수치는 그 종류에 뜻이 있을 때만 낸다: 황금은 황금이 되는 종류, 변환은 변환 대상이 있는 종류, 생성 확률은 특수 종류,
+    // 크기 등급은 크기 등급이 둘 이상인 종류.
     public static class UpgradeStatNames
     {
         public static List<(string Name, string Note)> For(IReadOnlyList<EnemyData> enemies)
@@ -41,6 +42,10 @@ namespace BlackHole.Authoring
 
                 if (!string.IsNullOrEmpty(enemy.SpecialOf))
                     names.Add((EnemyUpgradeStats.Chance(id), $"{enemy.SpecialOf} 대신 {id}가 나오는 확률(%). 기본값 0."));
+
+                if (enemy.SizeClasses.Count > 1)
+                    names.Add((EnemyUpgradeStats.SizeLevel(id),
+                        $"{id}의 열린 크기 등급(EnemySizeClasses 탭 class 0부터 이 번호까지 같은 몫으로 섞임). 기본값 0, 한 노드 = 더하기 1."));
             }
 
             return names;

@@ -9,12 +9,14 @@ namespace BlackHole.Unity
     // 에셋을 하나 만들어 적 종류 목록(EnemyCatalog)에 넣는다. 움직임은 모든 종류가 HQ 공전이다(EnemyBehaviors).
     // 규칙 칸은 Core의 저작 형식(EnemyData)으로 옮겨져 EnemyContentLoader가 검증한다.
     // 외형 칸(스프라이트, 색 등급의 색)은 Core로 가지 않고 화면(EnemyView)만 읽는다. 규칙과 외형이 한 에셋에 있어 외형 연결이 빠지지 않는다.
-    // ID와 스프라이트 말고는 값의 원본이 데이터 시트(Enemies·EnemyTiers·EnemyStageColors·EnemyMassLevels 탭)이고, 가져오기가 채운다.
+    // ID와 스프라이트 말고는 값의 원본이 데이터 시트(Enemies·EnemyTiers·EnemyStageColors·EnemyMassLevels·EnemySizeClasses 탭)이고, 가져오기가 채운다.
     //
     // 종류는 계열(소행성·행성·별·달·혜성)이고 색은 종류 안에 둔다(BATTLE_COMPOSITION_PLAN 4.1).
     // - 색 등급: 같은 윤곽(스프라이트)에 색마다 색·크기·HP·Gold·EXP가 다르다. 색이 없는 종류는 한 줄이다.
     // - 성장도별 색 비율: 블랙홀 성장도가 몇부터 색마다 어떤 비율로 나오는가. 판을 시작할 때의 성장도로 한 줄이 골라진다(GAME_RULES 3.2).
     // - 질량 단계: 질량 증가를 산 수마다 한 줄. HP·Gold 계수. 판 조립 때 한 줄이 골라진다. 색 비율과는 무관하다.
+    // - 크기 등급: 같은 윤곽·색에 크기와 수치가 다른 줄(원작 소행성 크기1·2·3). 크기·HP·Gold·EXP 계수. 크기 노드를 산 수만큼 열리고,
+    //   열린 등급이 생성 때 섞여 나온다. 비우면 크기 등급이 없다.
     // - 황금 배율: 황금은 종류가 아니라 생성 때 정해지는 특성이다. 황금이면 Gold에 이 값을 곱한다. 0이면 황금이 되지 않는다.
     // 특수 효과(전기·폭발·처치 버프)는 종류가 아니라 종류에 붙는 특성이다: 사망 효과 칸. 효과를 가진 적은 사망 효과의 피해를 받지 않는다.
     [CreateAssetMenu(fileName = "EnemyKind", menuName = "BlackHole/Enemy Kind")]
@@ -33,7 +35,7 @@ namespace BlackHole.Unity
             public float size;
             [Tooltip("사망 때 판의 합계에 드는 Gold의 기본값. 0 이상.")]
             public long gold;
-            [Tooltip("사망 때 블랙홀에 드는 EXP. 0 이상. 질량 단계와 황금은 곱하지 않는다.")]
+            [Tooltip("사망 때 블랙홀에 드는 EXP. 0 이상. 질량 단계와 황금은 곱하지 않고, 크기 등급은 곱한다.")]
             public long exp;
         }
 
@@ -44,6 +46,19 @@ namespace BlackHole.Unity
             public float healthMultiplier;
             [Tooltip("색 등급의 Gold에 곱한다(반올림).")]
             public float goldMultiplier;
+        }
+
+        [Serializable]
+        public struct SizeClass
+        {
+            [Tooltip("색 등급의 크기(반지름)에 곱한다. 공격 판정에도 쓰인다.")]
+            public float sizeMultiplier;
+            [Tooltip("색 등급의 HP에 곱한다.")]
+            public float healthMultiplier;
+            [Tooltip("색 등급의 Gold에 곱한다(반올림).")]
+            public float goldMultiplier;
+            [Tooltip("색 등급의 EXP에 곱한다(반올림).")]
+            public float expMultiplier;
         }
 
         [Serializable]
@@ -79,6 +94,9 @@ namespace BlackHole.Unity
 
         [Header("질량 단계 (0 = 질량 증가를 사지 않음, HP·Gold 계수)")]
         [SerializeField] private List<MassLevel> massLevels = new List<MassLevel>();
+
+        [Header("크기 등급 (0 = 크기 노드를 사지 않아도 나옴, 비우면 없음)")]
+        [SerializeField] private List<SizeClass> sizeClasses = new List<SizeClass>();
 
         [Header("황금")]
         [Tooltip("황금일 때 Gold에 곱하는 값. 0이면 이 종류는 황금이 되지 않는다(원작은 소행성만, 기본 50). 얼마나 섞일지는 판 조립이 정한다.")]
@@ -136,6 +154,19 @@ namespace BlackHole.Unity
             foreach (MassLevelData level in data.MassLevels)
                 massLevels.Add(new MassLevel { healthMultiplier = level.HealthMultiplier, goldMultiplier = level.GoldMultiplier });
 
+            sizeClasses = new List<SizeClass>();
+
+            foreach (SizeClassData size in data.SizeClasses)
+            {
+                sizeClasses.Add(new SizeClass
+                {
+                    sizeMultiplier = size.SizeMultiplier,
+                    healthMultiplier = size.HealthMultiplier,
+                    goldMultiplier = size.GoldMultiplier,
+                    expMultiplier = size.ExpMultiplier,
+                });
+            }
+
             DeathEffectData effect = data.DeathEffect;
             deathEffect = effect == null ? DeathEffectKind.None : (DeathEffectKind)Enum.Parse(typeof(DeathEffectKind), effect.Kind);
             effectDamage = effect?.Damage ?? 0;
@@ -185,6 +216,17 @@ namespace BlackHole.Unity
                 {
                     HealthMultiplier = level.healthMultiplier,
                     GoldMultiplier = level.goldMultiplier,
+                });
+            }
+
+            foreach (SizeClass size in sizeClasses)
+            {
+                data.SizeClasses.Add(new SizeClassData
+                {
+                    SizeMultiplier = size.sizeMultiplier,
+                    HealthMultiplier = size.healthMultiplier,
+                    GoldMultiplier = size.goldMultiplier,
+                    ExpMultiplier = size.expMultiplier,
                 });
             }
 

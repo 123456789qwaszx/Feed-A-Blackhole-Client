@@ -12,7 +12,7 @@ namespace BlackHole.EditorTools
     // 데이터 시트와 콘텐츠 에셋 사이의 Unity 쪽. 탭(CSV)을 읽어 검사를 통과하면 에셋에 쓰고, 에셋을 CSV로 낸다.
     //
     // 탭 묶음이 에셋을 채운다: Growth·Milestones → 블랙홀 성장 설정, Skills → 스킬 설정,
-    // Enemies·EnemyTiers·EnemyStageColors·EnemyMassLevels → 적 종류 에셋들(ID로 짝짓는다), Supply·StartSupply → 적 공급 설정.
+    // Enemies·EnemyTiers·EnemyStageColors·EnemyMassLevels·EnemySizeClasses → 적 종류 에셋들(ID로 짝짓는다), Supply·StartSupply → 적 공급 설정.
     // Nodes·NodeUpgrades → 노드 목록 에셋의 가격·업그레이드(ID로 짝짓는다. 칸·선·시작 노드는 노드 도구의 것). UpgradeStats 탭은 내보내기만 한다.
     // 가져오기는 받은 탭의 묶음만 다루고, 묶음의 탭이 일부만 오면 오류다.
     // 모두 통과해야 쓴다(부분 통과 금지): 탭마다의 칸·규칙 검사 → 게임 시작(GameBootstrap)과 같은 전체 검사.
@@ -22,7 +22,7 @@ namespace BlackHole.EditorTools
         public static readonly string[] Tabs =
         {
             HqGrowthSheet.StagesTab, HqGrowthSheet.MilestonesTab, SkillSheet.Tab,
-            EnemySheet.EnemiesTab, EnemySheet.TiersTab, EnemySheet.StageColorsTab, EnemySheet.MassLevelsTab,
+            EnemySheet.EnemiesTab, EnemySheet.TiersTab, EnemySheet.StageColorsTab, EnemySheet.MassLevelsTab, EnemySheet.SizeClassesTab,
             SupplySheet.SupplyTab, SupplySheet.StartSupplyTab, NodeSheet.NodesTab, NodeSheet.UpgradesTab,
         };
 
@@ -50,6 +50,7 @@ namespace BlackHole.EditorTools
             Write(folder, EnemySheet.TiersTab, EnemySheet.TiersCsv(enemies.Enemies, ColorOf));
             Write(folder, EnemySheet.StageColorsTab, EnemySheet.StageColorsCsv(enemies.Enemies));
             Write(folder, EnemySheet.MassLevelsTab, EnemySheet.MassLevelsCsv(enemies.Enemies));
+            Write(folder, EnemySheet.SizeClassesTab, EnemySheet.SizeClassesCsv(enemies.Enemies));
             Write(folder, SupplySheet.SupplyTab, SupplySheet.SupplyCsv(supply));
             Write(folder, SupplySheet.StartSupplyTab, SupplySheet.StartSupplyCsv(supply));
             Write(folder, NodeSheet.NodesTab, NodeSheet.NodesCsv(assets.Nodes.ToData()));
@@ -65,7 +66,8 @@ namespace BlackHole.EditorTools
             var errors = new List<ContentDiagnostic>();
             bool growth = Has(csvByTab, errors, HqGrowthSheet.StagesTab, HqGrowthSheet.MilestonesTab);
             bool skills = Has(csvByTab, errors, SkillSheet.Tab);
-            bool enemies = Has(csvByTab, errors, EnemySheet.EnemiesTab, EnemySheet.TiersTab, EnemySheet.StageColorsTab, EnemySheet.MassLevelsTab);
+            bool enemies = Has(csvByTab, errors, EnemySheet.EnemiesTab, EnemySheet.TiersTab, EnemySheet.StageColorsTab, EnemySheet.MassLevelsTab,
+                EnemySheet.SizeClassesTab);
             bool supply = Has(csvByTab, errors, SupplySheet.SupplyTab, SupplySheet.StartSupplyTab);
             bool nodes = Has(csvByTab, errors, NodeSheet.NodesTab, NodeSheet.UpgradesTab);
 
@@ -89,7 +91,7 @@ namespace BlackHole.EditorTools
 
             if (enemies)
                 errors.AddRange(EnemySheet.Read(csvByTab[EnemySheet.EnemiesTab], csvByTab[EnemySheet.TiersTab],
-                    csvByTab[EnemySheet.StageColorsTab], csvByTab[EnemySheet.MassLevelsTab], data, colors));
+                    csvByTab[EnemySheet.StageColorsTab], csvByTab[EnemySheet.MassLevelsTab], csvByTab[EnemySheet.SizeClassesTab], data, colors));
 
             if (supply)
                 errors.AddRange(SupplySheet.Read(csvByTab[SupplySheet.SupplyTab], csvByTab[SupplySheet.StartSupplyTab], data));
@@ -284,7 +286,8 @@ namespace BlackHole.EditorTools
         private static string EnemyCsv(EnemyData data, System.Func<string, int, string> colorOf)
         {
             var one = new List<EnemyData> { data };
-            return EnemySheet.EnemiesCsv(one) + EnemySheet.TiersCsv(one, colorOf) + EnemySheet.StageColorsCsv(one) + EnemySheet.MassLevelsCsv(one);
+            return EnemySheet.EnemiesCsv(one) + EnemySheet.TiersCsv(one, colorOf) + EnemySheet.StageColorsCsv(one) + EnemySheet.MassLevelsCsv(one)
+                + EnemySheet.SizeClassesCsv(one);
         }
 
         private static string GrowthCsv(HqGrowthData data) => HqGrowthSheet.StagesCsv(data) + HqGrowthSheet.MilestonesCsv(data);

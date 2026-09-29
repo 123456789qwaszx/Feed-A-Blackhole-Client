@@ -9,7 +9,8 @@ namespace BlackHole.Core
     // 더할 시작 공급 수,
     // Level업마다의 성장 공급 수,
     // 다음 종류로의 변환 비율,
-    // 특수 종류의 생성 확률.
+    // 특수 종류의 생성 확률,
+    // 열린 크기 등급.
     public readonly struct EnemyComposition
     {
         // 적의 질량 단계. (질량 증가 노드)
@@ -33,6 +34,9 @@ namespace BlackHole.Core
         // 특수 종류이면: 부모로 정해진 생성 중 이 종류로 나오는 몫(0 ~ 1). 기본 0 — 확률 노드를 사야 나온다.
         public float SpecialChance { get; }
 
+        // 크기 노드로 열린 크기 등급의 끝 번호. 크기 등급 0부터 이 번호까지가 같은 몫으로 섞여 나온다 [임시]. 기본 0.
+        public int SizeLevel { get; }
+
         public EnemyComposition(
             int massLevel,
             float goldenRatio,
@@ -40,7 +44,8 @@ namespace BlackHole.Core
             int startSupplyBonus = 0,
             int growthSupply = 0,
             float upgradeRatio = 0,
-            float specialChance = 0)
+            float specialChance = 0,
+            int sizeLevel = 0)
         {
             MassLevel = massLevel;
             GoldenRatio = goldenRatio;
@@ -49,6 +54,7 @@ namespace BlackHole.Core
             GrowthSupply = growthSupply;
             UpgradeRatio = upgradeRatio;
             SpecialChance = specialChance;
+            SizeLevel = sizeLevel;
         }
 
         public static EnemyComposition Base(EnemyDefinition kind) =>
@@ -68,13 +74,18 @@ namespace BlackHole.Core
             int growthSupply = Whole(upgrades.Apply(EnemyUpgradeStats.GrowthSupply(kind.Id), 0));
             float upgrade = Percent(upgrades.Apply(EnemyUpgradeStats.Upgrade(kind.Id), kind.BaseUpgradeAt(stage)), kind.Id, "변환 비율");
             float chance = Percent(upgrades.Apply(EnemyUpgradeStats.Chance(kind.Id), 0), kind.Id, "생성 확률");
+            int sizeLevel = Whole(upgrades.Apply(EnemyUpgradeStats.SizeLevel(kind.Id), 0));
 
             // 변환 대상이 없는 종류는 변환해 나올 종류가 없다. 기본 변환 비율에 거는 규칙(EnemyDefinition)을 노드가 더한 비율에도 건다.
             // 판 조립과 로드 때의 검사(UpgradeContentCheck)가 이 예외를 본다.
             if (upgrade > 0 && kind.UpgradesTo == null)
                 throw new ArgumentException($"'{kind.Id}'에는 변환 대상이 없어 변환 비율을 둘 수 없다. 업그레이드 합: {upgrade * 100:0.##}%.", nameof(upgrades));
 
-            return new EnemyComposition(massLevel, goldenRatio, goldenMultiplier, startSupply, growthSupply, upgrade, chance);
+            if (sizeLevel < 0 || sizeLevel >= kind.SizeClasses.Count)
+                throw new ArgumentOutOfRangeException(
+                    nameof(upgrades), $"'{kind.Id}'의 크기 등급은 0부터 {kind.SizeClasses.Count - 1}까지다. 크기 노드의 합: {sizeLevel}.");
+
+            return new EnemyComposition(massLevel, goldenRatio, goldenMultiplier, startSupply, growthSupply, upgrade, chance, sizeLevel);
         }
 
         private static int Whole(float value) => (int)Math.Round(value, MidpointRounding.AwayFromZero);

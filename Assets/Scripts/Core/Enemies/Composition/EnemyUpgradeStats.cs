@@ -18,5 +18,7 @@ namespace BlackHole.Core
         public static string Upgrade(string kindId) => $"enemy.{kindId}.upgrade";
         // 특수 종류의 생성 확률(원작 "전기 소행성 생성 확률" 등). %, 기본값 0 — 노드를 사야 나온다.
         public static string Chance(string kindId) => $"enemy.{kindId}.chance";
+        // 크기 노드(원작 소행성 크기2·3). 크기 등급 표에서 몇 번째 줄까지 열렸는가. 한 노드 = 더하기 1, 기본값 0(크기 등급 0만 나옴).
+        public static string SizeLevel(string kindId) => $"enemy.{kindId}.size-level";
     }
 }

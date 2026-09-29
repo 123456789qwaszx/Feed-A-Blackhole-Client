@@ -6,7 +6,7 @@ using static BlackHole.Authoring.SheetCells;
 
 namespace BlackHole.Authoring
 {
-    // 적 종류(ContentData.Enemies.Enemies)와 데이터 시트의 네 탭 사이의 변환. 한 종류가 네 탭에 걸쳐 있고 kind(ID)로 잇는다.
+    // 적 종류(ContentData.Enemies.Enemies)와 데이터 시트의 다섯 탭 사이의 변환. 한 종류가 다섯 탭에 걸쳐 있고 kind(ID)로 잇는다.
     // - Enemies 탭: 한 행이 종류 하나. id | moveSpeed | goldenMultiplier | upgradesTo | baseUpgrade | baseUpgradeFromStage | specialOf
     //   | deathEffect | effectDamage | effectRadius | effectMaxTargets | effectDuration | effectIntervalMultiplier
     //   upgradesTo·specialOf는 다른 종류의 ID이고 비우면 없다. deathEffect는 비우면 없다.
@@ -14,6 +14,8 @@ namespace BlackHole.Authoring
     // - EnemyTiers 탭: kind | tier | color | maxHealth | size | gold | exp. tier는 종류마다 0부터 차례로. color는 #RRGGBB(#RRGGBBAA).
     // - EnemyStageColors 탭: kind | fromStage | 0 | 1 | … 숫자 열은 색 등급 번호이고 값은 그 색이 나오는 비율이다. 왼쪽부터 빈 칸 없이.
     // - EnemyMassLevels 탭: kind | level | healthMultiplier | goldMultiplier. level은 종류마다 0부터 차례로.
+    // - EnemySizeClasses 탭: kind | class | sizeMultiplier | healthMultiplier | goldMultiplier | expMultiplier. class는 종류마다 0부터 차례로.
+    //   크기 등급이 없는 종류는 행을 두지 않는다.
     // 종류의 목록과 순서는 적 종류 목록 에셋이 정한다: 시트는 그 종류를 모두, 그 종류만 담는다(종류를 더하고 빼는 것은 에셋에서 한다).
     // 규칙은 게임과 같은 로더(EnemyContentLoader)로 본다.
     public static class EnemySheet
@@ -22,6 +24,7 @@ namespace BlackHole.Authoring
         public const string TiersTab = "EnemyTiers";
         public const string StageColorsTab = "EnemyStageColors";
         public const string MassLevelsTab = "EnemyMassLevels";
+        public const string SizeClassesTab = "EnemySizeClasses";
 
         private static readonly string[] _enemyColumns =
         {
@@ -31,6 +34,7 @@ namespace BlackHole.Authoring
 
         private static readonly string[] _tierColumns = { "kind", "tier", "color", "maxHealth", "size", "gold", "exp" };
         private static readonly string[] _massColumns = { "kind", "level", "healthMultiplier", "goldMultiplier" };
+        private static readonly string[] _sizeColumns = { "kind", "class", "sizeMultiplier", "healthMultiplier", "goldMultiplier", "expMultiplier" };
         private const int FirstRatioColumn = 2;
 
         // 사망 효과마다 쓰는 효과 칸(Enemies 탭 열 번호). 정의 생성자의 매개변수 이름과 같은 순서로 둔다.
@@ -56,6 +60,7 @@ namespace BlackHole.Authoring
             public readonly List<int> Tiers = new List<int>();
             public readonly List<int> StageColors = new List<int>();
             public readonly List<int> MassLevels = new List<int>();
+            public readonly List<int> SizeClasses = new List<int>();
         }
 
         // colorOf(종류 ID, 색 등급) → "#RRGGBB" 또는 "#RRGGBBAA".
@@ -149,10 +154,29 @@ namespace BlackHole.Authoring
             return Csv.Write(rows);
         }
 
-        // 네 탭을 읽어 통과하면 into.Enemies.Enemies를 바꾸고 colors에 종류마다의 색(#RRGGBB)을 채운다. 반환: 진단(없으면 통과).
+        public static string SizeClassesCsv(IReadOnlyList<EnemyData> enemies)
+        {
+            var rows = new List<IReadOnlyList<string>> { _sizeColumns };
+
+            foreach (EnemyData enemy in enemies)
+            {
+                for (int i = 0; i < enemy.SizeClasses.Count; i++)
+                {
+                    SizeClassData size = enemy.SizeClasses[i];
+                    rows.Add(new[]
+                    {
+                        enemy.Id, Number(i), Number(size.SizeMultiplier), Number(size.HealthMultiplier), Number(size.GoldMultiplier), Number(size.ExpMultiplier),
+                    });
+                }
+            }
+
+            return Csv.Write(rows);
+        }
+
+        // 다섯 탭을 읽어 통과하면 into.Enemies.Enemies를 바꾸고 colors에 종류마다의 색(#RRGGBB)을 채운다. 반환: 진단(없으면 통과).
         // 종류의 목록과 순서는 into.Enemies.Enemies(적 종류 목록 에셋)의 것이다.
         public static List<ContentDiagnostic> Read(string enemiesCsv, string tiersCsv, string stageColorsCsv, string massLevelsCsv,
-            ContentData into, Dictionary<string, List<string>> colors)
+            string sizeClassesCsv, ContentData into, Dictionary<string, List<string>> colors)
         {
             var diagnostics = new List<ContentDiagnostic>();
             var byId = new Dictionary<string, EnemyData>(StringComparer.Ordinal);
@@ -167,6 +191,7 @@ namespace BlackHole.Authoring
             ReadTiers(Csv.Parse(tiersCsv ?? string.Empty), byId, rows, sheetColors, diagnostics);
             ReadStageColors(Csv.Parse(stageColorsCsv ?? string.Empty), byId, rows, diagnostics, out int lastRatioColumn);
             ReadMassLevels(Csv.Parse(massLevelsCsv ?? string.Empty), byId, rows, diagnostics);
+            ReadSizeClasses(Csv.Parse(sizeClassesCsv ?? string.Empty), byId, rows, diagnostics);
 
             if (diagnostics.Count > 0)
                 return diagnostics;
@@ -415,6 +440,35 @@ namespace BlackHole.Authoring
             }
         }
 
+        private static void ReadSizeClasses(List<string[]> table, Dictionary<string, EnemyData> byId, Dictionary<string, Rows> rows,
+            List<ContentDiagnostic> diagnostics)
+        {
+            if (!HasHeader(table, SizeClassesTab, _sizeColumns, diagnostics))
+                return;
+
+            var lastClass = new Dictionary<string, int>(StringComparer.Ordinal);
+
+            for (int r = 1; r < table.Count; r++)
+            {
+                string[] row = table[r];
+                int sheetRow = r + 1;
+
+                if (IsBlank(row, _sizeColumns.Length - 1) || !TryKind(row, SizeClassesTab, sheetRow, byId, diagnostics, out EnemyData enemy))
+                    continue;
+
+                CheckOrder(row, SizeClassesTab, sheetRow, enemy.Id, lastClass, "class", diagnostics);
+
+                enemy.SizeClasses.Add(new SizeClassData
+                {
+                    SizeMultiplier = ReadFloat(row, 2, SizeClassesTab, sheetRow, diagnostics),
+                    HealthMultiplier = ReadFloat(row, 3, SizeClassesTab, sheetRow, diagnostics),
+                    GoldMultiplier = ReadFloat(row, 4, SizeClassesTab, sheetRow, diagnostics),
+                    ExpMultiplier = ReadFloat(row, 5, SizeClassesTab, sheetRow, diagnostics),
+                });
+                rows[enemy.Id].SizeClasses.Add(sheetRow);
+            }
+        }
+
         // 행의 kind가 Enemies 탭에 있는 종류인가. Enemies 탭에서 빠졌거나 틀린 종류는 거기서 이미 알렸으므로 여기서는 없는 ID만 알린다.
         private static bool TryKind(string[] row, string tab, int sheetRow, Dictionary<string, EnemyData> byId, List<ContentDiagnostic> diagnostics,
             out EnemyData enemy)
@@ -474,6 +528,9 @@ namespace BlackHole.Authoring
             if (TryIndex(rest, ".MassLevels[", out int mass, out _) && mass < at.MassLevels.Count)
                 return Cell(MassLevelsTab, ColumnOf(_massColumns, parameter), at.MassLevels[mass]);
 
+            if (TryIndex(rest, ".SizeClasses[", out int size, out _) && size < at.SizeClasses.Count)
+                return Cell(SizeClassesTab, ColumnOf(_sizeColumns, parameter), at.SizeClasses[size]);
+
             if (rest == ".DeathEffect.Kind")
                 return Cell(EnemiesTab, 7, at.Enemy);
 
@@ -492,6 +549,7 @@ namespace BlackHole.Authoring
                 case "tiers": return Span(TiersTab, _tierColumns.Length - 1, at.Tiers, id);
                 case "stageColors": return Span(StageColorsTab, Math.Max(FirstRatioColumn, lastRatioColumn), at.StageColors, id);
                 case "massLevels": return Span(MassLevelsTab, _massColumns.Length - 1, at.MassLevels, id);
+                case "sizeClasses": return Span(SizeClassesTab, _sizeColumns.Length - 1, at.SizeClasses, id);
             }
 
             int enemyColumn = parameter == null ? -1 : Array.IndexOf(_enemyColumns, parameter);

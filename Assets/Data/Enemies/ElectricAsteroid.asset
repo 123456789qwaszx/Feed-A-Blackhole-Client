@@ -31,6 +31,7 @@ MonoBehaviour:
   massLevels:
   - healthMultiplier: 1
     goldMultiplier: 1
+  sizeClasses: []
   goldenMultiplier: 0
   deathEffect: 1
   effectDamage: 40
