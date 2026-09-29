@@ -63,6 +63,7 @@ namespace BlackHole.Unity
         private UIManager _ui;
         private ScreenFlow _screens;
         private GameHost _host;
+        private SoundManager _soundManager;
 
         private void Awake()
         {
@@ -80,6 +81,7 @@ namespace BlackHole.Unity
             BootstrapUI();
             BootstrapScreenFlow();
             BootstrapHost();
+            BootstrapSoundManager();
         }
 
         private void BootstrapBattleViews()
@@ -137,6 +139,12 @@ namespace BlackHole.Unity
         {
             _host = new GameHost(_ui, _battle, _aim, _screens,
                 _enemyLooks, _enemyView, _skillView, _deathEffectView, _hqView);
+        }
+
+        private void BootstrapSoundManager()
+        {
+            AudioSource audioSource = GetComponent<AudioSource>();
+            _soundManager = new SoundManager(audioSource);
         }
 
         private void Start() => _host?.Start();
