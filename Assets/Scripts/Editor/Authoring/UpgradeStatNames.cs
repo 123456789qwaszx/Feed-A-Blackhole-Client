@@ -20,6 +20,7 @@ namespace BlackHole.Authoring
                 (BreakerUpgradeStats.Speed, "Breaker 공격 속도. 기본값 1, 주기 = 기본 주기 ÷ 속도."),
                 (BreakerUpgradeStats.Radius, "Breaker 공격 원의 반지름. 기본값은 Skills 탭 breaker.radius."),
                 (BreakerUpgradeStats.CritChance, "Breaker 치명타 확률(최대 1). 기본값은 Skills 탭 breaker.crit-chance."),
+                (BreakerUpgradeStats.CritMultiplier, "Breaker 치명타 피해 배율. 기본값은 Skills 탭 breaker.crit-multiplier. 200%에서 225%로 올리려면 Add 0.25."),
                 (HqUpgradeStats.GrowthTime, "판 Level업마다 제한 시간에 더하는 초. 기본값 0."),
             };
 

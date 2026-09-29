@@ -39,7 +39,6 @@ namespace BlackHole.Core
         // - 주기 = 기본 주기 ÷ 공격 속도 [임시]. 공격 속도 +25%(비율 0.25)면 주기가 1/1.25배다.
         // - 치명타 확률은 1을 넘지 않는다.
         // 한계 밖(0 이하의 피해·공격 속도·반지름, 음수 치명타 확률)은 예외다 — 노드 저작 오류이며 UpgradeContentCheck가 로드 때 찾는다.
-        // 치명타 배율을 바꾸는 노드는 아직 없다(수치 이름도 두지 않는다).
         public BreakerDefinition Upgraded(UpgradeTable upgrades)
         {
             if (upgrades == null)
@@ -55,7 +54,7 @@ namespace BlackHole.Core
                 Interval / speed,
                 upgrades.Apply(BreakerUpgradeStats.Radius, Radius),
                 Math.Min(1, upgrades.Apply(BreakerUpgradeStats.CritChance, CritChance)),
-                CritMultiplier);
+                upgrades.Apply(BreakerUpgradeStats.CritMultiplier, CritMultiplier));
         }
     }
 }

@@ -12,5 +12,7 @@ namespace BlackHole.Core
         public const string Radius = "breaker.radius";
         // 한 Tick이 치명타일 확률(1을 넘지 않는다). 노드 예: 더하기 0.05.
         public const string CritChance = "breaker.crit-chance";
+        // 치명타 피해 배율. 200%에서 25%p 올리는 노드는 더하기 0.25(2 → 2.25).
+        public const string CritMultiplier = "breaker.crit-multiplier";
     }
 }
