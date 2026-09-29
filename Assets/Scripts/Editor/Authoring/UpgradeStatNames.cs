@@ -35,7 +35,6 @@ namespace BlackHole.Authoring
 
                 names.Add((EnemyUpgradeStats.StartSupply(id), $"전투 시작에 {id}를 더 공급하는 수. 기본값 0."));
                 names.Add((EnemyUpgradeStats.GrowthSupply(id), $"블랙홀 Level업마다 {id}를 더 공급하는 수. 기본값 0."));
-                names.Add((EnemyUpgradeStats.Size(id), $"{id}의 크기 배율(모든 색 등급의 EnemyTiers 탭 size에 곱함). 기본값 1."));
 
                 if (!string.IsNullOrEmpty(enemy.UpgradesTo))
                     names.Add((EnemyUpgradeStats.Upgrade(id), $"{id}가 {enemy.UpgradesTo}로 나오는 비율(%). 기본값은 Enemies 탭 baseUpgrade."));

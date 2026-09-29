@@ -122,7 +122,7 @@ namespace BlackHole.Core
             return kind;
         }
 
-        // 이 판에서 이 종류의 판 구성(질량 단계·황금 비율·황금 배율·공급·변환·특수 확률·크기).
+        // 이 판에서 이 종류의 판 구성(질량 단계·황금 비율·황금 배율·공급·변환·특수 확률).
         public EnemyComposition CompositionOf(EnemyDefinition kind) => RowOf(kind).Composition;
 
         // 이 판에서 이 종류의 색 비율(색 등급 표 순서). 판을 시작할 때의 성장도로 고른 줄이다.

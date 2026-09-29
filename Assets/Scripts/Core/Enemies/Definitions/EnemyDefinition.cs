@@ -147,7 +147,7 @@ namespace BlackHole.Core
 
         // 판 구성 composition에서 색 등급 tier의 실행 수치.
         // HP = 색의 기본 HP × 질량 단계의 HP 계수, Gold = 색의 기본 Gold × 질량 단계의 Gold 계수(반올림 [임시]),
-        // 크기 = 색의 크기 × 판 구성의 크기 배율, 속도 = 종류의 속도, EXP = 색의 EXP(질량 단계·황금과 무관).
+        // 크기 = 색의 크기, 속도 = 종류의 속도, EXP = 색의 EXP(질량 단계·황금과 무관).
         // 황금이면 Gold에 판 구성의 황금 배율을 한 번 더 곱한다(반올림). HP·크기는 같은 색과 같다 [임시].
         // 판 조립(EnemyStatTable)과 다음 판을 미리 보는 콘솔이 같은 계산을 쓴다.
         public EnemyStats StatsAt(EnemyComposition composition, int tier, bool golden = false)
@@ -172,7 +172,7 @@ namespace BlackHole.Core
             if (golden)
                 gold = Multiply(gold, composition.GoldenMultiplier);
 
-            return new EnemyStats(row.MaxHealth * level.HealthMultiplier, MoveSpeed, row.Size * composition.SizeMultiplier, gold, row.Exp);
+            return new EnemyStats(row.MaxHealth * level.HealthMultiplier, MoveSpeed, row.Size, gold, row.Exp);
         }
 
         private static long Multiply(long gold, float multiplier) =>
