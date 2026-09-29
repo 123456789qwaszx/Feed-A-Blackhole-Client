@@ -17,5 +17,16 @@ namespace BlackHole.Unity
                     Debug.LogWarning($"[{view.GetType().Name}] 자식 '{name}'이 없다.", view);
             }
         }
+
+        // 일부 자식만 쓰는 위젯용(설정 행처럼 틀마다 쓰는 자식이 다를 때). 넘긴 이름만 확인한다.
+        [Conditional("UNITY_EDITOR"), Conditional("DEBUG")]
+        public static void WarnMissing<TRefs>(UIBase view, params TRefs[] refs) where TRefs : struct, Enum
+        {
+            foreach (TRefs key in refs)
+            {
+                if (!view.TryGetRect(key.ToString(), out _))
+                    Debug.LogWarning($"[{view.GetType().Name}] 자식 '{key}'이 없다.", view);
+            }
+        }
     }
 }

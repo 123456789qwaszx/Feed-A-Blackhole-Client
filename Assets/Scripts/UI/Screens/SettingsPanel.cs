@@ -1,0 +1,292 @@
+using System;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
+
+namespace BlackHole.Unity
+{
+    // 설정 창(패널). 지금 화면 위에 쌓이고(PushPanel), 오른쪽 판에 설정 행을 세로로 늘어놓는다(스크롤).
+    // 설정의 규칙을 모른다 — ScreenFlow가 설정 목록(SettingItem)을 넘기고, 이 창은 어느 설정이 어떤 값으로 바뀌었는지만 알린다.
+    // 행은 종류별 틀(…RowTemplate, 꺼 둔 SettingRow)을 복제해 행 목록(RowList) 아래에 만든다.
+    // 펼침 목록은 행 위에 뜨는 목록(ChoicePopup)이다. 목록 밖(ChoiceBlocker_Button)을 누르거나 Esc를 누르면 닫힌다.
+    // Esc는 목록이 없으면 뒤로와 같다.
+    public sealed class SettingsPanel : UIPanel<SettingsPanel.Refs>
+    {
+        public enum Refs
+        {
+            RowList,
+            ToggleRowTemplate,
+            SliderRowTemplate,
+            ChoiceRowTemplate,
+            StepperRowTemplate,
+            ChoiceBlocker_Button,
+            ChoicePopup,
+            ChoiceOptionTemplate,
+            BackBtn_Button,
+        }
+
+        // 행 하나에 보일 설정.
+        public readonly struct SettingItem
+        {
+            public string Id { get; }
+            public string Label { get; }
+            public GameSettings.Kind Kind { get; }
+            // 켜기/끄기는 0·1, 막대는 0 ~ 1, 선택지는 번호.
+            public float Value { get; }
+            // 선택지(펼침 목록·단계). 다른 종류는 비어 있어도 된다.
+            public IReadOnlyList<string> Options { get; }
+
+            public SettingItem(string id, string label, GameSettings.Kind kind, float value, IReadOnlyList<string> options)
+            {
+                Id = id;
+                Label = label;
+                Kind = kind;
+                Value = value;
+                Options = options;
+            }
+        }
+
+        private static readonly Color SelectedOptionColor = new Color(0.36f, 0.62f, 0.42f);
+
+        private readonly List<SettingRow> _rows = new List<SettingRow>();
+        private readonly List<Button> _options = new List<Button>();
+        private readonly Dictionary<GameSettings.Kind, SettingRow> _templates = new Dictionary<GameSettings.Kind, SettingRow>();
+        private readonly Vector3[] _corners = new Vector3[4];
+
+        private RectTransform _rowList;
+        private RectTransform _blocker;
+        private RectTransform _popup;
+        private Button _optionTemplate;
+        private CanvasGroup _group;
+        private SettingRow _choiceRow;
+
+        public event Action<string, bool> Toggled;
+        public event Action<string, float> SliderChanged;
+        public event Action<string, int> OptionChanged;
+        public event Action BackClicked;
+
+        private bool IsChoiceOpen => _choiceRow != null;
+
+        protected override void OnInitialize()
+        {
+            ScreenRefs.WarnMissing<Refs>(this);
+
+            _rowList = View.Rect(Refs.RowList);
+            _blocker = View.Rect(Refs.ChoiceBlocker_Button);
+            _popup = View.Rect(Refs.ChoicePopup);
+            _optionTemplate = View.Button(Refs.ChoiceOptionTemplate);
+
+            AddTemplate(GameSettings.Kind.Toggle, Refs.ToggleRowTemplate);
+            AddTemplate(GameSettings.Kind.Slider, Refs.SliderRowTemplate);
+            AddTemplate(GameSettings.Kind.Choice, Refs.ChoiceRowTemplate);
+            AddTemplate(GameSettings.Kind.Stepper, Refs.StepperRowTemplate);
+
+            // 틀과 펼침 목록은 처음에 숨긴다.
+            SetVisible(_optionTemplate, false);
+            SetVisible(_blocker, false);
+            SetVisible(_popup, false);
+
+            BindEvent(View.Button(Refs.ChoiceBlocker_Button), HandleBlockerClicked);
+            BindEvent(View.Button(Refs.BackBtn_Button), HandleBackClicked);
+        }
+
+        // 설정 행을 새로 만든다. 창을 열 때마다 불러 지금 값을 보여 준다. 목록은 맨 위부터 보인다.
+        public void Build(IReadOnlyList<SettingItem> items)
+        {
+            CloseChoice();
+            ClearRows();
+
+            if (_rowList == null)
+                return;
+
+            foreach (SettingItem item in items)
+            {
+                if (!_templates.TryGetValue(item.Kind, out SettingRow template) || template == null)
+                {
+                    Debug.LogWarning($"[{nameof(SettingsPanel)}] '{item.Kind}' 행의 틀이 없어 '{item.Id}'를 보여 주지 못한다.", this);
+                    continue;
+                }
+
+                _rows.Add(CreateRow(template, item));
+            }
+
+            _rowList.anchoredPosition = Vector2.zero;
+        }
+
+        private void Update()
+        {
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard == null || !IsInteractable() || !keyboard.escapeKey.wasPressedThisFrame)
+                return;
+
+            if (IsChoiceOpen)
+                CloseChoice();
+            else
+                BackClicked?.Invoke();
+        }
+
+        // 패널이 닫힐 때(비활성) 펼침 목록도 닫는다.
+        private void OnDisable() => CloseChoice();
+
+        private void HandleBackClicked(PointerEventData _) => BackClicked?.Invoke();
+        private void HandleBlockerClicked(PointerEventData _) => CloseChoice();
+
+        // 행이 알린 새 값을 종류에 맞는 사건으로 바꿔 알린다.
+        private void HandleRowChanged(SettingRow row)
+        {
+            switch (row.Kind)
+            {
+                case GameSettings.Kind.Toggle:
+                    Toggled?.Invoke(row.Id, row.Value >= 0.5f);
+                    break;
+                case GameSettings.Kind.Slider:
+                    SliderChanged?.Invoke(row.Id, row.Value);
+                    break;
+                default:
+                    OptionChanged?.Invoke(row.Id, row.Index);
+                    break;
+            }
+        }
+
+        #region 펼침 목록
+
+        // 행의 선택지를 목록으로 펼친다. 고른 선택지는 색으로 표시한다.
+        private void OpenChoice(SettingRow row)
+        {
+            CloseChoice();
+
+            RectTransform box = row.ChoiceBox;
+            if (_popup == null || _optionTemplate == null || box == null)
+                return;
+
+            _choiceRow = row;
+
+            for (int i = 0; i < row.Options.Count; i++)
+                _options.Add(CreateOption(row.Options[i], i, i == row.Index));
+
+            if (_blocker != null)
+            {
+                _blocker.gameObject.SetActive(true);
+                _blocker.SetAsLastSibling();
+            }
+
+            _popup.gameObject.SetActive(true);
+            _popup.SetAsLastSibling();
+            PlaceChoice(box);
+        }
+
+        // 선택지 칸의 아래에 같은 폭으로 붙인다. 창 아래로 넘치면 칸 위로 펼친다.
+        private void PlaceChoice(RectTransform box)
+        {
+            _popup.sizeDelta = new Vector2(box.rect.width, _popup.sizeDelta.y);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_popup);
+
+            box.GetWorldCorners(_corners);
+            Vector3 bottomRight = _corners[3];
+            Vector3 topRight = _corners[2];
+
+            _popup.pivot = new Vector2(1, 1);
+            _popup.position = bottomRight;
+
+            _popup.GetWorldCorners(_corners);
+            float popupBottom = _corners[0].y;
+            ((RectTransform)transform).GetWorldCorners(_corners);
+
+            if (popupBottom < _corners[0].y)
+            {
+                _popup.pivot = new Vector2(1, 0);
+                _popup.position = topRight;
+            }
+        }
+
+        private void ChooseOption(int index)
+        {
+            SettingRow row = _choiceRow;
+            CloseChoice();
+
+            if (row != null)
+                row.Choose(index);
+        }
+
+        private void CloseChoice()
+        {
+            foreach (Button option in _options)
+            {
+                if (option != null)
+                    Destroy(option.gameObject);
+            }
+
+            _options.Clear();
+            _choiceRow = null;
+            SetVisible(_blocker, false);
+            SetVisible(_popup, false);
+        }
+
+        private Button CreateOption(string text, int index, bool selected)
+        {
+            Button option = Instantiate(_optionTemplate, _popup);
+            option.name = "Option " + text;
+
+            TMP_Text label = option.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+                label.text = text;
+
+            if (selected && option.targetGraphic != null)
+                option.targetGraphic.color = SelectedOptionColor;
+
+            BindEvent(option, _ => ChooseOption(index));
+            option.gameObject.SetActive(true);
+            return option;
+        }
+
+        #endregion
+
+        private SettingRow CreateRow(SettingRow template, SettingItem item)
+        {
+            SettingRow row = Instantiate(template, _rowList);
+            row.name = "Row " + item.Id;
+            row.EnsureInitialized();
+            row.Show(item.Id, item.Label, item.Kind, item.Value, item.Options);
+            row.Changed += HandleRowChanged;
+            row.ChoiceClicked += OpenChoice;
+            row.gameObject.SetActive(true);
+            return row;
+        }
+
+        private void ClearRows()
+        {
+            foreach (SettingRow row in _rows)
+            {
+                if (row != null)
+                    Destroy(row.gameObject);
+            }
+
+            _rows.Clear();
+        }
+
+        private void AddTemplate(GameSettings.Kind kind, Refs key)
+        {
+            SettingRow template = View.Widget<SettingRow>(key);
+            _templates[kind] = template;
+            SetVisible(template, false);
+        }
+
+        // 덮인 패널은 UIManager가 CanvasGroup으로 막는다. 막혔으면 키도 읽지 않는다.
+        private bool IsInteractable()
+        {
+            if (_group == null)
+                _group = GetComponent<CanvasGroup>();
+
+            return _group == null || _group.interactable;
+        }
+
+        private static void SetVisible(Component component, bool visible)
+        {
+            if (component != null && component.gameObject.activeSelf != visible)
+                component.gameObject.SetActive(visible);
+        }
+    }
+}
