@@ -107,12 +107,12 @@ namespace BlackHole.Core
         private void Fire(LaserShot shot, BattlePlayer owner, World world)
         {
             _targets.Clear();
-            float halfWidthSquared = Definition.Width * Definition.Width / 4;
+            float halfWidth = Definition.Width / 2;
             IReadOnlyList<Enemy> enemies = world.Enemies;
 
             for (int i = 0; i < enemies.Count; i++)
             {
-                if (DistanceSquaredToPath(enemies[i].Position, shot) <= halfWidthSquared)
+                if (enemies[i].IsWithin(NearestOnPath(enemies[i].Position, shot), halfWidth))
                     _targets.Add(enemies[i]);
             }
 
@@ -125,15 +125,15 @@ namespace BlackHole.Core
             _fires.Add(new LaserFire(shot, Definition.Width, _targets.Count));
         }
 
-        // 점에서 경로(선분)까지의 거리의 제곱.
-        private static float DistanceSquaredToPath(Point2 point, LaserShot shot)
+        // 경로(선분) 위에서 점에 가장 가까운 점.
+        private static Point2 NearestOnPath(Point2 point, LaserShot shot)
         {
             float dx = shot.End.X - shot.Start.X;
             float dy = shot.End.Y - shot.Start.Y;
             float lengthSquared = dx * dx + dy * dy;
             float along = ((point.X - shot.Start.X) * dx + (point.Y - shot.Start.Y) * dy) / lengthSquared;
             along = Math.Max(0, Math.Min(1, along));
-            return point.DistanceSquared(new Point2(shot.Start.X + along * dx, shot.Start.Y + along * dy));
+            return new Point2(shot.Start.X + along * dx, shot.Start.Y + along * dy);
         }
     }
 }

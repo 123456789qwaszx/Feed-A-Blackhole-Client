@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace BlackHole.Core
@@ -91,28 +92,28 @@ namespace BlackHole.Core
         {
             _struck.Clear();
             Point2 origin = pending.Position;
-            float radiusSquared = chain.Radius * chain.Radius;
             var damage = new Damage(chain.Damage, pending.Source);
 
             for (int hop = 0; hop < chain.MaxTargets; hop++)
             {
+                // 가장 가까운 적은 적의 원 가장자리까지의 거리로 고른다.
                 Enemy nearest = null;
-                float nearestSquared = radiusSquared;
+                float nearestGap = 0;
                 IReadOnlyList<Enemy> enemies = world.Enemies;
 
                 for (int i = 0; i < enemies.Count; i++)
                 {
                     Enemy enemy = enemies[i];
 
-                    if (!CanBeStruck(enemy) || _struck.Contains(enemy))
+                    if (!CanBeStruck(enemy) || _struck.Contains(enemy) || !enemy.IsWithin(origin, chain.Radius))
                         continue;
 
-                    float distanceSquared = origin.DistanceSquared(enemy.Position);
+                    float gap = (float)Math.Sqrt(origin.DistanceSquared(enemy.Position)) - enemy.Stats.Size;
 
-                    if (distanceSquared <= nearestSquared && (nearest == null || distanceSquared < nearestSquared))
+                    if (nearest == null || gap < nearestGap)
                     {
                         nearest = enemy;
-                        nearestSquared = distanceSquared;
+                        nearestGap = gap;
                     }
                 }
 
@@ -129,12 +130,11 @@ namespace BlackHole.Core
         private void Explode(ExplosionDefinition explosion, Pending pending, World world)
         {
             _targets.Clear();
-            float radiusSquared = explosion.Radius * explosion.Radius;
             IReadOnlyList<Enemy> enemies = world.Enemies;
 
             for (int i = 0; i < enemies.Count; i++)
             {
-                if (CanBeStruck(enemies[i]) && pending.Position.DistanceSquared(enemies[i].Position) <= radiusSquared)
+                if (CanBeStruck(enemies[i]) && enemies[i].IsWithin(pending.Position, explosion.Radius))
                     _targets.Add(enemies[i]);
             }
 

@@ -2,7 +2,7 @@ using System;
 
 namespace BlackHole.Core
 {
-    // Breaker의 공유 정의: 기본 수치. 조준점을 중심으로 한 원 안의 적 전부를 주기마다 친다(GAME_RULES 6절).
+    // Breaker의 공유 정의: 기본 수치. 조준점을 중심으로 한 원에 닿는 적(적의 크기 포함) 전부를 주기마다 친다(GAME_RULES 6절).
     // 콘텐츠에 Breaker가 없으면 판에 Breaker가 없다. 실행 상태는 참가자마다의 BreakerSkill이 가진다.
     // 치명타는 Breaker의 수치다(원작의 Breaker 강화 축, 노드 수치 breaker.crit-chance). 모든 스킬의 공통 수치가 아니다(SKILL_SYSTEM_PLAN D2).
     public sealed class BreakerDefinition

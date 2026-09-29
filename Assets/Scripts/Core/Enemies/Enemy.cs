@@ -41,6 +41,13 @@ namespace BlackHole.Core
             Position = position;
         }
 
+        // 점 point에서 거리 reach 안에 이 적의 원(반지름 = 크기)이 닿는가. 공격과 사망 효과가 적을 맞히는 판정이다.
+        internal bool IsWithin(Point2 point, float reach)
+        {
+            float touch = reach + Stats.Size;
+            return Position.DistanceSquared(point) <= touch * touch;
+        }
+
         internal void Move(float delta)
         {
             Position = EnemyBehaviors.NextPosition(Position, Stats, delta);

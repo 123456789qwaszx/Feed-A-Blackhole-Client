@@ -102,12 +102,11 @@ namespace BlackHole.Core
 
             if (center.HasValue)
             {
-                float radiusSquared = Definition.Radius * Definition.Radius;
                 IReadOnlyList<Enemy> enemies = world.Enemies;
 
                 for (int i = 0; i < enemies.Count; i++)
                 {
-                    if (enemies[i].Position.DistanceSquared(center.Value) <= radiusSquared)
+                    if (enemies[i].IsWithin(center.Value, Definition.Radius))
                         _targets.Add(enemies[i]);
                 }
             }
