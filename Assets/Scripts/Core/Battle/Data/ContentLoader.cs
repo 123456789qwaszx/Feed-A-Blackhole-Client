@@ -52,7 +52,8 @@ namespace BlackHole.Core
                 return null;
 
             return Guard("Breaker", into, () =>
-                new BreakerDefinition(item.Damage, item.Interval, item.Radius, item.CritChance, item.CritMultiplier));
+                new BreakerDefinition(item.Damage, item.Interval, item.Radius, item.CritChance, item.CritDamage,
+                    item.MoonDuration, item.MoonSpeedBonus, item.MoonRadiusBonus, item.CometDuration, item.CometCritDamageBonus));
         }
 
         // 없으면 판에 레이저가 없다.
