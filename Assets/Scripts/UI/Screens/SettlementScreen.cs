@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
@@ -63,6 +64,22 @@ namespace BlackHole.Unity
 
         public event Action UpgradeClicked;
         public event Action ContinueClicked;
+
+        #region 0부터 일정시간동안 증가시키는 방식
+        // 증가 순서
+        private enum MatterType { Asteroid, Planet, Star, Done }
+        private MatterType _matterType;
+
+        private int _asteroidTarget;
+        private int _planetTarget;
+        private int _starTarget;
+
+        private float _matterTimer;
+        private const float MatterDuration = 1.0f;
+        private bool _isShowMatter;
+
+        private int targetOrder = 0;
+        #endregion
 
         protected override void OnInitialize()
         {
@@ -218,14 +235,23 @@ namespace BlackHole.Unity
         // 물질 행: 물질별 처치 수. 판 기록에 종류별 Gold가 생기면 Gold로 바꾼다.
         public void ShowMatter(int asteroids, int planets, int stars)
         {
+            // 타겟값 저장 (증가 연출을 위해)
+            _asteroidTarget = asteroids;
+            _planetTarget = planets;
+            _starTarget = stars;
+
+            _matterTimer = 0f;
+            _matterType = MatterType.Asteroid;
+            _isShowMatter = true;
+            
             if (_asteroidText != null)
-                _asteroidText.text = Count(asteroids);
+                _asteroidText.text = Count(0);
 
             if (_planetText != null)
-                _planetText.text = Count(planets);
+                _planetText.text = Count(0);
 
             if (_starText != null)
-                _starText.text = Count(stars);
+                _starText.text = Count(0);
         }
 
         // earned: 이 판이 번 Gold. settled: 결산이 더한 Gold(이정표로 끝났으면 이정표 보상). total: 결산 뒤 진행 상태의 Gold.
@@ -235,7 +261,10 @@ namespace BlackHole.Unity
                 _totalLabel.text = milestone ? "REWARD" : "TOTAL";
 
             if (_earned != null)
+            {
+
                 _earned.text = Money(milestone ? settled : earned);
+            }
 
             if (_totalGold != null)
                 _totalGold.text = Money(total);
@@ -297,5 +326,57 @@ namespace BlackHole.Unity
 
         private static string Money(long gold) =>
             "$" + gold.ToString("N0", CultureInfo.InvariantCulture);
+
+        // MonoBehavior
+        private void Update()
+        {
+            if (_isShowMatter)
+            {
+                _matterTimer += Time.deltaTime;
+
+                float t = Mathf.Clamp01(_matterTimer / MatterDuration);
+
+                // 부드럽게 증가
+                t = Mathf.SmoothStep(0f, 1f, t);
+
+                // 순서대로 증가 연출
+                switch(_matterType)
+                {
+                    case MatterType.Asteroid:
+                        IncreaseResult(_asteroidText, _asteroidTarget, t); break;
+                    case MatterType.Planet:
+                        IncreaseResult(_planetText, _planetTarget, t); break;
+                    case MatterType.Star:
+                        IncreaseResult(_starText, _starTarget, t); break;
+                }
+            }
+        }
+
+        private void IncreaseResult(TMP_Text _text, int _target, float t)
+        {
+            int value = IncreaseLerp(_target, t);
+            if (_text != null)
+                _text.text = Count(value);
+
+            if (t >= 1f)
+            {
+                _text.text = Count(_target);
+
+                _matterTimer = 0f;
+
+                switch(_matterType)
+                {
+                    case MatterType.Asteroid:
+                        _matterType = MatterType.Planet; break;
+                    case MatterType.Planet:
+                        _matterType = MatterType.Star; break;
+                    case MatterType.Star:
+                        _isShowMatter = false;
+                        _matterType = MatterType.Done; break;
+                }
+            }
+        }
+
+        private int IncreaseLerp(int _target, float t) => Mathf.RoundToInt(Mathf.Lerp(0, _target, t));
     }
 }
