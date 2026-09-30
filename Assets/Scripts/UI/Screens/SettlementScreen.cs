@@ -362,9 +362,14 @@ namespace BlackHole.Unity
 
         private void IncreaseResult(TMP_Text _text, int _target, float t)
         {
+            // 값이 있을때만 증가 연출
+            // (그렇지 않으면 0도 증가하는 연출이 발생해서 기다리는데 지장이 있다)
+            if (_target == 0) t = 1f;
+
             int value = IncreaseLerp(_target, t);
             if (_text != null)
                 _text.text = Count(value);
+
 
             if (t >= 1f)
             {
@@ -386,6 +391,10 @@ namespace BlackHole.Unity
 
         private void IncreaseResult(TMP_Text _text, long _target, float t)
         {
+            // 값이 있을때만 증가 연출
+            // (그렇지 않으면 0도 증가하는 연출이 발생해서 기다리는데 지장이 있다)
+            if (_target == 0) t = 1f;
+
             long value = LerpLong(_target, t);
             if(_text != null)
                 _text.text = Money(value);
