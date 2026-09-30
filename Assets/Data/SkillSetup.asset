@@ -16,7 +16,12 @@ MonoBehaviour:
   breakerInterval: 1
   breakerRadius: 1.5
   breakerCritChance: 0
-  breakerCritMultiplier: 2
+  breakerCritDamage: 1
+  breakerMoonDuration: 5
+  breakerMoonSpeedBonus: 0.2
+  breakerMoonRadiusBonus: 0.1
+  breakerCometDuration: 5
+  breakerCometCritDamageBonus: 0.5
   laserDamage: 3
   laserInterval: 4
   laserWidth: 0.5

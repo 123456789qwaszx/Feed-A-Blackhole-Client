@@ -5,11 +5,15 @@ using BlackHole.Core;
 namespace BlackHole.Unity
 {
     // 화면 연결과 전환. 버튼과 시간 종료에서 전투 수명을 요청하고, 성공 결과로 다음 화면을 연다.
-    // 타이틀 → 업그레이드(노드 트리 페이지) → 전투 → 결산 → 업그레이드.
+    // 타이틀(모드 선택 패널) → 업그레이드(노드 트리 페이지) → 전투 → 결산 → 업그레이드. 설정 패널은 타이틀에서 연다.
+    // 전투 중 Pause 버튼은 일시 정지 패널을 연다(재개·설정·메인 메뉴·종료).
     internal sealed partial class ScreenFlow : IDisposable
     {
         private readonly UIManager _ui;
         private readonly UIPresentationSpec _titlePresentation;
+        private readonly UIPresentationSpec _modeSelectPresentation;
+        private readonly UIPresentationSpec _settingsPresentation;
+        private readonly UIPresentationSpec _pausePresentation;
         private readonly UIPresentationSpec _upgradePresentation;
         private readonly UIPresentationSpec _battlePresentation;
         private readonly UIPresentationSpec _settlementPresentation;
@@ -22,14 +26,21 @@ namespace BlackHole.Unity
         private readonly IReadOnlyList<NodeTreeView.NodeItem> _nodes;
         // 블랙홀 성장(성장도별 Level 표·이정표). 업그레이드 화면의 목표 Level과 결산 화면의 이정표 진행도를 계산할 때 쓴다.
         private readonly HqGrowthDefinition _growth;
+        // 플레이어 설정. 설정 패널이 보여 주고 고친다.
+        private readonly GameSettings _settings;
         private readonly Dictionary<UIBase, List<Action>> _cleanupByScreen = new Dictionary<UIBase, List<Action>>();
 
-        public ScreenFlow(UIManager ui, UIPresentationSpec titlePresentation, UIPresentationSpec upgradePresentation,
+        public ScreenFlow(UIManager ui, UIPresentationSpec titlePresentation, UIPresentationSpec modeSelectPresentation,
+            UIPresentationSpec settingsPresentation, UIPresentationSpec pausePresentation, UIPresentationSpec upgradePresentation,
             UIPresentationSpec battlePresentation, UIPresentationSpec settlementPresentation, UIPresentationSpec nodeTreePresentation,
-            BattleSystem battle, PlayerState player, NodeTree tree, IReadOnlyList<NodeTreeView.NodeItem> nodes, HqGrowthDefinition growth)
+            BattleSystem battle, PlayerState player, NodeTree tree, IReadOnlyList<NodeTreeView.NodeItem> nodes, HqGrowthDefinition growth,
+            GameSettings settings)
         {
             _ui = ui;
             _titlePresentation = titlePresentation;
+            _modeSelectPresentation = modeSelectPresentation;
+            _settingsPresentation = settingsPresentation;
+            _pausePresentation = pausePresentation;
             _upgradePresentation = upgradePresentation;
             _battlePresentation = battlePresentation;
             _settlementPresentation = settlementPresentation;
@@ -39,6 +50,7 @@ namespace BlackHole.Unity
             _tree = tree;
             _nodes = nodes;
             _growth = growth;
+            _settings = settings;
         }
 
         private void BindView<T>(T screen, Action<T> apply) where T : UIBase

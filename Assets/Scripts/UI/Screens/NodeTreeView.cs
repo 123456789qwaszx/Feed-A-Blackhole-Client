@@ -14,13 +14,17 @@ namespace BlackHole.Unity
     // 좌표: 칸 (X, Y)의 노드는 트리 공간의 (X × 칸 크기, Y × 칸 크기)에 놓인다.
     // 보이기: 숨은 노드는 그리지 않는다. 선은 양 끝이 모두 보일 때만 그리고, 양 끝을 모두 샀으면 밝게 칠함.
     // 조작: 빈 곳이나 노드 위를 끌면 이동, 휠은 커서를 중심으로 확대·축소.
+    // 올림: 포인터 아래의 노드가 바뀌면 NodeHovered·NodeLeft로 알린다(툴팁은 호스트가 띄운다).
+    //   노드마다 입력 컴포넌트를 붙이지 않고 트리 영역이 포인터 이동을 받아 찾는다 — UI_EventHandler를 노드에 붙이면
+    //   노드 위에서 시작한 끌기를 그것이 가져가 트리가 움직이지 않는다. 끌기·휠이 시작되면 올림을 푼다.
     //
     // 업그레이드 화면(UpgradeScreen)을 호스트로 두는 페이지(UIPage)다.
     // ScreenFlow가 업그레이드 화면을 연 뒤 SwitchPage로 염.
     // 이 컴포넌트는 트리 영역(보이는 창)에 붙고, 그 영역은 호스트의 PageRoot 바로 아래 자식.
     //
     // 영역은 가운데 기준(pivot 0.5)이어야 확대 계산이 맞음.
-    public sealed class NodeTreeView : UIPage<NodeTreeView.Refs>, IBeginDragHandler, IDragHandler, IScrollHandler
+    public sealed class NodeTreeView : UIPage<NodeTreeView.Refs>, IBeginDragHandler, IDragHandler, IScrollHandler,
+        IPointerMoveHandler, IPointerExitHandler
     {
         public enum Refs { }
 
@@ -55,6 +59,7 @@ namespace BlackHole.Unity
         private static readonly Color LinkColor = new Color(0.45f, 0.47f, 0.52f);
 
         private readonly Dictionary<string, NodeVisual> _nodes = new Dictionary<string, NodeVisual>(StringComparer.Ordinal);
+        private readonly Dictionary<GameObject, NodeVisual> _nodesByObject = new Dictionary<GameObject, NodeVisual>();
         private readonly List<LinkVisual> _links = new List<LinkVisual>();
 
         private RectTransform _viewport;
@@ -66,6 +71,12 @@ namespace BlackHole.Unity
         private bool _framePending;
 
         public event Action<string> NodeClicked;
+
+        // 포인터가 노드 위에 올라감(노드 ID, 노드 칸)과 벗어남(노드 ID). 올라간 노드는 하나뿐이고, 벗어남이 먼저 온다.
+        public event Action<string, RectTransform> NodeHovered;
+        public event Action<string> NodeLeft;
+
+        private NodeVisual _hovered;
 
         protected override void OnInitialize()
         {
@@ -89,7 +100,11 @@ namespace BlackHole.Unity
             Clear();
 
             foreach (NodeItem node in nodes)
-                _nodes.Add(node.Id, CreateNode(node));
+            {
+                NodeVisual visual = CreateNode(node);
+                _nodes.Add(node.Id, visual);
+                _nodesByObject.Add(visual.Root, visual);
+            }
 
             foreach ((string a, string b) in links)
             {
@@ -118,6 +133,10 @@ namespace BlackHole.Unity
                     ? $"{node.Id}\nowned"
                     : $"{node.Id}\n{node.Price.ToString("N0", CultureInfo.InvariantCulture)}";
             }
+
+            // 올라가 있던 노드가 숨으면 올림을 푼다.
+            if (_hovered != null && _hovered.State == NodeState.Hidden)
+                SetHovered(null);
 
             foreach (LinkVisual link in _links)
             {
@@ -165,7 +184,7 @@ namespace BlackHole.Unity
             }
         }
 
-        public void OnBeginDrag(PointerEventData eventData) { }
+        public void OnBeginDrag(PointerEventData eventData) => SetHovered(null);
 
         public void OnDrag(PointerEventData eventData) =>
             _content.anchoredPosition += eventData.delta / ScaleFactor();
@@ -173,6 +192,8 @@ namespace BlackHole.Unity
         // 커서 아래의 점이 그대로 있도록 확대.
         public void OnScroll(PointerEventData eventData)
         {
+            SetHovered(null);
+
             if (Mathf.Approximately(eventData.scrollDelta.y, 0))
                 return;
 
@@ -182,6 +203,46 @@ namespace BlackHole.Unity
             float before = _zoom;
             SetZoom(Mathf.Clamp(_zoom * (eventData.scrollDelta.y > 0 ? 1.1f : 1 / 1.1f), MinZoom, MaxZoom));
             _content.anchoredPosition = cursor - (cursor - _content.anchoredPosition) * (_zoom / before);
+        }
+
+        // 포인터 아래의 노드(레이캐스트를 받는 것은 노드 칸뿐이다). 끄는 중에는 바꾸지 않는다.
+        public void OnPointerMove(PointerEventData eventData)
+        {
+            if (eventData.dragging)
+                return;
+
+            GameObject target = eventData.pointerCurrentRaycast.gameObject;
+            SetHovered(target != null && _nodesByObject.TryGetValue(target, out NodeVisual node) ? node : null);
+        }
+
+        // 트리 영역을 벗어났을 때. 영역 안의 노드로 옮겨 간 것이면 그대로 둔다.
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            GameObject target = eventData.pointerCurrentRaycast.gameObject;
+            if (target == null || !target.transform.IsChildOf(transform))
+                SetHovered(null);
+        }
+
+        // 페이지가 닫히면(비활성) 올림을 푼다. 다시 열 때 남아 있지 않게 한다.
+        private void OnDisable() => SetHovered(null);
+
+        private void SetHovered(NodeVisual node)
+        {
+            if (node == _hovered)
+                return;
+
+            if (_hovered != null)
+            {
+                string left = _hovered.Id;
+                _hovered = null;
+                NodeLeft?.Invoke(left);
+            }
+
+            if (node == null)
+                return;
+
+            _hovered = node;
+            NodeHovered?.Invoke(node.Id, (RectTransform)node.Root.transform);
         }
 
         private void SetZoom(float zoom)
@@ -260,6 +321,8 @@ namespace BlackHole.Unity
 
         private void Clear()
         {
+            SetHovered(null);
+
             foreach (NodeVisual node in _nodes.Values)
                 Destroy(node.Root);
 
@@ -267,6 +330,7 @@ namespace BlackHole.Unity
                 Destroy(link.Root);
 
             _nodes.Clear();
+            _nodesByObject.Clear();
             _links.Clear();
         }
 
