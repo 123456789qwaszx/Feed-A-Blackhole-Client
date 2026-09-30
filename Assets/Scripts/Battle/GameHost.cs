@@ -22,7 +22,7 @@ namespace BlackHole.Unity
         private readonly CameraShake _cameraShake;
 
         public GameHost(UIManager ui, BattleSystem battle, AimInput aim, ScreenFlow screens,
-            EnemyLooks enemyLooks, EnemyView enemyView,
+            EnemyLooks enemyLooks, EnemyView enemyView, BreakerView breakerView,
             SkillView skillView, DeathEffectView deathEffectView, HqView hqView, CameraShake cameraShake)
         {
             _ui = ui;
