@@ -395,6 +395,12 @@ namespace BlackHole.Unity
             }
         }
 
+        /// <summary>
+        /// 각 텍스트 UI를 0부터 현재 값까지 증가
+        /// </summary>
+        /// <param name="_text">TMP_Text UI</param>
+        /// <param name="_target">각 결과값</param>
+        /// <param name="t">lerp 타이머</param>
         private void IncreaseResult(TMP_Text _text, int _target, float t)
         {
             // 값이 있을때만 증가 연출
@@ -450,6 +456,12 @@ namespace BlackHole.Unity
             }
         }
 
+        /// <summary>
+        /// 부드러운 효과
+        /// </summary>
+        /// <param name="_target">설정값</param>
+        /// <param name="t">타이머</param>
+        /// <returns>0~100% 값</returns>
         private int IncreaseLerp(int _target, float t) => Mathf.RoundToInt(Mathf.Lerp(0, _target, t));
         private long LerpLong(long target, float t) => (long)((double)target * t);
     }
