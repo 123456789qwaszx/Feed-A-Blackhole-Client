@@ -6,7 +6,10 @@ namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
-        public void GoToUpgrade()
+        // 업그레이드 화면으로(모드 선택, 결산).
+        public void GoToUpgrade() => _transition.Play(ShowUpgrade);
+
+        private void ShowUpgrade()
         {
             _ui.SwitchRoot<UpgradeScreen>(
                 _upgradePresentation,
