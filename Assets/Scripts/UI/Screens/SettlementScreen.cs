@@ -12,23 +12,40 @@ namespace BlackHole.Unity
     {
         public enum Refs
         {
-            ResultText,
-            StageFill,
-            StageText,
+            Result_Text,
+            // 성장도 막대의 채움. 폭은 anchorMax.x로 정한다.
+            StageFill_Image,
+            Stage_Text,
             AsteroidRow_Button,
             AsteroidRow_Text,
             PlanetRow_Button,
             PlanetRow_Text,
             StarRow_Button,
             StarRow_Text,
-            TotalLabelText,
-            EarnedGoldText,
-            TotalGoldText,
+            TotalLabel_Text,
+            EarnedGold_Text,
+            TotalGold_Text,
             UpgradeBtn_Button,
             UpgradeBtn_Text,
             ContinueBtn_Button,
-            Tooltip,
-            TooltipText,
+            Tooltip_Image,
+            Tooltip_Text,
+            // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
+            SafeAreaRoot,
+
+            // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
+            Background_Image,
+            AsteroidRow_Image,
+            AsteroidIcon_Image,
+            PlanetRow_Image,
+            PlanetIcon_Image,
+            StarRow_Image,
+            StarIcon_Image,
+            GoldIcon_Image,
+            StageBar_Image,
+            UpgradeBtn_Image,
+            ContinueBtn_Image,
+            ContinueBtn_Text,
         }
 
         // 툴팁과 행 사이의 틈.
@@ -95,18 +112,18 @@ namespace BlackHole.Unity
         {
             ScreenRefs.WarnMissing<Refs>(this);
 
-            _result = View.Text(Refs.ResultText);
-            _stageFill = View.Rect(Refs.StageFill);
-            _stageText = View.Text(Refs.StageText);
-            _totalLabel = View.Text(Refs.TotalLabelText);
-            _earned = View.Text(Refs.EarnedGoldText);
-            _totalGold = View.Text(Refs.TotalGoldText);
+            _result = View.Text(Refs.Result_Text);
+            _stageFill = View.Rect(Refs.StageFill_Image);
+            _stageText = View.Text(Refs.Stage_Text);
+            _totalLabel = View.Text(Refs.TotalLabel_Text);
+            _earned = View.Text(Refs.EarnedGold_Text);
+            _totalGold = View.Text(Refs.TotalGold_Text);
             _upgradeLabel = View.Text(Refs.UpgradeBtn_Text);
             _asteroidText = View.Text(Refs.AsteroidRow_Text);
             _planetText = View.Text(Refs.PlanetRow_Text);
             _starText = View.Text(Refs.StarRow_Text);
-            _tooltip = View.Rect(Refs.Tooltip);
-            _tooltipText = View.Text(Refs.TooltipText);
+            _tooltip = View.Rect(Refs.Tooltip_Image);
+            _tooltipText = View.Text(Refs.Tooltip_Text);
             HideTooltip();
 
             _asteroidRow = View.Button(Refs.AsteroidRow_Button);

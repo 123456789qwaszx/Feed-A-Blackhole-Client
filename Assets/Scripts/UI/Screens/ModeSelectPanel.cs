@@ -17,6 +17,21 @@ namespace BlackHole.Unity
             ContinueBtn_Button,
             NewGameBtn_Button,
             BackBtn_Button,
+            // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
+            SafeAreaRoot,
+
+            // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
+            // 카드(ModeCard)는 위젯이라 Presentation이 닿지 않는다 — 카드의 모양은 프리팹의 카드 틀에서 정한다.
+            Title_Text,
+            BackBtn_Image,
+            PrevBtn_Image,
+            NextBtn_Image,
+            ContinueBtn_Image,
+            ContinueBtn_Text,
+            NewGameBtn_Image,
+            NewGameBtn_Text,
+            // 화면 전체를 덮는 배경(안전 영역 밖까지). 기본은 호 무늬 배경.
+            Background_Image,
         }
 
         // 카드 하나에 보일 모드.

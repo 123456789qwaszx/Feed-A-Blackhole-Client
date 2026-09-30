@@ -5,8 +5,8 @@ namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
-        // 노드 툴팁의 자리표시 문구. 노드 데이터(NodeData)가 정해지면 노드 ID로 이름·설명을 채운다.
-        private const string NodeTooltipTitleStub = "Node Name";
+        // 노드 툴팁의 설명 자리표시 문구. 노드 데이터(NodeData)가 정해지면 노드 ID로 이름·설명을 채운다.
+        // 제목은 그때까지 노드 ID를 쓴다(노드 칸에는 이제 가격만 보인다).
         private const string NodeTooltipBodyStub = "Node description goes here.";
 
         // UpgradeScreen을 Host로 사용하여, 트리 보기 페이지를 염.
@@ -45,11 +45,11 @@ namespace BlackHole.Unity
             RefreshUpgrade();
         }
 
-        // 툴팁은 호스트(업그레이드 화면)가 띄운다. 지금은 노드와 관계없이 자리표시 문구다.
+        // 툴팁은 호스트(업그레이드 화면)가 띄운다. 지금은 제목만 노드 ID, 설명은 자리표시 문구다.
         private void HandleNodeTreeNodeHovered(string id, RectTransform node)
         {
             if (_ui.CurrentRoot is UpgradeScreen root)
-                root.ShowNodeTooltip(node, NodeTooltipTitleStub, NodeTooltipBodyStub);
+                root.ShowNodeTooltip(node, id, NodeTooltipBodyStub);
         }
 
         private void HandleNodeTreeNodeLeft(string id)

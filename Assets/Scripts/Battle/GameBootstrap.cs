@@ -36,6 +36,9 @@ namespace BlackHole.Unity
         [SerializeField] private RectTransform _rootLayer;
         [SerializeField] private RectTransform _panelLayer;
 
+        [Header("Screen Transition")]
+        [SerializeField] private ScreenTransitionLook _screenTransitionLook;
+
         [Header("Registered Views")]
         [SerializeField] private UIBase[] _views;
 
@@ -70,6 +73,7 @@ namespace BlackHole.Unity
         private AimInput _aim;
         private GameSettings _settings;
         private UIManager _ui;
+        private ScreenTransition _transition;
         private ScreenFlow _screens;
         private GameHost _host;
 
@@ -100,6 +104,11 @@ namespace BlackHole.Unity
             _skillView = new SkillView(transform);
             _deathEffectView = new DeathEffectView(transform, _lightningLook, _explosionLook);
             _hqView = new HqView(transform);
+
+            // 전투 카메라를 화면비에 맞춘다(좁은 화면에서도 16:9의 가로 폭을 보여 준다). 씬에 없으면 여기서 붙인다.
+            Camera battleCamera = Camera.main;
+            if (battleCamera != null && !battleCamera.TryGetComponent(out BattleCameraFit _))
+                battleCamera.gameObject.AddComponent<BattleCameraFit>();
         }
 
         private void BootstrapBattle()
@@ -131,8 +140,15 @@ namespace BlackHole.Unity
                 _ui.Register(view);
             }
 
-            if (_displayRefreshDriver != null)
-                _displayRefreshDriver.Initialize(_ui);
+            // 해상도·Safe Area가 바뀌면(회전, 창 크기) 보이는 화면에 다시 맞춘다. 씬에 없으면 여기서 붙인다.
+            if (_displayRefreshDriver == null)
+                _displayRefreshDriver = gameObject.AddComponent<UIDisplayRefreshDriver>();
+
+            _displayRefreshDriver.Initialize(_ui);
+
+            // 화면 전환 덮개는 맨 위 캔버스의 마지막 자식이라 모든 화면·패널 위에 그려진다.
+            Canvas canvas = _rootLayer.GetComponentInParent<Canvas>();
+            _transition = ScreenTransition.Create(canvas != null ? canvas.rootCanvas.transform : _rootLayer.parent, _screenTransitionLook);
         }
 
         private void BootstrapScreenFlow()
@@ -147,7 +163,7 @@ namespace BlackHole.Unity
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
                 OrEmpty(_nodeTreePresentation, "NodeTree"),
-                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth, _settings);
+                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth, _settings, _transition);
         }
 
         private void BootstrapHost()
@@ -189,6 +205,12 @@ namespace BlackHole.Unity
 
         private bool HasConfiguredUI()
         {
+            if (_screenTransitionLook == null || _screenTransitionLook.Material == null)
+            {
+                Debug.LogError("[UI] GameBootstrap에 화면 전환 외형(ScreenTransitionLook)을, 화면 전환 외형에 머티리얼을 연결해야 한다.", this);
+                return false;
+            }
+
             if (_rootLayer != null && _panelLayer != null && _views != null)
             {
                 bool hasTitle = false;
@@ -306,7 +328,8 @@ namespace BlackHole.Unity
             foreach (NodeDefinition node in tree.Nodes)
             {
                 (int x, int y) = cells.TryGetValue(node.Id, out (int X, int Y) cell) ? cell : (0, 0);
-                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, node.Price));
+                string stat = node.Upgrades.Count > 0 ? node.Upgrades[0].Stat : null;   // 노드 그림을 고르는 스탯
+                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, node.Price, stat));
             }
 
             return nodes;

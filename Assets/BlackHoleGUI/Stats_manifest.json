@@ -1,0 +1,2018 @@
+[
+  {
+    "id": "Stats/Icons/ink/breaker.damage",
+    "svg": "SVG/Stats/Icons/ink/breaker.damage.svg",
+    "png": "PNG/Stats/Icons/ink/breaker.damage.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/breaker.damage",
+    "svg": "SVG/Stats/Icons/ivory/breaker.damage.svg",
+    "png": "PNG/Stats/Icons/ivory/breaker.damage.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/breaker.damage",
+    "svg": "SVG/Stats/Icons/white/breaker.damage.svg",
+    "png": "PNG/Stats/Icons/white/breaker.damage.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.damage__available",
+    "svg": "SVG/Stats/Nodes/breaker.damage__available.svg",
+    "png": "PNG/Stats/Nodes/breaker.damage__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.damage__hover",
+    "svg": "SVG/Stats/Nodes/breaker.damage__hover.svg",
+    "png": "PNG/Stats/Nodes/breaker.damage__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.damage__purchased",
+    "svg": "SVG/Stats/Nodes/breaker.damage__purchased.svg",
+    "png": "PNG/Stats/Nodes/breaker.damage__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.damage__locked",
+    "svg": "SVG/Stats/Nodes/breaker.damage__locked.svg",
+    "png": "PNG/Stats/Nodes/breaker.damage__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/breaker.speed",
+    "svg": "SVG/Stats/Icons/ink/breaker.speed.svg",
+    "png": "PNG/Stats/Icons/ink/breaker.speed.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/breaker.speed",
+    "svg": "SVG/Stats/Icons/ivory/breaker.speed.svg",
+    "png": "PNG/Stats/Icons/ivory/breaker.speed.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/breaker.speed",
+    "svg": "SVG/Stats/Icons/white/breaker.speed.svg",
+    "png": "PNG/Stats/Icons/white/breaker.speed.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.speed__available",
+    "svg": "SVG/Stats/Nodes/breaker.speed__available.svg",
+    "png": "PNG/Stats/Nodes/breaker.speed__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.speed__hover",
+    "svg": "SVG/Stats/Nodes/breaker.speed__hover.svg",
+    "png": "PNG/Stats/Nodes/breaker.speed__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.speed__purchased",
+    "svg": "SVG/Stats/Nodes/breaker.speed__purchased.svg",
+    "png": "PNG/Stats/Nodes/breaker.speed__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.speed__locked",
+    "svg": "SVG/Stats/Nodes/breaker.speed__locked.svg",
+    "png": "PNG/Stats/Nodes/breaker.speed__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/breaker.radius",
+    "svg": "SVG/Stats/Icons/ink/breaker.radius.svg",
+    "png": "PNG/Stats/Icons/ink/breaker.radius.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/breaker.radius",
+    "svg": "SVG/Stats/Icons/ivory/breaker.radius.svg",
+    "png": "PNG/Stats/Icons/ivory/breaker.radius.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/breaker.radius",
+    "svg": "SVG/Stats/Icons/white/breaker.radius.svg",
+    "png": "PNG/Stats/Icons/white/breaker.radius.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.radius__available",
+    "svg": "SVG/Stats/Nodes/breaker.radius__available.svg",
+    "png": "PNG/Stats/Nodes/breaker.radius__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.radius__hover",
+    "svg": "SVG/Stats/Nodes/breaker.radius__hover.svg",
+    "png": "PNG/Stats/Nodes/breaker.radius__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.radius__purchased",
+    "svg": "SVG/Stats/Nodes/breaker.radius__purchased.svg",
+    "png": "PNG/Stats/Nodes/breaker.radius__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.radius__locked",
+    "svg": "SVG/Stats/Nodes/breaker.radius__locked.svg",
+    "png": "PNG/Stats/Nodes/breaker.radius__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/breaker.crit-chance",
+    "svg": "SVG/Stats/Icons/ink/breaker.crit-chance.svg",
+    "png": "PNG/Stats/Icons/ink/breaker.crit-chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/breaker.crit-chance",
+    "svg": "SVG/Stats/Icons/ivory/breaker.crit-chance.svg",
+    "png": "PNG/Stats/Icons/ivory/breaker.crit-chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/breaker.crit-chance",
+    "svg": "SVG/Stats/Icons/white/breaker.crit-chance.svg",
+    "png": "PNG/Stats/Icons/white/breaker.crit-chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.crit-chance__available",
+    "svg": "SVG/Stats/Nodes/breaker.crit-chance__available.svg",
+    "png": "PNG/Stats/Nodes/breaker.crit-chance__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.crit-chance__hover",
+    "svg": "SVG/Stats/Nodes/breaker.crit-chance__hover.svg",
+    "png": "PNG/Stats/Nodes/breaker.crit-chance__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.crit-chance__purchased",
+    "svg": "SVG/Stats/Nodes/breaker.crit-chance__purchased.svg",
+    "png": "PNG/Stats/Nodes/breaker.crit-chance__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.crit-chance__locked",
+    "svg": "SVG/Stats/Nodes/breaker.crit-chance__locked.svg",
+    "png": "PNG/Stats/Nodes/breaker.crit-chance__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/breaker.crit-multiplier",
+    "svg": "SVG/Stats/Icons/ink/breaker.crit-multiplier.svg",
+    "png": "PNG/Stats/Icons/ink/breaker.crit-multiplier.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/breaker.crit-multiplier",
+    "svg": "SVG/Stats/Icons/ivory/breaker.crit-multiplier.svg",
+    "png": "PNG/Stats/Icons/ivory/breaker.crit-multiplier.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/breaker.crit-multiplier",
+    "svg": "SVG/Stats/Icons/white/breaker.crit-multiplier.svg",
+    "png": "PNG/Stats/Icons/white/breaker.crit-multiplier.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.crit-multiplier__available",
+    "svg": "SVG/Stats/Nodes/breaker.crit-multiplier__available.svg",
+    "png": "PNG/Stats/Nodes/breaker.crit-multiplier__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.crit-multiplier__hover",
+    "svg": "SVG/Stats/Nodes/breaker.crit-multiplier__hover.svg",
+    "png": "PNG/Stats/Nodes/breaker.crit-multiplier__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.crit-multiplier__purchased",
+    "svg": "SVG/Stats/Nodes/breaker.crit-multiplier__purchased.svg",
+    "png": "PNG/Stats/Nodes/breaker.crit-multiplier__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/breaker.crit-multiplier__locked",
+    "svg": "SVG/Stats/Nodes/breaker.crit-multiplier__locked.svg",
+    "png": "PNG/Stats/Nodes/breaker.crit-multiplier__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/hq.growth-time",
+    "svg": "SVG/Stats/Icons/ink/hq.growth-time.svg",
+    "png": "PNG/Stats/Icons/ink/hq.growth-time.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/hq.growth-time",
+    "svg": "SVG/Stats/Icons/ivory/hq.growth-time.svg",
+    "png": "PNG/Stats/Icons/ivory/hq.growth-time.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/hq.growth-time",
+    "svg": "SVG/Stats/Icons/white/hq.growth-time.svg",
+    "png": "PNG/Stats/Icons/white/hq.growth-time.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/hq.growth-time__available",
+    "svg": "SVG/Stats/Nodes/hq.growth-time__available.svg",
+    "png": "PNG/Stats/Nodes/hq.growth-time__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/hq.growth-time__hover",
+    "svg": "SVG/Stats/Nodes/hq.growth-time__hover.svg",
+    "png": "PNG/Stats/Nodes/hq.growth-time__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/hq.growth-time__purchased",
+    "svg": "SVG/Stats/Nodes/hq.growth-time__purchased.svg",
+    "png": "PNG/Stats/Nodes/hq.growth-time__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/hq.growth-time__locked",
+    "svg": "SVG/Stats/Nodes/hq.growth-time__locked.svg",
+    "png": "PNG/Stats/Nodes/hq.growth-time__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.asteroid.mass-level",
+    "svg": "SVG/Stats/Icons/ink/enemy.asteroid.mass-level.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.asteroid.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.asteroid.mass-level",
+    "svg": "SVG/Stats/Icons/ivory/enemy.asteroid.mass-level.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.asteroid.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.asteroid.mass-level",
+    "svg": "SVG/Stats/Icons/white/enemy.asteroid.mass-level.svg",
+    "png": "PNG/Stats/Icons/white/enemy.asteroid.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.mass-level__available",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.mass-level__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.mass-level__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.mass-level__hover",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.mass-level__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.mass-level__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.mass-level__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.mass-level__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.mass-level__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.mass-level__locked",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.mass-level__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.mass-level__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.asteroid.golden-ratio",
+    "svg": "SVG/Stats/Icons/ink/enemy.asteroid.golden-ratio.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.asteroid.golden-ratio.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.asteroid.golden-ratio",
+    "svg": "SVG/Stats/Icons/ivory/enemy.asteroid.golden-ratio.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.asteroid.golden-ratio.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.asteroid.golden-ratio",
+    "svg": "SVG/Stats/Icons/white/enemy.asteroid.golden-ratio.svg",
+    "png": "PNG/Stats/Icons/white/enemy.asteroid.golden-ratio.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.golden-ratio__available",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.golden-ratio__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.golden-ratio__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.golden-ratio__hover",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.golden-ratio__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.golden-ratio__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.golden-ratio__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.golden-ratio__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.golden-ratio__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.golden-ratio__locked",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.golden-ratio__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.golden-ratio__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.asteroid.golden-multiplier",
+    "svg": "SVG/Stats/Icons/ink/enemy.asteroid.golden-multiplier.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.asteroid.golden-multiplier.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.asteroid.golden-multiplier",
+    "svg": "SVG/Stats/Icons/ivory/enemy.asteroid.golden-multiplier.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.asteroid.golden-multiplier.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.asteroid.golden-multiplier",
+    "svg": "SVG/Stats/Icons/white/enemy.asteroid.golden-multiplier.svg",
+    "png": "PNG/Stats/Icons/white/enemy.asteroid.golden-multiplier.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.golden-multiplier__available",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.golden-multiplier__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.golden-multiplier__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.golden-multiplier__hover",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.golden-multiplier__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.golden-multiplier__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.golden-multiplier__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.golden-multiplier__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.golden-multiplier__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.golden-multiplier__locked",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.golden-multiplier__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.golden-multiplier__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.asteroid.start-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.asteroid.start-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.asteroid.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.asteroid.start-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.asteroid.start-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.asteroid.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.asteroid.start-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.asteroid.start-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.asteroid.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.start-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.start-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.start-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.start-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.start-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.start-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.start-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.start-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.start-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.start-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.start-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.start-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.asteroid.growth-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.asteroid.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.asteroid.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.asteroid.growth-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.asteroid.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.asteroid.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.asteroid.growth-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.asteroid.growth-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.asteroid.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.growth-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.growth-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.growth-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.growth-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.growth-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.growth-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.growth-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.growth-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.growth-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.growth-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.growth-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.growth-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.asteroid.upgrade",
+    "svg": "SVG/Stats/Icons/ink/enemy.asteroid.upgrade.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.asteroid.upgrade.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.asteroid.upgrade",
+    "svg": "SVG/Stats/Icons/ivory/enemy.asteroid.upgrade.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.asteroid.upgrade.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.asteroid.upgrade",
+    "svg": "SVG/Stats/Icons/white/enemy.asteroid.upgrade.svg",
+    "png": "PNG/Stats/Icons/white/enemy.asteroid.upgrade.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.upgrade__available",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.upgrade__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.upgrade__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.upgrade__hover",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.upgrade__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.upgrade__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.upgrade__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.upgrade__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.upgrade__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.upgrade__locked",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.upgrade__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.upgrade__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.asteroid.size-level",
+    "svg": "SVG/Stats/Icons/ink/enemy.asteroid.size-level.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.asteroid.size-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.asteroid.size-level",
+    "svg": "SVG/Stats/Icons/ivory/enemy.asteroid.size-level.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.asteroid.size-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.asteroid.size-level",
+    "svg": "SVG/Stats/Icons/white/enemy.asteroid.size-level.svg",
+    "png": "PNG/Stats/Icons/white/enemy.asteroid.size-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.size-level__available",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.size-level__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.size-level__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.size-level__hover",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.size-level__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.size-level__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.size-level__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.size-level__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.size-level__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.asteroid.size-level__locked",
+    "svg": "SVG/Stats/Nodes/enemy.asteroid.size-level__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.asteroid.size-level__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.moon.mass-level",
+    "svg": "SVG/Stats/Icons/ink/enemy.moon.mass-level.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.moon.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.moon.mass-level",
+    "svg": "SVG/Stats/Icons/ivory/enemy.moon.mass-level.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.moon.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.moon.mass-level",
+    "svg": "SVG/Stats/Icons/white/enemy.moon.mass-level.svg",
+    "png": "PNG/Stats/Icons/white/enemy.moon.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.mass-level__available",
+    "svg": "SVG/Stats/Nodes/enemy.moon.mass-level__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.mass-level__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.mass-level__hover",
+    "svg": "SVG/Stats/Nodes/enemy.moon.mass-level__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.mass-level__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.mass-level__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.moon.mass-level__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.mass-level__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.mass-level__locked",
+    "svg": "SVG/Stats/Nodes/enemy.moon.mass-level__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.mass-level__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.moon.start-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.moon.start-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.moon.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.moon.start-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.moon.start-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.moon.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.moon.start-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.moon.start-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.moon.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.start-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.moon.start-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.start-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.start-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.moon.start-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.start-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.start-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.moon.start-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.start-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.start-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.moon.start-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.start-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.moon.growth-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.moon.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.moon.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.moon.growth-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.moon.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.moon.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.moon.growth-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.moon.growth-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.moon.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.growth-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.moon.growth-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.growth-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.growth-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.moon.growth-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.growth-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.growth-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.moon.growth-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.growth-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.growth-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.moon.growth-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.growth-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.moon.chance",
+    "svg": "SVG/Stats/Icons/ink/enemy.moon.chance.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.moon.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.moon.chance",
+    "svg": "SVG/Stats/Icons/ivory/enemy.moon.chance.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.moon.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.moon.chance",
+    "svg": "SVG/Stats/Icons/white/enemy.moon.chance.svg",
+    "png": "PNG/Stats/Icons/white/enemy.moon.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.chance__available",
+    "svg": "SVG/Stats/Nodes/enemy.moon.chance__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.chance__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.chance__hover",
+    "svg": "SVG/Stats/Nodes/enemy.moon.chance__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.chance__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.chance__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.moon.chance__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.chance__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.moon.chance__locked",
+    "svg": "SVG/Stats/Nodes/enemy.moon.chance__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.moon.chance__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.planet.mass-level",
+    "svg": "SVG/Stats/Icons/ink/enemy.planet.mass-level.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.planet.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.planet.mass-level",
+    "svg": "SVG/Stats/Icons/ivory/enemy.planet.mass-level.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.planet.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.planet.mass-level",
+    "svg": "SVG/Stats/Icons/white/enemy.planet.mass-level.svg",
+    "png": "PNG/Stats/Icons/white/enemy.planet.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.mass-level__available",
+    "svg": "SVG/Stats/Nodes/enemy.planet.mass-level__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.mass-level__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.mass-level__hover",
+    "svg": "SVG/Stats/Nodes/enemy.planet.mass-level__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.mass-level__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.mass-level__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.planet.mass-level__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.mass-level__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.mass-level__locked",
+    "svg": "SVG/Stats/Nodes/enemy.planet.mass-level__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.mass-level__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.planet.start-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.planet.start-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.planet.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.planet.start-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.planet.start-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.planet.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.planet.start-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.planet.start-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.planet.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.start-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.planet.start-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.start-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.start-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.planet.start-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.start-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.start-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.planet.start-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.start-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.start-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.planet.start-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.start-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.planet.growth-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.planet.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.planet.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.planet.growth-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.planet.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.planet.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.planet.growth-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.planet.growth-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.planet.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.growth-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.planet.growth-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.growth-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.growth-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.planet.growth-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.growth-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.growth-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.planet.growth-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.growth-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.growth-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.planet.growth-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.growth-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.planet.upgrade",
+    "svg": "SVG/Stats/Icons/ink/enemy.planet.upgrade.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.planet.upgrade.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.planet.upgrade",
+    "svg": "SVG/Stats/Icons/ivory/enemy.planet.upgrade.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.planet.upgrade.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.planet.upgrade",
+    "svg": "SVG/Stats/Icons/white/enemy.planet.upgrade.svg",
+    "png": "PNG/Stats/Icons/white/enemy.planet.upgrade.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.upgrade__available",
+    "svg": "SVG/Stats/Nodes/enemy.planet.upgrade__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.upgrade__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.upgrade__hover",
+    "svg": "SVG/Stats/Nodes/enemy.planet.upgrade__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.upgrade__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.upgrade__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.planet.upgrade__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.upgrade__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.planet.upgrade__locked",
+    "svg": "SVG/Stats/Nodes/enemy.planet.upgrade__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.planet.upgrade__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.star.mass-level",
+    "svg": "SVG/Stats/Icons/ink/enemy.star.mass-level.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.star.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.star.mass-level",
+    "svg": "SVG/Stats/Icons/ivory/enemy.star.mass-level.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.star.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.star.mass-level",
+    "svg": "SVG/Stats/Icons/white/enemy.star.mass-level.svg",
+    "png": "PNG/Stats/Icons/white/enemy.star.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.mass-level__available",
+    "svg": "SVG/Stats/Nodes/enemy.star.mass-level__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.mass-level__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.mass-level__hover",
+    "svg": "SVG/Stats/Nodes/enemy.star.mass-level__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.mass-level__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.mass-level__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.star.mass-level__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.mass-level__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.mass-level__locked",
+    "svg": "SVG/Stats/Nodes/enemy.star.mass-level__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.mass-level__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.star.start-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.star.start-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.star.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.star.start-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.star.start-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.star.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.star.start-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.star.start-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.star.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.start-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.star.start-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.start-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.start-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.star.start-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.start-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.start-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.star.start-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.start-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.start-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.star.start-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.start-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.star.growth-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.star.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.star.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.star.growth-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.star.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.star.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.star.growth-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.star.growth-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.star.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.growth-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.star.growth-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.growth-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.growth-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.star.growth-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.growth-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.growth-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.star.growth-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.growth-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.star.growth-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.star.growth-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.star.growth-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.comet.mass-level",
+    "svg": "SVG/Stats/Icons/ink/enemy.comet.mass-level.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.comet.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.comet.mass-level",
+    "svg": "SVG/Stats/Icons/ivory/enemy.comet.mass-level.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.comet.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.comet.mass-level",
+    "svg": "SVG/Stats/Icons/white/enemy.comet.mass-level.svg",
+    "png": "PNG/Stats/Icons/white/enemy.comet.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.mass-level__available",
+    "svg": "SVG/Stats/Nodes/enemy.comet.mass-level__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.mass-level__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.mass-level__hover",
+    "svg": "SVG/Stats/Nodes/enemy.comet.mass-level__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.mass-level__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.mass-level__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.comet.mass-level__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.mass-level__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.mass-level__locked",
+    "svg": "SVG/Stats/Nodes/enemy.comet.mass-level__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.mass-level__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.comet.start-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.comet.start-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.comet.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.comet.start-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.comet.start-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.comet.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.comet.start-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.comet.start-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.comet.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.start-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.comet.start-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.start-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.start-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.comet.start-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.start-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.start-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.comet.start-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.start-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.start-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.comet.start-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.start-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.comet.growth-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.comet.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.comet.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.comet.growth-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.comet.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.comet.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.comet.growth-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.comet.growth-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.comet.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.growth-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.comet.growth-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.growth-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.growth-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.comet.growth-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.growth-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.growth-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.comet.growth-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.growth-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.growth-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.comet.growth-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.growth-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.comet.chance",
+    "svg": "SVG/Stats/Icons/ink/enemy.comet.chance.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.comet.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.comet.chance",
+    "svg": "SVG/Stats/Icons/ivory/enemy.comet.chance.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.comet.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.comet.chance",
+    "svg": "SVG/Stats/Icons/white/enemy.comet.chance.svg",
+    "png": "PNG/Stats/Icons/white/enemy.comet.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.chance__available",
+    "svg": "SVG/Stats/Nodes/enemy.comet.chance__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.chance__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.chance__hover",
+    "svg": "SVG/Stats/Nodes/enemy.comet.chance__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.chance__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.chance__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.comet.chance__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.chance__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.comet.chance__locked",
+    "svg": "SVG/Stats/Nodes/enemy.comet.chance__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.comet.chance__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.electric-asteroid.mass-level",
+    "svg": "SVG/Stats/Icons/ink/enemy.electric-asteroid.mass-level.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.electric-asteroid.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.electric-asteroid.mass-level",
+    "svg": "SVG/Stats/Icons/ivory/enemy.electric-asteroid.mass-level.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.electric-asteroid.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.electric-asteroid.mass-level",
+    "svg": "SVG/Stats/Icons/white/enemy.electric-asteroid.mass-level.svg",
+    "png": "PNG/Stats/Icons/white/enemy.electric-asteroid.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.mass-level__available",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.mass-level__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.mass-level__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.mass-level__hover",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.mass-level__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.mass-level__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.mass-level__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.mass-level__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.mass-level__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.mass-level__locked",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.mass-level__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.mass-level__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.electric-asteroid.start-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.electric-asteroid.start-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.electric-asteroid.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.electric-asteroid.start-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.electric-asteroid.start-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.electric-asteroid.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.electric-asteroid.start-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.electric-asteroid.start-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.electric-asteroid.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.start-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.start-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.start-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.start-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.start-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.start-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.start-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.start-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.start-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.start-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.start-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.start-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.electric-asteroid.growth-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.electric-asteroid.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.electric-asteroid.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.electric-asteroid.growth-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.electric-asteroid.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.electric-asteroid.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.electric-asteroid.growth-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.electric-asteroid.growth-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.electric-asteroid.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.growth-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.growth-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.growth-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.growth-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.growth-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.growth-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.growth-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.growth-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.growth-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.growth-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.growth-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.growth-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.electric-asteroid.chance",
+    "svg": "SVG/Stats/Icons/ink/enemy.electric-asteroid.chance.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.electric-asteroid.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.electric-asteroid.chance",
+    "svg": "SVG/Stats/Icons/ivory/enemy.electric-asteroid.chance.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.electric-asteroid.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.electric-asteroid.chance",
+    "svg": "SVG/Stats/Icons/white/enemy.electric-asteroid.chance.svg",
+    "png": "PNG/Stats/Icons/white/enemy.electric-asteroid.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.chance__available",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.chance__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.chance__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.chance__hover",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.chance__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.chance__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.chance__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.chance__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.chance__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.electric-asteroid.chance__locked",
+    "svg": "SVG/Stats/Nodes/enemy.electric-asteroid.chance__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.electric-asteroid.chance__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.supernova.mass-level",
+    "svg": "SVG/Stats/Icons/ink/enemy.supernova.mass-level.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.supernova.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.supernova.mass-level",
+    "svg": "SVG/Stats/Icons/ivory/enemy.supernova.mass-level.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.supernova.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.supernova.mass-level",
+    "svg": "SVG/Stats/Icons/white/enemy.supernova.mass-level.svg",
+    "png": "PNG/Stats/Icons/white/enemy.supernova.mass-level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.mass-level__available",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.mass-level__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.mass-level__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.mass-level__hover",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.mass-level__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.mass-level__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.mass-level__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.mass-level__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.mass-level__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.mass-level__locked",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.mass-level__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.mass-level__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.supernova.start-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.supernova.start-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.supernova.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.supernova.start-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.supernova.start-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.supernova.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.supernova.start-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.supernova.start-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.supernova.start-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.start-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.start-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.start-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.start-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.start-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.start-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.start-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.start-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.start-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.start-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.start-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.start-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.supernova.growth-supply",
+    "svg": "SVG/Stats/Icons/ink/enemy.supernova.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.supernova.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.supernova.growth-supply",
+    "svg": "SVG/Stats/Icons/ivory/enemy.supernova.growth-supply.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.supernova.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.supernova.growth-supply",
+    "svg": "SVG/Stats/Icons/white/enemy.supernova.growth-supply.svg",
+    "png": "PNG/Stats/Icons/white/enemy.supernova.growth-supply.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.growth-supply__available",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.growth-supply__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.growth-supply__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.growth-supply__hover",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.growth-supply__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.growth-supply__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.growth-supply__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.growth-supply__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.growth-supply__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.growth-supply__locked",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.growth-supply__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.growth-supply__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ink/enemy.supernova.chance",
+    "svg": "SVG/Stats/Icons/ink/enemy.supernova.chance.svg",
+    "png": "PNG/Stats/Icons/ink/enemy.supernova.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/ivory/enemy.supernova.chance",
+    "svg": "SVG/Stats/Icons/ivory/enemy.supernova.chance.svg",
+    "png": "PNG/Stats/Icons/ivory/enemy.supernova.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Icons/white/enemy.supernova.chance",
+    "svg": "SVG/Stats/Icons/white/enemy.supernova.chance.svg",
+    "png": "PNG/Stats/Icons/white/enemy.supernova.chance.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.chance__available",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.chance__available.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.chance__available.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.chance__hover",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.chance__hover.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.chance__hover.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.chance__purchased",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.chance__purchased.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.chance__purchased.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Stats/Nodes/enemy.supernova.chance__locked",
+    "svg": "SVG/Stats/Nodes/enemy.supernova.chance__locked.svg",
+    "png": "PNG/Stats/Nodes/enemy.supernova.chance__locked.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  }
+]

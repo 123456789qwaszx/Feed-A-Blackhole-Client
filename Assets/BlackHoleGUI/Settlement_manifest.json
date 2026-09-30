@@ -1,0 +1,834 @@
+[
+  {
+    "id": "Settlement/Skills/ink/breaker",
+    "svg": "SVG/Settlement/Skills/ink/breaker.svg",
+    "png": "PNG/Settlement/Skills/ink/breaker.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Skills/ivory/breaker",
+    "svg": "SVG/Settlement/Skills/ivory/breaker.svg",
+    "png": "PNG/Settlement/Skills/ivory/breaker.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Skills/white/breaker",
+    "svg": "SVG/Settlement/Skills/white/breaker.svg",
+    "png": "PNG/Settlement/Skills/white/breaker.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Skills/color/breaker",
+    "svg": "SVG/Settlement/Skills/color/breaker.svg",
+    "png": "PNG/Settlement/Skills/color/breaker.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Skills/ink/piercing_laser",
+    "svg": "SVG/Settlement/Skills/ink/piercing_laser.svg",
+    "png": "PNG/Settlement/Skills/ink/piercing_laser.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Skills/ivory/piercing_laser",
+    "svg": "SVG/Settlement/Skills/ivory/piercing_laser.svg",
+    "png": "PNG/Settlement/Skills/ivory/piercing_laser.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Skills/white/piercing_laser",
+    "svg": "SVG/Settlement/Skills/white/piercing_laser.svg",
+    "png": "PNG/Settlement/Skills/white/piercing_laser.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Skills/color/piercing_laser",
+    "svg": "SVG/Settlement/Skills/color/piercing_laser.svg",
+    "png": "PNG/Settlement/Skills/color/piercing_laser.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Effects/ink/chain_lightning",
+    "svg": "SVG/Settlement/Effects/ink/chain_lightning.svg",
+    "png": "PNG/Settlement/Effects/ink/chain_lightning.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Effects/ivory/chain_lightning",
+    "svg": "SVG/Settlement/Effects/ivory/chain_lightning.svg",
+    "png": "PNG/Settlement/Effects/ivory/chain_lightning.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Effects/white/chain_lightning",
+    "svg": "SVG/Settlement/Effects/white/chain_lightning.svg",
+    "png": "PNG/Settlement/Effects/white/chain_lightning.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Effects/color/chain_lightning",
+    "svg": "SVG/Settlement/Effects/color/chain_lightning.svg",
+    "png": "PNG/Settlement/Effects/color/chain_lightning.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Effects/ink/explosion",
+    "svg": "SVG/Settlement/Effects/ink/explosion.svg",
+    "png": "PNG/Settlement/Effects/ink/explosion.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Effects/ivory/explosion",
+    "svg": "SVG/Settlement/Effects/ivory/explosion.svg",
+    "png": "PNG/Settlement/Effects/ivory/explosion.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Effects/white/explosion",
+    "svg": "SVG/Settlement/Effects/white/explosion.svg",
+    "png": "PNG/Settlement/Effects/white/explosion.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Effects/color/explosion",
+    "svg": "SVG/Settlement/Effects/color/explosion.svg",
+    "png": "PNG/Settlement/Effects/color/explosion.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ink/asteroid",
+    "svg": "SVG/Settlement/Enemies/ink/asteroid.svg",
+    "png": "PNG/Settlement/Enemies/ink/asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ivory/asteroid",
+    "svg": "SVG/Settlement/Enemies/ivory/asteroid.svg",
+    "png": "PNG/Settlement/Enemies/ivory/asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/white/asteroid",
+    "svg": "SVG/Settlement/Enemies/white/asteroid.svg",
+    "png": "PNG/Settlement/Enemies/white/asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/color/asteroid",
+    "svg": "SVG/Settlement/Enemies/color/asteroid.svg",
+    "png": "PNG/Settlement/Enemies/color/asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ink/golden_asteroid",
+    "svg": "SVG/Settlement/Enemies/ink/golden_asteroid.svg",
+    "png": "PNG/Settlement/Enemies/ink/golden_asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ivory/golden_asteroid",
+    "svg": "SVG/Settlement/Enemies/ivory/golden_asteroid.svg",
+    "png": "PNG/Settlement/Enemies/ivory/golden_asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/white/golden_asteroid",
+    "svg": "SVG/Settlement/Enemies/white/golden_asteroid.svg",
+    "png": "PNG/Settlement/Enemies/white/golden_asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/color/golden_asteroid",
+    "svg": "SVG/Settlement/Enemies/color/golden_asteroid.svg",
+    "png": "PNG/Settlement/Enemies/color/golden_asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ink/electric_asteroid",
+    "svg": "SVG/Settlement/Enemies/ink/electric_asteroid.svg",
+    "png": "PNG/Settlement/Enemies/ink/electric_asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ivory/electric_asteroid",
+    "svg": "SVG/Settlement/Enemies/ivory/electric_asteroid.svg",
+    "png": "PNG/Settlement/Enemies/ivory/electric_asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/white/electric_asteroid",
+    "svg": "SVG/Settlement/Enemies/white/electric_asteroid.svg",
+    "png": "PNG/Settlement/Enemies/white/electric_asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/color/electric_asteroid",
+    "svg": "SVG/Settlement/Enemies/color/electric_asteroid.svg",
+    "png": "PNG/Settlement/Enemies/color/electric_asteroid.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ink/moon",
+    "svg": "SVG/Settlement/Enemies/ink/moon.svg",
+    "png": "PNG/Settlement/Enemies/ink/moon.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ivory/moon",
+    "svg": "SVG/Settlement/Enemies/ivory/moon.svg",
+    "png": "PNG/Settlement/Enemies/ivory/moon.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/white/moon",
+    "svg": "SVG/Settlement/Enemies/white/moon.svg",
+    "png": "PNG/Settlement/Enemies/white/moon.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/color/moon",
+    "svg": "SVG/Settlement/Enemies/color/moon.svg",
+    "png": "PNG/Settlement/Enemies/color/moon.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ink/planet",
+    "svg": "SVG/Settlement/Enemies/ink/planet.svg",
+    "png": "PNG/Settlement/Enemies/ink/planet.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ivory/planet",
+    "svg": "SVG/Settlement/Enemies/ivory/planet.svg",
+    "png": "PNG/Settlement/Enemies/ivory/planet.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/white/planet",
+    "svg": "SVG/Settlement/Enemies/white/planet.svg",
+    "png": "PNG/Settlement/Enemies/white/planet.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/color/planet",
+    "svg": "SVG/Settlement/Enemies/color/planet.svg",
+    "png": "PNG/Settlement/Enemies/color/planet.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ink/star",
+    "svg": "SVG/Settlement/Enemies/ink/star.svg",
+    "png": "PNG/Settlement/Enemies/ink/star.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ivory/star",
+    "svg": "SVG/Settlement/Enemies/ivory/star.svg",
+    "png": "PNG/Settlement/Enemies/ivory/star.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/white/star",
+    "svg": "SVG/Settlement/Enemies/white/star.svg",
+    "png": "PNG/Settlement/Enemies/white/star.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/color/star",
+    "svg": "SVG/Settlement/Enemies/color/star.svg",
+    "png": "PNG/Settlement/Enemies/color/star.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ink/comet",
+    "svg": "SVG/Settlement/Enemies/ink/comet.svg",
+    "png": "PNG/Settlement/Enemies/ink/comet.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ivory/comet",
+    "svg": "SVG/Settlement/Enemies/ivory/comet.svg",
+    "png": "PNG/Settlement/Enemies/ivory/comet.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/white/comet",
+    "svg": "SVG/Settlement/Enemies/white/comet.svg",
+    "png": "PNG/Settlement/Enemies/white/comet.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/color/comet",
+    "svg": "SVG/Settlement/Enemies/color/comet.svg",
+    "png": "PNG/Settlement/Enemies/color/comet.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ink/supernova",
+    "svg": "SVG/Settlement/Enemies/ink/supernova.svg",
+    "png": "PNG/Settlement/Enemies/ink/supernova.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/ivory/supernova",
+    "svg": "SVG/Settlement/Enemies/ivory/supernova.svg",
+    "png": "PNG/Settlement/Enemies/ivory/supernova.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/white/supernova",
+    "svg": "SVG/Settlement/Enemies/white/supernova.svg",
+    "png": "PNG/Settlement/Enemies/white/supernova.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Enemies/color/supernova",
+    "svg": "SVG/Settlement/Enemies/color/supernova.svg",
+    "png": "PNG/Settlement/Enemies/color/supernova.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ink/total_damage",
+    "svg": "SVG/Settlement/Metrics/ink/total_damage.svg",
+    "png": "PNG/Settlement/Metrics/ink/total_damage.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ivory/total_damage",
+    "svg": "SVG/Settlement/Metrics/ivory/total_damage.svg",
+    "png": "PNG/Settlement/Metrics/ivory/total_damage.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/white/total_damage",
+    "svg": "SVG/Settlement/Metrics/white/total_damage.svg",
+    "png": "PNG/Settlement/Metrics/white/total_damage.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/color/total_damage",
+    "svg": "SVG/Settlement/Metrics/color/total_damage.svg",
+    "png": "PNG/Settlement/Metrics/color/total_damage.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ink/destroyed_count",
+    "svg": "SVG/Settlement/Metrics/ink/destroyed_count.svg",
+    "png": "PNG/Settlement/Metrics/ink/destroyed_count.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ivory/destroyed_count",
+    "svg": "SVG/Settlement/Metrics/ivory/destroyed_count.svg",
+    "png": "PNG/Settlement/Metrics/ivory/destroyed_count.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/white/destroyed_count",
+    "svg": "SVG/Settlement/Metrics/white/destroyed_count.svg",
+    "png": "PNG/Settlement/Metrics/white/destroyed_count.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/color/destroyed_count",
+    "svg": "SVG/Settlement/Metrics/color/destroyed_count.svg",
+    "png": "PNG/Settlement/Metrics/color/destroyed_count.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ink/gold",
+    "svg": "SVG/Settlement/Metrics/ink/gold.svg",
+    "png": "PNG/Settlement/Metrics/ink/gold.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ivory/gold",
+    "svg": "SVG/Settlement/Metrics/ivory/gold.svg",
+    "png": "PNG/Settlement/Metrics/ivory/gold.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/white/gold",
+    "svg": "SVG/Settlement/Metrics/white/gold.svg",
+    "png": "PNG/Settlement/Metrics/white/gold.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/color/gold",
+    "svg": "SVG/Settlement/Metrics/color/gold.svg",
+    "png": "PNG/Settlement/Metrics/color/gold.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ink/experience",
+    "svg": "SVG/Settlement/Metrics/ink/experience.svg",
+    "png": "PNG/Settlement/Metrics/ink/experience.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ivory/experience",
+    "svg": "SVG/Settlement/Metrics/ivory/experience.svg",
+    "png": "PNG/Settlement/Metrics/ivory/experience.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/white/experience",
+    "svg": "SVG/Settlement/Metrics/white/experience.svg",
+    "png": "PNG/Settlement/Metrics/white/experience.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/color/experience",
+    "svg": "SVG/Settlement/Metrics/color/experience.svg",
+    "png": "PNG/Settlement/Metrics/color/experience.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ink/duration",
+    "svg": "SVG/Settlement/Metrics/ink/duration.svg",
+    "png": "PNG/Settlement/Metrics/ink/duration.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ivory/duration",
+    "svg": "SVG/Settlement/Metrics/ivory/duration.svg",
+    "png": "PNG/Settlement/Metrics/ivory/duration.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/white/duration",
+    "svg": "SVG/Settlement/Metrics/white/duration.svg",
+    "png": "PNG/Settlement/Metrics/white/duration.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/color/duration",
+    "svg": "SVG/Settlement/Metrics/color/duration.svg",
+    "png": "PNG/Settlement/Metrics/color/duration.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ink/growth_time",
+    "svg": "SVG/Settlement/Metrics/ink/growth_time.svg",
+    "png": "PNG/Settlement/Metrics/ink/growth_time.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ivory/growth_time",
+    "svg": "SVG/Settlement/Metrics/ivory/growth_time.svg",
+    "png": "PNG/Settlement/Metrics/ivory/growth_time.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/white/growth_time",
+    "svg": "SVG/Settlement/Metrics/white/growth_time.svg",
+    "png": "PNG/Settlement/Metrics/white/growth_time.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/color/growth_time",
+    "svg": "SVG/Settlement/Metrics/color/growth_time.svg",
+    "png": "PNG/Settlement/Metrics/color/growth_time.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ink/critical_hits",
+    "svg": "SVG/Settlement/Metrics/ink/critical_hits.svg",
+    "png": "PNG/Settlement/Metrics/ink/critical_hits.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ivory/critical_hits",
+    "svg": "SVG/Settlement/Metrics/ivory/critical_hits.svg",
+    "png": "PNG/Settlement/Metrics/ivory/critical_hits.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/white/critical_hits",
+    "svg": "SVG/Settlement/Metrics/white/critical_hits.svg",
+    "png": "PNG/Settlement/Metrics/white/critical_hits.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/color/critical_hits",
+    "svg": "SVG/Settlement/Metrics/color/critical_hits.svg",
+    "png": "PNG/Settlement/Metrics/color/critical_hits.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ink/hit_count",
+    "svg": "SVG/Settlement/Metrics/ink/hit_count.svg",
+    "png": "PNG/Settlement/Metrics/ink/hit_count.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ivory/hit_count",
+    "svg": "SVG/Settlement/Metrics/ivory/hit_count.svg",
+    "png": "PNG/Settlement/Metrics/ivory/hit_count.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/white/hit_count",
+    "svg": "SVG/Settlement/Metrics/white/hit_count.svg",
+    "png": "PNG/Settlement/Metrics/white/hit_count.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/color/hit_count",
+    "svg": "SVG/Settlement/Metrics/color/hit_count.svg",
+    "png": "PNG/Settlement/Metrics/color/hit_count.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ink/skill_activations",
+    "svg": "SVG/Settlement/Metrics/ink/skill_activations.svg",
+    "png": "PNG/Settlement/Metrics/ink/skill_activations.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ivory/skill_activations",
+    "svg": "SVG/Settlement/Metrics/ivory/skill_activations.svg",
+    "png": "PNG/Settlement/Metrics/ivory/skill_activations.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/white/skill_activations",
+    "svg": "SVG/Settlement/Metrics/white/skill_activations.svg",
+    "png": "PNG/Settlement/Metrics/white/skill_activations.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/color/skill_activations",
+    "svg": "SVG/Settlement/Metrics/color/skill_activations.svg",
+    "png": "PNG/Settlement/Metrics/color/skill_activations.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ink/growth_level",
+    "svg": "SVG/Settlement/Metrics/ink/growth_level.svg",
+    "png": "PNG/Settlement/Metrics/ink/growth_level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/ivory/growth_level",
+    "svg": "SVG/Settlement/Metrics/ivory/growth_level.svg",
+    "png": "PNG/Settlement/Metrics/ivory/growth_level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/white/growth_level",
+    "svg": "SVG/Settlement/Metrics/white/growth_level.svg",
+    "png": "PNG/Settlement/Metrics/white/growth_level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Metrics/color/growth_level",
+    "svg": "SVG/Settlement/Metrics/color/growth_level.svg",
+    "png": "PNG/Settlement/Metrics/color/growth_level.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/planet_01",
+    "svg": "SVG/Settlement/GrowthColors/planet_01.svg",
+    "png": "PNG/Settlement/GrowthColors/planet_01.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/star_01",
+    "svg": "SVG/Settlement/GrowthColors/star_01.svg",
+    "png": "PNG/Settlement/GrowthColors/star_01.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/planet_02",
+    "svg": "SVG/Settlement/GrowthColors/planet_02.svg",
+    "png": "PNG/Settlement/GrowthColors/planet_02.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/star_02",
+    "svg": "SVG/Settlement/GrowthColors/star_02.svg",
+    "png": "PNG/Settlement/GrowthColors/star_02.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/planet_03",
+    "svg": "SVG/Settlement/GrowthColors/planet_03.svg",
+    "png": "PNG/Settlement/GrowthColors/planet_03.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/star_03",
+    "svg": "SVG/Settlement/GrowthColors/star_03.svg",
+    "png": "PNG/Settlement/GrowthColors/star_03.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/planet_04",
+    "svg": "SVG/Settlement/GrowthColors/planet_04.svg",
+    "png": "PNG/Settlement/GrowthColors/planet_04.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/star_04",
+    "svg": "SVG/Settlement/GrowthColors/star_04.svg",
+    "png": "PNG/Settlement/GrowthColors/star_04.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/planet_05",
+    "svg": "SVG/Settlement/GrowthColors/planet_05.svg",
+    "png": "PNG/Settlement/GrowthColors/planet_05.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/star_05",
+    "svg": "SVG/Settlement/GrowthColors/star_05.svg",
+    "png": "PNG/Settlement/GrowthColors/star_05.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/planet_06",
+    "svg": "SVG/Settlement/GrowthColors/planet_06.svg",
+    "png": "PNG/Settlement/GrowthColors/planet_06.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/GrowthColors/star_06",
+    "svg": "SVG/Settlement/GrowthColors/star_06.svg",
+    "png": "PNG/Settlement/GrowthColors/star_06.png",
+    "width": 256,
+    "height": 256,
+    "border_px": 0
+  },
+  {
+    "id": "Settlement/Components/row_light",
+    "svg": "SVG/Settlement/Components/row_light.svg",
+    "png": "PNG/Settlement/Components/row_light.png",
+    "width": 512,
+    "height": 128,
+    "border_px": 16
+  },
+  {
+    "id": "Settlement/Components/row_dark",
+    "svg": "SVG/Settlement/Components/row_dark.svg",
+    "png": "PNG/Settlement/Components/row_dark.png",
+    "width": 512,
+    "height": 128,
+    "border_px": 16
+  },
+  {
+    "id": "Settlement/Components/bar_track",
+    "svg": "SVG/Settlement/Components/bar_track.svg",
+    "png": "PNG/Settlement/Components/bar_track.png",
+    "width": 512,
+    "height": 48,
+    "border_px": 16
+  },
+  {
+    "id": "Settlement/Components/bar_fill",
+    "svg": "SVG/Settlement/Components/bar_fill.svg",
+    "png": "PNG/Settlement/Components/bar_fill.png",
+    "width": 512,
+    "height": 48,
+    "border_px": 16
+  }
+]
