@@ -70,6 +70,12 @@ namespace BlackHole.Unity
         private enum MatterType { Asteroid, Planet, Star, Earned, Total, Done }
         private MatterType _matterType;
 
+        // Stage바 증가
+        private float _stageFillTarget;
+        private float _stageFillTimer;
+        private const float StageFillDuration = 1.0f;
+        private bool _isShowingStage;
+
         // 행성 파괴
         private int _asteroidTarget;
         private int _planetTarget;
@@ -221,9 +227,13 @@ namespace BlackHole.Unity
             {
                 float fill = maxStage > 0
                     ? Mathf.Clamp01(nextStage / (float)maxStage)
-                    : 1;
+                    : 1f;
 
-                _stageFill.anchorMax = new Vector2(fill, _stageFill.anchorMax.y);
+                _stageFillTarget = fill;
+                _stageFillTimer = 0f;
+                _isShowingStage = true;
+
+                _stageFill.anchorMax = new Vector2(0f, _stageFill.anchorMax.y);
             }
 
             if (_stageText == null)
@@ -334,6 +344,31 @@ namespace BlackHole.Unity
         // MonoBehavior
         private void Update()
         {
+            if (_isShowingStage)
+            {
+                _stageFillTimer += Time.deltaTime;
+
+                float t = Mathf.Clamp01(_stageFillTimer / StageFillDuration);
+
+                // 부드럽게 증가
+                t = Mathf.SmoothStep(0f, 1f, t);
+
+                float currentFill =
+                    Mathf.Lerp(0f, _stageFillTarget, t);
+
+                if (_stageFill != null)
+                    _stageFill.anchorMax = new Vector2(currentFill, _stageFill.anchorMax.y);
+
+                if (t >= 1f)
+                {
+                    _isShowingStage = false;
+
+                    // 최종값 보정
+                    if (_stageFill != null)
+                        _stageFill.anchorMax = new Vector2(_stageFillTarget, _stageFill.anchorMax.y);
+                }
+            }
+
             if (_isShowMatter)
             {
                 _matterTimer += Time.deltaTime;
@@ -388,7 +423,6 @@ namespace BlackHole.Unity
                 }
             }
         }
-
         private void IncreaseResult(TMP_Text _text, long _target, float t)
         {
             // 값이 있을때만 증가 연출
@@ -417,7 +451,6 @@ namespace BlackHole.Unity
         }
 
         private int IncreaseLerp(int _target, float t) => Mathf.RoundToInt(Mathf.Lerp(0, _target, t));
-
         private long LerpLong(long target, float t) => (long)((double)target * t);
     }
 }
