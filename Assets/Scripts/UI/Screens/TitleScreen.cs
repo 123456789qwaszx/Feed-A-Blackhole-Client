@@ -13,6 +13,22 @@ namespace BlackHole.Unity
             StartBtn_Button,
             SettingsBtn_Button,
             QuitBtn_Button,
+            // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
+            SafeAreaRoot,
+
+            // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
+            // _Image는 Image Theme(UI/ImageBindings)가 기본 그림을, _Text는 ThemeSpec이 역할(Title·Body)에 맞춰 글꼴·크기·색을 정한다.
+            // 버튼의 올림·누름·막힘 그림은 프리팹의 Button(Sprite Swap)에 있다.
+            Logo_Image,
+            Title_Text,
+            StartBtn_Image,
+            StartBtn_Text,
+            SettingsBtn_Image,
+            SettingsBtn_Text,
+            QuitBtn_Image,
+            QuitBtn_Text,
+            // 화면 전체를 덮는 배경(안전 영역 밖까지). 기본은 호 무늬 배경.
+            Background_Image,
         }
 
         public event Action StartClicked;

@@ -6,19 +6,37 @@ using UnityEngine.EventSystems;
 
 namespace BlackHole.Unity
 {
-    // 전투 화면(전투 장면 위의 겹 화면). 남은 시간, 이 판이 번 Gold, 블랙홀의 판 Level·목표 Level과 다음 Level까지의 %, 일시정지 여부를 받아 보여 주고, 일시정지·종료 버튼을 알린다.
+    // 전투 화면(전투 장면 위의 겹 화면). 남은 시간, 이 판이 번 Gold, 블랙홀의 판 Level·목표 Level과 다음 Level까지의 %(글자와 막대), 일시정지 여부를 받아 보여 주고, 일시정지·종료 버튼을 알린다.
     // 전투 Session을 모른다 — GameHost가 전투 Step 뒤 표시 값을 넘긴다. 진행 중인 판이 없으면 비어 있는 표시(ShowIdle)다.
     // 번 Gold는 이 판의 합계일 뿐이다. 진행 상태의 Gold는 판이 끝난 뒤 결산이 바꾼다.
     public sealed class BattleScreen : UIRoot<BattleScreen.Refs>
     {
         public enum Refs
         {
-            RemainingText,
-            EarnedGoldText,
-            LevelText,
+            Remaining_Text,
+            EarnedGold_Text,
+            Level_Text,
+            // 다음 Level까지의 몫만큼 늘어나는 막대. 폭은 anchorMax.x로 정한다.
+            LevelFill_Image,
             PauseBtn_Button,
             PauseBtn_Text,
             EndBtn_Button,
+            EndBtn_Text,
+            // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
+            SafeAreaRoot,
+
+            // Presentation이 바꾸는 그림. 코드는 건드리지 않는다.
+            // 배경이 어두워지면 Image Theme로 칩·아이콘을 바꾼다(예: 아이콘 ink → ivory).
+            GoldChip_Image,
+            GoldIcon_Image,
+            LevelChip_Image,
+            LevelBar_Image,
+            TimerChip_Image,
+            TimerIcon_Image,
+            PauseBtn_Image,
+            PauseIcon_Image,
+            EndBtn_Image,
+            EndIcon_Image,
         }
 
         public event Action PauseClicked;
@@ -27,6 +45,7 @@ namespace BlackHole.Unity
         private TMP_Text _remaining;
         private TMP_Text _earned;
         private TMP_Text _level;
+        private RectTransform _levelFill;
         private TMP_Text _pauseLabel;
         private int _shownTenths = -1;
         private long _shownEarned = -1;
@@ -39,9 +58,10 @@ namespace BlackHole.Unity
         {
             ScreenRefs.WarnMissing<Refs>(this);
 
-            _remaining = View.Text(Refs.RemainingText);
-            _earned = View.Text(Refs.EarnedGoldText);
-            _level = View.Text(Refs.LevelText);
+            _remaining = View.Text(Refs.Remaining_Text);
+            _earned = View.Text(Refs.EarnedGold_Text);
+            _level = View.Text(Refs.Level_Text);
+            _levelFill = View.Rect(Refs.LevelFill_Image);
             _pauseLabel = View.Text(Refs.PauseBtn_Text);
 
             BindEvent(View.Button(Refs.PauseBtn_Button), HandlePauseClicked);
@@ -70,6 +90,7 @@ namespace BlackHole.Unity
             {
                 _shownLevel = int.MinValue;
                 _level.text = string.Empty;
+                SetLevelFill(0);
             }
 
             if (_shownPaused != false && _pauseLabel != null)
@@ -107,6 +128,8 @@ namespace BlackHole.Unity
                 _level.text = "Lv " + level.ToString(CultureInfo.InvariantCulture)
                     + (goalLevel > 0 ? " / " + goalLevel.ToString(CultureInfo.InvariantCulture) : string.Empty)
                     + "  " + percent.ToString(CultureInfo.InvariantCulture) + "%";
+                // 막대도 글자와 같은 %로 맞춘다. 1% 단위로만 바뀌므로 매 프레임 레이아웃을 다시 잡지 않는다.
+                SetLevelFill(percent / 100f);
             }
 
             if (paused != _shownPaused && _pauseLabel != null)
@@ -114,6 +137,12 @@ namespace BlackHole.Unity
                 _shownPaused = paused;
                 _pauseLabel.text = paused ? "Resume" : "Pause";
             }
+        }
+
+        private void SetLevelFill(float amount)
+        {
+            if (_levelFill != null)
+                _levelFill.anchorMax = new Vector2(Mathf.Clamp01(amount), _levelFill.anchorMax.y);
         }
     }
 }

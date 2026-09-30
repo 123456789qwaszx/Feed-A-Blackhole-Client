@@ -20,6 +20,14 @@ namespace BlackHole.Unity
             ChoicePopup,
             ChoiceOptionTemplate,
             BackBtn_Button,
+            // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
+            SafeAreaRoot,
+
+            // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
+            // 행(SettingRow)은 위젯이라 Presentation이 닿지 않는다 — 행의 모양은 프리팹의 행 틀에서 정한다.
+            Sheet_Image,
+            Title_Text,
+            BackBtn_Image,
         }
 
         // 행 하나에 보일 설정.

@@ -137,3 +137,6 @@ $RECYCLE.BIN/
 .env
 .env.*
 !.env.example
+
+# Cowork(Claude)가 미리보기 이미지를 저장하는 폴더
+/Claude outputs/
