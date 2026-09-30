@@ -100,6 +100,7 @@ namespace BlackHole.Unity
 
         // 획득 보상
         private long _earnedTarget;
+        private long _totalBegin;
         private long _totalTarget;
 
         // 타이머
@@ -290,6 +291,7 @@ namespace BlackHole.Unity
         {
             _earnedTarget = milestone ? settled : earned;
             _totalTarget = total;
+            _totalBegin = total - earned;
 
             if (_totalLabel != null)
                 _totalLabel.text = milestone ? "REWARD" : "TOTAL";
@@ -298,7 +300,7 @@ namespace BlackHole.Unity
                 _earned.text = Money(0);
 
             if (_totalGold != null)
-                _totalGold.text = Money(0);
+                _totalGold.text = Money(_totalBegin);
         }
 
         // 지금 Gold로 살 수 있는 노드 수. 없으면 수를 붙이지 않는다.
@@ -362,56 +364,70 @@ namespace BlackHole.Unity
         private void Update()
         {
             if (_isShowingStage)
-            {
-                _stageFillTimer += Time.deltaTime;
-
-                float t = Mathf.Clamp01(_stageFillTimer / StageFillDuration);
-
-                // 부드럽게 증가
-                t = Mathf.SmoothStep(0f, 1f, t);
-
-                float currentFill =
-                    Mathf.Lerp(0f, _stageFillTarget, t);
-
-                if (_stageFill != null)
-                    _stageFill.anchorMax = new Vector2(currentFill, _stageFill.anchorMax.y);
-
-                if (t >= 1f)
-                {
-                    _isShowingStage = false;
-
-                    // 최종값 보정
-                    if (_stageFill != null)
-                        _stageFill.anchorMax = new Vector2(_stageFillTarget, _stageFill.anchorMax.y);
-                }
-            }
+                ShowingStage();
 
             if (_isShowMatter)
+                ShowMatter();
+        }
+
+        /// <summary>
+        /// 결과값 증가하는 연출 메서드
+        /// </summary>
+        private void ShowingStage()
+        {
+            _stageFillTimer += Time.deltaTime;
+
+            float t = Mathf.Clamp01(_stageFillTimer / StageFillDuration);
+
+            // 부드럽게 증가
+            t = Mathf.SmoothStep(0f, 1f, t);
+
+            float currentFill =
+                Mathf.Lerp(0f, _stageFillTarget, t);
+
+            if (_stageFill != null)
+                _stageFill.anchorMax = new Vector2(currentFill, _stageFill.anchorMax.y);
+
+            if (t >= 1f)
             {
-                _matterTimer += Time.deltaTime;
+                _isShowingStage = false;
 
-                float t = Mathf.Clamp01(_matterTimer / MatterDuration);
+                // 최종값 보정
+                if (_stageFill != null)
+                    _stageFill.anchorMax = new Vector2(_stageFillTarget, _stageFill.anchorMax.y);
+            }
+        }
+        private void ShowMatter()
+        {
+            _matterTimer += Time.deltaTime;
 
-                // 부드럽게 증가
-                t = Mathf.SmoothStep(0f, 1f, t);
+            float t = Mathf.Clamp01(_matterTimer / MatterDuration);
 
-                // 순서대로 증가 연출
-                switch(_matterType)
-                {
-                    case MatterType.Asteroid:
-                        IncreaseResult(_asteroidText, _asteroidTarget, t); break;
-                    case MatterType.Planet:
-                        IncreaseResult(_planetText, _planetTarget, t); break;
-                    case MatterType.Star:
-                        IncreaseResult(_starText, _starTarget, t); break;
-                    case MatterType.Earned:
-                        IncreaseResult(_earned, _earnedTarget, t); break;
-                    case MatterType.Total:
-                        IncreaseResult(_totalGold, _totalTarget, t); break;
-                }
+            // 부드럽게 증가
+            t = Mathf.SmoothStep(0f, 1f, t);
+
+            // 순서대로 증가 연출
+            switch (_matterType)
+            {
+                case MatterType.Asteroid:
+                    IncreaseResult(_asteroidText, _asteroidTarget, t); break;
+                case MatterType.Planet:
+                    IncreaseResult(_planetText, _planetTarget, t); break;
+                case MatterType.Star:
+                    IncreaseResult(_starText, _starTarget, t); break;
+                case MatterType.Earned:
+                    IncreaseResult(_earned, _earnedTarget, t); break;
+                case MatterType.Total:
+                    IncreaseResult(_totalGold, _totalTarget, t); break;
             }
         }
 
+        /// <summary>
+        /// 각 텍스트 UI를 0부터 현재 값까지 증가
+        /// </summary>
+        /// <param name="_text">TMP_Text UI</param>
+        /// <param name="_target">각 결과값</param>
+        /// <param name="t">lerp 타이머</param>
         private void IncreaseResult(TMP_Text _text, int _target, float t)
         {
             // 값이 있을때만 증가 연출
@@ -446,7 +462,9 @@ namespace BlackHole.Unity
             // (그렇지 않으면 0도 증가하는 연출이 발생해서 기다리는데 지장이 있다)
             if (_target == 0) t = 1f;
 
-            long value = LerpLong(_target, t);
+            // Total은 이번판에 얻은 Gold를 더해서 결산
+            long value = _matterType.Equals(MatterType.Total) ?
+                LerpLong(_totalBegin, _target, t) : LerpLong(_target, t);
             if(_text != null)
                 _text.text = Money(value);
 
@@ -467,7 +485,14 @@ namespace BlackHole.Unity
             }
         }
 
+        /// <summary>
+        /// 부드러운 효과
+        /// </summary>
+        /// <param name="_target">설정값</param>
+        /// <param name="t">타이머</param>
+        /// <returns>0~100% 값</returns>
         private int IncreaseLerp(int _target, float t) => Mathf.RoundToInt(Mathf.Lerp(0, _target, t));
         private long LerpLong(long target, float t) => (long)((double)target * t);
+        private long LerpLong(long start, long target, float t) => start + (long)((double)(target - start) * t);
     }
 }
