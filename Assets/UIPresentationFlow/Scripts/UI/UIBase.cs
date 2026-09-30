@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public abstract class UIBase : MonoBehaviour, IUIPresentationRefProvider
 {
+    public static Action OnGlobalUIClick; // 전역 UI 클릭 사운드 이벤트를 위한 델리게이트
+
     private bool _initialized;
 
     protected virtual void Awake()
