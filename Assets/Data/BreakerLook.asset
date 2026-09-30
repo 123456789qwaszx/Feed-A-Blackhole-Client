@@ -57,3 +57,10 @@ MonoBehaviour:
   _missStrength: 0.5
   _hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
   _criticalFlashColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  _orbMaterial: {fileID: 2100000, guid: 89089763f29d1ad439f6b3238e56e555, type: 2}
+  _orbRadius: 0.3
+  _orbitOffset: 0.1
+  _orbitSpeed: 0.15
+  _moonFill: {r: 1, g: 1, b: 1, a: 1}
+  _moonOutline: {r: 0.25, g: 0.27, b: 0.32, a: 1}
+  _moonOutlineWidth: 0.01

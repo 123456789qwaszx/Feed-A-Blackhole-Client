@@ -45,6 +45,25 @@ namespace BlackHole.Unity
         [Tooltip("치명타 Tick의 튐 정점에서 섞는 색.")]
         [SerializeField] private Color _criticalFlashColor = new(1f, 0.85f, 0.2f, 1f);
 
+        [Header("버프 구체: 중첩 하나마다 구체 하나가 링 바깥 궤도를 시계방향으로 돈다(달·혜성이 한 궤도를 나눠 쓴다)")]
+        [Tooltip("BlackHole/Breaker Orbs 셰이더의 머티리얼. 혜성의 무지개(흐름 속도·채도)는 이 머티리얼의 속성이다.")]
+        [SerializeField] private Material _orbMaterial;
+        [Tooltip("구체의 반지름(월드 단위). 링 크기·카메라와 관계없이 그대로다.")]
+        [Min(0.001f)]
+        [SerializeField] private float _orbRadius = 0.3f;
+        [Tooltip("링 바깥 가장자리와 구체 사이의 간격(월드 단위). 궤도 반지름 = 링 반지름 + 링 굵기/2 + 구체 반지름 + 이 값.")]
+        [Min(0)]
+        [SerializeField] private float _orbitOffset = 0.1f;
+        [Tooltip("공전 속도(바퀴/초, 시계방향).")]
+        [SerializeField] private float _orbitSpeed = 0.15f;
+        [Tooltip("달 구체의 채움 색.")]
+        [SerializeField] private Color _moonFill = Color.white;
+        [Tooltip("달 구체의 테두리 색.")]
+        [SerializeField] private Color _moonOutline = new(0.25f, 0.27f, 0.32f, 1f);
+        [Tooltip("달 구체의 테두리 두께(월드 단위).")]
+        [Min(0)]
+        [SerializeField] private float _moonOutlineWidth = 0.01f;
+
         public Material Material => _material;
         public float Thickness => _thickness;
         public int DashCount => _dashCount;
@@ -57,6 +76,13 @@ namespace BlackHole.Unity
         public float MissStrength => _missStrength;
         public Color HitFlashColor => _hitFlashColor;
         public Color CriticalFlashColor => _criticalFlashColor;
+        public Material OrbMaterial => _orbMaterial;
+        public float OrbRadius => _orbRadius;
+        public float OrbitOffset => _orbitOffset;
+        public float OrbitSpeed => _orbitSpeed;
+        public Color MoonFill => _moonFill;
+        public Color MoonOutline => _moonOutline;
+        public float MoonOutlineWidth => _moonOutlineWidth;
 
         // 진행(0 ~ 1)에서의 튐 세기. 곡선이 없으면 튀지 않는다.
         public float Punch(float progress) => _punchCurve == null ? 0 : _punchCurve.Evaluate(progress);
