@@ -345,53 +345,61 @@ namespace BlackHole.Unity
         private void Update()
         {
             if (_isShowingStage)
-            {
-                _stageFillTimer += Time.deltaTime;
-
-                float t = Mathf.Clamp01(_stageFillTimer / StageFillDuration);
-
-                // 부드럽게 증가
-                t = Mathf.SmoothStep(0f, 1f, t);
-
-                float currentFill =
-                    Mathf.Lerp(0f, _stageFillTarget, t);
-
-                if (_stageFill != null)
-                    _stageFill.anchorMax = new Vector2(currentFill, _stageFill.anchorMax.y);
-
-                if (t >= 1f)
-                {
-                    _isShowingStage = false;
-
-                    // 최종값 보정
-                    if (_stageFill != null)
-                        _stageFill.anchorMax = new Vector2(_stageFillTarget, _stageFill.anchorMax.y);
-                }
-            }
+                ShowingStage();
 
             if (_isShowMatter)
+                ShowMatter();
+        }
+
+        /// <summary>
+        /// 결과값 증가하는 연출 메서드
+        /// </summary>
+        private void ShowingStage()
+        {
+            _stageFillTimer += Time.deltaTime;
+
+            float t = Mathf.Clamp01(_stageFillTimer / StageFillDuration);
+
+            // 부드럽게 증가
+            t = Mathf.SmoothStep(0f, 1f, t);
+
+            float currentFill =
+                Mathf.Lerp(0f, _stageFillTarget, t);
+
+            if (_stageFill != null)
+                _stageFill.anchorMax = new Vector2(currentFill, _stageFill.anchorMax.y);
+
+            if (t >= 1f)
             {
-                _matterTimer += Time.deltaTime;
+                _isShowingStage = false;
 
-                float t = Mathf.Clamp01(_matterTimer / MatterDuration);
+                // 최종값 보정
+                if (_stageFill != null)
+                    _stageFill.anchorMax = new Vector2(_stageFillTarget, _stageFill.anchorMax.y);
+            }
+        }
+        private void ShowMatter()
+        {
+            _matterTimer += Time.deltaTime;
 
-                // 부드럽게 증가
-                t = Mathf.SmoothStep(0f, 1f, t);
+            float t = Mathf.Clamp01(_matterTimer / MatterDuration);
 
-                // 순서대로 증가 연출
-                switch(_matterType)
-                {
-                    case MatterType.Asteroid:
-                        IncreaseResult(_asteroidText, _asteroidTarget, t); break;
-                    case MatterType.Planet:
-                        IncreaseResult(_planetText, _planetTarget, t); break;
-                    case MatterType.Star:
-                        IncreaseResult(_starText, _starTarget, t); break;
-                    case MatterType.Earned:
-                        IncreaseResult(_earned, _earnedTarget, t); break;
-                    case MatterType.Total:
-                        IncreaseResult(_totalGold, _totalTarget, t); break;
-                }
+            // 부드럽게 증가
+            t = Mathf.SmoothStep(0f, 1f, t);
+
+            // 순서대로 증가 연출
+            switch (_matterType)
+            {
+                case MatterType.Asteroid:
+                    IncreaseResult(_asteroidText, _asteroidTarget, t); break;
+                case MatterType.Planet:
+                    IncreaseResult(_planetText, _planetTarget, t); break;
+                case MatterType.Star:
+                    IncreaseResult(_starText, _starTarget, t); break;
+                case MatterType.Earned:
+                    IncreaseResult(_earned, _earnedTarget, t); break;
+                case MatterType.Total:
+                    IncreaseResult(_totalGold, _totalTarget, t); break;
             }
         }
 
