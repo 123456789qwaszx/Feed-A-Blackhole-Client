@@ -28,6 +28,9 @@ namespace BlackHole.Unity
         [SerializeField] private SkillSetup _skillSetup;
         [SerializeField] private NodeCatalog _nodeCatalog;
 
+        [Header("Looks")]
+        [SerializeField] private ExplosionLook _explosionLook;
+
         [Header("UI Layers")]
         [SerializeField] private RectTransform _rootLayer;
         [SerializeField] private RectTransform _panelLayer;
@@ -74,6 +77,7 @@ namespace BlackHole.Unity
             if (!TryLoadContent(out _content)
                 || !TryLoadNodeTree(out _layout, out _nodeTree)
                 || !NodesFitContent(_content, _nodeTree)
+                || !HasConfiguredLooks()
                 || !HasConfiguredUI())
             {
                 enabled = false;
@@ -93,7 +97,7 @@ namespace BlackHole.Unity
             _enemyLooks = new EnemyLooks(_enemyCatalog.Kinds());
             _enemyView = new EnemyView(transform, _enemyLooks);
             _skillView = new SkillView(transform);
-            _deathEffectView = new DeathEffectView(transform);
+            _deathEffectView = new DeathEffectView(transform, _explosionLook);
             _hqView = new HqView(transform);
         }
 
@@ -161,6 +165,15 @@ namespace BlackHole.Unity
 
             foreach (UIPresentationSpec presentation in _emptyPresentations)
                 Destroy(presentation);
+        }
+
+        private bool HasConfiguredLooks()
+        {
+            if (_explosionLook != null && _explosionLook.Material != null)
+                return true;
+
+            Debug.LogError("[외형] GameBootstrap에 폭발 외형(ExplosionLook)을, 폭발 외형에 머티리얼을 연결해야 한다.", this);
+            return false;
         }
 
         private bool HasConfiguredUI()
