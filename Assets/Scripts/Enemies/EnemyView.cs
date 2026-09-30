@@ -6,16 +6,26 @@ using Object = UnityEngine.Object;
 
 namespace BlackHole.Unity
 {
-    // 적 시스템의 화면. 매 프레임 World의 살아 있는 적을 읽어 스프라이트를 맞춘다. 게임 상태를 바꾸지 않는다.
-    // 외형은 적 종류 에셋이 가진다(EnemyLooks). 색은 적의 색 등급으로, 크기는 적의 수치로 정한다.
-    // 황금이면 그 색의 윤곽 안에 노란 속을 한 겹 더 그린다. 스프라이트가 없는 종류는 임시 원으로 그린다.
+    // 적 시스템의 화면. 매 프레임 World의 살아 있는 적을 읽어 스프라이트를 맞추고, 짧은 피격 흔들림 연출도 같이 진행시킨다.
+    // 게임 상태를 바꾸지 않는다. 외형은 적 종류 에셋이 가진다(EnemyLooks). 색은 적의 색 등급으로, 크기는 적의 수치로 정한다.
+    // 황금이면 그 색의 윤곽 안에 노란 속을 한 겹 더 그린다. 스프라이트가 없는 종류는 적 ID에 맞는 다각형으로 그린다.
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다. 파괴·흡수 연출은 연출 작업에서 사망 기록을 읽어 더한다.
     // 규칙 평면은 장면의 z = 0이고 x·y는 같다. HQ(원점)가 장면의 원점이다.
     internal sealed class EnemyView : IDisposable
     {
+        // 적 하나의 화면 상태: 스프라이트와, 그 스프라이트에 적용되는 짧은 피격 흔들림 연출.
+        // 둘을 한 쌍으로 묶어 두면 EnemyId 하나당 여러 딕셔너리를 오가며 맞출 필요가 없다.
+        private sealed class EnemyVisual
+        {
+            public SpriteRenderer Renderer;
+            public EnemyHitAnimation Hit;
+        }
+
         private readonly Transform _root;
         private readonly EnemyLooks _looks;
-        private readonly Dictionary<EnemyId, SpriteRenderer> _views = new Dictionary<EnemyId, SpriteRenderer>();
+        private readonly EnemyHitParticles _hitParticles;
+        private readonly Dictionary<EnemyId, EnemyVisual> _visuals = new Dictionary<EnemyId, EnemyVisual>();
+        private readonly Dictionary<EnemyId, Enemy> _models = new Dictionary<EnemyId, Enemy>();
         private readonly HashSet<EnemyId> _seen = new HashSet<EnemyId>();
         private readonly List<EnemyId> _gone = new List<EnemyId>();
 
@@ -24,9 +34,11 @@ namespace BlackHole.Unity
             _root = new GameObject("Enemy View").transform;
             _root.SetParent(parent, false);
             _looks = looks;
+            _hitParticles = _root.gameObject.AddComponent<EnemyHitParticles>();
         }
 
-        public void Synchronize(World world)
+        // delta: 이번 호출 사이 지난 시간. 피격 흔들림 진행에 쓴다(즉시 스냅만 하고 싶을 때는 0을 넘긴다).
+        public void Synchronize(World world, float delta)
         {
             _seen.Clear();
             IReadOnlyList<Enemy> enemies = world.Enemies;
@@ -37,18 +49,22 @@ namespace BlackHole.Unity
                 Enemy enemy = enemies[i];
                 _seen.Add(enemy.Id);
 
-                if (!_views.TryGetValue(enemy.Id, out SpriteRenderer view))
+                if (!_visuals.TryGetValue(enemy.Id, out EnemyVisual visual))
                 {
-                    view = Create(enemy);
-                    _views.Add(enemy.Id, view);
+                    visual = Create(enemy);
+                    _visuals.Add(enemy.Id, visual);
+                    _models.Add(enemy.Id, enemy);
+                    enemy.Damaged += visual.Hit.Play;
+                    _hitParticles.Register(enemy, _looks.ColorOf(enemy.Definition.Id, enemy.Tier));
                 }
 
-                view.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
+                visual.Renderer.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
+                visual.Hit.Advance(delta, visual.Renderer.transform);
             }
 
             _gone.Clear();
 
-            foreach (EnemyId id in _views.Keys)
+            foreach (EnemyId id in _visuals.Keys)
             {
                 if (!_seen.Contains(id))
                     _gone.Add(id);
@@ -56,34 +72,43 @@ namespace BlackHole.Unity
 
             foreach (EnemyId id in _gone)
             {
-                Object.Destroy(_views[id].gameObject);
-                _views.Remove(id);
+                _models[id].Damaged -= _visuals[id].Hit.Play;
+                _hitParticles.Unregister(_models[id]);
+                Object.Destroy(_visuals[id].Renderer.gameObject);
+                _visuals.Remove(id);
+                _models.Remove(id);
             }
         }
 
         // 관리하는 적 스프라이트가 없고, 지운 객체도 장면에서 모두 사라졌는가.
         // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _views.Count == 0 && _root.childCount == 0;
+        public bool IsClear => _visuals.Count == 0 && _root.childCount == 0;
 
         // 판이 바뀌거나 판을 정리할 때 모든 적 스프라이트를 지운다. 정리는 처치가 아니므로 연출도 없다.
         public void Reset()
         {
-            foreach (SpriteRenderer view in _views.Values)
-                Object.Destroy(view.gameObject);
+            foreach (KeyValuePair<EnemyId, EnemyVisual> entry in _visuals)
+            {
+                _models[entry.Key].Damaged -= entry.Value.Hit.Play;
+                _hitParticles.Unregister(_models[entry.Key]);
+                Object.Destroy(entry.Value.Renderer.gameObject);
+            }
 
-            _views.Clear();
+            _visuals.Clear();
+            _models.Clear();
+            _hitParticles.Clear();
         }
 
         public void Dispose() => Object.Destroy(_root.gameObject);
 
-        private SpriteRenderer Create(Enemy enemy)
+        private EnemyVisual Create(Enemy enemy)
         {
             string kind = enemy.Definition.Id;
             var view = new GameObject(enemy.IsGolden ? $"{kind} #{enemy.Id.Value} (golden)" : $"{kind} #{enemy.Id.Value}");
             view.transform.SetParent(_root, false);
 
             var renderer = view.AddComponent<SpriteRenderer>();
-            renderer.sprite = _looks.SpriteOf(kind);
+            renderer.sprite = _looks.SpriteOf(kind, enemy.Id.Value);
             renderer.color = _looks.ColorOf(kind, enemy.Tier);
 
             // 크기는 규칙 수치(반지름)를 그대로 쓴다: 스프라이트의 긴 변이 지름이 되게 맞춘다.
@@ -103,7 +128,7 @@ namespace BlackHole.Unity
                 fillRenderer.sortingOrder = renderer.sortingOrder + 1;
             }
 
-            return renderer;
+            return new EnemyVisual { Renderer = renderer, Hit = new EnemyHitAnimation() };
         }
     }
 }

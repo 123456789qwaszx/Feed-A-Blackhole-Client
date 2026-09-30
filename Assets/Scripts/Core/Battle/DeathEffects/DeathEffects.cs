@@ -71,13 +71,13 @@ namespace BlackHole.Core
                     case ExplosionDefinition explosion:
                         Explode(explosion, pending, world);
                         break;
-                    case AttackHasteDefinition haste:
+                    case MoonBuffDefinition:
                         foreach (BattlePlayer player in world.Players)
-                            player.Breaker?.GrantHaste(haste);
+                            player.Breaker?.GrantMoon();
                         break;
-                    case GuaranteedCriticalDefinition critical:
+                    case CometBuffDefinition:
                         foreach (BattlePlayer player in world.Players)
-                            player.Breaker?.GrantGuaranteedCritical(critical);
+                            player.Breaker?.GrantComet();
                         break;
                 }
             }
