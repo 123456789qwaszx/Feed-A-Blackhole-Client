@@ -99,6 +99,11 @@ namespace BlackHole.Unity
             _skillView = new SkillView(transform);
             _deathEffectView = new DeathEffectView(transform);
             _hqView = new HqView(transform);
+
+            // 전투 카메라를 화면비에 맞춘다(좁은 화면에서도 16:9의 가로 폭을 보여 준다). 씬에 없으면 여기서 붙인다.
+            Camera battleCamera = Camera.main;
+            if (battleCamera != null && !battleCamera.TryGetComponent(out BattleCameraFit _))
+                battleCamera.gameObject.AddComponent<BattleCameraFit>();
         }
 
         private void BootstrapBattle()
