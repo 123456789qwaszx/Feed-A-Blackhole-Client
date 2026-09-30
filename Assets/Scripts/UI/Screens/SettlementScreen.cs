@@ -67,18 +67,22 @@ namespace BlackHole.Unity
 
         #region 0부터 일정시간동안 증가시키는 방식
         // 증가 순서
-        private enum MatterType { Asteroid, Planet, Star, Done }
+        private enum MatterType { Asteroid, Planet, Star, Earned, Total, Done }
         private MatterType _matterType;
 
+        // 행성 파괴
         private int _asteroidTarget;
         private int _planetTarget;
         private int _starTarget;
 
+        // 획득 보상
+        private long _earnedTarget;
+        private long _totalTarget;
+
+        // 타이머
         private float _matterTimer;
         private const float MatterDuration = 1.0f;
         private bool _isShowMatter;
-
-        private int targetOrder = 0;
         #endregion
 
         protected override void OnInitialize()
@@ -257,17 +261,17 @@ namespace BlackHole.Unity
         // earned: 이 판이 번 Gold. settled: 결산이 더한 Gold(이정표로 끝났으면 이정표 보상). total: 결산 뒤 진행 상태의 Gold.
         public void ShowGold(long earned, long settled, bool milestone, long total)
         {
+            _earnedTarget = milestone ? settled : earned;
+            _totalTarget = total;
+
             if (_totalLabel != null)
                 _totalLabel.text = milestone ? "REWARD" : "TOTAL";
 
             if (_earned != null)
-            {
-
-                _earned.text = Money(milestone ? settled : earned);
-            }
+                _earned.text = Money(0);
 
             if (_totalGold != null)
-                _totalGold.text = Money(total);
+                _totalGold.text = Money(0);
         }
 
         // 지금 Gold로 살 수 있는 노드 수. 없으면 수를 붙이지 않는다.
@@ -348,6 +352,10 @@ namespace BlackHole.Unity
                         IncreaseResult(_planetText, _planetTarget, t); break;
                     case MatterType.Star:
                         IncreaseResult(_starText, _starTarget, t); break;
+                    case MatterType.Earned:
+                        IncreaseResult(_earned, _earnedTarget, t); break;
+                    case MatterType.Total:
+                        IncreaseResult(_totalGold, _totalTarget, t); break;
                 }
             }
         }
@@ -371,12 +379,36 @@ namespace BlackHole.Unity
                     case MatterType.Planet:
                         _matterType = MatterType.Star; break;
                     case MatterType.Star:
-                        _isShowMatter = false;
-                        _matterType = MatterType.Done; break;
+                        _matterType = MatterType.Earned; break;
+                }
+            }
+        }
+
+        private void IncreaseResult(TMP_Text _text, long _target, float t)
+        {
+            long value = LerpLong(_target, t);
+            if(_text != null)
+                _text.text = Money(value);
+
+            if (t >= 1f)
+            {
+                _text.text = Money(_target);
+
+                _matterTimer = 0f;
+
+                switch (_matterType)
+                {
+                    case MatterType.Earned:
+                        _matterType = MatterType.Total; break;
+                    case MatterType.Total:
+                        _matterType = MatterType.Done;
+                        _isShowMatter = false; break;
                 }
             }
         }
 
         private int IncreaseLerp(int _target, float t) => Mathf.RoundToInt(Mathf.Lerp(0, _target, t));
+
+        private long LerpLong(long target, float t) => (long)((double)target * t);
     }
 }
