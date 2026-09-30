@@ -111,6 +111,7 @@ namespace BlackHole.Unity
 
             //Session.Advance(delta);
             _enemyView.Synchronize(Session.World, delta);
+            _breakerView.Synchronize(Session.World, Session.Phase == SessionPhase.Paused, delta);
             _skillView.Synchronize(Session.World, delta);
             _deathEffectView.Synchronize(Session.World, delta);
             _hqView.Synchronize(Session.World, delta);
