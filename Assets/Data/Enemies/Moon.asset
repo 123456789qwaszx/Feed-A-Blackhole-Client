@@ -37,6 +37,4 @@ MonoBehaviour:
   effectDamage: 0
   effectRadius: 0
   effectMaxTargets: 0
-  effectDuration: 5
-  effectIntervalMultiplier: 0.5
   sprite: {fileID: 0}
