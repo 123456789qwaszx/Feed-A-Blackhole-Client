@@ -8,7 +8,7 @@ namespace BlackHole.Unity
 {
     // 씬의 직렬화 설정으로 게임을 조립하는 Unity 진입점.
     // - Awake: 콘텐츠·노드 트리 로드·검증, 적 화면·스킬 화면·사망 효과 화면·블랙홀 화면, 진행 상태, 전투 시스템, 조준 입력,
-    //   플레이어 설정, UI(UIManager와 타이틀·업그레이드·전투·결산 화면, 모드 선택·설정 패널), 화면 흐름, GameHost 조립.
+    //   UI(UIManager와 타이틀·업그레이드·전투·결산 화면), 화면 흐름, GameHost 조립.
     // - Start/Update: 조립한 GameHost에 Unity 수명을 전달한다.
     //
     // 콘텐츠: 판 설정은 SampleContent(C#), 스킬은 스킬 설정 에셋, 적 종류는 적 종류 목록 에셋,
@@ -27,6 +27,9 @@ namespace BlackHole.Unity
         [SerializeField] private HqGrowthSetup _hqGrowth;
         [SerializeField] private SkillSetup _skillSetup;
         [SerializeField] private NodeCatalog _nodeCatalog;
+
+        [Header("Looks")]
+        [SerializeField] private BreakerLook _breakerLook;
 
         [Header("UI Layers")]
         [SerializeField] private RectTransform _rootLayer;
@@ -61,6 +64,7 @@ namespace BlackHole.Unity
         private NodeTree _nodeTree;
         private EnemyLooks _enemyLooks;
         private EnemyView _enemyView;
+        private BreakerView _breakerView;
         private SkillView _skillView;
         private DeathEffectView _deathEffectView;
         private HqView _hqView;
@@ -78,6 +82,7 @@ namespace BlackHole.Unity
             if (!TryLoadContent(out _content)
                 || !TryLoadNodeTree(out _layout, out _nodeTree)
                 || !NodesFitContent(_content, _nodeTree)
+                || !HasConfiguredLooks()
                 || !HasConfiguredUI())
             {
                 enabled = false;
@@ -96,6 +101,7 @@ namespace BlackHole.Unity
         {
             _enemyLooks = new EnemyLooks(_enemyCatalog.Kinds());
             _enemyView = new EnemyView(transform, _enemyLooks);
+            _breakerView = new BreakerView(transform, _breakerLook);
             _skillView = new SkillView(transform);
             _deathEffectView = new DeathEffectView(transform);
             _hqView = new HqView(transform);
@@ -110,7 +116,7 @@ namespace BlackHole.Unity
         {
             // 화면이 보는 진행 상태: 방장의 것. 전투 사이에 이어진다(저장은 없다).
             _viewer = new PlayerState(Host);
-            _battle = new BattleSystem(_content, _viewer, _enemyView, _skillView, _deathEffectView, _hqView);
+            _battle = new BattleSystem(_content, _viewer, _enemyView, _breakerView, _skillView, _deathEffectView, _hqView);
             // 마우스가 조준하는 참가자: 방장.
             _aim = new AimInput(_battle, _viewer.Id);
         }
@@ -164,7 +170,7 @@ namespace BlackHole.Unity
         private void BootstrapHost()
         {
             _host = new GameHost(_ui, _battle, _aim, _screens,
-                _enemyLooks, _enemyView, _skillView, _deathEffectView, _hqView);
+                _enemyLooks, _enemyView, _breakerView, _skillView, _deathEffectView, _hqView);
         }
 
         private void Start() => _host?.Start();
@@ -177,6 +183,16 @@ namespace BlackHole.Unity
 
             foreach (UIPresentationSpec presentation in _emptyPresentations)
                 Destroy(presentation);
+        }
+
+        private bool HasConfiguredLooks()
+        {
+            if (_breakerLook != null && _breakerLook.Material != null && _breakerLook.OrbMaterial != null
+                && _breakerLook.CometAuraMaterial != null)
+                return true;
+
+            Debug.LogError("[외형] GameBootstrap에 Breaker 외형(BreakerLook)을, Breaker 외형에 링·버프 구체·혜성 배경 원 머티리얼을 연결해야 한다.", this);
+            return false;
         }
 
         private bool HasConfiguredUI()
