@@ -30,6 +30,7 @@ namespace BlackHole.Unity
 
         [Header("Looks")]
         [SerializeField] private ExplosionLook _explosionLook;
+        [SerializeField] private LightningLook _lightningLook;
 
         [Header("UI Layers")]
         [SerializeField] private RectTransform _rootLayer;
@@ -97,7 +98,7 @@ namespace BlackHole.Unity
             _enemyLooks = new EnemyLooks(_enemyCatalog.Kinds());
             _enemyView = new EnemyView(transform, _enemyLooks);
             _skillView = new SkillView(transform);
-            _deathEffectView = new DeathEffectView(transform, _explosionLook);
+            _deathEffectView = new DeathEffectView(transform, _lightningLook, _explosionLook);
             _hqView = new HqView(transform);
         }
 
@@ -169,11 +170,21 @@ namespace BlackHole.Unity
 
         private bool HasConfiguredLooks()
         {
-            if (_explosionLook != null && _explosionLook.Material != null)
-                return true;
+            bool configured = true;
 
-            Debug.LogError("[외형] GameBootstrap에 폭발 외형(ExplosionLook)을, 폭발 외형에 머티리얼을 연결해야 한다.", this);
-            return false;
+            if (_explosionLook == null || _explosionLook.Material == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 폭발 외형(ExplosionLook)을, 폭발 외형에 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            if (_lightningLook == null || _lightningLook.Material == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 번개 외형(LightningLook)을, 번개 외형에 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            return configured;
         }
 
         private bool HasConfiguredUI()
