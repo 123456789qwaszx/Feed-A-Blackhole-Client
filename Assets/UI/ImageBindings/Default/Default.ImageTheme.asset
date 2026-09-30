@@ -16,3 +16,4 @@ MonoBehaviour:
   bindings:
   - {fileID: 11400000, guid: 8857360e7c58293a954eab098f092b21, type: 2}
   - {fileID: 11400000, guid: ed41656793f8a747070cb0ad70b6f707, type: 2}
+  - {fileID: 11400000, guid: 35df6e10d6ca00bc3bbf01eea1b0b633, type: 2}
