@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3cb9f20dcb376d428e2d3b0386482f6, type: 3}
   m_Name: BreakerLook
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.BreakerLook
-  material: {fileID: 2100000, guid: 68919185f544bac4980bc5f5b15f3de5, type: 2}
-  thickness: 0.12
-  dashCount: 12
-  dashRatio: 0.6
-  color: {r: 0.92, g: 0.92, b: 0.92, a: 0.9}
-  rotationSpeed: 0.05
-  punchDuration: 0.14
-  punchCurve:
+  _material: {fileID: 2100000, guid: 68919185f544bac4980bc5f5b15f3de5, type: 2}
+  _thickness: 0.12
+  _dashCount: 8
+  _dashRatio: 0.6
+  _color: {r: 0.92, g: 0.92, b: 0.92, a: 0.9}
+  _rotationSpeed: 0.05
+  _punchDuration: 0.14
+  _punchCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -52,8 +52,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  punchRadiusScale: 0.08
-  punchThicknessScale: 0.6
-  missStrength: 0.5
-  hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
-  criticalFlashColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  _punchRadiusScale: 0.1
+  _punchThicknessScale: 0.6
+  _missStrength: 0.5
+  _hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
+  _criticalFlashColor: {r: 1, g: 0.85, b: 0.2, a: 1}
