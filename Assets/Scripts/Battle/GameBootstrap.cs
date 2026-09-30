@@ -88,7 +88,6 @@ namespace BlackHole.Unity
             BootstrapBattle();
             BootstrapSettings();
             BootstrapUI();
-            BootstrapSoundManager();
             BootstrapScreenFlow();
             BootstrapHost();
         }
@@ -137,6 +136,9 @@ namespace BlackHole.Unity
 
         private void BootstrapScreenFlow()
         {
+            AudioSource audioSource = GetComponent<AudioSource>();
+            _soundManager = new SoundManager(audioSource, _uiSoundSetup);
+
             _screens = new ScreenFlow(
                 _ui,
                 OrEmpty(_titlePresentation, "Title"),
@@ -147,20 +149,14 @@ namespace BlackHole.Unity
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
                 OrEmpty(_nodeTreePresentation, "NodeTree"),
-                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth, _settings);
+                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth, _settings,
+                _soundManager);
         }
 
         private void BootstrapHost()
         {
             _host = new GameHost(_ui, _battle, _aim, _screens,
                 _enemyLooks, _enemyView, _skillView, _deathEffectView, _hqView);
-        }
-
-        private void BootstrapSoundManager()
-        {
-            AudioSource audioSource = GetComponent<AudioSource>();
-            _soundManager = new SoundManager(audioSource, _uiSoundSetup);
-            UIBase.OnGlobalUIClick = _soundManager.PlayClick;
         }
 
         private void Start() => _host?.Start();
