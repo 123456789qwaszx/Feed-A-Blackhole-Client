@@ -1,0 +1,209 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9eabd7c5d4b6e1a379304b07ff79798, type: 3}
+  m_Name: NodeTreeLook
+  m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.NodeTreeLook
+  _fallback:
+    stat: 
+    available: {fileID: 21300000, guid: 94565b90c3c89bb95f002127f2449c93, type: 3}
+    hover: {fileID: 21300000, guid: 4b80c1aca6c8fc1a54d3b998b73f5227, type: 3}
+    purchased: {fileID: 21300000, guid: 6cdac54be1ea5873e1dad70509638d92, type: 3}
+    locked: {fileID: 21300000, guid: a1c7502f42d54ba4c2e60f0707019a05, type: 3}
+  _stats:
+  - stat: breaker.damage
+    available: {fileID: 21300000, guid: 402f08b171dd9a7a000566cce237a739, type: 3}
+    hover: {fileID: 21300000, guid: df5443a6a435e1511e627cade5b77cca, type: 3}
+    purchased: {fileID: 21300000, guid: 30a6b092686e64d9003a2fb65079d39e, type: 3}
+    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
+  - stat: breaker.speed
+    available: {fileID: 21300000, guid: 357b755cdd83cf92ea65e952d10e8d72, type: 3}
+    hover: {fileID: 21300000, guid: 981db0df3a95a18ea6bff78a7dc47521, type: 3}
+    purchased: {fileID: 21300000, guid: a8125ff5b9bc4cab03c2f2f7ddced164, type: 3}
+    locked: {fileID: 21300000, guid: 648af0d8f991d9884e2e8805cf0bf5e4, type: 3}
+  - stat: breaker.radius
+    available: {fileID: 21300000, guid: 30590392f3769b812fbb1706273782e5, type: 3}
+    hover: {fileID: 21300000, guid: 80168dce37ee2c71b5a9ae2f3209872f, type: 3}
+    purchased: {fileID: 21300000, guid: 75df5480aabad552d9c6bdaec48f0395, type: 3}
+    locked: {fileID: 21300000, guid: 1ec7b5f9022b2d914e7f60781fc6b9d6, type: 3}
+  - stat: breaker.crit-chance
+    available: {fileID: 21300000, guid: 38ca5ef27396bd58575645c106b3212f, type: 3}
+    hover: {fileID: 21300000, guid: f348216d8deb8364e150bf7d60cae24c, type: 3}
+    purchased: {fileID: 21300000, guid: 40ee90ea18185758854ff6ab544a2355, type: 3}
+    locked: {fileID: 21300000, guid: 067cbc8296e231a4e1caded829790cd7, type: 3}
+  - stat: breaker.crit-multiplier
+    available: {fileID: 21300000, guid: c5820fac0240cba0f02e1616deb3adb1, type: 3}
+    hover: {fileID: 21300000, guid: 91bdbcb95b8bccd7afb4b24270f54a58, type: 3}
+    purchased: {fileID: 21300000, guid: 99374565e1036af5c63e2739efe74b5e, type: 3}
+    locked: {fileID: 21300000, guid: 55197022ddec7ef91ccb57f6854901cd, type: 3}
+  - stat: hq.growth-time
+    available: {fileID: 21300000, guid: 7198f73d912e0b87f862a1c03634b969, type: 3}
+    hover: {fileID: 21300000, guid: 71badb1971a2f550b7fdd5ed91943a89, type: 3}
+    purchased: {fileID: 21300000, guid: b29e18fc71088bc59f6cd5609ed38d66, type: 3}
+    locked: {fileID: 21300000, guid: c20f2490e7efccd8dcc7775e02d48852, type: 3}
+  - stat: enemy.asteroid.mass-level
+    available: {fileID: 21300000, guid: 4a70c58e63d1d5d09635cc24edc282ec, type: 3}
+    hover: {fileID: 21300000, guid: 2d27e38927fd8fd16b20667385bc1c3d, type: 3}
+    purchased: {fileID: 21300000, guid: 8a833e4b12d44bbae652a9366522ba5f, type: 3}
+    locked: {fileID: 21300000, guid: c5dd0489473058543c9500383f8c9a4b, type: 3}
+  - stat: enemy.asteroid.golden-ratio
+    available: {fileID: 21300000, guid: c9cd040f45e6488bd3a0d4e85a1de225, type: 3}
+    hover: {fileID: 21300000, guid: 000f02a0b5ec9adac7a365471fe7c1f5, type: 3}
+    purchased: {fileID: 21300000, guid: db87ebf0c7950452b3dcf16e9f1a6cb8, type: 3}
+    locked: {fileID: 21300000, guid: 6a31d0232e273a22b4e20eb42b1fdbe1, type: 3}
+  - stat: enemy.asteroid.golden-multiplier
+    available: {fileID: 21300000, guid: de55b8e4b9e06c2476d0a94457d77ac4, type: 3}
+    hover: {fileID: 21300000, guid: 426e278ecb5e2edc8b985afbb26efa5a, type: 3}
+    purchased: {fileID: 21300000, guid: dda1d0390320368af2636c851ba2c6a2, type: 3}
+    locked: {fileID: 21300000, guid: c7ff613b2d143d59c7cf1f1ad94d1013, type: 3}
+  - stat: enemy.asteroid.start-supply
+    available: {fileID: 21300000, guid: fb835c054e6ee5e021d5ea51e4860f0c, type: 3}
+    hover: {fileID: 21300000, guid: 89a6d86ccb37228c87497eb0c97b47db, type: 3}
+    purchased: {fileID: 21300000, guid: 69cca40cb95d2f4473d382f5c0d0446b, type: 3}
+    locked: {fileID: 21300000, guid: fdb75e88f886a262064a88a3b970e965, type: 3}
+  - stat: enemy.asteroid.growth-supply
+    available: {fileID: 21300000, guid: 375acfe057a85c6f78029741c455a66b, type: 3}
+    hover: {fileID: 21300000, guid: 546f813bc78bc17b29ec452e45b5dfb8, type: 3}
+    purchased: {fileID: 21300000, guid: bdd811cfd36249e7cacd6885dad60ce2, type: 3}
+    locked: {fileID: 21300000, guid: bc9e2ae03a542d64f86f31821bca56f0, type: 3}
+  - stat: enemy.asteroid.upgrade
+    available: {fileID: 21300000, guid: 1dff0522ff320ca967b52019b43cef2b, type: 3}
+    hover: {fileID: 21300000, guid: 31498ced4f5d49b78ba33c0eeb0a4473, type: 3}
+    purchased: {fileID: 21300000, guid: 80fa698467b782c1828f4425140bc96f, type: 3}
+    locked: {fileID: 21300000, guid: 52b662c11c0d14c7ce9f1ae667580f58, type: 3}
+  - stat: enemy.asteroid.size-level
+    available: {fileID: 21300000, guid: e12b994944fe3d02e18c692a6f16564d, type: 3}
+    hover: {fileID: 21300000, guid: 22f6eee11298104287b3b8ac272561bc, type: 3}
+    purchased: {fileID: 21300000, guid: c769b9b6187d62ce83ad2e68da2175af, type: 3}
+    locked: {fileID: 21300000, guid: 7fc85326c46c84004e0166eec8c481a0, type: 3}
+  - stat: enemy.moon.mass-level
+    available: {fileID: 21300000, guid: 85aebab86cf460849b3fecc9776c009a, type: 3}
+    hover: {fileID: 21300000, guid: 94aadc80430befe9ae8dd30b250242ef, type: 3}
+    purchased: {fileID: 21300000, guid: f80ac93d5204f1da9d241269bf86519d, type: 3}
+    locked: {fileID: 21300000, guid: e1aed09c300a2da3590d58fe122e6564, type: 3}
+  - stat: enemy.moon.start-supply
+    available: {fileID: 21300000, guid: bef07fa31f87065e2400d9cced55a57e, type: 3}
+    hover: {fileID: 21300000, guid: 14c46ad3ecc4adf82e31945496138688, type: 3}
+    purchased: {fileID: 21300000, guid: a187aa0fd59b9a91544296569b0e2a48, type: 3}
+    locked: {fileID: 21300000, guid: 412c81628c2545ffe40994073152409f, type: 3}
+  - stat: enemy.moon.growth-supply
+    available: {fileID: 21300000, guid: d508c8dba74ec2ee1024a28019c2a722, type: 3}
+    hover: {fileID: 21300000, guid: 024b9e23b4d4403e375a1ea0c71ee7e2, type: 3}
+    purchased: {fileID: 21300000, guid: 26f9a881f7c2b495d9377f89a423a578, type: 3}
+    locked: {fileID: 21300000, guid: 7109023372cd3a607942dcc5746def08, type: 3}
+  - stat: enemy.moon.chance
+    available: {fileID: 21300000, guid: f2ec28d6953f086cebd004e09e229dda, type: 3}
+    hover: {fileID: 21300000, guid: e08fdfeed818a98c33337569e563f13b, type: 3}
+    purchased: {fileID: 21300000, guid: 9f52910f24fbc68152c234a2eaada638, type: 3}
+    locked: {fileID: 21300000, guid: 987133655076b81416b28f702dc0a146, type: 3}
+  - stat: enemy.planet.mass-level
+    available: {fileID: 21300000, guid: 56186855c8498720feccaecabef79056, type: 3}
+    hover: {fileID: 21300000, guid: 079d7809511fca10496a35ab88409320, type: 3}
+    purchased: {fileID: 21300000, guid: 0d0d3313f2aa91d924673f83d8bcf8dd, type: 3}
+    locked: {fileID: 21300000, guid: fd6103ae99213491e07cd31bc07cf13f, type: 3}
+  - stat: enemy.planet.start-supply
+    available: {fileID: 21300000, guid: 075ba6854895f0ff1eac512ba76eecfc, type: 3}
+    hover: {fileID: 21300000, guid: d7b5493f4ffe17c01d16e80a4a46cf06, type: 3}
+    purchased: {fileID: 21300000, guid: f12fe8ada3f55c5a8fed5464bfa3792d, type: 3}
+    locked: {fileID: 21300000, guid: 125c3ab7981bad51af3e7cda3073618a, type: 3}
+  - stat: enemy.planet.growth-supply
+    available: {fileID: 21300000, guid: 6b254423ad6962a2162d5d54088ace1b, type: 3}
+    hover: {fileID: 21300000, guid: ba3b340da692db88d042b1766dc86968, type: 3}
+    purchased: {fileID: 21300000, guid: 5ef42abe5ce3460b32f0c807a660aaee, type: 3}
+    locked: {fileID: 21300000, guid: dd4a5fe7aad93542e38ef059f376511d, type: 3}
+  - stat: enemy.planet.upgrade
+    available: {fileID: 21300000, guid: 49a473fccc51e696699ca127ca77cea8, type: 3}
+    hover: {fileID: 21300000, guid: 3db578d814b51b0fe117b6771c123a4c, type: 3}
+    purchased: {fileID: 21300000, guid: a74a99e6c72c9a15bc142d1382d93635, type: 3}
+    locked: {fileID: 21300000, guid: 3401cc2c3119ef340ebd809d4942ac90, type: 3}
+  - stat: enemy.star.mass-level
+    available: {fileID: 21300000, guid: e397d54dbce7b12dd0ec1081dba9e347, type: 3}
+    hover: {fileID: 21300000, guid: 29bd525853f00452b85437e421cafbd1, type: 3}
+    purchased: {fileID: 21300000, guid: 7242ca83aa3b22eb423055cf87955dd6, type: 3}
+    locked: {fileID: 21300000, guid: 1c830516fffd11af31a2386d67785816, type: 3}
+  - stat: enemy.star.start-supply
+    available: {fileID: 21300000, guid: 2c5d77e5f38a32e9b37b579c34d69f9d, type: 3}
+    hover: {fileID: 21300000, guid: 156840c707a8896ba8c89d50e2a0abbb, type: 3}
+    purchased: {fileID: 21300000, guid: 49499bcb28e8fd4bc53d50f0cd82119a, type: 3}
+    locked: {fileID: 21300000, guid: cbc8d5cc4d7c67d1fb2b6b5500ba173f, type: 3}
+  - stat: enemy.star.growth-supply
+    available: {fileID: 21300000, guid: 2004048cc72f94353900969c820f86c8, type: 3}
+    hover: {fileID: 21300000, guid: c42e123d0ac5c0675d0dfdeaaec79166, type: 3}
+    purchased: {fileID: 21300000, guid: 6d76ba7a43a2319ddadc95d21c35f68d, type: 3}
+    locked: {fileID: 21300000, guid: dfc369f038db71fe5d908def5f49c397, type: 3}
+  - stat: enemy.comet.mass-level
+    available: {fileID: 21300000, guid: fc1465b63ca8f6076a9030bcc053734a, type: 3}
+    hover: {fileID: 21300000, guid: 48809e47f76923901bffcaf74ce9cd9a, type: 3}
+    purchased: {fileID: 21300000, guid: 69bc4a0e9ce737dc1718cfc608b37866, type: 3}
+    locked: {fileID: 21300000, guid: 603216175f99f8f9d1576661c3586ead, type: 3}
+  - stat: enemy.comet.start-supply
+    available: {fileID: 21300000, guid: 49ce69c54a09bfef75a55515e1dfb8f6, type: 3}
+    hover: {fileID: 21300000, guid: 00a3bffbf051dca7ceca04e2c244c3c2, type: 3}
+    purchased: {fileID: 21300000, guid: 89088e32f9b53b7b18f5f607feb158f2, type: 3}
+    locked: {fileID: 21300000, guid: 6226176b0b535eb0b1b01c65baa3b021, type: 3}
+  - stat: enemy.comet.growth-supply
+    available: {fileID: 21300000, guid: 5670e2c647fcd0c20a86fe72f1bbe31d, type: 3}
+    hover: {fileID: 21300000, guid: 81d13923c63b5f3e20d971c4795f0c76, type: 3}
+    purchased: {fileID: 21300000, guid: 497a60d293b2b36757de238eebc5aed4, type: 3}
+    locked: {fileID: 21300000, guid: 185032a28e864e4816cbb885a7b99867, type: 3}
+  - stat: enemy.comet.chance
+    available: {fileID: 21300000, guid: b83856f63de1d01300fdf121f7815f52, type: 3}
+    hover: {fileID: 21300000, guid: 5d345991d7ab058756f01dd4d821f628, type: 3}
+    purchased: {fileID: 21300000, guid: 0174828afd2446f28dc23a17be53e115, type: 3}
+    locked: {fileID: 21300000, guid: 6bb807d661e1d544070870c24b5b6741, type: 3}
+  - stat: enemy.electric-asteroid.mass-level
+    available: {fileID: 21300000, guid: 81c01958d916ddd54deb2e3f2b66a29a, type: 3}
+    hover: {fileID: 21300000, guid: def171b085ec179f45e303a7d872f9ba, type: 3}
+    purchased: {fileID: 21300000, guid: dbf3ea3d4918febd9b6c25c9621600fc, type: 3}
+    locked: {fileID: 21300000, guid: 42b4ac4140d3451f5038ee26d40f7cf3, type: 3}
+  - stat: enemy.electric-asteroid.start-supply
+    available: {fileID: 21300000, guid: 6100ca5b357478b1d2f4651be7676b6a, type: 3}
+    hover: {fileID: 21300000, guid: f562229ced41120c6dadde000c3a3595, type: 3}
+    purchased: {fileID: 21300000, guid: 263f076b4223f1742e1a5bad072a5640, type: 3}
+    locked: {fileID: 21300000, guid: 1b2b487684d0cdc0f7edb4ce6f65d2bb, type: 3}
+  - stat: enemy.electric-asteroid.growth-supply
+    available: {fileID: 21300000, guid: 8eea9f1f46d206b26ff0e5d37ab19d0a, type: 3}
+    hover: {fileID: 21300000, guid: b0da8d54bb321513f8ad825dfba3065e, type: 3}
+    purchased: {fileID: 21300000, guid: ce1214bda1b56f0283da371b986ab08a, type: 3}
+    locked: {fileID: 21300000, guid: 0845e74e2f7f4cde6b29170a5e07764f, type: 3}
+  - stat: enemy.electric-asteroid.chance
+    available: {fileID: 21300000, guid: af428646a5500ce5d6337a5afad013ab, type: 3}
+    hover: {fileID: 21300000, guid: 5b38408d0efec74e1f5ead7525a0cb77, type: 3}
+    purchased: {fileID: 21300000, guid: eea216825f67629818eb99dcb90c0c2d, type: 3}
+    locked: {fileID: 21300000, guid: 3d0119fa575259bee85448227a0c56fe, type: 3}
+  - stat: enemy.supernova.mass-level
+    available: {fileID: 21300000, guid: f96201b0a35fbcd7fb0d8dccb6eafe29, type: 3}
+    hover: {fileID: 21300000, guid: 5ab7ac70e849a0de7f61bf1d97d1cbd9, type: 3}
+    purchased: {fileID: 21300000, guid: 2f970b1408568d955a40b389917f9dda, type: 3}
+    locked: {fileID: 21300000, guid: 85e4248fd5dc183d790148f8e0438487, type: 3}
+  - stat: enemy.supernova.start-supply
+    available: {fileID: 21300000, guid: a9a9433ece10d0d47e3c581af140a391, type: 3}
+    hover: {fileID: 21300000, guid: 93526674f8f910252844aac422ce274f, type: 3}
+    purchased: {fileID: 21300000, guid: b489888b787a784a4dc042c35565b8e6, type: 3}
+    locked: {fileID: 21300000, guid: b7f12a8aa649a784b4b1da5da89dc2ec, type: 3}
+  - stat: enemy.supernova.growth-supply
+    available: {fileID: 21300000, guid: e714596e993a19dcabb69ddb33c19472, type: 3}
+    hover: {fileID: 21300000, guid: 1d0158f85aab0b9d5974cbfb95389f11, type: 3}
+    purchased: {fileID: 21300000, guid: 8a07fb4fc4f31a6b1f4b2742fc95e11f, type: 3}
+    locked: {fileID: 21300000, guid: 8025cd808ed1952169eeffeb503692a5, type: 3}
+  - stat: enemy.supernova.chance
+    available: {fileID: 21300000, guid: 3e26546ae8418b6f94735e60ad670b8b, type: 3}
+    hover: {fileID: 21300000, guid: a1d7e3b2be944d866bf4db3df1dd8364, type: 3}
+    purchased: {fileID: 21300000, guid: bb2f74d525f02796cd5a7a7e8a06320e, type: 3}
+    locked: {fileID: 21300000, guid: 72a2937e7815bde0cd949852cdab34e7, type: 3}
+  _revealedTint: {r: 1, g: 1, b: 1, a: 0.5}
+  _revealedAsLocked: 0
+  _ownedLinkColor: {r: 0.341, g: 0.592, b: 0.412, a: 1}
+  _openLinkColor: {r: 0.125, g: 0.129, b: 0.141, a: 1}
+  _lockedLinkColor: {r: 0.722, g: 0.729, b: 0.725, a: 1}
+  _priceColor: {r: 0.125, g: 0.129, b: 0.141, a: 1}
+  _unaffordablePriceColor: {r: 0.42, g: 0.435, b: 0.424, a: 1}
+  _priceBackColor: {r: 0.953, g: 0.945, b: 0.91, a: 1}

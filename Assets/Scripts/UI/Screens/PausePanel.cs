@@ -12,6 +12,21 @@ namespace BlackHole.Unity
             SettingsBtn_Button,
             MainMenuBtn_Button,
             QuitBtn_Button,
+            // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
+            SafeAreaRoot,
+
+            // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
+            // 버튼의 올림·누름·막힘 그림은 프리팹의 Button(Sprite Swap)에 있다.
+            Panel_Image,
+            Title_Text,
+            ResumeBtn_Image,
+            ResumeBtn_Text,
+            SettingsBtn_Image,
+            SettingsBtn_Text,
+            MainMenuBtn_Image,
+            MainMenuBtn_Text,
+            QuitBtn_Image,
+            QuitBtn_Text,
         }
 
         private Button _resumeButton;
