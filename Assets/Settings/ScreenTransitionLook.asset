@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.ScreenTransitionLook
   _material: {fileID: 2100000, guid: 61baab1876e4428ab1889ef0a163ff02, type: 2}
   _color: {r: 0, g: 0, b: 0, a: 1}
-  _rimColor: {r: 1, g: 0.62, b: 0.3, a: 1}
+  _rimColor: {r: 0.2924528, g: 0.2441705, b: 0.2441705, a: 0.03529412}
   _rimWidth: 28
   _rimStrength: 0.8
-  _coverSeconds: 0.35
-  _holdSeconds: 0.08
-  _revealSeconds: 0.45
+  _coverSeconds: 0.6
+  _holdSeconds: 0.24
+  _revealSeconds: 1
   _closeCurve:
     serializedVersion: 2
     m_Curve:
