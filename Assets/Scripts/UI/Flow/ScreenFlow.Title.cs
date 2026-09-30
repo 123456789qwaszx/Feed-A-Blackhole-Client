@@ -31,7 +31,6 @@ namespace BlackHole.Unity
         private void HandleTitleStartClicked()
         {
             OpenModeSelect();
-            _soundManager.PlayClick();
         }
 
         private void HandleTitleSettingsClicked() => OpenSettings();

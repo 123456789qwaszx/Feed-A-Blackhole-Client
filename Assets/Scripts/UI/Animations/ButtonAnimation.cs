@@ -71,6 +71,7 @@ namespace BlackHole.Unity
                 return;
 
             _pressed = true;
+            SoundManager.Instance.PlayClick();
             Play();
         }
 

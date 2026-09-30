@@ -1,14 +1,31 @@
 using UnityEngine;
 
-internal sealed class SoundManager
+public class SoundManager : MonoBehaviour
 {
-    private readonly AudioSource _audioSource;
-    private readonly UISoundSetup _soundSetup;
+    public static SoundManager Instance { get; private set; }
 
-    public SoundManager(AudioSource source, UISoundSetup setup)
+    [Header("컴포넌트 Reset버튼 누르면 됩니다"), SerializeField] private AudioSource _audioSource;
+    [Header("SoundSO를 추가"), SerializeField] private UISoundSetup _soundSetup;
+
+    private void Reset()
     {
-        _audioSource = source;
-        _soundSetup = setup;
+        _audioSource = GetComponent<AudioSource>();
+    }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 
     /// <summary>

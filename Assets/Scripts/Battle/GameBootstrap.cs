@@ -52,9 +52,6 @@ namespace BlackHole.Unity
         [Header("Runtime")]
         [SerializeField] private UIDisplayRefreshDriver _displayRefreshDriver;
 
-        [Header("Sound")]
-        [SerializeField] private UISoundSetup _uiSoundSetup;
-
         private readonly List<UIPresentationSpec> _emptyPresentations = new List<UIPresentationSpec>();
         private GameContent _content;
         private NodeTreeData _layout;
@@ -71,7 +68,6 @@ namespace BlackHole.Unity
         private UIManager _ui;
         private ScreenFlow _screens;
         private GameHost _host;
-        private SoundManager _soundManager;
 
         private void Awake()
         {
@@ -136,9 +132,6 @@ namespace BlackHole.Unity
 
         private void BootstrapScreenFlow()
         {
-            AudioSource audioSource = GetComponent<AudioSource>();
-            _soundManager = new SoundManager(audioSource, _uiSoundSetup);
-
             _screens = new ScreenFlow(
                 _ui,
                 OrEmpty(_titlePresentation, "Title"),
@@ -149,8 +142,7 @@ namespace BlackHole.Unity
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
                 OrEmpty(_nodeTreePresentation, "NodeTree"),
-                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth, _settings,
-                _soundManager);
+                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth, _settings);
         }
 
         private void BootstrapHost()

@@ -36,7 +36,7 @@ namespace BlackHole.Unity
             UIPresentationSpec settingsPresentation, UIPresentationSpec pausePresentation, UIPresentationSpec upgradePresentation,
             UIPresentationSpec battlePresentation, UIPresentationSpec settlementPresentation, UIPresentationSpec nodeTreePresentation,
             BattleSystem battle, PlayerState player, NodeTree tree, IReadOnlyList<NodeTreeView.NodeItem> nodes, HqGrowthDefinition growth,
-            GameSettings settings, SoundManager soundManager)
+            GameSettings settings)
         {
             _ui = ui;
             _titlePresentation = titlePresentation;
@@ -53,7 +53,6 @@ namespace BlackHole.Unity
             _nodes = nodes;
             _growth = growth;
             _settings = settings;
-            _soundManager = soundManager;
         }
 
         private void BindView<T>(T screen, Action<T> apply) where T : UIBase

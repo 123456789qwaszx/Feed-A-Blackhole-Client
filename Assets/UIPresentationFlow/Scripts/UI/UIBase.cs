@@ -56,9 +56,6 @@ public abstract class UIBase : MonoBehaviour, IUIPresentationRefProvider
             case ETouchEvent.Click:
                 eventHandler.OnClickHandler -= action;
                 eventHandler.OnClickHandler += action;
-
-                eventHandler.OnClickHandler -= PlayClickSound;
-                eventHandler.OnClickHandler += PlayClickSound;
                 break;
 
             case ETouchEvent.PointerDown:
@@ -104,11 +101,6 @@ public abstract class UIBase : MonoBehaviour, IUIPresentationRefProvider
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
-    }
-
-    private static void PlayClickSound(PointerEventData eventData) // 클릭음 델리게이트
-    {
-        OnGlobalUIClick?.Invoke();
     }
 
     private static T GetOrAddComponent<T>(GameObject target)

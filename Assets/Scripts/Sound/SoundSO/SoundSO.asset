@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90f1eacd74d78a0408a007472ec9d995, type: 3}
   m_Name: SoundSO
   m_EditorClassIdentifier: Assembly-CSharp::UISoundSetup
-  _clickSound: {fileID: 8300000, guid: bc4349b0ab8012e4daff845ba52add54, type: 3}
+  _clickSound: {fileID: 8300000, guid: cafb17dce055b8348bb04e4a53a33827, type: 3}
