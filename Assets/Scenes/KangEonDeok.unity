@@ -1091,7 +1091,7 @@ MonoBehaviour:
   - {fileID: 775625616}
   - {fileID: 1948511865}
   - {fileID: 896428226}
-  _titlePresentation: {fileID: 0}
+  _titlePresentation: {fileID: 11400000, guid: 5bf6ea4ae0c89569dabd8cb158fdfe18, type: 2}
   _modeSelectPresentation: {fileID: 0}
   _settingsPresentation: {fileID: 0}
   _pausePresentation: {fileID: 0}
