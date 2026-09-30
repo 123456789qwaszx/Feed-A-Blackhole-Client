@@ -17,6 +17,8 @@ namespace BlackHole.Unity
             ContinueBtn_Button,
             NewGameBtn_Button,
             BackBtn_Button,
+            // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
+            SafeAreaRoot,
         }
 
         // 카드 하나에 보일 모드.

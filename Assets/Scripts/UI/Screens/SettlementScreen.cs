@@ -28,6 +28,8 @@ namespace BlackHole.Unity
             ContinueBtn_Button,
             Tooltip,
             TooltipText,
+            // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
+            SafeAreaRoot,
         }
 
         // 툴팁과 행 사이의 틈.

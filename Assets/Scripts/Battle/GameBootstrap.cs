@@ -130,8 +130,11 @@ namespace BlackHole.Unity
                 _ui.Register(view);
             }
 
-            if (_displayRefreshDriver != null)
-                _displayRefreshDriver.Initialize(_ui);
+            // 해상도·Safe Area가 바뀌면(회전, 창 크기) 보이는 화면에 다시 맞춘다. 씬에 없으면 여기서 붙인다.
+            if (_displayRefreshDriver == null)
+                _displayRefreshDriver = gameObject.AddComponent<UIDisplayRefreshDriver>();
+
+            _displayRefreshDriver.Initialize(_ui);
 
             // 화면 전환 덮개는 맨 위 캔버스의 마지막 자식이라 모든 화면·패널 위에 그려진다.
             Canvas canvas = _rootLayer.GetComponentInParent<Canvas>();
