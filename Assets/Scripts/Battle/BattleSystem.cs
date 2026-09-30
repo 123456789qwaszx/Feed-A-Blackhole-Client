@@ -110,7 +110,7 @@ namespace BlackHole.Unity
             int raised = Session.Advance(delta);
 
             //Session.Advance(delta);
-            _enemyView.Synchronize(Session.World);
+            _enemyView.Synchronize(Session.World, delta);
             _skillView.Synchronize(Session.World, delta);
             _deathEffectView.Synchronize(Session.World, delta);
             _hqView.Synchronize(Session.World, delta);

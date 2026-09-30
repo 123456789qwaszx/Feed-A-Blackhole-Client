@@ -174,13 +174,13 @@ namespace BlackHole.Unity
         private void BootstrapHost()
         {
             _host = new GameHost(_ui, _battle, _aim, _screens,
-                _enemyLooks, _enemyView, _skillView, _deathEffectView, _hqView, _cameraShake);
+                _enemyLooks, _enemyView, _breakerView, _skillView, _deathEffectView, _hqView, _cameraShake);
         }
 
         private void Start() => _host?.Start();
 
         private void Update() => _host?.Tick(Time.deltaTime);
-        
+
         private void OnDestroy()
         {
             _host?.Dispose();
