@@ -140,6 +140,10 @@ namespace BlackHole.Unity
                 while (_progress > 0 && _pending == null)
                 {
                     yield return null;
+
+                    if (_pending != null)
+                        break;
+
                     _progress = Mathf.Max(0, _progress - Step() / _look.RevealSeconds);
                     Apply();
                 }
