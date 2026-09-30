@@ -1093,7 +1093,7 @@ MonoBehaviour:
   - {fileID: 896428226}
   _titlePresentation: {fileID: 11400000, guid: 5bf6ea4ae0c89569dabd8cb158fdfe18, type: 2}
   _modeSelectPresentation: {fileID: 0}
-  _settingsPresentation: {fileID: 0}
+  _settingsPresentation: {fileID: 11400000, guid: 79b59cf03ed15cc61b9670cee87c0176, type: 2}
   _pausePresentation: {fileID: 0}
   _upgradePresentation: {fileID: 0}
   _battlePresentation: {fileID: 0}
