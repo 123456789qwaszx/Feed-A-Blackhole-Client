@@ -53,7 +53,7 @@ public class SoundManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 클릭 전용 사운드 재생
+    /// 클릭 사운드 재생
     /// </summary>
     public void PlayClick()
     {
@@ -61,11 +61,107 @@ public class SoundManager : MonoBehaviour
     }
 
     /// <summary>
-    ///  호버 전용 사운드 재생
+    ///  호버 사운드 재생
     /// </summary>
     public void PlayHover()
     {
         Play(_soundSetup.Hover);
+    }
+
+    /// <summary>
+    /// 타격 사운드 재생
+    /// </summary>
+    public void PlayHit()
+    {
+        Play(_soundSetup.Hit);
+    }
+
+    /// <summary>
+    /// 타격 못했을 때 사운드 재생
+    /// </summary>
+    public void PlayWhiff()
+    {
+        Play(_soundSetup.Whiff);
+    }
+
+    /// <summary>
+    /// 행성 파괴 사운드 재생
+    /// </summary>
+    public void PlayDestroyed()
+    {
+        Play(_soundSetup.Destroyed);
+    }
+
+    /// <summary>
+    /// 블랙홀 레벨업 사운드 재생
+    /// </summary>
+    public void PlayLevelUp()
+    {
+        Play(_soundSetup.LevelUp);
+    }
+
+    /// <summary>
+    /// 번개 효과 사운드 재생
+    /// </summary>
+    public void PlayLightning()
+    {
+        Play(_soundSetup.Lightning);
+    }
+
+    /// <summary>
+    /// 레이저 효과 사운드 재생
+    /// </summary>
+    public void PlayRazer()
+    {
+        Play(_soundSetup.Razer);
+    }
+
+    /// <summary>
+    /// 달, 혜성 획득 사운드 재생
+    /// </summary>
+    public void PlayMoonComet()
+    {
+        Play(_soundSetup.MoonComet);
+    }
+
+    /// <summary>
+    /// 결산에서 블랙홀 사이즈 슬라이더 사운드 재생
+    /// </summary>
+    public void PlaySlider()
+    {
+        Play(_soundSetup.Slider);
+    }
+
+    /// <summary>
+    /// 결산 완료되었을 때 사운드 재생
+    /// </summary>
+    public void PlayClosing()
+    {
+        Play(_soundSetup.Closing);
+    }
+
+    /// <summary>
+    /// 노드 업그레이드 사운드 재생
+    /// </summary>
+    public void PlayNodeUpgrade()
+    {
+        Play(_soundSetup.NodeUpgrade);
+    }
+
+    /// <summary>
+    /// 화면 전환 사운드 재생
+    /// </summary>
+    public void PlaySwitchingScreens()
+    {
+        Play(_soundSetup.SwitchingScreens);
+    }
+
+    /// <summary>
+    /// 슈퍼노바 사운드 재생
+    /// </summary>
+    public void PlaySuperNova()
+    {
+        Play(_soundSetup.SuperNova);
     }
 
     #endregion
