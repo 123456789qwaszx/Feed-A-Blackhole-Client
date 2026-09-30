@@ -8,7 +8,8 @@ namespace BlackHole.Unity
 {
     // Breaker의 화면. 매 프레임 판의 참가자를 읽어 참가자마다 점선 링 하나를 조준점에 그린다.
     // 게임 상태를 바꾸지 않고, 피해를 다시 계산하지 않는다. 외형은 BreakerLook이 가진다.
-    // - 링의 기본 반지름은 판정 반지름이다(GAME_RULES 6절). 조준점이 없거나 일시정지 중이면 숨긴다.
+    // - 링의 기본 반지름은 판정 반지름이다(GAME_RULES 6절). 달 버프로 판정 반지름이 바뀌면 매 프레임 따라간다(BreakerSkill.CurrentRadius).
+    //   조준점이 없거나 일시정지 중이면 숨긴다.
     // - 기본: 천천히 돈다.
     // - 타격: Tick 기록마다 링이 빠르게 커졌다 돌아온다(반지름·굵기·밝기). 커지는 반지름은 화면에서만 커진다.
     //   헛친 Tick(맞은 적 없음)은 약하게 튄다. 치명타 Tick은 금색으로 번쩍인다. 빈 Tick(조준점 없음)은 튀지 않는다.
@@ -17,7 +18,7 @@ namespace BlackHole.Unity
     internal sealed class BreakerView : IDisposable
     {
         private const int SortingOrder = 10;
-        // 메시가 튐 곡선의 작은 넘침과 가장자리 부드럽게 하기까지 담도록 두는 여유 비율.
+        // 사각형이 링의 바깥 가장자리까지 담도록 두는 여유 비율.
         private const float MeshMargin = 1.1f;
 
         private static readonly int _radiusId = Shader.PropertyToID("_Radius");
@@ -38,8 +39,9 @@ namespace BlackHole.Unity
         private sealed class Ring
         {
             public MeshRenderer Renderer;
-            public float Radius;
             public float Rotation;
+            // 사각형의 지금 한 변(월드 단위). 바뀔 때만 transform에 쓴다.
+            public float Size;
             public int DrawnTick;
             // 튐이 시작된 뒤 지난 시간. 튐 시간 이상이면 튀지 않는 중이다.
             public float PunchElapsed = float.MaxValue;
@@ -92,7 +94,7 @@ namespace BlackHole.Unity
         {
             if (!_rings.TryGetValue(player.Id, out Ring ring))
             {
-                ring = Create(player.Id, breaker.Definition.Radius);
+                ring = Create(player.Id);
                 _rings.Add(player.Id, ring);
             }
 
@@ -112,7 +114,7 @@ namespace BlackHole.Unity
 
             Point2 aim = player.AimPoint.Value;
             ring.Renderer.transform.localPosition = new Vector3(aim.X, aim.Y, 0);
-            Apply(ring);
+            Apply(ring, breaker.CurrentRadius);
         }
 
         // 새 Tick이 있으면 튐을 처음부터 다시 한다. 한 프레임에 여러 Tick이면 가장 센 튐으로, 하나라도 치명타면 금색으로 튄다.
@@ -150,15 +152,28 @@ namespace BlackHole.Unity
             }
         }
 
-        private void Apply(Ring ring)
+        // radius: 판정 반지름(달 버프 포함). 튐으로 커지는 반지름은 화면에서만 커진다.
+        private void Apply(Ring ring, float radius)
         {
             float punch = ring.PunchElapsed < _look.PunchDuration
                 ? _look.Punch(ring.PunchElapsed / _look.PunchDuration) * ring.PunchStrength
                 : 0;
+            float shownRadius = radius * (1 + _look.PunchRadiusScale * punch);
+            float shownThickness = _look.Thickness * (1 + _look.PunchThicknessScale * punch);
+
+            // 셰이더는 링 중심에서의 월드 거리로 그리므로, 사각형 크기는 링의 크기가 아니라 셰이더가 도는 픽셀 범위만 정한다.
+            // 그릴 링이 딱 들어가게 맞춘다. 대부분의 프레임은 크기가 그대로라 쓰지 않는다.
+            float size = 2 * (shownRadius + shownThickness * 0.5f) * MeshMargin;
+
+            if (size != ring.Size)
+            {
+                ring.Size = size;
+                ring.Renderer.transform.localScale = new Vector3(size, size, 1);
+            }
 
             ring.Renderer.GetPropertyBlock(_properties);
-            _properties.SetFloat(_radiusId, ring.Radius * (1 + _look.PunchRadiusScale * punch));
-            _properties.SetFloat(_thicknessId, _look.Thickness * (1 + _look.PunchThicknessScale * punch));
+            _properties.SetFloat(_radiusId, shownRadius);
+            _properties.SetFloat(_thicknessId, shownThickness);
             _properties.SetFloat(_dashCountId, _look.DashCount);
             _properties.SetFloat(_dashRatioId, _look.DashRatio);
             _properties.SetFloat(_rotationId, ring.Rotation);
@@ -168,13 +183,11 @@ namespace BlackHole.Unity
             ring.Renderer.SetPropertyBlock(_properties);
         }
 
-        // 반지름은 판 동안 바뀌지 않으므로 메시 크기도 처음 한 번만 정한다.
-        private Ring Create(PlayerId player, float radius)
+        // 사각형 크기는 그릴 때마다 Apply가 맞춘다.
+        private Ring Create(PlayerId player)
         {
             var view = new GameObject($"Breaker Ring ({player})");
             view.transform.SetParent(_root, false);
-            float extent = radius * (1 + _look.PunchRadiusScale) + _look.Thickness * (1 + _look.PunchThicknessScale);
-            view.transform.localScale = Vector3.one * (2 * extent * MeshMargin);
 
             view.AddComponent<MeshFilter>().sharedMesh = _quad;
             var renderer = view.AddComponent<MeshRenderer>();
@@ -183,7 +196,7 @@ namespace BlackHole.Unity
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;
 
-            return new Ring { Renderer = renderer, Radius = radius };
+            return new Ring { Renderer = renderer };
         }
 
         // 한 변이 1인 사각형. 링의 크기는 transform의 배율로 맞춘다.
