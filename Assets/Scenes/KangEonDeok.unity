@@ -973,7 +973,7 @@ MonoBehaviour:
   _pausePresentation: {fileID: 11400000, guid: 1374d3343c1e8709b59738e3ceedd700, type: 2}
   _upgradePresentation: {fileID: 0}
   _battlePresentation: {fileID: 11400000, guid: 7556f2a983f8add90d155e1104db4b7d, type: 2}
-  _settlementPresentation: {fileID: 0}
+  _settlementPresentation: {fileID: 11400000, guid: 53e70f788b782c86dea9f0ccabaeaf4a, type: 2}
   _nodeTreePresentation: {fileID: 0}
   _themeId: Light
   _localeId: ko-KR
@@ -1088,10 +1088,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3007405733117956271, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
     - target: {fileID: 3207661898454920586, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1171,74 +1167,6 @@ PrefabInstance:
     - target: {fileID: 3207661898454920586, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4401919718021203921, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 4432940130156207464, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 5891388396141309065, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 420
-      objectReference: {fileID: 0}
-    - target: {fileID: 5891388396141309065, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 72
-      objectReference: {fileID: 0}
-    - target: {fileID: 6608635135726420088, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6608635135726420088, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6608635135726420088, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6608635135726420088, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6608635135726420088, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 420
-      objectReference: {fileID: 0}
-    - target: {fileID: 6608635135726420088, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 72
-      objectReference: {fileID: 0}
-    - target: {fileID: 6608635135726420088, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 210
-      objectReference: {fileID: 0}
-    - target: {fileID: 6608635135726420088, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -36
-      objectReference: {fileID: 0}
-    - target: {fileID: 7785565764953284995, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 8241916910979754425, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 8253526902045901475, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 8374657102938475612, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
-    - target: {fileID: 8777122757659974848, guid: df88c5bf7809d264983e900b8da4684c, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
