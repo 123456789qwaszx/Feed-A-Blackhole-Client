@@ -20,7 +20,12 @@ namespace BlackHole.Authoring
                 (BreakerUpgradeStats.Speed, "Breaker 공격 속도. 기본값 1, 주기 = 기본 주기 ÷ 속도."),
                 (BreakerUpgradeStats.Radius, "Breaker 공격 원의 반지름. 기본값은 Skills 탭 breaker.radius."),
                 (BreakerUpgradeStats.CritChance, "Breaker 치명타 확률(최대 1). 기본값은 Skills 탭 breaker.crit-chance."),
-                (BreakerUpgradeStats.CritMultiplier, "Breaker 치명타 피해 배율. 기본값은 Skills 탭 breaker.crit-multiplier. 200%에서 225%로 올리려면 Add 0.25."),
+                (BreakerUpgradeStats.CritDamage, "Breaker 치명타 피해 보너스(1 = +100%). 기본값은 Skills 탭 breaker.crit-damage. +100%에서 +125%로 올리려면 Add 0.25."),
+                (BreakerUpgradeStats.MoonDuration, "달 버프 중첩 하나의 지속 시간(초). 기본값은 Skills 탭 breaker.moon-duration."),
+                (BreakerUpgradeStats.MoonSpeedBonus, "달 버프 중첩 하나의 공격 속도 보너스(0.2 = +20%). 기본값은 Skills 탭 breaker.moon-speed-bonus."),
+                (BreakerUpgradeStats.MoonRadiusBonus, "달 버프 중첩 하나의 공격 범위(반지름) 보너스(0.1 = +10%). 기본값은 Skills 탭 breaker.moon-radius-bonus."),
+                (BreakerUpgradeStats.CometDuration, "혜성 버프 중첩 하나의 지속 시간(초). 기본값은 Skills 탭 breaker.comet-duration."),
+                (BreakerUpgradeStats.CometCritDamageBonus, "혜성 버프 중첩 하나의 치명타 피해 보너스 증가(0.5 = +50%). 기본값은 Skills 탭 breaker.comet-crit-damage-bonus."),
                 (HqUpgradeStats.GrowthTime, "판 Level업마다 제한 시간에 더하는 초. 기본값 0."),
             };
 

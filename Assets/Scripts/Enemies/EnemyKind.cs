@@ -23,7 +23,7 @@ namespace BlackHole.Unity
     public sealed class EnemyKind : ScriptableObject
     {
         // 사망 효과 종류. None은 효과가 없다. 이름이 Core 저작 형식의 종류 이름이 된다.
-        public enum DeathEffectKind { None, ChainLightning, Explosion, AttackHaste, GuaranteedCritical }
+        public enum DeathEffectKind { None, ChainLightning, Explosion, MoonBuff, CometBuff }
 
         [Serializable]
         public struct Tier
@@ -110,10 +110,6 @@ namespace BlackHole.Unity
         [SerializeField] private float effectRadius;
         [Tooltip("ChainLightning: 번개가 옮겨 가는 최대 횟수.")]
         [SerializeField] private int effectMaxTargets;
-        [Tooltip("AttackHaste·GuaranteedCritical: 버프 시간(초). 버프는 Breaker에만 붙는다.")]
-        [SerializeField] private float effectDuration;
-        [Tooltip("AttackHaste: Breaker 공격 주기 배율(0 ~ 1). 0.5면 주기가 절반이다.")]
-        [SerializeField] private float effectIntervalMultiplier;
 
         [Header("외형 (Core는 모른다)")]
         [Tooltip("모든 색 등급이 같은 윤곽을 쓴다. 비우면 임시 원으로 그린다.")]
@@ -172,8 +168,6 @@ namespace BlackHole.Unity
             effectDamage = effect?.Damage ?? 0;
             effectRadius = effect?.Radius ?? 0;
             effectMaxTargets = effect?.MaxTargets ?? 0;
-            effectDuration = effect?.Duration ?? 0;
-            effectIntervalMultiplier = effect?.IntervalMultiplier ?? 0;
         }
 
         internal EnemyData ToData()
@@ -193,8 +187,6 @@ namespace BlackHole.Unity
                     Damage = effectDamage,
                     Radius = effectRadius,
                     MaxTargets = effectMaxTargets,
-                    Duration = effectDuration,
-                    IntervalMultiplier = effectIntervalMultiplier,
                 },
             };
 
