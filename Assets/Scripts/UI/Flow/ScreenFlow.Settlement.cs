@@ -12,7 +12,7 @@ namespace BlackHole.Unity
         private const string StarKindId = "star";
 
         // 끝난 판의 원자료와 결산을 마친 진행 상태를 보여 준다(성장도는 이미 올라 있다).
-        public void GoToSettlement(BattleRawData raw)
+        private void ShowSettlement(BattleRawData raw)
         {
             _ui.SwitchRoot<SettlementScreen>(
                 _settlementPresentation,
