@@ -171,10 +171,11 @@ namespace BlackHole.Unity
 
         private bool HasConfiguredLooks()
         {
-            if (_breakerLook != null && _breakerLook.Material != null && _breakerLook.OrbMaterial != null)
+            if (_breakerLook != null && _breakerLook.Material != null && _breakerLook.OrbMaterial != null
+                && _breakerLook.CometAuraMaterial != null)
                 return true;
 
-            Debug.LogError("[외형] GameBootstrap에 Breaker 외형(BreakerLook)을, Breaker 외형에 링 머티리얼과 버프 구체 머티리얼을 연결해야 한다.", this);
+            Debug.LogError("[외형] GameBootstrap에 Breaker 외형(BreakerLook)을, Breaker 외형에 링·버프 구체·혜성 배경 원 머티리얼을 연결해야 한다.", this);
             return false;
         }
 

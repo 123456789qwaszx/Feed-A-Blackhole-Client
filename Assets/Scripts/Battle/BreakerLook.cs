@@ -64,6 +64,13 @@ namespace BlackHole.Unity
         [Min(0)]
         [SerializeField] private float _moonOutlineWidth = 0.01f;
 
+        [Header("혜성 배경 원: 혜성 중첩이 있는 동안 링을 덮는 반투명 무지개 원(적 위, 링 아래)")]
+        [Tooltip("BlackHole/Breaker Comet Aura 셰이더의 머티리얼. 무지개(흐름·방향 회전 속도·채도)와 불투명도는 이 머티리얼의 속성이다.")]
+        [SerializeField] private Material _cometAuraMaterial;
+        [Tooltip("원이 링 바깥 가장자리보다 더 나가는 거리(월드 단위). 원 반지름 = 링 반지름 + 링 굵기/2 + 이 값.")]
+        [Min(0)]
+        [SerializeField] private float _cometAuraOffset = 0.15f;
+
         public Material Material => _material;
         public float Thickness => _thickness;
         public int DashCount => _dashCount;
@@ -83,6 +90,8 @@ namespace BlackHole.Unity
         public Color MoonFill => _moonFill;
         public Color MoonOutline => _moonOutline;
         public float MoonOutlineWidth => _moonOutlineWidth;
+        public Material CometAuraMaterial => _cometAuraMaterial;
+        public float CometAuraOffset => _cometAuraOffset;
 
         // 진행(0 ~ 1)에서의 튐 세기. 곡선이 없으면 튀지 않는다.
         public float Punch(float progress) => _punchCurve == null ? 0 : _punchCurve.Evaluate(progress);

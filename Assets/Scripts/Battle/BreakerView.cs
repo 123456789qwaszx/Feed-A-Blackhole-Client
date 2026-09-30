@@ -16,11 +16,14 @@ namespace BlackHole.Unity
     // - 버프 구체: 달·혜성 중첩 하나마다 구체 하나가 링 바깥 궤도를 시계방향으로 돈다. 두 버프가 한 궤도를 나눠 쓰고,
     //   궤도를 중첩 수만큼 균등하게 나눈 자리에 받은 순서(BreakerBuff.Number)대로 놓인다. 중첩이 바뀌면 곧바로 새 자리로 옮긴다.
     //   구체 크기는 월드 단위로 고정이고, 궤도는 화면의 링(튐 포함) 바로 바깥을 따라간다. 표시는 64개까지다.
+    // - 혜성 배경 원: 혜성 중첩이 하나라도 있으면 링을 덮는 반투명 무지개 원을 적 위, 링 아래에 그린다. 곧바로 켜고 끈다.
     // - 일시정지 중에는 회전과 튀김을 멈추고, 재개하면 이어간다.
     // 정지 중에는 판이 기록을 비우지 않으므로, 이미 본 Tick은 번호로 걸러 두 번 튀지 않는다.
     internal sealed class BreakerView : IDisposable
     {
         private const int SortingOrder = 10;
+        // 혜성 배경 원은 적(0 ~ 1) 위, 링 아래에 그린다.
+        private const int AuraSortingOrder = 5;
         // 구체는 링 위에 그린다.
         private const int OrbSortingOrder = 11;
         // 셰이더(BlackHole/Breaker Orbs)의 MAX_ORBS와 같다.
@@ -46,6 +49,7 @@ namespace BlackHole.Unity
         private static readonly int _moonOutlineId = Shader.PropertyToID("_MoonOutline");
         private static readonly int _outlineWidthId = Shader.PropertyToID("_OutlineWidth");
         private static readonly int _orbKindsId = Shader.PropertyToID("_OrbKinds");
+        private static readonly int _auraRadiusId = Shader.PropertyToID("_Radius");
 
         private readonly Transform _root;
         private readonly BreakerLook _look;
@@ -61,12 +65,14 @@ namespace BlackHole.Unity
             public Transform Root;
             public MeshRenderer Renderer;
             public MeshRenderer Orbs;
+            public MeshRenderer Aura;
             public float Rotation;
             // 구체 궤도의 위상(바퀴). 시계방향으로 돌므로 줄어든다.
             public float OrbPhase;
             // 사각형의 지금 한 변(월드 단위). 바뀔 때만 transform에 쓴다.
             public float Size;
             public float OrbSize;
+            public float AuraSize;
             public int DrawnTick;
             // 튐이 시작된 뒤 지난 시간. 튐 시간 이상이면 튀지 않는 중이다.
             public float PunchElapsed = float.MaxValue;
@@ -132,11 +138,13 @@ namespace BlackHole.Unity
 
             ReadTicks(ring, breaker);
 
-            // 링과 구체의 표시 여부는 여기서만 정한다. 구체는 링이 보이고 버프 중첩이 있을 때만 보인다.
+            // 링·구체·혜성 배경 원의 표시 여부는 여기서만 정한다. 구체와 배경 원은 링이 보일 때만 보인다.
             bool visible = !paused && player.AimPoint.HasValue;
             int orbCount = visible ? FillOrbKinds(breaker) : 0;
+            bool aura = visible && breaker.IsGuaranteedCritical;
             ring.Renderer.enabled = visible;
             ring.Orbs.enabled = orbCount > 0;
+            ring.Aura.enabled = aura;
 
             if (!visible)
                 return;
@@ -145,8 +153,13 @@ namespace BlackHole.Unity
             ring.Root.localPosition = new Vector3(aim.X, aim.Y, 0);
             Apply(ring, breaker.CurrentRadius, out float shownRadius, out float shownThickness);
 
+            float ringEdge = shownRadius + shownThickness * 0.5f;
+
             if (orbCount > 0)
-                ApplyOrbs(ring, orbCount, shownRadius + shownThickness * 0.5f);
+                ApplyOrbs(ring, orbCount, ringEdge);
+
+            if (aura)
+                ApplyAura(ring, ringEdge);
         }
 
         // 새 Tick이 있으면 튐을 처음부터 다시 한다. 한 프레임에 여러 Tick이면 가장 센 튐으로, 하나라도 치명타면 금색으로 튄다.
@@ -264,7 +277,24 @@ namespace BlackHole.Unity
             ring.Orbs.SetPropertyBlock(_properties);
         }
 
-        // 사각형 크기는 그릴 때마다 Apply·ApplyOrbs가 맞춘다.
+        // ringEdge: 화면의 링 바깥 가장자리(링 반지름 + 굵기/2). 원은 튐을 따라 링과 함께 커졌다 돌아온다.
+        private void ApplyAura(Ring ring, float ringEdge)
+        {
+            float radius = ringEdge + _look.CometAuraOffset;
+            float size = 2 * radius * MeshMargin;
+
+            if (size != ring.AuraSize)
+            {
+                ring.AuraSize = size;
+                ring.Aura.transform.localScale = new Vector3(size, size, 1);
+            }
+
+            ring.Aura.GetPropertyBlock(_properties);
+            _properties.SetFloat(_auraRadiusId, radius);
+            ring.Aura.SetPropertyBlock(_properties);
+        }
+
+        // 사각형 크기는 그릴 때마다 Apply·ApplyOrbs·ApplyAura가 맞춘다.
         private Ring Create(PlayerId player)
         {
             Transform root = new GameObject($"Breaker ({player})").transform;
@@ -275,6 +305,7 @@ namespace BlackHole.Unity
                 Root = root,
                 Renderer = CreateQuadRenderer("Ring", root, _look.Material, SortingOrder),
                 Orbs = CreateQuadRenderer("Buff Orbs", root, _look.OrbMaterial, OrbSortingOrder),
+                Aura = CreateQuadRenderer("Comet Aura", root, _look.CometAuraMaterial, AuraSortingOrder),
             };
         }
 

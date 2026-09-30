@@ -64,3 +64,5 @@ MonoBehaviour:
   _moonFill: {r: 1, g: 1, b: 1, a: 1}
   _moonOutline: {r: 0.25, g: 0.27, b: 0.32, a: 1}
   _moonOutlineWidth: 0.01
+  _cometAuraMaterial: {fileID: 2100000, guid: 639016228afccd6439ce70c7d8e79a29, type: 2}
+  _cometAuraOffset: 0.15
