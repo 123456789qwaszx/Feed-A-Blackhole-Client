@@ -32,7 +32,10 @@ namespace BlackHole.Unity
 
         private void HandleTitleSettingsClicked() => OpenSettings();
 
-        private static void HandleTitleQuitClicked()
+        private static void HandleTitleQuitClicked() => QuitGame();
+
+        // 앱을 끝낸다. 에디터에서는 플레이를 멈춘다.
+        private static void QuitGame()
         {
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace BlackHole.Unity
@@ -11,8 +10,7 @@ namespace BlackHole.Unity
     // 설정 창(패널). 지금 화면 위에 쌓이고(PushPanel), 오른쪽 판에 설정 행을 세로로 늘어놓는다(스크롤).
     // 설정의 규칙을 모른다 — ScreenFlow가 설정 목록(SettingItem)을 넘기고, 이 창은 어느 설정이 어떤 값으로 바뀌었는지만 알린다.
     // 행은 종류별 틀(…RowTemplate, 꺼 둔 SettingRow)을 복제해 행 목록(RowList) 아래에 만든다.
-    // 펼침 목록은 행 위에 뜨는 목록(ChoicePopup)이다. 목록 밖(ChoiceBlocker_Button)을 누르거나 Esc를 누르면 닫힌다.
-    // Esc는 목록이 없으면 뒤로와 같다.
+    // 펼침 목록은 행 위에 뜨는 목록(ChoicePopup)이다. 목록 밖(ChoiceBlocker_Button)을 누르면 닫힌다.
     public sealed class SettingsPanel : UIPanel<SettingsPanel.Refs>
     {
         public enum Refs
@@ -60,15 +58,12 @@ namespace BlackHole.Unity
         private RectTransform _blocker;
         private RectTransform _popup;
         private Button _optionTemplate;
-        private CanvasGroup _group;
         private SettingRow _choiceRow;
 
         public event Action<string, bool> Toggled;
         public event Action<string, float> SliderChanged;
         public event Action<string, int> OptionChanged;
         public event Action BackClicked;
-
-        private bool IsChoiceOpen => _choiceRow != null;
 
         protected override void OnInitialize()
         {
@@ -114,18 +109,6 @@ namespace BlackHole.Unity
             }
 
             _rowList.anchoredPosition = Vector2.zero;
-        }
-
-        private void Update()
-        {
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null || !IsInteractable() || !keyboard.escapeKey.wasPressedThisFrame)
-                return;
-
-            if (IsChoiceOpen)
-                CloseChoice();
-            else
-                BackClicked?.Invoke();
         }
 
         // 패널이 닫힐 때(비활성) 펼침 목록도 닫는다.
@@ -272,15 +255,6 @@ namespace BlackHole.Unity
             SettingRow template = View.Widget<SettingRow>(key);
             _templates[kind] = template;
             SetVisible(template, false);
-        }
-
-        // 덮인 패널은 UIManager가 CanvasGroup으로 막는다. 막혔으면 키도 읽지 않는다.
-        private bool IsInteractable()
-        {
-            if (_group == null)
-                _group = GetComponent<CanvasGroup>();
-
-            return _group == null || _group.interactable;
         }
 
         private static void SetVisible(Component component, bool visible)

@@ -14,7 +14,7 @@ namespace BlackHole.Unity
     // 콘텐츠: 판 설정은 SampleContent(C#), 스킬은 스킬 설정 에셋, 적 종류는 적 종류 목록 에셋,
     // 출현 배치와 전투 시작 공급은 적 공급 설정 에셋, 블랙홀 성장의 Level 표는 블랙홀 성장 설정 에셋이 채운다.
     // 화면은 씬의 UI Canvas에 놓인 화면 프리팹(TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen)을 Root Layer와 Views로,
-    // 패널 프리팹(ModeSelectPanel·SettingsPanel)을 Panel Layer와 Views로 받는다.
+    // 패널 프리팹(ModeSelectPanel·SettingsPanel·PausePanel)을 Panel Layer와 Views로 받는다.
     // 누락된 연결은 조립 전에 오류로 알린다. Presentation을 비워 두면 아무것도 바꾸지 않는 빈 Presentation을 쓴다.
     public sealed class GameBootstrap : MonoBehaviour
     {
@@ -39,6 +39,7 @@ namespace BlackHole.Unity
         [SerializeField] private UIPresentationSpec _titlePresentation;
         [SerializeField] private UIPresentationSpec _modeSelectPresentation;
         [SerializeField] private UIPresentationSpec _settingsPresentation;
+        [SerializeField] private UIPresentationSpec _pausePresentation;
         [SerializeField] private UIPresentationSpec _upgradePresentation;
         [SerializeField] private UIPresentationSpec _battlePresentation;
         [SerializeField] private UIPresentationSpec _settlementPresentation;
@@ -136,6 +137,7 @@ namespace BlackHole.Unity
                 OrEmpty(_titlePresentation, "Title"),
                 OrEmpty(_modeSelectPresentation, "ModeSelect"),
                 OrEmpty(_settingsPresentation, "Settings"),
+                OrEmpty(_pausePresentation, "Pause"),
                 OrEmpty(_upgradePresentation, "Upgrade"),
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
@@ -168,6 +170,7 @@ namespace BlackHole.Unity
                 bool hasTitle = false;
                 bool hasModeSelect = false;
                 bool hasSettings = false;
+                bool hasPause = false;
                 bool hasUpgrade = false;
                 bool hasBattle = false;
                 bool hasSettlement = false;
@@ -178,19 +181,20 @@ namespace BlackHole.Unity
                     hasTitle |= view is TitleScreen;
                     hasModeSelect |= view is ModeSelectPanel;
                     hasSettings |= view is SettingsPanel;
+                    hasPause |= view is PausePanel;
                     hasUpgrade |= view is UpgradeScreen;
                     hasBattle |= view is BattleScreen;
                     hasSettlement |= view is SettlementScreen;
                     hasNodeTree |= view is NodeTreeView;
                 }
 
-                if (hasTitle && hasModeSelect && hasSettings && hasUpgrade && hasBattle && hasSettlement && hasNodeTree)
+                if (hasTitle && hasModeSelect && hasSettings && hasPause && hasUpgrade && hasBattle && hasSettlement && hasNodeTree)
                     return true;
             }
 
             Debug.LogError(
                 "[UI] GameBootstrap에 Root Layer, Panel Layer와 TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen, " +
-                "업그레이드 화면 안의 트리 보기 페이지(NodeTreeView), Panel Layer 아래의 모드 선택 패널(ModeSelectPanel)·설정 패널(SettingsPanel)을 Registered Views로 연결해야 한다.",
+                "업그레이드 화면 안의 트리 보기 페이지(NodeTreeView), Panel Layer 아래의 모드 선택 패널(ModeSelectPanel)·설정 패널(SettingsPanel)·일시 정지 패널(PausePanel)을 Registered Views로 연결해야 한다.",
                 this);
             return false;
         }

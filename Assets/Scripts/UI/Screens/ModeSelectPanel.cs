@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace BlackHole.Unity
@@ -60,7 +59,6 @@ namespace BlackHole.Unity
         private Button _next;
         private Button _continue;
         private Button _newGame;
-        private CanvasGroup _group;
         private int _selected;
 
         public event Action<string> ContinueClicked;
@@ -109,26 +107,8 @@ namespace BlackHole.Unity
             Slide(1);
         }
 
-        // 매 프레임: 키 입력을 읽고, 카드를 제자리로 조금씩 옮긴다. 일시정지(timeScale 0)와 관계없이 움직인다.
-        private void Update()
-        {
-            ReadKeys();
-            Slide(1 - Mathf.Exp(-SlideSharpness * Time.unscaledDeltaTime));
-        }
-
-        private void ReadKeys()
-        {
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null || !IsInteractable())
-                return;
-
-            if (keyboard.escapeKey.wasPressedThisFrame)
-                BackClicked?.Invoke();
-            else if (keyboard.leftArrowKey.wasPressedThisFrame)
-                Select(_selected - 1);
-            else if (keyboard.rightArrowKey.wasPressedThisFrame)
-                Select(_selected + 1);
-        }
+        // 매 프레임: 카드를 제자리로 조금씩 옮긴다. 일시정지(timeScale 0)와 관계없이 움직인다.
+        private void Update() => Slide(1 - Mathf.Exp(-SlideSharpness * Time.unscaledDeltaTime));
 
         // 버튼의 클릭은 Button.interactable과 관계없이 온다(UI_EventHandler). 막힌 버튼은 여기서 거른다.
         private void HandlePrevClicked(PointerEventData _) => Select(_selected - 1);
@@ -238,15 +218,6 @@ namespace BlackHole.Unity
             }
 
             return -1;
-        }
-
-        // 덮인 패널은 UIManager가 CanvasGroup으로 막는다. 막혔으면 키도 읽지 않는다.
-        private bool IsInteractable()
-        {
-            if (_group == null)
-                _group = GetComponent<CanvasGroup>();
-
-            return _group == null || _group.interactable;
         }
 
         private static bool IsOn(Button button) => button != null && button.interactable;

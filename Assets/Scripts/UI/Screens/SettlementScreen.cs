@@ -3,7 +3,6 @@ using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace BlackHole.Unity
@@ -115,19 +114,6 @@ namespace BlackHole.Unity
             BindEvent(_continueButton, LeaveContinueButton, ETouchEvent.PointerExit);
             BindEvent(_continueButton, PressContinueButton, ETouchEvent.PointerDown);
             BindEvent(_continueButton, ReleaseContinueButton, ETouchEvent.PointerUp);
-        }
-
-        // PC 단축키: Shift는 업그레이드, Space는 계속.
-        private void Update()
-        {
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null)
-                return;
-
-            if (keyboard.spaceKey.wasPressedThisFrame)
-                ContinueClicked?.Invoke();
-            else if (keyboard.leftShiftKey.wasPressedThisFrame || keyboard.rightShiftKey.wasPressedThisFrame)
-                UpgradeClicked?.Invoke();
         }
 
         // 화면이 닫힐 때 툴팁도 닫는다. 다시 열 때 남아 있지 않게 한다.
