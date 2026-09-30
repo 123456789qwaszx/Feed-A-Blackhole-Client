@@ -16,10 +16,11 @@ namespace BlackHole.Unity
         private readonly SkillView _skillView;
         private readonly DeathEffectView _deathEffectView;
         private readonly HqView _hqView;
+        private readonly CameraShake _cameraShake;
 
         public GameHost(UIManager ui, BattleSystem battle, AimInput aim, ScreenFlow screens,
             EnemyLooks enemyLooks, EnemyView enemyView,
-            SkillView skillView, DeathEffectView deathEffectView, HqView hqView)
+            SkillView skillView, DeathEffectView deathEffectView, HqView hqView, CameraShake cameraShake)
         {
             _ui = ui;
             _battle = battle;
@@ -30,15 +31,33 @@ namespace BlackHole.Unity
             _skillView = skillView;
             _deathEffectView = deathEffectView;
             _hqView = hqView;
+            _cameraShake = cameraShake;
         }
 
         public void Start() => _screens.GoToTitle();
 
+        // public void Tick(float deltaTime)
+        // {
+        //     _aim.Tick();
+        //     if (_battle.Tick(deltaTime))
+        //         _screens.HandleBattleTimeExpired();
+        //     RefreshBattleHud();
+        // }
+
         public void Tick(float deltaTime)
         {
             _aim.Tick();
-            if (_battle.Tick(deltaTime))
+
+            BattleStepResult result = _battle.Tick(deltaTime);
+
+            if (result.BattleEnded)
                 _screens.HandleBattleTimeExpired();
+
+            if (result.Raised > 0)
+            {
+                _cameraShake.Play();
+            }
+
             RefreshBattleHud();
         }
 

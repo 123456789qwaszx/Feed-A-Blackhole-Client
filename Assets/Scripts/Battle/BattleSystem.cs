@@ -93,19 +93,28 @@ namespace BlackHole.Unity
         }
 
         // 전투 Step과 적·스킬·사망 효과·블랙홀 표현을 진행한다. 이번 Step에서 판이 끝났을 때만 true를 반환한다.
-        public bool Tick(float delta)
+        public BattleStepResult Tick(float delta)
         {
+            // if (_state != State.Running)
+            //     return false;
+
             if (_state != State.Running)
-                return false;
+                return new BattleStepResult(false, 0);
 
             bool wasRunning = Session.Phase == SessionPhase.Running;
-            Session.Advance(delta);
+
+            int raised = Session.Advance(delta);
+
+            //Session.Advance(delta);
             _enemyView.Synchronize(Session.World);
             _skillView.Synchronize(Session.World, delta);
             _deathEffectView.Synchronize(Session.World, delta);
             _hqView.Synchronize(Session.World, delta);
 
-            return wasRunning && Session.Phase == SessionPhase.Ended;
+            bool battleEnded = wasRunning && Session.Phase == SessionPhase.Ended;
+
+            //return wasRunning && Session.Phase == SessionPhase.Ended;
+            return new BattleStepResult(battleEnded, raised);
         }
 
         public void TogglePause()

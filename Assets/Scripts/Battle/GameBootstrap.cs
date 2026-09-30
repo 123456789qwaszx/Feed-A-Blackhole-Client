@@ -63,6 +63,7 @@ namespace BlackHole.Unity
         private UIManager _ui;
         private ScreenFlow _screens;
         private GameHost _host;
+        private CameraShake _cameraShake;
 
         private void Awake()
         {
@@ -75,11 +76,14 @@ namespace BlackHole.Unity
                 return;
             }
 
+            _cameraShake = Camera.main.GetComponent<CameraShake>();
+
             BootstrapBattleViews();
             BootstrapBattle();
             BootstrapUI();
             BootstrapScreenFlow();
             BootstrapHost();
+
         }
 
         private void BootstrapBattleViews()
@@ -136,13 +140,13 @@ namespace BlackHole.Unity
         private void BootstrapHost()
         {
             _host = new GameHost(_ui, _battle, _aim, _screens,
-                _enemyLooks, _enemyView, _skillView, _deathEffectView, _hqView);
+                _enemyLooks, _enemyView, _skillView, _deathEffectView, _hqView, _cameraShake);
         }
 
         private void Start() => _host?.Start();
 
         private void Update() => _host?.Tick(Time.deltaTime);
-
+        
         private void OnDestroy()
         {
             _host?.Dispose();
