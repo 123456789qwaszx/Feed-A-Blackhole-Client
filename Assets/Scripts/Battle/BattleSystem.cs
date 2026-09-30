@@ -85,10 +85,9 @@ namespace BlackHole.Unity
             // 2. 적 소환 단계 진입.
             Session.Begin();
             _enemyView.Reset();
-            _enemyView.Synchronize(Session.World);
-            _breakerView.Reset();
             // 시작 직후 스냅: 아직 지난 시간이 없으니 흔들림 연출 없이 위치만 맞춘다.
             _enemyView.Synchronize(Session.World, 0f);
+            _breakerView.Reset();
             _skillView.Reset();
             _deathEffectView.Reset();
             _hqView.Reset();
