@@ -28,7 +28,10 @@ namespace BlackHole.Unity
         }
 
         // 시작은 타이틀 위에 모드 선택 창을 연다. 모드를 고른 뒤 업그레이드 화면으로 간다.
-        private void HandleTitleStartClicked() => OpenModeSelect();
+        private void HandleTitleStartClicked()
+        {
+            OpenModeSelect();
+        }
 
         private void HandleTitleSettingsClicked() => OpenSettings();
 
