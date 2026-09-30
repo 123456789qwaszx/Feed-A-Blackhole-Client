@@ -971,7 +971,7 @@ MonoBehaviour:
   _modeSelectPresentation: {fileID: 11400000, guid: 13520271f37be7f5f476d103f91fea11, type: 2}
   _settingsPresentation: {fileID: 11400000, guid: 79b59cf03ed15cc61b9670cee87c0176, type: 2}
   _pausePresentation: {fileID: 11400000, guid: 1374d3343c1e8709b59738e3ceedd700, type: 2}
-  _upgradePresentation: {fileID: 0}
+  _upgradePresentation: {fileID: 11400000, guid: 34ec83ad126b2f66f19c2f7c01ad3f6c, type: 2}
   _battlePresentation: {fileID: 11400000, guid: 7556f2a983f8add90d155e1104db4b7d, type: 2}
   _settlementPresentation: {fileID: 11400000, guid: 53e70f788b782c86dea9f0ccabaeaf4a, type: 2}
   _nodeTreePresentation: {fileID: 0}

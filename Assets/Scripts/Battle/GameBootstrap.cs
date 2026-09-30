@@ -304,7 +304,8 @@ namespace BlackHole.Unity
             foreach (NodeDefinition node in tree.Nodes)
             {
                 (int x, int y) = cells.TryGetValue(node.Id, out (int X, int Y) cell) ? cell : (0, 0);
-                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, node.Price));
+                string stat = node.Upgrades.Count > 0 ? node.Upgrades[0].Stat : null;   // 노드 그림을 고르는 스탯
+                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, node.Price, stat));
             }
 
             return nodes;

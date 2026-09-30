@@ -11,14 +11,24 @@ namespace BlackHole.Unity
     {
         public enum Refs
         {
-            GoldText,
-            HqText,
+            Gold_Text,
+            Hq_Text,
             StartBattleBtn_Button,
-            NodeTooltip,
-            NodeTooltipTitle,
-            NodeTooltipBody,
+            NodeTooltip_Image,
+            NodeTooltipTitle_Text,
+            NodeTooltipBody_Text,
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
+
+            // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
+            // 트리의 노드 그림은 여기 없다 — 트리 보기(NodeTreeView)의 NodeTreeLook이 정한다.
+            Background_Image,
+            GoldChip_Image,
+            GoldIcon_Image,
+            HqChip_Image,
+            HqIcon_Image,
+            StartBattleBtn_Image,
+            StartBattleBtn_Text,
         }
 
         // 툴팁과 노드 사이의 틈.
@@ -39,11 +49,11 @@ namespace BlackHole.Unity
         {
             ScreenRefs.WarnMissing<Refs>(this);
 
-            _gold = View.Text(Refs.GoldText);
-            _hq = View.Text(Refs.HqText);
-            _tooltip = View.Rect(Refs.NodeTooltip);
-            _tooltipTitle = View.Text(Refs.NodeTooltipTitle);
-            _tooltipBody = View.Text(Refs.NodeTooltipBody);
+            _gold = View.Text(Refs.Gold_Text);
+            _hq = View.Text(Refs.Hq_Text);
+            _tooltip = View.Rect(Refs.NodeTooltip_Image);
+            _tooltipTitle = View.Text(Refs.NodeTooltipTitle_Text);
+            _tooltipBody = View.Text(Refs.NodeTooltipBody_Text);
             HideNodeTooltip();
 
             BindEvent(View.Button(Refs.StartBattleBtn_Button), HandleStartBattleClicked);
