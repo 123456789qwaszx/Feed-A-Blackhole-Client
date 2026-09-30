@@ -202,13 +202,13 @@ namespace BlackHole.Core
                     return Guard(at, into, () => new ChainLightningDefinition(item.Damage, item.Radius, item.MaxTargets));
                 case "Explosion":
                     return Guard(at, into, () => new ExplosionDefinition(item.Damage, item.Radius));
-                case "AttackHaste":
-                    return Guard(at, into, () => new AttackHasteDefinition(item.Duration, item.IntervalMultiplier));
-                case "GuaranteedCritical":
-                    return Guard(at, into, () => new GuaranteedCriticalDefinition(item.Duration));
+                case "MoonBuff":
+                    return Guard(at, into, () => new MoonBuffDefinition());
+                case "CometBuff":
+                    return Guard(at, into, () => new CometBuffDefinition());
                 default:
                     into.Add(new ContentDiagnostic(at + ".Kind",
-                        $"알 수 없는 사망 효과 종류 '{item.Kind}'. 가능한 값: ChainLightning, Explosion, AttackHaste, GuaranteedCritical."));
+                        $"알 수 없는 사망 효과 종류 '{item.Kind}'. 가능한 값: ChainLightning, Explosion, MoonBuff, CometBuff."));
                     return null;
             }
         }

@@ -1,10 +1,16 @@
-using System;
 using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
     // 공격 Tick(World.Step의 2. Passive Attack 자리):
     // 빈 Tick도 주기를 소비.
+    // 처치 버프(달·혜성)는 받은 것마다 중첩으로 따로 보관하고 따로 끝난다. 중첩당 수치는 이 Breaker의 정의(판마다 고정)가 정하고,
+    // 같은 버프의 중첩은 합연산한다(보너스 합 = 중첩 수 × 중첩당 보너스). 합은 노드가 반영된 수치에 (1 + 합)으로 곱한다.
+    // - 달: 공격 속도와 공격 범위를 함께 올린다.
+    //   공격 속도 = 노드가 반영된 공격 속도 × (1 + 달 속도 보너스 합), 반지름 = 노드가 반영된 반지름 × (1 + 달 범위 보너스 합).
+    // - 혜성: 중첩이 하나라도 있으면 모든 Tick이 치명타다.
+    //   치명타 피해 보너스 = 노드가 반영된 치명타 피해 보너스 × (1 + 혜성 보너스 합). 치명타 피해 = 피해 × (1 + 치명타 피해 보너스).
+    // 버프 시간은 공격한 뒤에 준다 — 중첩이 끝나는 Step의 Tick까지는 그 중첩이 효과를 낸다.
     public sealed class BreakerSkill
     {
         // 진행 시간을 더한 값의 끝자리 오차. 이만큼 모자라도 Tick 시각에 닿은 것으로 본다.
@@ -13,9 +19,13 @@ namespace BlackHole.Core
         private readonly BattleRandom _critical;
         private readonly List<Enemy> _targets = new();
         private readonly List<BreakerTick> _ticks = new();
+        private readonly List<BreakerBuff> _moon = new();
+        private readonly List<BreakerBuff> _comet = new();
 
         // 다음 Tick까지 남은 주기(기본 주기 기준).
         private float _untilNextTick;
+        // 마지막으로 받은 버프의 번호(BreakerBuff.Number).
+        private int _buffCount;
 
         public BreakerDefinition Definition { get; }
 
@@ -32,13 +42,28 @@ namespace BlackHole.Core
         // 마지막 진행 동안의 Tick(일어난 순서). 다음 진행이 시작될 때 비운다.
         public IReadOnlyList<BreakerTick> Ticks { get; }
 
-        // 공격 주기 감소 버프의 남은 시간(초)과 주기 배율. 버프가 없으면 0과 1이다.
-        public float HasteRemaining { get; private set; }
+        // 달 버프의 중첩(받은 순서). 중첩 수가 곧 목록의 길이다.
+        public IReadOnlyList<BreakerBuff> MoonBuffs { get; }
 
-        public float HasteMultiplier { get; private set; } = 1;
+        // 달 중첩의 공격 속도·공격 범위 보너스 합. 중첩이 없으면 0이다.
+        public float MoonSpeedBonus => _moon.Count * Definition.MoonSpeedBonus;
 
-        // 확정 치명타 버프의 남은 시간(초). 버프가 없으면 0이다.
-        public float GuaranteedCriticalRemaining { get; private set; }
+        public float MoonRadiusBonus => _moon.Count * Definition.MoonRadiusBonus;
+
+        // 혜성 버프의 중첩(받은 순서).
+        public IReadOnlyList<BreakerBuff> CometBuffs { get; }
+
+        // 혜성 중첩의 치명타 피해 보너스 증가 합. 중첩이 없으면 0이다.
+        public float CometCritDamageBonus => _comet.Count * Definition.CometCritDamageBonus;
+
+        // 혜성 중첩이 하나라도 있는가(확정 치명타).
+        public bool IsGuaranteedCritical => _comet.Count > 0;
+
+        // 지금 Tick이 쓰는 공격 원의 반지름(달 버프 포함). 판정과 화면의 범위 표시가 이 값을 쓴다.
+        public float CurrentRadius => Definition.Radius * (1 + MoonRadiusBonus);
+
+        // 지금 치명타 Tick에 적용되는 치명타 피해 보너스(혜성 버프 포함). 치명타 피해 = 피해 × (1 + 이 값).
+        public float CurrentCritDamage => Definition.CritDamage * (1 + CometCritDamageBonus);
 
         // critical은 이 Breaker의 치명타만 쓰는 난수다.
         internal BreakerSkill(BreakerDefinition definition, BattleRandom critical)
@@ -46,6 +71,8 @@ namespace BlackHole.Core
             Definition = definition;
             _critical = critical;
             Ticks = _ticks.AsReadOnly();
+            MoonBuffs = _moon.AsReadOnly();
+            CometBuffs = _comet.AsReadOnly();
         }
 
         public void SetEnabled(bool enabled)
@@ -64,7 +91,7 @@ namespace BlackHole.Core
         {
             if (Enabled)
             {
-                _untilNextTick -= delta / HasteMultiplier;
+                _untilNextTick -= delta * (1 + MoonSpeedBonus);
 
                 while (_untilNextTick <= TimeEpsilon)
                 {
@@ -76,22 +103,30 @@ namespace BlackHole.Core
             AgeBuffs(delta);
         }
 
-        internal void GrantHaste(AttackHasteDefinition haste)
-        {
-            HasteMultiplier = HasteRemaining > 0 ? Math.Min(HasteMultiplier, haste.IntervalMultiplier) : haste.IntervalMultiplier;
-            HasteRemaining = Math.Max(HasteRemaining, haste.Duration);
-        }
+        // 새 중첩을 더한다. 이미 있는 중첩의 시간은 바꾸지 않는다. 중첩의 시간은 이 Breaker의 정의(이 판의 고정값)가 정한다.
+        internal void GrantMoon() => _moon.Add(new BreakerBuff(++_buffCount, Definition.MoonDuration));
 
-        internal void GrantGuaranteedCritical(GuaranteedCriticalDefinition critical) =>
-            GuaranteedCriticalRemaining = Math.Max(GuaranteedCriticalRemaining, critical.Duration);
+        internal void GrantComet() => _comet.Add(new BreakerBuff(++_buffCount, Definition.CometDuration));
 
         private void AgeBuffs(float delta)
         {
-            HasteRemaining = Math.Max(0, HasteRemaining - delta);
-            GuaranteedCriticalRemaining = Math.Max(0, GuaranteedCriticalRemaining - delta);
+            Age(_moon, delta);
+            Age(_comet, delta);
+        }
 
-            if (HasteRemaining == 0)
-                HasteMultiplier = 1;
+        // 중첩마다 시간을 줄이고 끝난 중첩을 뺀다.
+        // 매 Step 경로: 뒤에서부터 돌며 제자리에서 뺀다(RemoveAll은 대리자를 할당한다).
+        private static void Age(List<BreakerBuff> buffs, float delta)
+        {
+            for (int i = buffs.Count - 1; i >= 0; i--)
+            {
+                BreakerBuff aged = buffs[i].Aged(delta);
+
+                if (aged.Remaining <= 0)
+                    buffs.RemoveAt(i);
+                else
+                    buffs[i] = aged;
+            }
         }
 
         private void Tick(BattlePlayer owner, World world)
@@ -99,6 +134,7 @@ namespace BlackHole.Core
             TickCount++;
             _targets.Clear();
             Point2? center = owner.AimPoint;
+            float radius = CurrentRadius;
 
             if (center.HasValue)
             {
@@ -106,25 +142,25 @@ namespace BlackHole.Core
 
                 for (int i = 0; i < enemies.Count; i++)
                 {
-                    if (enemies[i].IsWithin(center.Value, Definition.Radius))
+                    if (enemies[i].IsWithin(center.Value, radius))
                         _targets.Add(enemies[i]);
                 }
             }
 
             bool critical = _targets.Count > 0 && RollCritical();
-            var damage = new Damage(critical ? Definition.Damage * Definition.CritMultiplier : Definition.Damage, owner.Id);
+            var damage = new Damage(critical ? Definition.Damage * (1 + CurrentCritDamage) : Definition.Damage, owner.Id);
 
             foreach (Enemy target in _targets)
                 world.DealDamage(target, damage);
 
             LastTickHitCount = _targets.Count;
-            _ticks.Add(new BreakerTick(TickCount, center, Definition.Radius, _targets.Count, critical));
+            _ticks.Add(new BreakerTick(TickCount, center, radius, _targets.Count, critical));
         }
 
         // 확정 치명타 중이면 굴리지 않고 치명타다. 확률이 0이나 1이면 굴리지 않는다.
         private bool RollCritical()
         {
-            if (GuaranteedCriticalRemaining > 0 || Definition.CritChance >= 1)
+            if (IsGuaranteedCritical || Definition.CritChance >= 1)
                 return true;
 
             return Definition.CritChance > 0 && _critical.NextFloat() < Definition.CritChance;

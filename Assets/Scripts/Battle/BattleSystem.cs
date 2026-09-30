@@ -83,7 +83,8 @@ namespace BlackHole.Unity
             // 2. 적 소환 단계 진입.
             Session.Begin();
             _enemyView.Reset();
-            _enemyView.Synchronize(Session.World);
+            // 시작 직후 스냅: 아직 지난 시간이 없으니 흔들림 연출 없이 위치만 맞춘다.
+            _enemyView.Synchronize(Session.World, 0f);
             _skillView.Reset();
             _deathEffectView.Reset();
             _hqView.Reset();
@@ -100,7 +101,7 @@ namespace BlackHole.Unity
 
             bool wasRunning = Session.Phase == SessionPhase.Running;
             Session.Advance(delta);
-            _enemyView.Synchronize(Session.World);
+            _enemyView.Synchronize(Session.World, delta);
             _skillView.Synchronize(Session.World, delta);
             _deathEffectView.Synchronize(Session.World, Session.Phase == SessionPhase.Paused, delta);
             _hqView.Synchronize(Session.World, delta);
