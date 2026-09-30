@@ -7,11 +7,6 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    // 업그레이드 화면(플레이어가 보는 노드 트리, 임시 모양). Gold, 블랙홀 성장도·목표 Level, 전투 시작 버튼을 가진다.
-    // 노드 트리의 규칙을 모른다 — ScreenFlow가 표시 값을 넘기고, 전투 시작은 사건으로 알린다.
-    // 페이지의 호스트다(IUIPageOwner). 어떤 페이지가 올라오는지는 모른다 — 지금은 ScreenFlow가 트리 보기(NodeTreeView)를 연다.
-    // 페이지 자리(PageRoot)는 이 화면 자신이다. 페이지는 이 화면의 바로 아래 자식이어야 한다.
-    // 노드 툴팁(NodeTooltip)은 이 화면이 가진다 — 트리 영역은 가려서 자르므로(RectMask2D) 그 밖에 띄운다. 무엇을 쓸지는 ScreenFlow가 정한다.
     public sealed class UpgradeScreen : UIRoot<UpgradeScreen.Refs>, IUIPageOwner
     {
         public enum Refs
@@ -71,7 +66,9 @@ namespace BlackHole.Unity
                 return;
 
             _hq.text = "Black hole  Stage " + stage.ToString(CultureInfo.InvariantCulture)
-                + (goalLevel > 0 ? "  (goal Lv " + goalLevel.ToString(CultureInfo.InvariantCulture) + ")" : "  (last stage)");
+                + (goalLevel > 0
+                    ? "  (goal Lv " + goalLevel.ToString(CultureInfo.InvariantCulture) + ")"
+                    : "  (last stage)");
         }
 
         // 노드 위 가운데에 툴팁을 붙인다. 화면 위로 넘치면 노드 아래에 붙인다.

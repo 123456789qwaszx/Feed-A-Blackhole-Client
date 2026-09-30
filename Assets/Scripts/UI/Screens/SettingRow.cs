@@ -7,12 +7,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    // 설정 창의 행 하나(위젯). UIManager에 등록하지 않는다 — 설정 창이 종류별 틀을 복제해 설정마다 하나씩 만든다.
-    // 종류마다 쓰는 자식이 다르다. 이름표(LabelText)는 모두 쓴다.
-    // - 켜기/끄기: Toggle_Button(누르면 뒤집힘), CheckImage(켜졌을 때 보임)
-    // - 막대: SliderTrack(누르거나 끌면 그 자리 값), SliderFill(값만큼 채움)
-    // - 펼침 목록: Choice_Button(누르면 설정 창이 목록을 연다), ValueText
-    // - 단계: PrevBtn_Button·NextBtn_Button(한 칸씩, 끝에서 멈춤), ValueText
+    // 설정 창의 행 하나(위젯). UIManager에 등록하지 않음.
     // 사용자가 값을 바꾸면 Changed로 알린다. 설정의 규칙을 모른다 — 값은 설정 창이 넘긴 대로 보여 준다.
     public sealed class SettingRow : UIBase<SettingRow.Refs>
     {
@@ -38,11 +33,16 @@ namespace BlackHole.Unity
         private Button _next;
 
         public string Id { get; private set; }
+
         public GameSettings.Kind Kind { get; private set; }
+
         // 켜기/끄기는 0·1, 막대는 0 ~ 1, 선택지는 번호.
         public float Value { get; private set; }
+
         public IReadOnlyList<string> Options => _options;
+
         public int Index => Mathf.RoundToInt(Value);
+
         // 펼침 목록이 붙을 자리.
         public RectTransform ChoiceBox => View.Rect(Refs.Choice_Button);
 
@@ -66,6 +66,7 @@ namespace BlackHole.Unity
 
             // 막대는 버튼이 아니라 누름·끌기를 받는다. 끌기를 여기서 받으므로 막대 위에서는 목록이 스크롤되지 않는다.
             UI_EventHandler track = View.Component<UI_EventHandler>(Refs.SliderTrack);
+
             if (track != null)
             {
                 track.OnPointerDownHandler += HandleSliderPointer;

@@ -4,7 +4,6 @@ namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
-        // 지금 화면 위에 설정 창을 쌓는다. 열 때마다 지금 설정 값으로 행을 만든다.
         private void OpenSettings()
         {
             _ui.PushPanel<SettingsPanel>(

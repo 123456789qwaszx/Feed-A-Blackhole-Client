@@ -42,6 +42,9 @@ namespace BlackHole.Unity
         private TMP_Text _earned;
         private TMP_Text _totalGold;
         private TMP_Text _upgradeLabel;
+        private TMP_Text _asteroidText;
+        private TMP_Text _planetText;
+        private TMP_Text _starText;
 
         private Button _asteroidRow;
         private Button _planetRow;
@@ -72,6 +75,9 @@ namespace BlackHole.Unity
             _earned = View.Text(Refs.EarnedGoldText);
             _totalGold = View.Text(Refs.TotalGoldText);
             _upgradeLabel = View.Text(Refs.UpgradeBtn_Text);
+            _asteroidText = View.Text(Refs.AsteroidRow_Text);
+            _planetText = View.Text(Refs.PlanetRow_Text);
+            _starText = View.Text(Refs.StarRow_Text);
             _tooltip = View.Rect(Refs.Tooltip);
             _tooltipText = View.Text(Refs.TooltipText);
             HideTooltip();
@@ -180,7 +186,11 @@ namespace BlackHole.Unity
         public void ShowResult(bool milestone)
         {
             if (_result != null)
-                _result.text = milestone ? "Milestone reached" : "Battle over";
+            {
+                _result.text = milestone
+                    ? "Milestone reached"
+                    : "Battle over";
+            }
         }
 
         // 블랙홀 성장도 막대: 결산 뒤 성장도 / 마지막 성장도. 이번 판에 올랐으면 "1 -> 2"로 보인다.
@@ -188,7 +198,10 @@ namespace BlackHole.Unity
         {
             if (_stageFill != null)
             {
-                float fill = maxStage > 0 ? Mathf.Clamp01(nextStage / (float)maxStage) : 1;
+                float fill = maxStage > 0
+                    ? Mathf.Clamp01(nextStage / (float)maxStage)
+                    : 1;
+
                 _stageFill.anchorMax = new Vector2(fill, _stageFill.anchorMax.y);
             }
 
@@ -205,25 +218,38 @@ namespace BlackHole.Unity
         // 물질 행: 물질별 처치 수. 판 기록에 종류별 Gold가 생기면 Gold로 바꾼다.
         public void ShowMatter(int asteroids, int planets, int stars)
         {
-            SetText(View.Text(Refs.AsteroidRow_Text), Count(asteroids));
-            SetText(View.Text(Refs.PlanetRow_Text), Count(planets));
-            SetText(View.Text(Refs.StarRow_Text), Count(stars));
+            if (_asteroidText != null)
+                _asteroidText.text = Count(asteroids);
+
+            if (_planetText != null)
+                _planetText.text = Count(planets);
+
+            if (_starText != null)
+                _starText.text = Count(stars);
         }
 
         // earned: 이 판이 번 Gold. settled: 결산이 더한 Gold(이정표로 끝났으면 이정표 보상). total: 결산 뒤 진행 상태의 Gold.
         public void ShowGold(long earned, long settled, bool milestone, long total)
         {
-            SetText(_totalLabel, milestone ? "REWARD" : "TOTAL");
-            SetText(_earned, Money(milestone ? settled : earned));
-            SetText(_totalGold, Money(total));
+            if (_totalLabel != null)
+                _totalLabel.text = milestone ? "REWARD" : "TOTAL";
+
+            if (_earned != null)
+                _earned.text = Money(milestone ? settled : earned);
+
+            if (_totalGold != null)
+                _totalGold.text = Money(total);
         }
 
         // 지금 Gold로 살 수 있는 노드 수. 없으면 수를 붙이지 않는다.
         public void ShowUpgradeCount(int purchasable)
         {
-            SetText(_upgradeLabel, purchasable > 0
-                ? "Upgrade (" + purchasable.ToString(CultureInfo.InvariantCulture) + ")"
-                : "Upgrade");
+            if (_upgradeLabel != null)
+            {
+                _upgradeLabel.text = purchasable > 0
+                    ? "Upgrade (" + purchasable.ToString(CultureInfo.InvariantCulture) + ")"
+                    : "Upgrade";
+            }
         }
 
         #region 툴팁
@@ -235,7 +261,9 @@ namespace BlackHole.Unity
                 return;
 
             _tooltipOwner = (RectTransform)row.transform;
-            SetText(_tooltipText, displayName);
+
+            if (_tooltipText != null)
+                _tooltipText.text = displayName;
 
             _tooltip.gameObject.SetActive(true);
             _tooltip.SetAsLastSibling();
@@ -264,14 +292,10 @@ namespace BlackHole.Unity
 
         #endregion
 
-        private static void SetText(TMP_Text text, string value)
-        {
-            if (text != null)
-                text.text = value;
-        }
+        private static string Count(int count) =>
+            "x" + count.ToString("N0", CultureInfo.InvariantCulture);
 
-        private static string Count(int count) => "x" + count.ToString("N0", CultureInfo.InvariantCulture);
-
-        private static string Money(long gold) => "$" + gold.ToString("N0", CultureInfo.InvariantCulture);
+        private static string Money(long gold) =>
+            "$" + gold.ToString("N0", CultureInfo.InvariantCulture);
     }
 }

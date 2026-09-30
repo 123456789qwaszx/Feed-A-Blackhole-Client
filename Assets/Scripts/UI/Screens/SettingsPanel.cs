@@ -7,10 +7,6 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    // 설정 창(패널). 지금 화면 위에 쌓이고(PushPanel), 오른쪽 판에 설정 행을 세로로 늘어놓는다(스크롤).
-    // 설정의 규칙을 모른다 — ScreenFlow가 설정 목록(SettingItem)을 넘기고, 이 창은 어느 설정이 어떤 값으로 바뀌었는지만 알린다.
-    // 행은 종류별 틀(…RowTemplate, 꺼 둔 SettingRow)을 복제해 행 목록(RowList) 아래에 만든다.
-    // 펼침 목록은 행 위에 뜨는 목록(ChoicePopup)이다. 목록 밖(ChoiceBlocker_Button)을 누르면 닫힌다.
     public sealed class SettingsPanel : UIPanel<SettingsPanel.Refs>
     {
         public enum Refs

@@ -4,8 +4,6 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    // 일시 정지 창(패널). 전투 화면 위에 쌓인다(PushPanel). 재개·설정·메인 메뉴·종료가 눌렸다는 사실만 알린다.
-    // 판을 멈추고 다시 움직이는 것은 ScreenFlow가 한다.
     public sealed class PausePanel : UIPanel<PausePanel.Refs>
     {
         public enum Refs

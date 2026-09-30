@@ -6,8 +6,6 @@ namespace BlackHole.Unity
     {
         private const string NormalModeId = "normal";
 
-        // 모드 선택 창에 보일 모드. 지금은 일반 모드뿐이다 — 모드를 더하면 카드가 늘어난다.
-        // 계속(CanContinue)은 막아 둔다: 진행은 앱을 켤 때 새로 만든 PlayerState뿐이고 저장이 없어 이어 할 진행이 없다.
         private static readonly ModeSelectPanel.ModeItem[] Modes =
         {
             new ModeSelectPanel.ModeItem(
@@ -45,7 +43,6 @@ namespace BlackHole.Unity
                 p => p.BackClicked -= HandleModeSelectBackClicked);
         }
 
-        // 모드는 일반 모드 하나라 ID로 가르지 않는다. 모드가 늘면 여기서 모드별로 판 설정을 고른다.
         private void HandleModeSelectNewGameClicked(string modeId) => EnterMode();
         private void HandleModeSelectContinueClicked(string modeId) => EnterMode();
 
