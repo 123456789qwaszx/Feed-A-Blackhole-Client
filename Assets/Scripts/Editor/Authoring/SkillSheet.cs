@@ -32,8 +32,18 @@ namespace BlackHole.Authoring
                 Get = (b, l) => b.Radius, Set = (b, l, v) => b.Radius = v },
             new Key { Name = "breaker.crit-chance", Parameter = "critChance", Note = "한 Tick이 치명타일 확률(0 ~ 1).",
                 Get = (b, l) => b.CritChance, Set = (b, l, v) => b.CritChance = v },
-            new Key { Name = "breaker.crit-multiplier", Parameter = "critMultiplier", Note = "치명타 Tick의 피해 배율(1 이상). 혜성의 확정 치명타도 이 배율을 쓴다.",
-                Get = (b, l) => b.CritMultiplier, Set = (b, l, v) => b.CritMultiplier = v },
+            new Key { Name = "breaker.crit-damage", Parameter = "critDamage", Note = "치명타 피해 보너스(0 이상). 치명타 피해 = 피해 × (1 + 보너스). 1이면 +100%(2배).",
+                Get = (b, l) => b.CritDamage, Set = (b, l, v) => b.CritDamage = v },
+            new Key { Name = "breaker.moon-duration", Parameter = "moonDuration", Note = "달 중첩 하나의 지속 시간(초).",
+                Get = (b, l) => b.MoonDuration, Set = (b, l, v) => b.MoonDuration = v },
+            new Key { Name = "breaker.moon-speed-bonus", Parameter = "moonSpeedBonus", Note = "달 중첩 하나의 공격 속도 보너스(0 이상). 0.2면 +20%.",
+                Get = (b, l) => b.MoonSpeedBonus, Set = (b, l, v) => b.MoonSpeedBonus = v },
+            new Key { Name = "breaker.moon-radius-bonus", Parameter = "moonRadiusBonus", Note = "달 중첩 하나의 공격 범위(반지름) 보너스(0 이상). 0.1이면 +10%.",
+                Get = (b, l) => b.MoonRadiusBonus, Set = (b, l, v) => b.MoonRadiusBonus = v },
+            new Key { Name = "breaker.comet-duration", Parameter = "cometDuration", Note = "혜성 중첩 하나의 지속 시간(초).",
+                Get = (b, l) => b.CometDuration, Set = (b, l, v) => b.CometDuration = v },
+            new Key { Name = "breaker.comet-crit-damage-bonus", Parameter = "cometCritDamageBonus", Note = "혜성 중첩 하나의 치명타 피해 보너스 증가(0 이상). 0.5면 +50%.",
+                Get = (b, l) => b.CometCritDamageBonus, Set = (b, l, v) => b.CometCritDamageBonus = v },
             new Key { Name = "laser.damage", Parameter = "damage", Note = "레이저 한 발의 피해.",
                 Get = (b, l) => l.Damage, Set = (b, l, v) => l.Damage = v },
             new Key { Name = "laser.interval", Parameter = "interval", Note = "예고를 시작하는 주기(초).",
@@ -83,7 +93,8 @@ namespace BlackHole.Authoring
             if (diagnostics.Count > 0)
                 return diagnostics;
 
-            try { new BreakerDefinition(breaker.Damage, breaker.Interval, breaker.Radius, breaker.CritChance, breaker.CritMultiplier); }
+            try { new BreakerDefinition(breaker.Damage, breaker.Interval, breaker.Radius, breaker.CritChance, breaker.CritDamage,
+                breaker.MoonDuration, breaker.MoonSpeedBonus, breaker.MoonRadiusBonus, breaker.CometDuration, breaker.CometCritDamageBonus); }
             catch (ArgumentException error) { diagnostics.Add(RuleAt("breaker.", error, keyRows)); }
 
             try { new LaserDefinition(laser.Damage, laser.Interval, laser.Width, laser.TelegraphDuration, laser.BoundaryRadius); }
