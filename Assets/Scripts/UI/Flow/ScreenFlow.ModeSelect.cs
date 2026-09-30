@@ -48,11 +48,13 @@ namespace BlackHole.Unity
 
         private void HandleModeSelectBackClicked() => _ui.PopPanel(Unbind);
 
-        // 루트를 바꿔도 패널은 남는다. 패널을 먼저 모두 닫고(바인딩 해제) 업그레이드 화면으로 간다.
-        private void EnterMode()
+        // 화면이 다 덮인 뒤 패널을 모두 닫고(바인딩 해제) 업그레이드 화면으로 바꾼다. 루트를 바꿔도 패널은 남기 때문이다.
+        private void EnterMode() => _transition.Play(ShowUpgradeFromModeSelect);
+
+        private void ShowUpgradeFromModeSelect()
         {
             _ui.PopAllPanels(Unbind);
-            GoToUpgrade();
+            ShowUpgrade();
         }
     }
 }

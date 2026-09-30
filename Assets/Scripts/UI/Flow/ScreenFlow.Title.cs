@@ -4,7 +4,10 @@ namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
-        public void GoToTitle()
+        // 타이틀로(앱 시작, 메인 메뉴).
+        public void GoToTitle() => _transition.Play(ShowTitle);
+
+        private void ShowTitle()
         {
             _ui.SwitchRoot<TitleScreen>(
                 _titlePresentation,

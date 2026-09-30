@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using BlackHole.Core;
 using UnityEngine;
 
@@ -50,8 +51,10 @@ namespace BlackHole.Unity
         // 설정: 일시 정지 창 위에 설정 창을 쌓는다. 설정 창을 닫으면 일시 정지 창으로 돌아온다.
         private void HandlePauseSettingsClicked() => OpenSettings();
 
-        // 메인 메뉴: 창을 모두 닫고, 끝내기 버튼과 같은 정리(결산 포함)를 거친 뒤 결산 화면 대신 타이틀로 간다.
-        private async void HandlePauseMainMenuClicked()
+        // 메인 메뉴: 화면이 다 덮인 뒤 창을 모두 닫고, 끝내기 버튼과 같은 정리(결산 포함)를 거쳐 결산 화면 대신 타이틀로 바꾼다.
+        private void HandlePauseMainMenuClicked() => _transition.Play(LeaveBattleToTitleAsync);
+
+        private async Task LeaveBattleToTitleAsync()
         {
             _ui.PopAllPanels(Unbind);
 
@@ -59,7 +62,7 @@ namespace BlackHole.Unity
             {
                 BattleRawData raw = await _battle.TryEndAsync();
                 if (raw != null)
-                    GoToTitle();
+                    ShowTitle();
             }
             catch (Exception error) { Debug.LogException(error); }
         }

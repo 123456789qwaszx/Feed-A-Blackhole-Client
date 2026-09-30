@@ -32,6 +32,9 @@ namespace BlackHole.Unity
         [SerializeField] private RectTransform _rootLayer;
         [SerializeField] private RectTransform _panelLayer;
 
+        [Header("Screen Transition")]
+        [SerializeField] private ScreenTransitionLook _screenTransitionLook;
+
         [Header("Registered Views")]
         [SerializeField] private UIBase[] _views;
 
@@ -66,6 +69,7 @@ namespace BlackHole.Unity
         private AimInput _aim;
         private GameSettings _settings;
         private UIManager _ui;
+        private ScreenTransition _transition;
         private ScreenFlow _screens;
         private GameHost _host;
 
@@ -128,6 +132,10 @@ namespace BlackHole.Unity
 
             if (_displayRefreshDriver != null)
                 _displayRefreshDriver.Initialize(_ui);
+
+            // 화면 전환 덮개는 맨 위 캔버스의 마지막 자식이라 모든 화면·패널 위에 그려진다.
+            Canvas canvas = _rootLayer.GetComponentInParent<Canvas>();
+            _transition = ScreenTransition.Create(canvas != null ? canvas.rootCanvas.transform : _rootLayer.parent, _screenTransitionLook);
         }
 
         private void BootstrapScreenFlow()
@@ -142,7 +150,7 @@ namespace BlackHole.Unity
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
                 OrEmpty(_nodeTreePresentation, "NodeTree"),
-                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth, _settings);
+                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth, _settings, _transition);
         }
 
         private void BootstrapHost()
@@ -165,6 +173,12 @@ namespace BlackHole.Unity
 
         private bool HasConfiguredUI()
         {
+            if (_screenTransitionLook == null || _screenTransitionLook.Material == null)
+            {
+                Debug.LogError("[UI] GameBootstrap에 화면 전환 외형(ScreenTransitionLook)을, 화면 전환 외형에 머티리얼을 연결해야 한다.", this);
+                return false;
+            }
+
             if (_rootLayer != null && _panelLayer != null && _views != null)
             {
                 bool hasTitle = false;
