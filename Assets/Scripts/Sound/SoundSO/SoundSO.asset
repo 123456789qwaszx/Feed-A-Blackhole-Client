@@ -13,3 +13,16 @@ MonoBehaviour:
   m_Name: SoundSO
   m_EditorClassIdentifier: Assembly-CSharp::UISoundSetup
   _clickSound: {fileID: 8300000, guid: cafb17dce055b8348bb04e4a53a33827, type: 3}
+  _hoverSound: {fileID: 8300000, guid: 603d711d366e42c4e82b50b5c7ba0e43, type: 3}
+  _bgmSound:
+  - {fileID: 8300000, guid: 2c7c8283c15ddb44a82ddca92262b029, type: 3}
+  - {fileID: 8300000, guid: dfbbac3fce05a9943943472c0bf72176, type: 3}
+  - {fileID: 8300000, guid: bc4a21433fa15ab4b879cafa45928013, type: 3}
+  - {fileID: 8300000, guid: f3d6cd3cfd0acbe42a7e5f0727c73c80, type: 3}
+  - {fileID: 8300000, guid: f08953fc24e68f640b9ccf2cbdedcf8c, type: 3}
+  - {fileID: 8300000, guid: d0d2753195a4d664ba9d7e817b586b96, type: 3}
+  - {fileID: 8300000, guid: d70c012432a40cf4e987ac68436e2422, type: 3}
+  - {fileID: 8300000, guid: e9c128369bb1a4f4fb8426b18c5f656d, type: 3}
+  - {fileID: 8300000, guid: 170810b1826b5c54696df5ca469f5b35, type: 3}
+  - {fileID: 8300000, guid: b0a32ec5d496c1e4985fc42f5505640d, type: 3}
+  - {fileID: 8300000, guid: 13b59412f5cc8204a8b1eea4ff3e2fb0, type: 3}

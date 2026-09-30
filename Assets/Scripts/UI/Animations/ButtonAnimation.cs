@@ -53,6 +53,7 @@ namespace BlackHole.Unity
             if (!IsInteractable())
                 return;
 
+            SoundManager.Instance.PlayHover();
             _hovered = true;
             Play();
         }
@@ -70,8 +71,8 @@ namespace BlackHole.Unity
             if (!IsInteractable())
                 return;
 
-            _pressed = true;
             SoundManager.Instance.PlayClick();
+            _pressed = true;
             Play();
         }
 
