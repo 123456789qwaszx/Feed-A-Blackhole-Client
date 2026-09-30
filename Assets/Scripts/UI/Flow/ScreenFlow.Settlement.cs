@@ -1,21 +1,32 @@
+using System;
+using System.Collections.Generic;
 using BlackHole.Core;
 
 namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
+        // 물질 행의 종류 ID. 특수 종류는 부모 종류로 센다(전기 소행성 → 소행성, 혜성·달 → 행성, 초신성 → 별).
+        private const string AsteroidKindId = "asteroid";
+        private const string PlanetKindId = "planet";
+        private const string StarKindId = "star";
+
         // 끝난 판의 원자료와 결산을 마친 진행 상태를 보여 준다(성장도는 이미 올라 있다).
-        public void GoToSettlement(BattleRawData raw)
+        private void ShowSettlement(BattleRawData raw)
         {
             _ui.SwitchRoot<SettlementScreen>(
                 _settlementPresentation,
                 afterPresented: root =>
                 {
                     BindView(root, ApplyBindings);
-                    root.ShowResult(raw.PlayedSeconds, raw.ReachedLevel, raw.Stage, raw.NextStage, raw.ReachedMilestone);
-                    root.ShowKills(raw.TotalKills, raw.Kills);
+                    root.ShowResult(raw.ReachedMilestone);
+                    root.ShowStage(raw.Stage, raw.NextStage, _growth.MaxStage);
+                    root.ShowMatter(
+                        KillsOfFamily(raw.Kills, AsteroidKindId),
+                        KillsOfFamily(raw.Kills, PlanetKindId),
+                        KillsOfFamily(raw.Kills, StarKindId));
                     root.ShowGold(raw.EarnedGold, raw.SettledGold, raw.ReachedMilestone, _player.Gold);
-                    root.ShowProgress(_growth.MilestonesReachedBy(_player.GrowthStage), _growth.Milestones.Count);
+                    root.ShowUpgradeCount(PurchasableNodeCount());
                 },
                 afterClosed: Unbind);
         }
@@ -23,10 +34,44 @@ namespace BlackHole.Unity
         private void ApplyBindings(SettlementScreen root)
         {
             AddBinding(root,
+                r => r.UpgradeClicked += HandleSettlementUpgradeClicked,
+                r => r.UpgradeClicked -= HandleSettlementUpgradeClicked);
+
+            AddBinding(root,
                 r => r.ContinueClicked += HandleSettlementContinueClicked,
                 r => r.ContinueClicked -= HandleSettlementContinueClicked);
         }
 
-        private void HandleSettlementContinueClicked() => GoToUpgrade();
+        // 업그레이드: 업그레이드 화면으로. 계속: 업그레이드 화면을 거치지 않고 지금 산 노드로 다음 판을 시작한다.
+        private void HandleSettlementUpgradeClicked() => GoToUpgrade();
+        private void HandleSettlementContinueClicked() => RequestStart();
+
+        private static int KillsOfFamily(IReadOnlyList<EnemyKillCount> kills, string family)
+        {
+            int count = 0;
+
+            foreach (EnemyKillCount kill in kills)
+            {
+                string kind = kill.Enemy.IsSpecial ? kill.Enemy.SpecialOf : kill.Enemy.Id;
+                if (string.Equals(kind, family, StringComparison.Ordinal))
+                    count += kill.Count;
+            }
+
+            return count;
+        }
+
+        // 지금 Gold로 살 수 있는 노드 수. 업그레이드 버튼에 보인다.
+        private int PurchasableNodeCount()
+        {
+            int count = 0;
+
+            foreach (NodeDefinition node in _tree.Nodes)
+            {
+                if (NodePurchase.StateOf(_player, _tree, node.Id) == NodeState.Purchasable)
+                    count++;
+            }
+
+            return count;
+        }
     }
 }

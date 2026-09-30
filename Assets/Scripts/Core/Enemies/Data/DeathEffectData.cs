@@ -14,9 +14,6 @@ namespace BlackHole.Core
         public float Radius;
         // ChainLightning(옮겨 가는 최대 횟수)
         public int MaxTargets;
-        // AttackHaste, GuaranteedCritical(버프 시간, 초)
-        public float Duration;
-        // AttackHaste(공격 주기 배율, 0 ~ 1)
-        public float IntervalMultiplier;
+        // MoonBuff·GuaranteedCritical은 쓰는 칸이 없다: 버프 시간과 수치는 Breaker의 것이다(BreakerData).
     }
 }

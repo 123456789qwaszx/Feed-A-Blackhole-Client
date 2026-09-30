@@ -6,27 +6,18 @@ using UnityEngine;
 namespace BlackHole.Unity
 {
     // 스킬의 화면. 매 프레임 판의 참가자를 읽어 그린다. 게임 상태를 바꾸지 않고, 피해를 다시 계산하지 않는다.
-    // - Breaker 범위 원: 참가자의 조준점에 Breaker 반지름으로 늘 그린다. 판정과 같은 값이다(GAME_RULES 6절). 조준점이 없으면 숨긴다.
-    // - Breaker Tick 원: Tick 기록마다 한 번 굵게 그렸다가 옅어진다. 치명타 Tick은 금색이다. 빈 Tick(조준점 없음)은 그리지 않는다.
+    // Breaker는 따로 그린다(BreakerView).
     // - 레이저 예고선: 예고 중인 발사마다 얇은 선. 발사에 가까울수록 진해진다(CONTENT_DEFINITION 5.2).
     // - 레이저 발사선: 발사 기록마다 판정 굵기 그대로의 선이 잠깐 보였다가 옅어진다.
-    // 정지 중에는 판이 기록을 비우지 않으므로, 이미 그린 Tick·발사는 번호로 걸러 두 번 그리지 않는다.
+    // 정지 중에는 판이 기록을 비우지 않으므로, 이미 그린 발사는 번호로 걸러 두 번 그리지 않는다.
     internal sealed class SkillView : IDisposable
     {
-        private const float RangeWidth = 0.03f;
-        private const float TickWidth = 0.08f;
-        private const float TickSeconds = 0.3f;
         private const float TelegraphWidth = 0.04f;
         private const float FireSeconds = 0.2f;
-        private static readonly Color BreakerColor = new Color(0.3f, 1f, 0.55f, 1f);
-        private static readonly Color CriticalColor = new Color(1f, 0.85f, 0.2f, 1f);
-        private static readonly Color RangeColor = new Color(0.3f, 1f, 0.55f, 0.45f);
         private static readonly Color TelegraphColor = new Color(1f, 0.9f, 0.3f, 1f);
         private static readonly Color FireColor = new Color(0.35f, 0.9f, 1f, 1f);
 
         private readonly LineStrokes _strokes;
-        private readonly Dictionary<PlayerId, LineRenderer> _ranges = new Dictionary<PlayerId, LineRenderer>();
-        private readonly Dictionary<PlayerId, int> _drawnTicks = new Dictionary<PlayerId, int>();
         private readonly Dictionary<PlayerId, int> _drawnFires = new Dictionary<PlayerId, int>();
         // 예고선. 이번 프레임에 쓰지 않은 선은 숨겨 두었다가 다음 예고에 다시 쓴다.
         private readonly List<LineRenderer> _telegraphs = new List<LineRenderer>();
@@ -44,9 +35,6 @@ namespace BlackHole.Unity
             {
                 BattlePlayer player = players[i];
 
-                if (player.Breaker != null)
-                    ShowBreaker(player, player.Breaker);
-
                 if (player.Laser != null)
                     telegraphs = ShowLaser(player.Id, player.Laser, telegraphs);
             }
@@ -62,49 +50,11 @@ namespace BlackHole.Unity
         public void Reset()
         {
             _strokes.Reset();
-            _ranges.Clear();
             _telegraphs.Clear();
-            _drawnTicks.Clear();
             _drawnFires.Clear();
         }
 
         public void Dispose() => _strokes.Dispose();
-
-        private void ShowBreaker(BattlePlayer player, BreakerSkill breaker)
-        {
-            if (!_ranges.TryGetValue(player.Id, out LineRenderer range))
-            {
-                range = _strokes.Line($"Breaker Range ({player.Id})", RangeWidth, RangeColor);
-                LineStrokes.SetCircle(range, BattleSpace.Origin, breaker.Definition.Radius);
-                _ranges.Add(player.Id, range);
-            }
-
-            range.enabled = player.AimPoint.HasValue;
-
-            if (player.AimPoint.HasValue)
-                LineStrokes.MoveTo(range, player.AimPoint.Value);
-
-            _drawnTicks.TryGetValue(player.Id, out int drawn);
-            IReadOnlyList<BreakerTick> ticks = breaker.Ticks;
-
-            for (int i = 0; i < ticks.Count; i++)
-            {
-                BreakerTick tick = ticks[i];
-
-                if (tick.Number <= drawn)
-                    continue;
-
-                drawn = tick.Number;
-
-                if (tick.Center.HasValue)
-                {
-                    Color color = tick.IsCritical ? CriticalColor : BreakerColor;
-                    LineStrokes.SetCircle(_strokes.Flash("Breaker Tick", TickWidth, color, TickSeconds), tick.Center.Value, tick.Radius);
-                }
-            }
-
-            _drawnTicks[player.Id] = drawn;
-        }
 
         // 예고선을 used번째부터 채우고, 다음에 쓸 예고선 번호를 돌려준다.
         private int ShowLaser(PlayerId player, LaserSkill laser, int used)

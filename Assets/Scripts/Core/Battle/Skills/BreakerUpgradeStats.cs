@@ -12,7 +12,17 @@ namespace BlackHole.Core
         public const string Radius = "breaker.radius";
         // 한 Tick이 치명타일 확률(1을 넘지 않는다). 노드 예: 더하기 0.05.
         public const string CritChance = "breaker.crit-chance";
-        // 치명타 피해 배율. 200%에서 25%p 올리는 노드는 더하기 0.25(2 → 2.25).
-        public const string CritMultiplier = "breaker.crit-multiplier";
+        // 치명타 피해 보너스(기본 1 = +100%). +100%에서 25%p 올리는 노드는 더하기 0.25(1 → 1.25).
+        public const string CritDamage = "breaker.crit-damage";
+        // 달 버프 중첩 하나의 지속 시간(초). 노드 예: 더하기 1.
+        public const string MoonDuration = "breaker.moon-duration";
+        // 달 버프 중첩 하나의 공격 속도 보너스(기본 0.2 = +20%). 노드 예: 더하기 0.05.
+        public const string MoonSpeedBonus = "breaker.moon-speed-bonus";
+        // 달 버프 중첩 하나의 공격 범위(반지름) 보너스(기본 0.1 = +10%). 노드 예: 더하기 0.05.
+        public const string MoonRadiusBonus = "breaker.moon-radius-bonus";
+        // 혜성 버프 중첩 하나의 지속 시간(초). 노드 예: 더하기 1.
+        public const string CometDuration = "breaker.comet-duration";
+        // 혜성 버프 중첩 하나의 치명타 피해 보너스 증가(기본 0.5 = +50%). 노드 예: 더하기 0.1.
+        public const string CometCritDamageBonus = "breaker.comet-crit-damage-bonus";
     }
 }

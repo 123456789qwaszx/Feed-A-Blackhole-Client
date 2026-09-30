@@ -13,7 +13,8 @@ namespace BlackHole.Unity
     //
     // 콘텐츠: 판 설정은 SampleContent(C#), 스킬은 스킬 설정 에셋, 적 종류는 적 종류 목록 에셋,
     // 출현 배치와 전투 시작 공급은 적 공급 설정 에셋, 블랙홀 성장의 Level 표는 블랙홀 성장 설정 에셋이 채운다.
-    // 화면은 씬의 UI Canvas에 놓인 화면 프리팹(TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen)을 Root Layer와 Views로 받는다.
+    // 화면은 씬의 UI Canvas에 놓인 화면 프리팹(TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen)을 Root Layer와 Views로,
+    // 패널 프리팹(ModeSelectPanel·SettingsPanel·PausePanel)을 Panel Layer와 Views로 받는다.
     // 누락된 연결은 조립 전에 오류로 알린다. Presentation을 비워 두면 아무것도 바꾸지 않는 빈 Presentation을 쓴다.
     public sealed class GameBootstrap : MonoBehaviour
     {
@@ -27,15 +28,24 @@ namespace BlackHole.Unity
         [SerializeField] private SkillSetup _skillSetup;
         [SerializeField] private NodeCatalog _nodeCatalog;
 
+        [Header("Looks")]
+        [SerializeField] private BreakerLook _breakerLook;
+
         [Header("UI Layers")]
         [SerializeField] private RectTransform _rootLayer;
         [SerializeField] private RectTransform _panelLayer;
+
+        [Header("Screen Transition")]
+        [SerializeField] private ScreenTransitionLook _screenTransitionLook;
 
         [Header("Registered Views")]
         [SerializeField] private UIBase[] _views;
 
         [Header("Presentations (비우면 빈 Presentation)")]
         [SerializeField] private UIPresentationSpec _titlePresentation;
+        [SerializeField] private UIPresentationSpec _modeSelectPresentation;
+        [SerializeField] private UIPresentationSpec _settingsPresentation;
+        [SerializeField] private UIPresentationSpec _pausePresentation;
         [SerializeField] private UIPresentationSpec _upgradePresentation;
         [SerializeField] private UIPresentationSpec _battlePresentation;
         [SerializeField] private UIPresentationSpec _settlementPresentation;
@@ -54,13 +64,16 @@ namespace BlackHole.Unity
         private NodeTree _nodeTree;
         private EnemyLooks _enemyLooks;
         private EnemyView _enemyView;
+        private BreakerView _breakerView;
         private SkillView _skillView;
         private DeathEffectView _deathEffectView;
         private HqView _hqView;
         private BattleSystem _battle;
         private PlayerState _viewer;
         private AimInput _aim;
+        private GameSettings _settings;
         private UIManager _ui;
+        private ScreenTransition _transition;
         private ScreenFlow _screens;
         private GameHost _host;
         private CameraShake _cameraShake;
@@ -70,6 +83,7 @@ namespace BlackHole.Unity
             if (!TryLoadContent(out _content)
                 || !TryLoadNodeTree(out _layout, out _nodeTree)
                 || !NodesFitContent(_content, _nodeTree)
+                || !HasConfiguredLooks()
                 || !HasConfiguredUI())
             {
                 enabled = false;
@@ -80,6 +94,7 @@ namespace BlackHole.Unity
 
             BootstrapBattleViews();
             BootstrapBattle();
+            BootstrapSettings();
             BootstrapUI();
             BootstrapScreenFlow();
             BootstrapHost();
@@ -90,19 +105,28 @@ namespace BlackHole.Unity
         {
             _enemyLooks = new EnemyLooks(_enemyCatalog.Kinds());
             _enemyView = new EnemyView(transform, _enemyLooks);
+            _breakerView = new BreakerView(transform, _breakerLook);
             _skillView = new SkillView(transform);
             _deathEffectView = new DeathEffectView(transform);
             _hqView = new HqView(transform);
+
+            // 전투 카메라를 화면비에 맞춘다(좁은 화면에서도 16:9의 가로 폭을 보여 준다). 씬에 없으면 여기서 붙인다.
+            Camera battleCamera = Camera.main;
+            if (battleCamera != null && !battleCamera.TryGetComponent(out BattleCameraFit _))
+                battleCamera.gameObject.AddComponent<BattleCameraFit>();
         }
 
         private void BootstrapBattle()
         {
             // 화면이 보는 진행 상태: 방장의 것. 전투 사이에 이어진다(저장은 없다).
             _viewer = new PlayerState(Host);
-            _battle = new BattleSystem(_content, _viewer, _enemyView, _skillView, _deathEffectView, _hqView);
+            _battle = new BattleSystem(_content, _viewer, _enemyView, _breakerView, _skillView, _deathEffectView, _hqView);
             // 마우스가 조준하는 참가자: 방장.
             _aim = new AimInput(_battle, _viewer.Id);
         }
+
+        // 저장된 플레이어 설정을 읽는다(없으면 기본값).
+        private void BootstrapSettings() => _settings = GameSettings.Load();
 
         private void BootstrapUI()
         {
@@ -121,8 +145,15 @@ namespace BlackHole.Unity
                 _ui.Register(view);
             }
 
-            if (_displayRefreshDriver != null)
-                _displayRefreshDriver.Initialize(_ui);
+            // 해상도·Safe Area가 바뀌면(회전, 창 크기) 보이는 화면에 다시 맞춘다. 씬에 없으면 여기서 붙인다.
+            if (_displayRefreshDriver == null)
+                _displayRefreshDriver = gameObject.AddComponent<UIDisplayRefreshDriver>();
+
+            _displayRefreshDriver.Initialize(_ui);
+
+            // 화면 전환 덮개는 맨 위 캔버스의 마지막 자식이라 모든 화면·패널 위에 그려진다.
+            Canvas canvas = _rootLayer.GetComponentInParent<Canvas>();
+            _transition = ScreenTransition.Create(canvas != null ? canvas.rootCanvas.transform : _rootLayer.parent, _screenTransitionLook);
         }
 
         private void BootstrapScreenFlow()
@@ -130,11 +161,14 @@ namespace BlackHole.Unity
             _screens = new ScreenFlow(
                 _ui,
                 OrEmpty(_titlePresentation, "Title"),
+                OrEmpty(_modeSelectPresentation, "ModeSelect"),
+                OrEmpty(_settingsPresentation, "Settings"),
+                OrEmpty(_pausePresentation, "Pause"),
                 OrEmpty(_upgradePresentation, "Upgrade"),
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
                 OrEmpty(_nodeTreePresentation, "NodeTree"),
-                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth);
+                _battle, _viewer, _nodeTree, BuildNodeItems(_nodeTree, _layout), _content.Growth, _settings, _transition);
         }
 
         private void BootstrapHost()
@@ -155,11 +189,30 @@ namespace BlackHole.Unity
                 Destroy(presentation);
         }
 
+        private bool HasConfiguredLooks()
+        {
+            if (_breakerLook != null && _breakerLook.Material != null && _breakerLook.OrbMaterial != null
+                && _breakerLook.CometAuraMaterial != null)
+                return true;
+
+            Debug.LogError("[외형] GameBootstrap에 Breaker 외형(BreakerLook)을, Breaker 외형에 링·버프 구체·혜성 배경 원 머티리얼을 연결해야 한다.", this);
+            return false;
+        }
+
         private bool HasConfiguredUI()
         {
+            if (_screenTransitionLook == null || _screenTransitionLook.Material == null)
+            {
+                Debug.LogError("[UI] GameBootstrap에 화면 전환 외형(ScreenTransitionLook)을, 화면 전환 외형에 머티리얼을 연결해야 한다.", this);
+                return false;
+            }
+
             if (_rootLayer != null && _panelLayer != null && _views != null)
             {
                 bool hasTitle = false;
+                bool hasModeSelect = false;
+                bool hasSettings = false;
+                bool hasPause = false;
                 bool hasUpgrade = false;
                 bool hasBattle = false;
                 bool hasSettlement = false;
@@ -168,19 +221,22 @@ namespace BlackHole.Unity
                 foreach (UIBase view in _views)
                 {
                     hasTitle |= view is TitleScreen;
+                    hasModeSelect |= view is ModeSelectPanel;
+                    hasSettings |= view is SettingsPanel;
+                    hasPause |= view is PausePanel;
                     hasUpgrade |= view is UpgradeScreen;
                     hasBattle |= view is BattleScreen;
                     hasSettlement |= view is SettlementScreen;
                     hasNodeTree |= view is NodeTreeView;
                 }
 
-                if (hasTitle && hasUpgrade && hasBattle && hasSettlement && hasNodeTree)
+                if (hasTitle && hasModeSelect && hasSettings && hasPause && hasUpgrade && hasBattle && hasSettlement && hasNodeTree)
                     return true;
             }
 
             Debug.LogError(
                 "[UI] GameBootstrap에 Root Layer, Panel Layer와 TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen, " +
-                "업그레이드 화면 안의 트리 보기 페이지(NodeTreeView)를 Registered Views로 연결해야 한다.",
+                "업그레이드 화면 안의 트리 보기 페이지(NodeTreeView), Panel Layer 아래의 모드 선택 패널(ModeSelectPanel)·설정 패널(SettingsPanel)·일시 정지 패널(PausePanel)을 Registered Views로 연결해야 한다.",
                 this);
             return false;
         }
@@ -268,7 +324,8 @@ namespace BlackHole.Unity
             foreach (NodeDefinition node in tree.Nodes)
             {
                 (int x, int y) = cells.TryGetValue(node.Id, out (int X, int Y) cell) ? cell : (0, 0);
-                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, node.Price));
+                string stat = node.Upgrades.Count > 0 ? node.Upgrades[0].Stat : null;   // 노드 그림을 고르는 스탯
+                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, node.Price, stat));
             }
 
             return nodes;

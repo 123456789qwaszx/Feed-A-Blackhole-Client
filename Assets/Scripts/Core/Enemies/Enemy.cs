@@ -24,6 +24,8 @@ namespace BlackHole.Core
 
         public PlayerId? LastDamageSource { get; private set; }
 
+        public event Action<Enemy> Damaged;
+
         internal Enemy(
             EnemyId id,
             EnemyDefinition definition,
@@ -60,6 +62,7 @@ namespace BlackHole.Core
 
             Health = Math.Max(0, Health - damage.Amount);
             LastDamageSource = damage.Source;
+            Damaged?.Invoke(this);
 
             if (Health > 0)
                 return false;

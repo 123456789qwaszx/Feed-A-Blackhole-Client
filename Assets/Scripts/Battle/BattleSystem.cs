@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 적·전투 시스템: 한 판(GameSession)과 그 표현(적 화면 EnemyView, 스킬 화면 SkillView, 사망 효과 화면 DeathEffectView, 블랙홀 화면 HqView)의 수명을 가진다.
+    // 적·전투 시스템: 한 판(GameSession)과 그 표현(적 화면 EnemyView, Breaker 화면 BreakerView, 스킬 화면 SkillView, 사망 효과 화면 DeathEffectView, 블랙홀 화면 HqView)의 수명을 가진다.
     // 스킬은 판의 일부다 — 판 조립 때 참가자마다 생기고 판과 함께 버려진다. 그래서 스킬 화면도 적 화면과 같이 정리한다.
     //
     // 스스로 시작하거나 끝내지 않는다. 화면 흐름(ScreenFlow)이 버튼·시간 만료에서 부를 때만 시작(TryStart)하고 정리(TryEndAsync)한다.
@@ -32,6 +32,7 @@ namespace BlackHole.Unity
         private readonly GameContent _content;
         private readonly PlayerState _progress;
         private readonly EnemyView _enemyView;
+        private readonly BreakerView _breakerView;
         private readonly SkillView _skillView;
         private readonly DeathEffectView _deathEffectView;
         private readonly HqView _hqView;
@@ -45,12 +46,13 @@ namespace BlackHole.Unity
         // 정리를 요청할 수 있는가: 진행 중이거나, 앞선 정리가 실패해 멈춘 상태.
         private bool CanShutdown => _state == State.Running || _state == State.Faulted;
 
-        public BattleSystem(GameContent content, PlayerState progress, EnemyView enemyView, SkillView skillView, DeathEffectView deathEffectView,
-            HqView hqView)
+        public BattleSystem(GameContent content, PlayerState progress, EnemyView enemyView, BreakerView breakerView, SkillView skillView,
+            DeathEffectView deathEffectView, HqView hqView)
         {
             _content = content;
             _progress = progress;
             _enemyView = enemyView;
+            _breakerView = breakerView;
             _skillView = skillView;
             _deathEffectView = deathEffectView;
             _hqView = hqView;
@@ -83,7 +85,9 @@ namespace BlackHole.Unity
             // 2. 적 소환 단계 진입.
             Session.Begin();
             _enemyView.Reset();
-            _enemyView.Synchronize(Session.World);
+            // 시작 직후 스냅: 아직 지난 시간이 없으니 흔들림 연출 없이 위치만 맞춘다.
+            _enemyView.Synchronize(Session.World, 0f);
+            _breakerView.Reset();
             _skillView.Reset();
             _deathEffectView.Reset();
             _hqView.Reset();
@@ -157,11 +161,12 @@ namespace BlackHole.Unity
 
                 // 6. 화면의 연출 정리. 지운 객체는 프레임 끝에 사라지므로 한 프레임 기다린 뒤 확인한다.
                 _enemyView.Reset();
+                _breakerView.Reset();
                 _skillView.Reset();
                 _deathEffectView.Reset();
                 _hqView.Reset();
                 await Awaitable.NextFrameAsync();
-                Verify(_enemyView.IsClear && _skillView.IsClear && _deathEffectView.IsClear && _hqView.IsClear, "Presentation cleared");
+                Verify(_enemyView.IsClear && _breakerView.IsClear && _skillView.IsClear && _deathEffectView.IsClear && _hqView.IsClear, "Presentation cleared");
 
                 // 7. 완전 초기화: 판을 버린다.
                 Session = null;

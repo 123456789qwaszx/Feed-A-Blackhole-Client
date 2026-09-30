@@ -8,7 +8,7 @@ namespace BlackHole.Authoring
 {
     // 적 종류(ContentData.Enemies.Enemies)와 데이터 시트의 다섯 탭 사이의 변환. 한 종류가 다섯 탭에 걸쳐 있고 kind(ID)로 잇는다.
     // - Enemies 탭: 한 행이 종류 하나. id | moveSpeed | goldenMultiplier | upgradesTo | baseUpgrade | baseUpgradeFromStage | specialOf
-    //   | deathEffect | effectDamage | effectRadius | effectMaxTargets | effectDuration | effectIntervalMultiplier
+    //   | deathEffect | effectDamage | effectRadius | effectMaxTargets
     //   upgradesTo·specialOf는 다른 종류의 ID이고 비우면 없다. deathEffect는 비우면 없다.
     //   효과 칸은 그 효과가 쓰는 것만 채운다(쓰지 않는 칸에 값이 있으면 오류).
     // - EnemyTiers 탭: kind | tier | color | maxHealth | size | gold | exp. tier는 종류마다 0부터 차례로. color는 #RRGGBB(#RRGGBBAA).
@@ -29,7 +29,7 @@ namespace BlackHole.Authoring
         private static readonly string[] _enemyColumns =
         {
             "id", "moveSpeed", "goldenMultiplier", "upgradesTo", "baseUpgrade", "baseUpgradeFromStage", "specialOf",
-            "deathEffect", "effectDamage", "effectRadius", "effectMaxTargets", "effectDuration", "effectIntervalMultiplier",
+            "deathEffect", "effectDamage", "effectRadius", "effectMaxTargets",
         };
 
         private static readonly string[] _tierColumns = { "kind", "tier", "color", "maxHealth", "size", "gold", "exp" };
@@ -42,13 +42,14 @@ namespace BlackHole.Authoring
         {
             ["ChainLightning"] = new[] { "damage", "radius", "maxTargets" },
             ["Explosion"] = new[] { "damage", "radius" },
-            ["AttackHaste"] = new[] { "duration", "intervalMultiplier" },
-            ["GuaranteedCritical"] = new[] { "duration" },
+            // 버프는 쓰는 칸이 없다: 시간과 수치는 Breaker의 것이다(Skills 탭).
+            ["MoonBuff"] = Array.Empty<string>(),
+            ["CometBuff"] = Array.Empty<string>(),
         };
 
         private static readonly Dictionary<string, int> _effectColumns = new Dictionary<string, int>(StringComparer.Ordinal)
         {
-            ["damage"] = 8, ["radius"] = 9, ["maxTargets"] = 10, ["duration"] = 11, ["intervalMultiplier"] = 12,
+            ["damage"] = 8, ["radius"] = 9, ["maxTargets"] = 10,
         };
 
         private static readonly Regex _hex = new Regex("^#?([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$");
@@ -81,8 +82,6 @@ namespace BlackHole.Authoring
                     Used(used, "damage") ? Number(effect.Damage) : string.Empty,
                     Used(used, "radius") ? Number(effect.Radius) : string.Empty,
                     Used(used, "maxTargets") ? Number(effect.MaxTargets) : string.Empty,
-                    Used(used, "duration") ? Number(effect.Duration) : string.Empty,
-                    Used(used, "intervalMultiplier") ? Number(effect.IntervalMultiplier) : string.Empty,
                 });
             }
 
@@ -307,8 +306,6 @@ namespace BlackHole.Authoring
                 Damage = Used(used, "damage") ? ReadFloat(row, 8, EnemiesTab, sheetRow, diagnostics) : 0,
                 Radius = Used(used, "radius") ? ReadFloat(row, 9, EnemiesTab, sheetRow, diagnostics) : 0,
                 MaxTargets = Used(used, "maxTargets") ? ReadInt(row, 10, EnemiesTab, sheetRow, diagnostics) : 0,
-                Duration = Used(used, "duration") ? ReadFloat(row, 11, EnemiesTab, sheetRow, diagnostics) : 0,
-                IntervalMultiplier = Used(used, "intervalMultiplier") ? ReadFloat(row, 12, EnemiesTab, sheetRow, diagnostics) : 0,
             };
         }
 

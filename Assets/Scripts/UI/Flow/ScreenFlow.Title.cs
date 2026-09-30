@@ -4,7 +4,10 @@ namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
-        public void GoToTitle()
+        // 타이틀로(앱 시작, 메인 메뉴).
+        public void GoToTitle() => _transition.Play(ShowTitle);
+
+        private void ShowTitle()
         {
             _ui.SwitchRoot<TitleScreen>(
                 _titlePresentation,
@@ -12,7 +15,6 @@ namespace BlackHole.Unity
                 afterClosed: Unbind);
         }
 
-        // 설정 버튼은 열 화면이 아직 없어 연결하지 않는다.
         private void ApplyBindings(TitleScreen root)
         {
             AddBinding(root,
@@ -20,13 +22,26 @@ namespace BlackHole.Unity
                 r => r.StartClicked -= HandleTitleStartClicked);
 
             AddBinding(root,
+                r => r.SettingsClicked += HandleTitleSettingsClicked,
+                r => r.SettingsClicked -= HandleTitleSettingsClicked);
+
+            AddBinding(root,
                 r => r.QuitClicked += HandleTitleQuitClicked,
                 r => r.QuitClicked -= HandleTitleQuitClicked);
         }
 
-        private void HandleTitleStartClicked() => GoToUpgrade();
+        // 시작은 타이틀 위에 모드 선택 창을 연다. 모드를 고른 뒤 업그레이드 화면으로 간다.
+        private void HandleTitleStartClicked()
+        {
+            OpenModeSelect();
+        }
 
-        private static void HandleTitleQuitClicked()
+        private void HandleTitleSettingsClicked() => OpenSettings();
+
+        private static void HandleTitleQuitClicked() => QuitGame();
+
+        // 앱을 끝낸다. 에디터에서는 플레이를 멈춘다.
+        private static void QuitGame()
         {
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
