@@ -20,7 +20,7 @@ MonoBehaviour:
   specialOf: {fileID: 11400000, guid: 05425233efee43ed8109228e30eff09f, type: 2}
   tiers:
   - color: {r: 0.45, g: 0.75, b: 1, a: 1}
-    maxHealth: 24
+    maxHealth: 1
     size: 0.25
     gold: 20
     exp: 4
