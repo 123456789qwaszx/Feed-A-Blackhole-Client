@@ -3,13 +3,10 @@ using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    // 업그레이드 화면(플레이어가 보는 노드 트리, 임시 모양). Gold, 블랙홀 성장도·목표 Level, 전투 시작 버튼을 가진다.
-    // 노드 트리의 규칙을 모른다 — ScreenFlow가 표시 값을 넘기고, 전투 시작은 사건으로 알린다.
-    // 페이지의 호스트다(IUIPageOwner). 어떤 페이지가 올라오는지는 모른다 — 지금은 ScreenFlow가 트리 보기(NodeTreeView)를 연다.
-    // 페이지 자리(PageRoot)는 이 화면 자신이다. 페이지는 이 화면의 바로 아래 자식이어야 한다.
     public sealed class UpgradeScreen : UIRoot<UpgradeScreen.Refs>, IUIPageOwner
     {
         public enum Refs
@@ -17,7 +14,13 @@ namespace BlackHole.Unity
             GoldText,
             HqText,
             StartBattleBtn_Button,
+            NodeTooltip,
+            NodeTooltipTitle,
+            NodeTooltipBody,
         }
+
+        // 툴팁과 노드 사이의 틈.
+        private const float TooltipGap = 8;
 
         public event Action StartBattleClicked;
 
@@ -25,6 +28,10 @@ namespace BlackHole.Unity
 
         private TMP_Text _gold;
         private TMP_Text _hq;
+        private RectTransform _tooltip;
+        private TMP_Text _tooltipTitle;
+        private TMP_Text _tooltipBody;
+        private readonly Vector3[] _corners = new Vector3[4];
 
         protected override void OnInitialize()
         {
@@ -32,11 +39,18 @@ namespace BlackHole.Unity
 
             _gold = View.Text(Refs.GoldText);
             _hq = View.Text(Refs.HqText);
+            _tooltip = View.Rect(Refs.NodeTooltip);
+            _tooltipTitle = View.Text(Refs.NodeTooltipTitle);
+            _tooltipBody = View.Text(Refs.NodeTooltipBody);
+            HideNodeTooltip();
 
             BindEvent(View.Button(Refs.StartBattleBtn_Button), HandleStartBattleClicked);
         }
 
         private void HandleStartBattleClicked(PointerEventData _) => StartBattleClicked?.Invoke();
+
+        // 화면이 닫힐 때 툴팁도 닫는다. 다시 열 때 남아 있지 않게 한다.
+        private void OnDisable() => HideNodeTooltip();
 
         public void ShowGold(long gold)
         {
@@ -52,7 +66,52 @@ namespace BlackHole.Unity
                 return;
 
             _hq.text = "Black hole  Stage " + stage.ToString(CultureInfo.InvariantCulture)
-                + (goalLevel > 0 ? "  (goal Lv " + goalLevel.ToString(CultureInfo.InvariantCulture) + ")" : "  (last stage)");
+                + (goalLevel > 0
+                    ? "  (goal Lv " + goalLevel.ToString(CultureInfo.InvariantCulture) + ")"
+                    : "  (last stage)");
+        }
+
+        // 노드 위 가운데에 툴팁을 붙인다. 화면 위로 넘치면 노드 아래에 붙인다.
+        // 툴팁은 레이캐스트를 받지 않아 노드의 올림을 가로채지 않는다.
+        public void ShowNodeTooltip(RectTransform node, string title, string body)
+        {
+            if (_tooltip == null || node == null)
+                return;
+
+            if (_tooltipTitle != null)
+                _tooltipTitle.text = title;
+
+            if (_tooltipBody != null)
+                _tooltipBody.text = body;
+
+            _tooltip.gameObject.SetActive(true);
+            _tooltip.SetAsLastSibling();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_tooltip);
+
+            node.GetWorldCorners(_corners);
+            Vector3 top = (_corners[1] + _corners[2]) * 0.5f;
+            Vector3 bottom = (_corners[0] + _corners[3]) * 0.5f;
+
+            _tooltip.pivot = new Vector2(0.5f, 0);
+            _tooltip.position = top;
+            _tooltip.anchoredPosition += new Vector2(0, TooltipGap);
+
+            _tooltip.GetWorldCorners(_corners);
+            float tooltipTop = _corners[1].y;
+            ((RectTransform)transform).GetWorldCorners(_corners);
+
+            if (tooltipTop > _corners[1].y)
+            {
+                _tooltip.pivot = new Vector2(0.5f, 1);
+                _tooltip.position = bottom;
+                _tooltip.anchoredPosition += new Vector2(0, -TooltipGap);
+            }
+        }
+
+        public void HideNodeTooltip()
+        {
+            if (_tooltip != null)
+                _tooltip.gameObject.SetActive(false);
         }
     }
 }

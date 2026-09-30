@@ -29,7 +29,7 @@ namespace BlackHole.Unity
                 r => r.EndClicked -= HandleBattleEndClicked);
         }
 
-        private void HandleBattlePauseClicked() => _battle.TogglePause();
+        private void HandleBattlePauseClicked() => OpenPause();
         private void HandleBattleEndClicked() => RequestEnd();
 
         internal void HandleBattleTimeExpired() => RequestEnd();
