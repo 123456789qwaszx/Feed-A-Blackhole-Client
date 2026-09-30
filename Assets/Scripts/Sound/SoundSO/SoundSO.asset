@@ -27,9 +27,14 @@ MonoBehaviour:
   _clickSound: {fileID: 8300000, guid: cafb17dce055b8348bb04e4a53a33827, type: 3}
   _hoverSound: {fileID: 8300000, guid: 603d711d366e42c4e82b50b5c7ba0e43, type: 3}
   _hitSound: {fileID: 8300000, guid: 1b1978e1712a4a54ba5d755a12ceda42, type: 3}
+  _whiffSound: {fileID: 8300000, guid: 2fb90a4bf5816734ba284886ff0ab989, type: 3}
   _destroySound: {fileID: 8300000, guid: 2467596ad48dbaa4d831884f6ce8c001, type: 3}
   _levelUpSound: {fileID: 8300000, guid: fa024954b46b69240af50cc8dfbd34d7, type: 3}
   _lightningSound: {fileID: 8300000, guid: f878dcf1e1ea83a4b81a7730e8d3b7d8, type: 3}
   _razerSound: {fileID: 8300000, guid: fc36704f0e2e48e4eb16ec9f2c2318f3, type: 3}
+  _moonCometSound: {fileID: 8300000, guid: e8b23b59cddcd544fa242981853d1bc9, type: 3}
   _sliderSound: {fileID: 8300000, guid: 06d11171f295b4640a5b2a69a7c5f238, type: 3}
   _closingSound: {fileID: 8300000, guid: 1b0bc1ca217f97e4a8c7608c80c84e28, type: 3}
+  _NodeUpgradeSound: {fileID: 8300000, guid: c3737831f731f414083d3c83366176f8, type: 3}
+  _switchingScreensSound: {fileID: 8300000, guid: 2c585b7af19c7bf4aa1b65aecd5f2a2c, type: 3}
+  _superNovaSound: {fileID: 8300000, guid: 595c4aad3bd64e547af70a6faffa81ad, type: 3}
