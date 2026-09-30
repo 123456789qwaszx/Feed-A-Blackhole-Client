@@ -25,14 +25,17 @@ namespace BlackHole.Unity
             public string Id { get; }
             public string Title { get; }
             public string Description { get; }
-            // 카드 머리의 색.
-            public Color Color { get; }
-            // 카드 아래에 보일 한 줄(최고 기록 등). 비면 숨긴다.
-            public string Record { get; }
-            // 이어 할 진행이 있는가. 없으면 계속 버튼을 막는다.
-            public bool CanContinue { get; }
+            public Color Color { get; } // 카드 머리의 색.
+            public string Record { get; } // 카드 아래에 보일 한 줄(최고 기록 등). 비면 숨긴다.
+            public bool CanContinue { get; } // 이어 할 진행이 있는가. 없으면 계속 버튼을 막는다.
 
-            public ModeItem(string id, string title, string description, Color color, string record = null, bool canContinue = false)
+            public ModeItem(
+                string id,
+                string title,
+                string description,
+                Color color,
+                string record = null,
+                bool canContinue = false)
             {
                 Id = id;
                 Title = title;
@@ -45,13 +48,12 @@ namespace BlackHole.Unity
 
         private const float CardGap = 24;
         private const float UnselectedScale = 0.84f;
-        // 카드가 제자리로 따라가는 빠르기. 클수록 빨리 붙는다.
-        private const float SlideSharpness = 14;
+        private const float SlideSharpness = 14; // 카드가 제자리로 따라가는 빠르기. 클수록 빨리 붙는다.
 
-        private readonly List<ModeItem> _modes = new List<ModeItem>();
-        private readonly List<ModeCard> _cards = new List<ModeCard>();
-        private readonly List<Vector2> _targetPositions = new List<Vector2>();
-        private readonly List<float> _targetScales = new List<float>();
+        private readonly List<ModeItem> _modes = new();
+        private readonly List<ModeCard> _cards = new();
+        private readonly List<Vector2> _targetPositions = new();
+        private readonly List<float> _targetScales = new();
 
         private RectTransform _track;
         private ModeCard _template;
