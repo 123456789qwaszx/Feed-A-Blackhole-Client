@@ -30,6 +30,8 @@ namespace BlackHole.Unity
             ContinueBtn_Text,
             NewGameBtn_Image,
             NewGameBtn_Text,
+            // 화면 전체를 덮는 배경(안전 영역 밖까지). 기본은 호 무늬 배경.
+            Background_Image,
         }
 
         // 카드 하나에 보일 모드.
