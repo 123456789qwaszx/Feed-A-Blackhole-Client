@@ -22,6 +22,8 @@ namespace BlackHole.Unity
         private readonly PlayerState _player;
         // 노드 트리. 업그레이드 화면의 노드 상태·구매와, 전투를 시작할 때 방장의 산 노드를 업그레이드 표로 바꾸는 데 쓴다.
         private readonly NodeTree _tree;
+        private readonly SoundManager _soundManager;
+
         // 업그레이드 화면에 그릴 노드(칸·가격). 조립 때 저작 데이터의 격자 칸으로 만들어 받는다.
         private readonly IReadOnlyList<NodeTreeView.NodeItem> _nodes;
         // 블랙홀 성장(성장도별 Level 표·이정표). 업그레이드 화면의 목표 Level과 결산 화면의 이정표 진행도를 계산할 때 쓴다.
