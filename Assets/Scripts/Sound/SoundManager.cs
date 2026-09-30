@@ -106,7 +106,7 @@ public class SoundManager : MonoBehaviour
             {
                 _bgmSource.clip = clip;
                 _bgmSource.Play();
-                yield return new WaitForSecondsRealtime(clip.length); // BGM길이만큼 대기
+                yield return new WaitForSecondsRealtime(clip.length + 1f); // BGM길이 + 1초 텀 만큼 대기
             }
             else yield return null; // null 칸이면 한 프레임 쉬고 다음 곡으로
 
