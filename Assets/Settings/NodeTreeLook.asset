@@ -54,12 +54,12 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: 2d27e38927fd8fd16b20667385bc1c3d, type: 3}
     purchased: {fileID: 21300000, guid: 8a833e4b12d44bbae652a9366522ba5f, type: 3}
     locked: {fileID: 21300000, guid: c5dd0489473058543c9500383f8c9a4b, type: 3}
-  - stat: enemy.asteroid.golden-ratio
+  - stat: enemy.asteroid.trait.golden.chance
     available: {fileID: 21300000, guid: c9cd040f45e6488bd3a0d4e85a1de225, type: 3}
     hover: {fileID: 21300000, guid: 000f02a0b5ec9adac7a365471fe7c1f5, type: 3}
     purchased: {fileID: 21300000, guid: db87ebf0c7950452b3dcf16e9f1a6cb8, type: 3}
     locked: {fileID: 21300000, guid: 6a31d0232e273a22b4e20eb42b1fdbe1, type: 3}
-  - stat: enemy.asteroid.golden-multiplier
+  - stat: enemy.asteroid.trait.golden.multiplier
     available: {fileID: 21300000, guid: de55b8e4b9e06c2476d0a94457d77ac4, type: 3}
     hover: {fileID: 21300000, guid: 426e278ecb5e2edc8b985afbb26efa5a, type: 3}
     purchased: {fileID: 21300000, guid: dda1d0390320368af2636c851ba2c6a2, type: 3}
@@ -99,7 +99,7 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: 024b9e23b4d4403e375a1ea0c71ee7e2, type: 3}
     purchased: {fileID: 21300000, guid: 26f9a881f7c2b495d9377f89a423a578, type: 3}
     locked: {fileID: 21300000, guid: 7109023372cd3a607942dcc5746def08, type: 3}
-  - stat: enemy.moon.chance
+  - stat: enemy.planet.trait.moon.chance
     available: {fileID: 21300000, guid: f2ec28d6953f086cebd004e09e229dda, type: 3}
     hover: {fileID: 21300000, guid: e08fdfeed818a98c33337569e563f13b, type: 3}
     purchased: {fileID: 21300000, guid: 9f52910f24fbc68152c234a2eaada638, type: 3}
@@ -174,7 +174,7 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: b0da8d54bb321513f8ad825dfba3065e, type: 3}
     purchased: {fileID: 21300000, guid: ce1214bda1b56f0283da371b986ab08a, type: 3}
     locked: {fileID: 21300000, guid: 0845e74e2f7f4cde6b29170a5e07764f, type: 3}
-  - stat: enemy.electric-asteroid.chance
+  - stat: enemy.asteroid.trait.electric.chance
     available: {fileID: 21300000, guid: af428646a5500ce5d6337a5afad013ab, type: 3}
     hover: {fileID: 21300000, guid: 5b38408d0efec74e1f5ead7525a0cb77, type: 3}
     purchased: {fileID: 21300000, guid: eea216825f67629818eb99dcb90c0c2d, type: 3}
@@ -194,7 +194,7 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: 1d0158f85aab0b9d5974cbfb95389f11, type: 3}
     purchased: {fileID: 21300000, guid: 8a07fb4fc4f31a6b1f4b2742fc95e11f, type: 3}
     locked: {fileID: 21300000, guid: 8025cd808ed1952169eeffeb503692a5, type: 3}
-  - stat: enemy.supernova.chance
+  - stat: enemy.star.trait.supernova.chance
     available: {fileID: 21300000, guid: 3e26546ae8418b6f94735e60ad670b8b, type: 3}
     hover: {fileID: 21300000, guid: a1d7e3b2be944d866bf4db3df1dd8364, type: 3}
     purchased: {fileID: 21300000, guid: bb2f74d525f02796cd5a7a7e8a06320e, type: 3}

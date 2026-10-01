@@ -17,7 +17,7 @@ MonoBehaviour:
   upgradesTo: {fileID: 0}
   baseUpgrade: 0
   baseUpgradeFromStage: 0
-  specialOf: {fileID: 11400000, guid: 3875f6a9833f4cf2893d251eb303b445, type: 2}
+  pickupPeriod: 5
   tiers:
   - color: {r: 0.6, g: 0.95, b: 1, a: 1}
     maxHealth: 1
@@ -32,9 +32,17 @@ MonoBehaviour:
   - healthMultiplier: 1
     goldMultiplier: 1
   sizeClasses: []
-  goldenMultiplier: 0
-  deathEffect: 4
-  effectDamage: 0
-  effectRadius: 0
-  effectMaxTargets: 0
+  traits:
+  - id: comet
+    color: {r: 0.6, g: 0.95, b: 1, a: 1}
+    effect: 5
+    multiplier: 0
+    damage: 0
+    radius: 0
+    maxTargets: 0
+    branchChance: 0
+    critChance: 0
+    critMultiplier: 0
+    healthFraction: 0
+    width: 0
   sprite: {fileID: 0}
