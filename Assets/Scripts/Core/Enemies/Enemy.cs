@@ -29,6 +29,7 @@ namespace BlackHole.Core
         public PlayerId? LastDamageSource { get; private set; }
 
         public event Action<Enemy> Damaged;
+        public event Action<Enemy> Died;
 
         internal Enemy(
             EnemyId id,
@@ -72,6 +73,7 @@ namespace BlackHole.Core
                 return false;
 
             IsAlive = false;
+            Died?.Invoke(this);
             return true;
         }
 
@@ -81,6 +83,7 @@ namespace BlackHole.Core
                 return false;
 
             IsAlive = false;
+            Died?.Invoke(this);
             return true;
         }
     }
