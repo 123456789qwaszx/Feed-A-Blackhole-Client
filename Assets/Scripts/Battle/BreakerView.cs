@@ -85,7 +85,7 @@ namespace BlackHole.Unity
             _root = new GameObject("Breaker View").transform;
             _root.SetParent(parent, false);
             _look = look;
-            _quad = CreateQuad();
+            _quad = QuadRenderers.CreateMesh();
         }
 
         public void Synchronize(World world, bool paused, float delta)
@@ -309,36 +309,7 @@ namespace BlackHole.Unity
             };
         }
 
-        private MeshRenderer CreateQuadRenderer(string name, Transform parent, Material material, int sortingOrder)
-        {
-            var view = new GameObject(name);
-            view.transform.SetParent(parent, false);
-
-            view.AddComponent<MeshFilter>().sharedMesh = _quad;
-            var renderer = view.AddComponent<MeshRenderer>();
-            renderer.sharedMaterial = material;
-            renderer.sortingOrder = sortingOrder;
-            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            renderer.receiveShadows = false;
-            renderer.enabled = false;
-            return renderer;
-        }
-
-        // 한 변이 1인 사각형. 링의 크기는 transform의 배율로 맞춘다.
-        private static Mesh CreateQuad()
-        {
-            var mesh = new Mesh
-            {
-                name = "Breaker Ring Quad",
-                vertices = new[]
-                {
-                    new Vector3(-0.5f, -0.5f, 0), new Vector3(0.5f, -0.5f, 0),
-                    new Vector3(-0.5f, 0.5f, 0), new Vector3(0.5f, 0.5f, 0),
-                },
-                triangles = new[] { 0, 2, 1, 2, 3, 1 }
-            };
-            mesh.RecalculateBounds();
-            return mesh;
-        }
+        private MeshRenderer CreateQuadRenderer(string name, Transform parent, Material material, int sortingOrder) =>
+            QuadRenderers.Create(name, parent, _quad, material, sortingOrder);
     }
 }

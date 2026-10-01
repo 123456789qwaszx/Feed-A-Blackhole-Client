@@ -86,7 +86,7 @@ namespace BlackHole.Unity
             Session.Begin();
             _enemyView.Reset();
             // 시작 직후 스냅: 아직 지난 시간이 없으니 흔들림 연출 없이 위치만 맞춘다.
-            _enemyView.Synchronize(Session.World, 0f);
+            _enemyView.Synchronize(Session.World, false, 0f);
             _breakerView.Reset();
             _skillView.Reset();
             _deathEffectView.Reset();
@@ -110,8 +110,9 @@ namespace BlackHole.Unity
             int raised = Session.Advance(delta);
 
             //Session.Advance(delta);
-            _enemyView.Synchronize(Session.World, delta);
-            _breakerView.Synchronize(Session.World, Session.Phase == SessionPhase.Paused, delta);
+            bool paused = Session.Phase == SessionPhase.Paused;
+            _enemyView.Synchronize(Session.World, paused, delta);
+            _breakerView.Synchronize(Session.World, paused, delta);
             _skillView.Synchronize(Session.World, delta);
             _deathEffectView.Synchronize(Session.World, Session.Phase == SessionPhase.Paused, delta);
             _hqView.Synchronize(Session.World, delta);
