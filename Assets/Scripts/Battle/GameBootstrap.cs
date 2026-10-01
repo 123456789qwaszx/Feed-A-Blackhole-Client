@@ -60,6 +60,9 @@ namespace BlackHole.Unity
         [Header("Runtime")]
         [SerializeField] private UIDisplayRefreshDriver _displayRefreshDriver;
 
+        [Header("Input")]
+        [SerializeField] private KeyInput _keyInput;
+
         private readonly List<UIPresentationSpec> _emptyPresentations = new List<UIPresentationSpec>();
         private GameContent _content;
         private NodeTreeData _layout;
@@ -99,7 +102,7 @@ namespace BlackHole.Unity
             BootstrapUI();
             BootstrapScreenFlow();
             BootstrapHost();
-
+            BootstarpKeyInput();
         }
 
         private void BootstrapBattleViews()
@@ -177,6 +180,15 @@ namespace BlackHole.Unity
                 _enemyLooks, _enemyView, _breakerView, _deathEffectView, _hqView, _cameraShake);
         }
 
+        private void BootstarpKeyInput()
+        {
+            if (_keyInput == null) return;
+
+            _keyInput.ContinuePressed += _screens.HandleKeyActionSpace;
+            _keyInput.UpgradePressed += _screens.HandleKeyActionShift;
+            _keyInput.PausePressed += _screens.HandleKeyActionEsc;
+        }
+
         private void Start()
         {
             _host?.Start();
@@ -191,6 +203,13 @@ namespace BlackHole.Unity
 
             foreach (UIPresentationSpec presentation in _emptyPresentations)
                 Destroy(presentation);
+
+            if(_keyInput != null && _screens != null)
+            {
+                _keyInput.ContinuePressed -= _screens.HandleKeyActionSpace;
+                _keyInput.UpgradePressed -= _screens.HandleKeyActionShift;
+                _keyInput.PausePressed -= _screens.HandleKeyActionEsc;
+            }
         }
 
         private bool HasConfiguredLooks()
