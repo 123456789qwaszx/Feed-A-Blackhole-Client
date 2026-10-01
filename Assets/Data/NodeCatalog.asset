@@ -1013,6 +1013,17 @@ MonoBehaviour:
       - Stat: enemy.star.trait.supernova.chance
         Operation: 0
         Value: 10
+    - Id: laser-star-chance-1
+      Price: 1
+      Start: 1
+      X: -4
+      Y: -7
+      Links:
+      - star-mass-3
+      Upgrades:
+      - Stat: enemy.star.trait.laser.chance
+        Operation: 0
+        Value: 20
     - Id: star-growth-supply
       Price: 1100000
       Start: 0
