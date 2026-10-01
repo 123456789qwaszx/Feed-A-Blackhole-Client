@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: LightningLook
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.LightningLook
   _material: {fileID: 2100000, guid: efa5b29df18146acb7ed5ce9fdcb3c1b, type: 2}
-  _thickness: 0.8
-  _color: {r: 0.55, g: 0.8, b: 1, a: 1}
-  _coreColor: {r: 0.95, g: 0.98, b: 1, a: 1}
-  _glowWidth: 0.18
-  _glowStrength: 0.425
+  _thickness: 0.1
+  _color: {r: 0.5518868, g: 0.80127156, b: 1, a: 1}
+  _coreColor: {r: 0.7311321, g: 0.8965892, b: 1, a: 1}
+  _glowWidth: 0.08
+  _glowStrength: 0.6
   _amplitude: 0.18
   _kinksPerUnit: 3
   _flickerRate: 12
