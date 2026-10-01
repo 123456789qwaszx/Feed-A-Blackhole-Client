@@ -9,13 +9,17 @@ namespace BlackHole.Core
     // 효과의 피해는 특수 적(성질이 붙은 적, 픽업 포함)에게 가지 않는다 — 효과가 효과를 부르지 않는다.
     public sealed class DeathEffects
     {
+        // [임시] 레이저 길이(죽은 자리부터).
+        // 성질 수치(LaserBurstDefinition)로 옮길지, 공간 값(경계 원)으로 둘지 미정.
+        private const float LaserLength = 20f;
+
         private readonly List<Pending> _pending = new();
         private readonly List<LightningHit> _lightningHits = new();
         private readonly List<ExplosionBlast> _explosions = new();
         private readonly List<LaserBurst> _laserBursts = new();
         private readonly List<Enemy> _targets = new();
         private readonly HashSet<Enemy> _struck = new();
-        // 번개의 갈래·치명타 판정. 판 seed에서 나온 사망 효과 전용 스트림이다.
+        // 번개의 갈래·치명타, 레이저의 방향·치명타 판정.
         private readonly BattleRandom _random;
         private long _nextSequence = 1;
 
@@ -81,7 +85,7 @@ namespace BlackHole.Core
                         Explode(explosion, pending, world);
                         break;
                     case LaserBurstDefinition laser:
-                        Fire(laser, pending);
+                        Fire(laser, pending, world);
                         break;
                     case MoonBuffDefinition:
                         foreach (BattlePlayer player in world.Players)
@@ -174,10 +178,66 @@ namespace BlackHole.Core
             _explosions.Add(new ExplosionBlast(_nextSequence++, pending.Position, explosion.Radius, _targets.Count));
         }
 
-        // [후속] 레이저 별: 무작위 방향 직선 경로 위의 적(특수 적 제외)에게 피해. 지금은 발동 기록만 남긴다.
-        private void Fire(LaserBurstDefinition laser, Pending pending)
+
+        private void Fire(LaserBurstDefinition laser, Pending pending, World world)
         {
-            _laserBursts.Add(new LaserBurst(_nextSequence++, pending.Position, laser));
+            Point2 origin = pending.Position;
+            double angle = _random.NextFloat() * 2 * Math.PI;
+            var end = new Point2(
+                origin.X + LaserLength * (float)Math.Cos(angle),
+                origin.Y + LaserLength * (float)Math.Sin(angle));
+
+            _targets.Clear();
+            float halfWidth = laser.Width / 2;
+            IReadOnlyList<Enemy> enemies = world.Enemies;
+
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                Enemy enemy = enemies[i];
+
+                if (!CanBeStruck(enemy))
+                    continue;
+
+                // 레이저 선분에서 이 적과 가장 가까운 지점.
+                Point2 nearestPoint = NearestOnSegment(enemy.Position, origin, end);
+
+                if (enemy.IsWithin(nearestPoint, halfWidth))
+                    _targets.Add(enemy);
+            }
+
+            bool critical = laser.CritChance > 0
+                            && _random.NextFloat() < laser.CritChance;
+
+            var damage = new Damage(critical
+                ? laser.Damage * laser.CritMultiplier
+                : laser.Damage, pending.Source);
+
+            foreach (Enemy target in _targets)
+                world.DealDamage(target, damage);
+
+            _laserBursts.Add(new LaserBurst(_nextSequence++, origin, end, laser, critical, _targets.Count));
+        }
+
+        private static Point2 NearestOnSegment(Point2 point, Point2 start, Point2 end)
+        {
+            float pathX = end.X - start.X;
+            float pathY = end.Y - start.Y;
+
+            float pathLengthSquared = pathX * pathX + pathY * pathY;
+            if (pathLengthSquared == 0f)
+                return start;
+
+            float toPointX = point.X - start.X;
+            float toPointY = point.Y - start.Y;
+
+            // point에서 경로 직선에 수선을 내린 위치를 구한다(0 = 시작, 1 = 끝).
+            // 그 위치가 선분 밖이면 가까운 끝점으로 제한함.
+            float dot = toPointX * pathX + toPointY * pathY;
+            float pathRatio = Math.Clamp(dot / pathLengthSquared, 0f, 1f);
+
+            return new Point2(
+                start.X + pathRatio * pathX,
+                start.Y + pathRatio * pathY);
         }
     }
 }

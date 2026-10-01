@@ -7,11 +7,9 @@ namespace BlackHole.Core
     public sealed class LaserBurstDefinition : DeathEffectDefinition
     {
         public float Damage { get; }
-        // 레이저의 너비(경로 양쪽 거리의 합).
-        public float Width { get; }
+        public float Width { get; } // 레이저의 너비(경로 양쪽 거리의 합).
         public float CritChance { get; }
-        // 치명타일 때 피해에 곱하는 값.
-        public float CritMultiplier { get; }
+        public float CritMultiplier { get; } // 치명타일 때 피해에 곱하는 값.
 
         public LaserBurstDefinition(float damage, float width, float critChance, float critMultiplier)
         {
