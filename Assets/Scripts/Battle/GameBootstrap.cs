@@ -188,6 +188,7 @@ namespace BlackHole.Unity
 
             _keyInput.ContinuePressed += _screens.HandleKeyActionSpace;
             _keyInput.UpgradePressed += _screens.HandleKeyActionShift;
+            _keyInput.PausePressed += _screens.HandleKeyActionEsc;
         }
 
         private void Start()
@@ -209,6 +210,7 @@ namespace BlackHole.Unity
             {
                 _keyInput.ContinuePressed -= _screens.HandleKeyActionSpace;
                 _keyInput.UpgradePressed -= _screens.HandleKeyActionShift;
+                _keyInput.PausePressed -= _screens.HandleKeyActionEsc;
             }
         }
 
