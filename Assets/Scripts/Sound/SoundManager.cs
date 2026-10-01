@@ -15,6 +15,8 @@ public class SoundManager : MonoBehaviour
     private Coroutine _bgmRoutine;
     private GameSettings _settings;
 
+    private int _lastBgmIndex = -1;
+
     public void Bind(GameSettings settings)
     {
         if (SoundManager.Instance != null)
@@ -192,20 +194,28 @@ public class SoundManager : MonoBehaviour
         _bgmRoutine = StartCoroutine(BgmLoop());
     }
 
-    /// <summary>
-    /// BGM 사운드 정지
-    /// </summary>
-    public void StopBgm()
+
+    public int NextBgmIndex(int current)
     {
-        if (_bgmRoutine != null) StopCoroutine(_bgmRoutine);
-        _bgmRoutine = null;
-        _bgmSource.Stop();
+        int count = _soundSetup.BgmList.Count;
+
+        if (count <= 1) return 0; // BGM이 하나 밖에 없다면 그 BGM만 계속 재생
+        if (_settings != null && _settings.IsOn(GameSettings.ShuffleMusic)) // 셔플On이면
+        {
+            int next = Random.Range(0, count);
+
+            while (next == current) next = Random.Range(0, count); // 같은 곡이 연속으로 재생되지 않게 함
+
+            return next;
+        }
+
+        return (current + 1) % count; // 셔플이 아니라면 리스트의 첫 BGM 실행
     }
 
     // BGM 반복 코루틴
     private IEnumerator BgmLoop()
     {
-        int index = 0;
+        int index = NextBgmIndex(-1); // 첫 곡부터 랜덤으로 나옴
 
         while (true)
         {
@@ -215,11 +225,11 @@ public class SoundManager : MonoBehaviour
             {
                 _bgmSource.clip = clip;
                 _bgmSource.Play();
-                yield return new WaitForSecondsRealtime(clip.length + 1f); // BGM길이 + 1초 텀 만큼 대기
+                yield return new WaitForSecondsRealtime(clip.length); // BGM길이
             }
             else yield return null; // null 칸이면 한 프레임 쉬고 다음 곡으로
 
-            index = (index + 1) % _soundSetup.BgmList.Count;
+            index = NextBgmIndex(index);
         }
     }
 
