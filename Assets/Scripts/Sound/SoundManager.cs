@@ -13,6 +13,12 @@ public class SoundManager : MonoBehaviour
 
     private Coroutine _bgmRoutine;
 
+    public float BgmVolume { get { return _bgmSource.volume; } }
+    public float SfxVolume { get { return _sfxSource.volume; } }
+
+    private const string BgmKey = "BgmVolume";
+    private const string SfxKey = "SfxVolume";
+
     private void Reset()
     {
         AudioSource[] sources = GetComponentsInChildren<AudioSource>();
@@ -33,6 +39,8 @@ public class SoundManager : MonoBehaviour
 
     private void Start()
     {
+        _bgmSource.volume = PlayerPrefs.GetFloat(BgmKey, 0.5f); // 저장된 값 없으면 0.5로 설정
+        _bgmSource.volume = PlayerPrefs.GetFloat(SfxKey, 0.5f);
         StartBgm();
     }
 
@@ -208,6 +216,30 @@ public class SoundManager : MonoBehaviour
 
             index = (index + 1) % _soundSetup.BgmList.Count;
         }
+    }
+
+    #endregion
+
+    #region 사운드 조절
+
+    /// <summary>
+    /// BGM 크기 조절
+    /// </summary>
+    /// <param name="value"></param>
+    public void SetBgmVolume(float value)
+    {
+        _bgmSource.volume = Mathf.Clamp01(value); // 값 설정
+        PlayerPrefs.SetFloat(BgmKey, _bgmSource.volume); // 저장
+    }
+
+    /// <summary>
+    /// SFX 크기 조절
+    /// </summary>
+    /// <param name="value"></param>
+    public void SetSfxVolume(float value)
+    {
+        _bgmSource.volume = Mathf.Clamp01(value); // 값 설정
+        PlayerPrefs.SetFloat(SfxKey, _sfxSource.volume); // 저장
     }
 
     #endregion
