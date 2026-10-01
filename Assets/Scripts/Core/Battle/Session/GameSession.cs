@@ -64,12 +64,12 @@ namespace BlackHole.Core
 
         // 진행 중일 때만 시간이 흐름.
         // 한 단계를 처리한 뒤 종료를 판정.
-        public void Advance(float delta)
+        public int Advance(float delta)
         {
             DefinitionGuard.Delta(delta);
 
             if (Phase != SessionPhase.Running || delta == 0)
-                return;
+                return 0;
 
             World.BeginAdvance();
 
@@ -81,7 +81,7 @@ namespace BlackHole.Core
             if (World.Hq.ReachedMilestone)
             {
                 End();
-                return;
+                return 0;
             }
 
             // 6. Growth의 시간 연장: 오른 Level마다 이 판의 제한 시간을 늘린다. 종료 판정보다 먼저다.
@@ -89,6 +89,8 @@ namespace BlackHole.Core
 
             if (TimeLimit.HasExpired(Elapsed))
                 End();
+            
+            return raised;
         }
 
         public void TogglePause()

@@ -18,11 +18,3 @@ MonoBehaviour:
   startSupply:
   - kind: {fileID: 11400000, guid: 05425233efee43ed8109228e30eff09f, type: 2}
     count: 20
-  - kind: {fileID: 11400000, guid: 9f9d1cd12cdd4f5287f2f48b172b2e3c, type: 2}
-    count: 5
-  - kind: {fileID: 11400000, guid: c5af1dc6bc904ac0b41c3d58fd5585d9, type: 2}
-    count: 3
-  - kind: {fileID: 11400000, guid: 7f18c0c649144c1c8468af5cdc4a7b0f, type: 2}
-    count: 3
-  - kind: {fileID: 11400000, guid: 60ae504eb8c94afbbf9f45ad982a137d, type: 2}
-    count: 3

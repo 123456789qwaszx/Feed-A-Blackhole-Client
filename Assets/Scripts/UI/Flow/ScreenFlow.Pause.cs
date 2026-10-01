@@ -60,8 +60,9 @@ namespace BlackHole.Unity
 
             try
             {
-                BattleRawData raw = await _battle.TryEndAsync();
-                if (raw != null)
+                bool raw = await _battle.TryAbandonAsync();
+
+                if (raw)
                     ShowTitle();
             }
             catch (Exception error) { Debug.LogException(error); }
