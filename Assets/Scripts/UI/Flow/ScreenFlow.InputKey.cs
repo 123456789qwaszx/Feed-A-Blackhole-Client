@@ -3,6 +3,7 @@ namespace BlackHole.Unity
     internal sealed partial class ScreenFlow
     {
         private bool _pauseOpen; // Pause 패널이 열려있는가
+        private bool _settingsOpen; // Setting 패널이 열려있는가?
 
         /// <summary>
         /// Space: 결산 화면에서 Upgrade
@@ -27,6 +28,8 @@ namespace BlackHole.Unity
         public void HandleKeyActionEsc()
         {
             if (!(_ui.CurrentRoot is BattleScreen)) return;
+
+            if (_settingsOpen) return; // 설정 창이 열려 있으면 ESC를 무시한다
 
             if (_pauseOpen) HandlePauseResumeClicked();
             else OpenPause();
