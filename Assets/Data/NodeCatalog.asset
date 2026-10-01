@@ -614,9 +614,9 @@ MonoBehaviour:
       Links:
       - asteroid-mass-4
       Upgrades:
-      - Stat: enemy.asteroid.golden-ratio
+      - Stat: enemy.asteroid.trait.golden.chance
         Operation: 0
-        Value: 0.1
+        Value: 10
     - Id: golden-multiplier-1
       Price: 25000
       Start: 0
@@ -625,7 +625,7 @@ MonoBehaviour:
       Links:
       - golden-asteroid
       Upgrades:
-      - Stat: enemy.asteroid.golden-multiplier
+      - Stat: enemy.asteroid.trait.golden.multiplier
         Operation: 2
         Value: 2
     - Id: golden-multiplier-2
@@ -636,7 +636,7 @@ MonoBehaviour:
       Links:
       - golden-multiplier-1
       Upgrades:
-      - Stat: enemy.asteroid.golden-multiplier
+      - Stat: enemy.asteroid.trait.golden.multiplier
         Operation: 2
         Value: 2
     - Id: golden-multiplier-3
@@ -647,7 +647,7 @@ MonoBehaviour:
       Links:
       - golden-multiplier-2
       Upgrades:
-      - Stat: enemy.asteroid.golden-multiplier
+      - Stat: enemy.asteroid.trait.golden.multiplier
         Operation: 2
         Value: 2
     - Id: electric-asteroid-chance-1
@@ -658,7 +658,7 @@ MonoBehaviour:
       Links:
       - asteroid-mass-4
       Upgrades:
-      - Stat: enemy.electric-asteroid.chance
+      - Stat: enemy.asteroid.trait.electric.chance
         Operation: 0
         Value: 10
     - Id: asteroid-to-planet-1
@@ -724,7 +724,7 @@ MonoBehaviour:
       Links:
       - asteroid-to-planet-1
       Upgrades:
-      - Stat: enemy.moon.chance
+      - Stat: enemy.planet.trait.moon.chance
         Operation: 0
         Value: 10
     - Id: planet-mass-1
@@ -1010,7 +1010,7 @@ MonoBehaviour:
       Links:
       - star-mass-4
       Upgrades:
-      - Stat: enemy.supernova.chance
+      - Stat: enemy.star.trait.supernova.chance
         Operation: 0
         Value: 10
     - Id: star-growth-supply
