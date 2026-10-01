@@ -26,7 +26,6 @@ namespace BlackHole.Core
                 new BattlePlayer(
                     progress.Id,
                     content.Breaker?.Upgraded(table),
-                    content.Laser,
                     seed),
             };
 

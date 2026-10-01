@@ -42,7 +42,7 @@ namespace BlackHole.Unity
             Show(beam);
         }
 
-        // 예고 중인 레이저마다 얇은 예고선을 그린다. 발사에 가까울수록 진해진다(기존 플레이어 레이저와 같음). 매 프레임 부른다.
+        // 예고 중인 레이저마다 얇은 예고선을 그린다. 발사에 가까울수록 진해진다. 매 프레임 부른다.
         public void ShowTelegraphs(IReadOnlyList<LaserTelegraph> telegraphs)
         {
             for (int i = 0; i < telegraphs.Count; i++)
