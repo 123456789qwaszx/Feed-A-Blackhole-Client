@@ -11,7 +11,7 @@ namespace BlackHole.Core
     public sealed class DeathEffects
     {
         private const float LaserReach = 45f;
-        // 레이저 별의 예고 시간(초). 기존 플레이어 레이저의 예고 시간과 같다.
+        // 레이저 별의 예고 시간(초).
         private const float LaserTelegraphSeconds = 0.4f;
         private const float TimeEpsilon = 1e-5f;
 
