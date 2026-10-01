@@ -177,7 +177,11 @@ namespace BlackHole.Unity
                 _enemyLooks, _enemyView, _breakerView, _skillView, _deathEffectView, _hqView, _cameraShake);
         }
 
-        private void Start() => _host?.Start();
+        private void Start()
+        {
+            _host?.Start();
+            SoundManager.Instance.Bind(_settings);
+        }
 
         private void Update() => _host?.Tick(Time.deltaTime);
 
