@@ -2,16 +2,14 @@ using System;
 
 namespace BlackHole.Core
 {
-    // 레이저 별: 죽은 자리에서 무작위 방향의 직선 레이저를 쏘아 경로 위의 적 전부에게 피해를 준다(GDD 레이저 별).
-    // [후속] 지금은 발동 기록(LaserBurst)만 남기고 피해는 주지 않는다. 수치는 정의와 검증까지만 있다.
+    // 레이저 별: 죽은 자리를 지나는 무작위 방향의 직선 레이저가 화면을 가로질러 경로 위의 적 전부에게 피해를 준다.
+    // 죽는 순간 경로가 정해지고, 예고 시간(DeathEffects, 0.4초)이 지난 뒤 쏜다.
     public sealed class LaserBurstDefinition : DeathEffectDefinition
     {
         public float Damage { get; }
-        // 레이저의 너비(경로 양쪽 거리의 합).
-        public float Width { get; }
+        public float Width { get; } // 레이저의 너비(경로 양쪽 거리의 합).
         public float CritChance { get; }
-        // 치명타일 때 피해에 곱하는 값.
-        public float CritMultiplier { get; }
+        public float CritMultiplier { get; } // 치명타일 때 피해에 곱하는 값.
 
         public LaserBurstDefinition(float damage, float width, float critChance, float critMultiplier)
         {
