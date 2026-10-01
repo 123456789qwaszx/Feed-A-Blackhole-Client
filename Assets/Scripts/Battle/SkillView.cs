@@ -8,25 +8,39 @@ namespace BlackHole.Unity
     // 스킬의 화면. 매 프레임 판의 참가자를 읽어 그린다. 게임 상태를 바꾸지 않고, 피해를 다시 계산하지 않는다.
     // Breaker는 따로 그린다(BreakerView).
     // - 레이저 예고선: 예고 중인 발사마다 얇은 선. 발사에 가까울수록 진해진다(CONTENT_DEFINITION 5.2).
-    // - 레이저 발사선: 발사 기록마다 판정 굵기 그대로의 선이 잠깐 보였다가 옅어진다.
+    // - 레이저 발사선: 발사 기록마다 예고선 굵기에서 판정 굵기로 순식간에 굵어졌다가 옅어진다. 예고선과 같은 단색이다.
     // 정지 중에는 판이 기록을 비우지 않으므로, 이미 그린 발사는 번호로 걸러 두 번 그리지 않는다.
     internal sealed class SkillView : IDisposable
     {
         private const float TelegraphWidth = 0.04f;
+        // 발사선이 예고선 굵기에서 판정 굵기까지 굵어지는 시간.
+        private const float FireGrowSeconds = 0.05f;
+        // 발사선이 보이는 시간(굵어지는 시간 포함). 굵어진 뒤 남은 시간 동안 옅어진다.
         private const float FireSeconds = 0.2f;
-        private static readonly Color TelegraphColor = new Color(1f, 0.9f, 0.3f, 1f);
-        private static readonly Color FireColor = new Color(0.35f, 0.9f, 1f, 1f);
+        // 예고선과 발사선의 색. 얇은 예고선이 그대로 굵어지는 것처럼 보이도록 같은 색을 쓴다.
+        private static readonly Color LaserColor = new Color(1f, 0.9f, 0.3f, 1f);
 
         private readonly LineStrokes _strokes;
         private readonly Dictionary<PlayerId, int> _drawnFires = new Dictionary<PlayerId, int>();
         // 예고선. 이번 프레임에 쓰지 않은 선은 숨겨 두었다가 다음 예고에 다시 쓴다.
         private readonly List<LineRenderer> _telegraphs = new List<LineRenderer>();
+        // 발사선. 다 보인 선은 숨겨 두었다가 다음 발사에 다시 쓴다.
+        private readonly List<Beam> _beams = new List<Beam>();
+
+        private sealed class Beam
+        {
+            public LineRenderer Line;
+            // 판정 굵기.
+            public float Width;
+            public float Elapsed;
+        }
 
         public SkillView(Transform parent) => _strokes = new LineStrokes(parent, "Skill View");
 
         public void Synchronize(World world, float delta)
         {
             _strokes.Age(delta);
+            AgeBeams(delta);
             int telegraphs = 0;
             IReadOnlyList<BattlePlayer> players = world.Players;
 
@@ -51,6 +65,7 @@ namespace BlackHole.Unity
         {
             _strokes.Reset();
             _telegraphs.Clear();
+            _beams.Clear();
             _drawnFires.Clear();
         }
 
@@ -66,11 +81,11 @@ namespace BlackHole.Unity
                 LaserShot shot = pending[i];
 
                 if (used == _telegraphs.Count)
-                    _telegraphs.Add(_strokes.Line("Laser Telegraph", TelegraphWidth, TelegraphColor));
+                    _telegraphs.Add(_strokes.Line("Laser Telegraph", TelegraphWidth, LaserColor));
 
                 LineRenderer line = _telegraphs[used++];
                 LineStrokes.SetSegment(line, shot.Start, shot.End);
-                Color color = TelegraphColor;
+                Color color = LaserColor;
                 color.a = Mathf.Lerp(0.25f, 1f, 1 - Mathf.Clamp01(shot.Remaining / laser.Definition.TelegraphDuration));
                 LineStrokes.SetColor(line, color);
                 line.enabled = true;
@@ -87,11 +102,66 @@ namespace BlackHole.Unity
                     continue;
 
                 drawn = fire.Number;
-                LineStrokes.SetSegment(_strokes.Flash("Laser Fire", fire.Width, FireColor, FireSeconds), fire.Start, fire.End);
+                Fire(fire.Start, fire.End, fire.Width);
             }
 
             _drawnFires[player] = drawn;
             return used;
+        }
+
+        // 발사선 하나를 예고선 굵기로 시작한다. 쉬는 발사선이 있으면 다시 쓴다.
+        private void Fire(Point2 start, Point2 end, float width)
+        {
+            Beam beam = null;
+
+            foreach (Beam candidate in _beams)
+            {
+                if (candidate.Elapsed >= FireSeconds)
+                {
+                    beam = candidate;
+                    break;
+                }
+            }
+
+            if (beam == null)
+            {
+                beam = new Beam { Line = _strokes.Line("Laser Fire", TelegraphWidth, LaserColor) };
+                _beams.Add(beam);
+            }
+
+            beam.Width = width;
+            beam.Elapsed = 0;
+            LineStrokes.SetSegment(beam.Line, start, end);
+            ShowBeam(beam);
+        }
+
+        // 굵어지는 동안은 진하게, 다 굵어진 뒤에는 옅어진다. 다 보인 선은 숨긴다.
+        private void AgeBeams(float delta)
+        {
+            foreach (Beam beam in _beams)
+            {
+                if (beam.Elapsed >= FireSeconds)
+                    continue;
+
+                beam.Elapsed += delta;
+                ShowBeam(beam);
+            }
+        }
+
+        private void ShowBeam(Beam beam)
+        {
+            beam.Line.enabled = beam.Elapsed < FireSeconds;
+
+            if (!beam.Line.enabled)
+                return;
+
+            float grow = Mathf.Clamp01(beam.Elapsed / FireGrowSeconds);
+            float fade = Mathf.Clamp01((beam.Elapsed - FireGrowSeconds) / (FireSeconds - FireGrowSeconds));
+            beam.Line.widthMultiplier = Mathf.Lerp(TelegraphWidth, beam.Width, grow);
+
+            Color color = LaserColor;
+            color.a = 1 - fade;
+            LineStrokes.SetColor(beam.Line, color);
         }
     }
 }

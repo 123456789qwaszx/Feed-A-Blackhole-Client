@@ -114,7 +114,7 @@ namespace BlackHole.Unity
             _enemyView.Synchronize(Session.World, paused, delta);
             _breakerView.Synchronize(Session.World, paused, delta);
             _skillView.Synchronize(Session.World, delta);
-            _deathEffectView.Synchronize(Session.World, delta);
+            _deathEffectView.Synchronize(Session.World, Session.Phase == SessionPhase.Paused, delta);
             _hqView.Synchronize(Session.World, delta);
 
             bool battleEnded = wasRunning && Session.Phase == SessionPhase.Ended;
