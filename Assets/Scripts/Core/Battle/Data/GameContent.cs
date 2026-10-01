@@ -10,7 +10,6 @@ namespace BlackHole.Core
         public TimeLimitDefinition TimeLimit { get; }
         // 스킬. 없으면 null이고 판에 그 스킬이 없다.
         public BreakerDefinition Breaker { get; }
-        public LaserDefinition Laser { get; }
         public EnemyContent Enemies { get; }
         // 블랙홀 성장: 성장도마다의 판 Level 표와 이정표. 없으면 HqGrowthDefinition.None(블랙홀이 Level 0·성장도 0에 머문다).
         public HqGrowthDefinition Growth { get; }
@@ -18,13 +17,11 @@ namespace BlackHole.Core
         public GameContent(
             TimeLimitDefinition timeLimit,
             BreakerDefinition breaker,
-            LaserDefinition laser,
             EnemyContent enemies,
             HqGrowthDefinition growth = null)
         {
             TimeLimit = timeLimit ?? throw new ArgumentNullException(nameof(timeLimit));
             Breaker = breaker;
-            Laser = laser;
             Enemies = enemies ?? throw new ArgumentNullException(nameof(enemies));
             Growth = growth ?? HqGrowthDefinition.None;
         }

@@ -46,7 +46,7 @@ namespace BlackHole.EditorTools
 
             Write(folder, HqGrowthSheet.StagesTab, HqGrowthSheet.StagesCsv(growth));
             Write(folder, HqGrowthSheet.MilestonesTab, HqGrowthSheet.MilestonesCsv(growth));
-            Write(folder, SkillSheet.Tab, SkillSheet.SkillsCsv(skills.Breaker, skills.Laser));
+            Write(folder, SkillSheet.Tab, SkillSheet.SkillsCsv(skills.Breaker));
             Write(folder, EnemySheet.EnemiesTab, EnemySheet.EnemiesCsv(enemies.Enemies));
             Write(folder, EnemySheet.TiersTab, EnemySheet.TiersCsv(enemies.Enemies, ColorOf));
             Write(folder, EnemySheet.StageColorsTab, EnemySheet.StageColorsCsv(enemies.Enemies));
@@ -132,8 +132,8 @@ namespace BlackHole.EditorTools
                 var before = new ContentData();
                 assets.Skills.WriteTo(before);
                 Collect(changes, written, unchanged, assets.Skills,
-                    SkillSheet.SkillsCsv(before.Breaker, before.Laser) == SkillSheet.SkillsCsv(data.Breaker, data.Laser),
-                    () => assets.Skills.Replace(data.Breaker, data.Laser));
+                    SkillSheet.SkillsCsv(before.Breaker) == SkillSheet.SkillsCsv(data.Breaker),
+                    () => assets.Skills.Replace(data.Breaker));
             }
 
             if (enemies)
