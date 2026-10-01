@@ -6,15 +6,21 @@ namespace BlackHole.Core
     // 한 판의 사망 효과 대기열과 처리.
     // 대기열: 특수 적(성질이 붙은 적)이 피해로 죽는 순간(World.DealDamage) 그 성질의 효과·죽은 자리·마지막 피해의 출처를 넣음.
     // 처리: 넣은 순서(사망 순서)대로 효과를 실행하고 대기열을 비움.
+    // 레이저 별은 죽는 순간 경로를 정해 예고를 시작하고, 예고 시간이 지난 Step에 쏜다(피해는 그때 준다).
     // 효과의 피해는 특수 적(성질이 붙은 적, 픽업 포함)에게 가지 않는다 — 효과가 효과를 부르지 않는다.
     public sealed class DeathEffects
     {
         private const float LaserReach = 45f;
+        // 레이저 별의 예고 시간(초). 기존 플레이어 레이저의 예고 시간과 같다.
+        private const float LaserTelegraphSeconds = 0.4f;
+        private const float TimeEpsilon = 1e-5f;
 
         private readonly List<Pending> _pending = new();
         private readonly List<LightningHit> _lightningHits = new();
         private readonly List<ExplosionBlast> _explosions = new();
         private readonly List<LaserBurst> _laserBursts = new();
+        private readonly List<ChargingLaser> _chargingLasers = new();
+        private readonly List<LaserTelegraph> _laserTelegraphs = new();
         private readonly List<Enemy> _targets = new();
         private readonly HashSet<Enemy> _struck = new();
         // 번개의 갈래·치명타, 레이저의 방향·치명타 판정.
@@ -35,13 +41,26 @@ namespace BlackHole.Core
             }
         }
 
+        // 예고 중인 레이저. 경로·정의·출처는 예고를 시작할 때 정해진다.
+        private sealed class ChargingLaser
+        {
+            public Point2 Start;
+            public Point2 End;
+            public LaserBurstDefinition Definition;
+            public PlayerId Source;
+            public float Remaining;
+        }
+
         // 마지막 진행 동안의 번개 이동, 폭발, 레이저 발동(일어난 순서).
         public IReadOnlyList<LightningHit> LightningHits { get; }
         public IReadOnlyList<ExplosionBlast> Explosions { get; }
         public IReadOnlyList<LaserBurst> LaserBursts { get; }
 
-        // 처리되지 않은 효과가 남아 있는가.
-        public bool HasPending => _pending.Count > 0;
+        // 지금 예고 중인 레이저(예고한 순서). 화면은 이것으로 예고선을 그린다. 처리(Resolve)마다 지금 상태로 다시 채운다.
+        public IReadOnlyList<LaserTelegraph> LaserTelegraphs { get; }
+
+        // 처리되지 않은 효과(예고 중인 레이저 포함)가 남아 있는가.
+        public bool HasPending => _pending.Count > 0 || _chargingLasers.Count > 0;
 
         internal DeathEffects(int seed)
         {
@@ -49,6 +68,7 @@ namespace BlackHole.Core
             LightningHits = _lightningHits.AsReadOnly();
             Explosions = _explosions.AsReadOnly();
             LaserBursts = _laserBursts.AsReadOnly();
+            LaserTelegraphs = _laserTelegraphs.AsReadOnly();
         }
 
         // 막 죽은 적(피해로 처음 죽음)이 특수 적이면 그 성질의 효과를 대기열에 추가.
@@ -66,10 +86,20 @@ namespace BlackHole.Core
             _laserBursts.Clear();
         }
 
-        internal void Clear() => _pending.Clear();
-
-        internal void Resolve(World world)
+        // 판 정리: 처리되지 않은 효과와 예고 중인 레이저를 버린다(쏘지 않는다).
+        internal void Clear()
         {
+            _pending.Clear();
+            _chargingLasers.Clear();
+            _laserTelegraphs.Clear();
+        }
+
+        // 먼저 예고가 끝난 레이저를 쏘고, 그다음 이번 Step의 사망 효과를 처리한다.
+        // 이번 Step에 예고를 시작한 레이저는 다음 Step부터 시간이 흐른다.
+        internal void Resolve(World world, float delta)
+        {
+            FireChargedLasers(delta, world);
+
             for (int i = 0; i < _pending.Count; i++)
             {
                 Pending pending = _pending[i];
@@ -83,7 +113,7 @@ namespace BlackHole.Core
                         Explode(explosion, pending, world);
                         break;
                     case LaserBurstDefinition laser:
-                        Fire(laser, pending, world);
+                        Charge(laser, pending);
                         break;
                     case MoonBuffDefinition:
                         foreach (BattlePlayer player in world.Players)
@@ -100,6 +130,7 @@ namespace BlackHole.Core
             }
 
             _pending.Clear();
+            RefreshTelegraphs();
         }
 
         // 효과 피해를 받을 수 있는 적: 살아 있고 특수 적이 아닌 적(World.Enemies는 살아 있는 적뿐이다).
@@ -176,7 +207,8 @@ namespace BlackHole.Core
             _explosions.Add(new ExplosionBlast(_nextSequence++, pending.Position, explosion.Radius, _targets.Count));
         }
 
-        private void Fire(LaserBurstDefinition laser, Pending pending, World world)
+        // 레이저 별이 죽은 순간: 경로를 정하고 예고를 시작한다. 피해는 예고가 끝날 때 준다(FireChargedLasers).
+        private void Charge(LaserBurstDefinition laser, Pending pending)
         {
             Point2 center = pending.Position;
             double angle = _random.NextFloat() * 2 * Math.PI;
@@ -184,8 +216,41 @@ namespace BlackHole.Core
             float directionY = (float)Math.Sin(angle);
 
             // 죽은 자리를 지나는 직선을 양쪽으로 화면 밖까지 뻗는다.
-            var start = new Point2(center.X - LaserReach * directionX, center.Y - LaserReach * directionY);
-            var end = new Point2(center.X + LaserReach * directionX, center.Y + LaserReach * directionY);
+            _chargingLasers.Add(new ChargingLaser
+            {
+                Start = new Point2(center.X - LaserReach * directionX, center.Y - LaserReach * directionY),
+                End = new Point2(center.X + LaserReach * directionX, center.Y + LaserReach * directionY),
+                Definition = laser,
+                Source = pending.Source,
+                Remaining = LaserTelegraphSeconds,
+            });
+        }
+
+        // 예고 시간을 흘리고, 예고가 끝난 레이저를 예고한 순서대로 쏜다.
+        private void FireChargedLasers(float delta, World world)
+        {
+            for (int i = 0; i < _chargingLasers.Count;)
+            {
+                ChargingLaser charging = _chargingLasers[i];
+                charging.Remaining -= delta;
+
+                if (charging.Remaining > TimeEpsilon)
+                {
+                    i++;
+                    continue;
+                }
+
+                _chargingLasers.RemoveAt(i);
+                Fire(charging, world);
+            }
+        }
+
+        // 예고가 끝난 레이저: 경로의 너비 안에 닿는 적 전부에게 한 번 피해를 준다. 치명타는 발사 한 번에 한 번 판정한다.
+        private void Fire(ChargingLaser charging, World world)
+        {
+            LaserBurstDefinition laser = charging.Definition;
+            Point2 start = charging.Start;
+            Point2 end = charging.End;
 
             _targets.Clear();
             float halfWidth = laser.Width / 2;
@@ -210,12 +275,23 @@ namespace BlackHole.Core
 
             var damage = new Damage(critical
                 ? laser.Damage * laser.CritMultiplier
-                : laser.Damage, pending.Source);
+                : laser.Damage, charging.Source);
 
             foreach (Enemy target in _targets)
                 world.DealDamage(target, damage);
 
             _laserBursts.Add(new LaserBurst(_nextSequence++, start, end, laser, critical, _targets.Count));
+        }
+
+        private void RefreshTelegraphs()
+        {
+            _laserTelegraphs.Clear();
+
+            for (int i = 0; i < _chargingLasers.Count; i++)
+            {
+                ChargingLaser charging = _chargingLasers[i];
+                _laserTelegraphs.Add(new LaserTelegraph(charging.Start, charging.End, charging.Remaining, LaserTelegraphSeconds));
+            }
         }
 
         private static Point2 NearestOnSegment(Point2 point, Point2 start, Point2 end)

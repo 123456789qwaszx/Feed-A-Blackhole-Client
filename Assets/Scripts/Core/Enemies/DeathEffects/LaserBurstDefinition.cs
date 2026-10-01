@@ -3,6 +3,7 @@ using System;
 namespace BlackHole.Core
 {
     // 레이저 별: 죽은 자리를 지나는 무작위 방향의 직선 레이저가 화면을 가로질러 경로 위의 적 전부에게 피해를 준다.
+    // 죽는 순간 경로가 정해지고, 예고 시간(DeathEffects, 0.4초)이 지난 뒤 쏜다.
     public sealed class LaserBurstDefinition : DeathEffectDefinition
     {
         public float Damage { get; }

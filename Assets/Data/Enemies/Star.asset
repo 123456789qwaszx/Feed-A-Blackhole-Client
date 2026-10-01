@@ -166,7 +166,7 @@ MonoBehaviour:
     critChance: 0
     critMultiplier: 2
     healthFraction: 0
-    width: 0.5
+    width: 0.8
   - id: supernova
     color: {r: 1, g: 0.55, b: 0.2, a: 1}
     effect: 2

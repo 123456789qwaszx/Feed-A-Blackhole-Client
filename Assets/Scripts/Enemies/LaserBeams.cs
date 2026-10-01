@@ -17,6 +17,7 @@ namespace BlackHole.Unity
 
         private readonly LineStrokes _strokes;
         private readonly List<Beam> _beams = new();
+        private readonly List<LineRenderer> _telegraphs = new(); // 예고선. 이번에 쓰지 않은 선은 숨겨 두었다가 다음 예고에 다시 쓴다.
 
         private sealed class Beam
         {
@@ -39,6 +40,28 @@ namespace BlackHole.Unity
             beam.Playing = true;
             LineStrokes.SetSegment(beam.Line, start, end);
             Show(beam);
+        }
+
+        // 예고 중인 레이저마다 얇은 예고선을 그린다. 발사에 가까울수록 진해진다(기존 플레이어 레이저와 같음). 매 프레임 부른다.
+        public void ShowTelegraphs(IReadOnlyList<LaserTelegraph> telegraphs)
+        {
+            for (int i = 0; i < telegraphs.Count; i++)
+            {
+                if (i == _telegraphs.Count)
+                    _telegraphs.Add(_strokes.Line("Laser Telegraph", StartWidth, BeamColor));
+
+                LaserTelegraph telegraph = telegraphs[i];
+                LineRenderer line = _telegraphs[i];
+                LineStrokes.SetSegment(line, telegraph.Start, telegraph.End);
+
+                Color color = BeamColor;
+                color.a = Mathf.Lerp(0.25f, 1f, 1 - Mathf.Clamp01(telegraph.Remaining / telegraph.Duration));
+                LineStrokes.SetColor(line, color);
+                line.enabled = true;
+            }
+
+            for (int i = telegraphs.Count; i < _telegraphs.Count; i++)
+                _telegraphs[i].enabled = false;
         }
 
         public void Age(float delta)
@@ -68,6 +91,7 @@ namespace BlackHole.Unity
         {
             _strokes.Reset();
             _beams.Clear();
+            _telegraphs.Clear();
         }
 
         public void Dispose() => _strokes.Dispose();
