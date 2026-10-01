@@ -9,9 +9,7 @@ namespace BlackHole.Core
     // 효과의 피해는 특수 적(성질이 붙은 적, 픽업 포함)에게 가지 않는다 — 효과가 효과를 부르지 않는다.
     public sealed class DeathEffects
     {
-        // [임시] 레이저 길이(죽은 자리부터).
-        // 성질 수치(LaserBurstDefinition)로 옮길지, 공간 값(경계 원)으로 둘지 미정.
-        private const float LaserLength = 20f;
+        private const float LaserReach = 45f;
 
         private readonly List<Pending> _pending = new();
         private readonly List<LightningHit> _lightningHits = new();
@@ -178,14 +176,16 @@ namespace BlackHole.Core
             _explosions.Add(new ExplosionBlast(_nextSequence++, pending.Position, explosion.Radius, _targets.Count));
         }
 
-
         private void Fire(LaserBurstDefinition laser, Pending pending, World world)
         {
-            Point2 origin = pending.Position;
+            Point2 center = pending.Position;
             double angle = _random.NextFloat() * 2 * Math.PI;
-            var end = new Point2(
-                origin.X + LaserLength * (float)Math.Cos(angle),
-                origin.Y + LaserLength * (float)Math.Sin(angle));
+            float directionX = (float)Math.Cos(angle);
+            float directionY = (float)Math.Sin(angle);
+
+            // 죽은 자리를 지나는 직선을 양쪽으로 화면 밖까지 뻗는다.
+            var start = new Point2(center.X - LaserReach * directionX, center.Y - LaserReach * directionY);
+            var end = new Point2(center.X + LaserReach * directionX, center.Y + LaserReach * directionY);
 
             _targets.Clear();
             float halfWidth = laser.Width / 2;
@@ -199,7 +199,7 @@ namespace BlackHole.Core
                     continue;
 
                 // 레이저 선분에서 이 적과 가장 가까운 지점.
-                Point2 nearestPoint = NearestOnSegment(enemy.Position, origin, end);
+                Point2 nearestPoint = NearestOnSegment(enemy.Position, start, end);
 
                 if (enemy.IsWithin(nearestPoint, halfWidth))
                     _targets.Add(enemy);
@@ -215,7 +215,7 @@ namespace BlackHole.Core
             foreach (Enemy target in _targets)
                 world.DealDamage(target, damage);
 
-            _laserBursts.Add(new LaserBurst(_nextSequence++, origin, end, laser, critical, _targets.Count));
+            _laserBursts.Add(new LaserBurst(_nextSequence++, start, end, laser, critical, _targets.Count));
         }
 
         private static Point2 NearestOnSegment(Point2 point, Point2 start, Point2 end)
