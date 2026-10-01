@@ -36,19 +36,8 @@ namespace BlackHole.Unity
         [Tooltip("혜성 중첩 하나의 치명타 피해 보너스 증가(0 이상). 0.5면 +50%. 중첩끼리 더한 뒤 치명타 피해 보너스에 곱한다.")]
         [SerializeField] private float breakerCometCritDamageBonus = 0.5f;
 
-        [Header("관통 레이저: 경계 원 위의 무작위 지점에서 조준점을 향해 예고한 뒤 관통한다")]
-        [SerializeField] private float laserDamage = 3;
-        [Tooltip("예고를 시작하는 주기(초).")]
-        [SerializeField] private float laserInterval = 4;
-        [Tooltip("발사선의 굵기. 선에서 굵기의 절반 안에 있는 적이 맞는다.")]
-        [SerializeField] private float laserWidth = 0.5f;
-        [Tooltip("예고가 보이는 시간(초). 예고가 끝나는 순간 발사한다.")]
-        [SerializeField] private float laserTelegraphDuration = 0.4f;
-        [Tooltip("시작점이 놓이는 경계 원의 반지름(HQ 중심). 시작점이 화면 밖에 있도록 화면을 덮는 값을 쓴다.")]
-        [SerializeField] private float laserBoundaryRadius = 11;
-
         // WriteTo의 반대. 데이터 시트 가져오기(메뉴 BlackHole > Data Sheets)만 부른다.
-        internal void Replace(BreakerData breaker, LaserData laser)
+        internal void Replace(BreakerData breaker)
         {
             breakerDamage = breaker.Damage;
             breakerInterval = breaker.Interval;
@@ -60,11 +49,6 @@ namespace BlackHole.Unity
             breakerMoonRadiusBonus = breaker.MoonRadiusBonus;
             breakerCometDuration = breaker.CometDuration;
             breakerCometCritDamageBonus = breaker.CometCritDamageBonus;
-            laserDamage = laser.Damage;
-            laserInterval = laser.Interval;
-            laserWidth = laser.Width;
-            laserTelegraphDuration = laser.TelegraphDuration;
-            laserBoundaryRadius = laser.BoundaryRadius;
         }
 
         public void WriteTo(ContentData data)
@@ -81,14 +65,6 @@ namespace BlackHole.Unity
                 MoonRadiusBonus = breakerMoonRadiusBonus,
                 CometDuration = breakerCometDuration,
                 CometCritDamageBonus = breakerCometCritDamageBonus,
-            };
-            data.Laser = new LaserData
-            {
-                Damage = laserDamage,
-                Interval = laserInterval,
-                Width = laserWidth,
-                TelegraphDuration = laserTelegraphDuration,
-                BoundaryRadius = laserBoundaryRadius,
             };
         }
     }

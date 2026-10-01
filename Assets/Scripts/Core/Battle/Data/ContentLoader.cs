@@ -22,14 +22,13 @@ namespace BlackHole.Core
 
             TimeLimitDefinition timeLimit = LoadSession(data.Session, diagnostics);
             BreakerDefinition breaker = LoadBreaker(data.Breaker, diagnostics);
-            LaserDefinition laser = LoadLaser(data.Laser, diagnostics);
             HqGrowthDefinition growth = HqGrowthLoader.Load(data.Growth, diagnostics);
             EnemyContent enemies = EnemyContentLoader.Load(data.Enemies, diagnostics);
 
             if (diagnostics.Count > 0)
                 return Fail(diagnostics);
 
-            return new ContentLoadResult(new GameContent(timeLimit, breaker, laser, enemies, growth), diagnostics);
+            return new ContentLoadResult(new GameContent(timeLimit, breaker, enemies, growth), diagnostics);
         }
 
         private static TimeLimitDefinition LoadSession(SessionData item, List<ContentDiagnostic> into)
@@ -54,16 +53,6 @@ namespace BlackHole.Core
             return Guard("Breaker", into, () =>
                 new BreakerDefinition(item.Damage, item.Interval, item.Radius, item.CritChance, item.CritDamage,
                     item.MoonDuration, item.MoonSpeedBonus, item.MoonRadiusBonus, item.CometDuration, item.CometCritDamageBonus));
-        }
-
-        // 없으면 판에 레이저가 없다.
-        private static LaserDefinition LoadLaser(LaserData item, List<ContentDiagnostic> into)
-        {
-            if (item == null)
-                return null;
-
-            return Guard("Laser", into, () =>
-                new LaserDefinition(item.Damage, item.Interval, item.Width, item.TelegraphDuration, item.BoundaryRadius));
         }
 
         // ── 공통 ────────────────────────────────────────────────────────────
