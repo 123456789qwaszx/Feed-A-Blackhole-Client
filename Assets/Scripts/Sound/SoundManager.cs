@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using BlackHole.Unity;
 using UnityEngine;
 
@@ -14,8 +15,11 @@ public class SoundManager : MonoBehaviour
 
     private Coroutine _bgmRoutine;
     private GameSettings _settings;
+    // 클립마다 "마지막으로 재생한 시각"을 저장하는 딕셔너리, key: AudioClip / value: 시각
+    private readonly Dictionary<AudioClip, float> _lastPlayTime = new Dictionary<AudioClip, float>();
 
-    private int _lastBgmIndex = -1;
+    private const int _lastBgmIndex = -1;
+    private const float MinInterval = 0.05f; // 같은 소리는 이 시간 안에 중복 재생 안 함
 
     private void Reset()
     {
@@ -61,7 +65,18 @@ public class SoundManager : MonoBehaviour
     /// <param name="clip">재생할 sfx 파일</param>
     private void Play(AudioClip clip)
     {
-        if (clip != null) _sfxSource.PlayOneShot(clip);
+        if (clip != null)
+        {
+            // 같은 소리의 재생 간격 제한
+            float now = Time.unscaledTime; // 현 시각
+            float last; // _lastPlayTime 딕셔너리의 value로 사용될 변수
+
+            // 이 클립의 마지막 재생 기록이 있고, 지금과의 차이가 MinInterval보다 작으면 return
+            if (_lastPlayTime.TryGetValue(clip, out last) && now - last < MinInterval) return;
+
+            _lastPlayTime[clip] = now; // 이 클립의 마지막 재생 시각을 지금 시각으로 변경
+            _sfxSource.PlayOneShot(clip);
+        }
     }
 
     /// <summary>
