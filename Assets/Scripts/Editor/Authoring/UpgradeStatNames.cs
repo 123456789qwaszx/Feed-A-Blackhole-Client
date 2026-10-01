@@ -8,8 +8,8 @@ namespace BlackHole.Authoring
     //
     // 이름은 가져가는 시스템의 것(BreakerUpgradeStats, HqUpgradeStats, EnemyUpgradeStats)을 그대로 쓴다.
     // 새 수치 이름을 Core에 더하면 여기에도 더한다.
-    // 적 종류의 수치는 그 종류에 뜻이 있을 때만 낸다: 황금은 황금이 되는 종류, 변환은 변환 대상이 있는 종류, 생성 확률은 특수 종류,
-    // 크기 등급은 크기 등급이 둘 이상인 종류.
+    // 적 종류의 수치는 그 종류에 뜻이 있을 때만 낸다: 성질 확률은 그 종류의 성질마다(황금이면 배율도), 변환은 변환 대상이 있는 종류,
+    // 등장 확률은 픽업, 공급 수는 픽업이 아닌 종류, 크기 등급은 크기 등급이 둘 이상인 종류.
     public static class UpgradeStatNames
     {
         public static List<(string Name, string Note)> For(IReadOnlyList<EnemyData> enemies)
@@ -34,20 +34,28 @@ namespace BlackHole.Authoring
                 string id = enemy.Id;
                 names.Add((EnemyUpgradeStats.MassLevel(id), $"{id}의 질량 단계(HP·Gold 계수 줄). 기본값 0, 한 노드 = 더하기 1."));
 
-                if (enemy.GoldenMultiplier > 0)
-                {
-                    names.Add((EnemyUpgradeStats.GoldenRatio(id), $"{id}가 황금으로 나오는 비율(0 ~ 1). 기본값 0."));
-                    names.Add((EnemyUpgradeStats.GoldenMultiplier(id), $"{id}가 황금일 때 Gold 배율. 기본값은 Enemies 탭 goldenMultiplier."));
-                }
+                bool pickup = enemy.PickupPeriod > 0;
 
-                names.Add((EnemyUpgradeStats.StartSupply(id), $"전투 시작에 {id}를 더 공급하는 수. 기본값 0."));
-                names.Add((EnemyUpgradeStats.GrowthSupply(id), $"블랙홀 Level업마다 {id}를 더 공급하는 수. 기본값 0."));
+                if (!pickup)
+                {
+                    names.Add((EnemyUpgradeStats.StartSupply(id), $"전투 시작에 {id}를 더 공급하는 수. 기본값 0."));
+                    names.Add((EnemyUpgradeStats.GrowthSupply(id), $"블랙홀 Level업마다 {id}를 더 공급하는 수. 기본값 0."));
+
+                    foreach (EnemyTraitData trait in enemy.Traits)
+                    {
+                        names.Add((EnemyUpgradeStats.TraitChance(id, trait.Id), $"{id}에 '{trait.Id}' 성질이 붙는 확률(%). 기본값 0. 한 종류의 성질 확률 합은 100 이하."));
+
+                        if (trait.Effect?.Kind == "Golden")
+                            names.Add((EnemyUpgradeStats.TraitMultiplier(id, trait.Id), $"{id}의 '{trait.Id}' 성질 Gold 배율. 기본값은 EnemyTraits 탭 multiplier."));
+                    }
+                }
+                else
+                {
+                    names.Add((EnemyUpgradeStats.Chance(id), $"픽업 {id}가 등장 주기({enemy.PickupPeriod}초)마다 나오는 확률(%). 기본값 0."));
+                }
 
                 if (!string.IsNullOrEmpty(enemy.UpgradesTo))
                     names.Add((EnemyUpgradeStats.Upgrade(id), $"{id}가 {enemy.UpgradesTo}로 나오는 비율(%). 기본값은 Enemies 탭 baseUpgrade."));
-
-                if (!string.IsNullOrEmpty(enemy.SpecialOf))
-                    names.Add((EnemyUpgradeStats.Chance(id), $"{enemy.SpecialOf} 대신 {id}가 나오는 확률(%). 기본값 0."));
 
                 if (enemy.SizeClasses.Count > 1)
                     names.Add((EnemyUpgradeStats.SizeLevel(id),

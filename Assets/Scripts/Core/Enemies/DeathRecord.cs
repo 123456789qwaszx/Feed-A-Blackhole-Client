@@ -8,6 +8,8 @@ namespace BlackHole.Core
         public long Sequence { get; }
         public EnemyId EnemyId { get; }
         public string EnemyTypeId { get; }
+        // 붙어 있던 특수 성질의 ID. 없으면 null.
+        public string TraitId { get; }
         public Point2 Position { get; }
         public float Size { get; }
 
@@ -16,6 +18,7 @@ namespace BlackHole.Core
             Sequence = sequence;
             EnemyId = enemy.Id;
             EnemyTypeId = enemy.Definition.Id;
+            TraitId = enemy.Trait?.Id;
             Position = enemy.Position;
             Size = enemy.Stats.Size;
         }

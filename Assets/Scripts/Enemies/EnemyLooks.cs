@@ -19,10 +19,9 @@ namespace BlackHole.Unity
             new[] { new Vector2(-0.49f, -0.05f), new Vector2(-0.31f, 0.33f), new Vector2(-0.07f, 0.49f), new Vector2(0.37f, 0.34f), new Vector2(0.48f, -0.16f), new Vector2(0.06f, -0.43f) },
         };
 
-        // 황금 천체의 속 색. 원작의 황금 소행성은 원래 색의 윤곽에 속이 노랗다(BATTLE_COMPOSITION_PLAN 2.1).
-        public static readonly Color GoldenFill = new Color(1f, 0.82f, 0.2f);
-        // 황금 천체에서 노란 속이 차지하는 크기(윤곽 대비). 나머지 테두리가 원래 색으로 보인다 [임시].
-        public const float GoldenFillScale = 0.65f;
+        // 특수 성질 표식(속 채움)이 차지하는 크기(윤곽 대비). 나머지 테두리가 원래 색으로 보인다 [임시].
+        // 원작의 황금 소행성은 원래 색의 윤곽에 속이 노랗다(BATTLE_COMPOSITION_PLAN 2.1). 다른 성질도 같은 방식의 임시 표식이다.
+        public const float TraitFillScale = 0.65f;
 
         private readonly Dictionary<string, EnemyKind> _kinds = new Dictionary<string, EnemyKind>(StringComparer.Ordinal);
         private readonly Texture2D[] _shapeTextures = new Texture2D[ShapeVertices.Length];
@@ -50,6 +49,10 @@ namespace BlackHole.Unity
 
         public Color ColorOf(string kindId, int tier) =>
             _kinds.TryGetValue(kindId, out EnemyKind kind) ? kind.ColorOf(tier) : Color.white;
+
+        // 성질의 표식 색. 없는 종류·성질은 투명이다(표식을 그리지 않는다).
+        public Color TraitColorOf(string kindId, string traitId) =>
+            traitId != null && _kinds.TryGetValue(kindId, out EnemyKind kind) ? kind.TraitColorOf(traitId) : Color.clear;
 
         public void Dispose()
         {

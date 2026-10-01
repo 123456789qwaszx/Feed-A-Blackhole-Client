@@ -10,9 +10,8 @@ namespace BlackHole.Core
     // - 성장도별 색 비율,
     // - 질량 단계 표,
     // - 크기 등급 표,
-    // - 황금 배율,
-    // - 행동,
-    // - 사망 효과
+    // - 붙을 수 있는 특수 성질(황금·전기·달·레이저·슈퍼노바 …),
+    // - 픽업이면 등장 주기
     public sealed class EnemyDefinition
     {
         public string Id { get; }
@@ -31,15 +30,9 @@ namespace BlackHole.Core
         // 크기 등급이 없는 종류는 모든 계수가 1인 한 줄이다(SizeClassDefinition.Base).
         public IReadOnlyList<SizeClassDefinition> SizeClasses { get; }
 
-        // 황금일 때 그 적의 Gold에 곱하는 기본값. 0이면 이 종류는 황금이 되지 않는다(원작은 소행성만, 기본 50배).
-        // 황금은 종류가 아니라 생성 때 정해지는 특성이다. 얼마나 섞일지(황금 비율)와 노드로 오른 배율은 판 구성(EnemyComposition)이 가진다.
-        public float GoldenMultiplier { get; }
-
-        public bool CanBeGolden => GoldenMultiplier > 0;
-
-        // 이 종류가 죽을 때의 효과. 없으면 null.
-        // 효과를 가진 적은 사망 효과의 피해를 받지 않는다.
-        public DeathEffectDefinition DeathEffect { get; }
+        // 이 종류에 붙을 수 있는 특수 성질(ID 유일). 출현 때 성질마다의 생성 확률(판 구성, 기본 0%)로 최대 하나가 붙는다.
+        // 픽업은 성질이 정확히 하나이고 언제나 붙는다(혜성 = 혜성 버프).
+        public IReadOnlyList<EnemyTraitDefinition> Traits { get; }
 
         // 이 종류의 생성 요청 중 변환 비율만큼이 나오는 다음 종류의 ID(소행성 → 행성 → 별).
         public string UpgradesTo { get; }
@@ -51,9 +44,12 @@ namespace BlackHole.Core
 
         public int BaseUpgradeFromStage { get; }
 
-        // 특수 종류이면 부모 종류의 ID. 부모로 정해진 생성 중 이 종류의 생성 확률만큼이 이 종류로 나온다. 없으면 null.
-        public string SpecialOf { get; }
-        public bool IsSpecial => SpecialOf != null;
+        // 픽업의 등장 판정 주기(초). 0이면 공급되는 보통 종류다.
+        // 픽업(혜성)은 적 공급·성장 공급·변환·전체 개체 수 상한과 무관하다: 주기마다 등장 확률(판 구성의 AppearChance)로 하나가 나온다.
+        // 브레이커로 쳐서 획득하는 것이며, 사망 효과의 피해를 받지 않는다(성질이 언제나 붙으므로).
+        public float PickupPeriod { get; }
+
+        public bool IsPickup => PickupPeriod > 0;
 
         public EnemyDefinition(
             string id,
@@ -61,17 +57,13 @@ namespace BlackHole.Core
             IReadOnlyList<EnemyTier> tiers,
             IReadOnlyList<StageColorDefinition> stageColors,
             IReadOnlyList<MassLevelDefinition> massLevels,
-            float goldenMultiplier,
-            DeathEffectDefinition deathEffect = null,
+            IReadOnlyList<EnemyTraitDefinition> traits = null,
             string upgradesTo = null,
-            string specialOf = null,
             float baseUpgrade = 0,
             int baseUpgradeFromStage = HqGrowthDefinition.StartStage,
-            IReadOnlyList<SizeClassDefinition> sizeClasses = null)
+            IReadOnlyList<SizeClassDefinition> sizeClasses = null,
+            float pickupPeriod = 0)
         {
-            if (float.IsNaN(goldenMultiplier) || float.IsInfinity(goldenMultiplier) || goldenMultiplier < 0)
-                throw new ArgumentOutOfRangeException(nameof(goldenMultiplier), "0 이상의 유한한 값이 필요하다.");
-
             if (float.IsNaN(baseUpgrade) || baseUpgrade < 0 || baseUpgrade > 100)
                 throw new ArgumentOutOfRangeException(nameof(baseUpgrade), "기본 변환 비율은 0부터 100(%)까지다.");
 
@@ -87,8 +79,8 @@ namespace BlackHole.Core
             if (upgradesTo == id)
                 throw new ArgumentException("자기 자신으로 변환할 수 없다.", nameof(upgradesTo));
 
-            if (specialOf == id)
-                throw new ArgumentException("자기 자신의 특수 종류일 수 없다.", nameof(specialOf));
+            if (float.IsNaN(pickupPeriod) || float.IsInfinity(pickupPeriod) || pickupPeriod < 0)
+                throw new ArgumentOutOfRangeException(nameof(pickupPeriod), "0 이상의 유한한 값이 필요하다(0 = 픽업이 아님).");
 
             if (tiers == null || tiers.Count == 0)
                 throw new ArgumentException("색 등급이 하나 이상 필요하다.", nameof(tiers));
@@ -106,6 +98,26 @@ namespace BlackHole.Core
             {
                 if (sizeClasses[i] == null)
                     throw new ArgumentException($"크기 등급 {i}가 null이다.", nameof(sizeClasses));
+            }
+
+            var traitIds = new HashSet<string>(StringComparer.Ordinal);
+
+            for (int i = 0; traits != null && i < traits.Count; i++)
+            {
+                if (traits[i] == null)
+                    throw new ArgumentException($"성질 {i}가 null이다.", nameof(traits));
+
+                if (!traitIds.Add(traits[i].Id))
+                    throw new ArgumentException($"성질 ID '{traits[i].Id}'가 중복됐다.", nameof(traits));
+            }
+
+            if (pickupPeriod > 0)
+            {
+                if (traits == null || traits.Count != 1)
+                    throw new ArgumentException("픽업은 성질이 정확히 하나여야 한다(언제나 붙는 효과).", nameof(traits));
+
+                if (!string.IsNullOrEmpty(upgradesTo))
+                    throw new ArgumentException("픽업은 변환 대상을 가질 수 없다.", nameof(upgradesTo));
             }
 
             if (stageColors == null || stageColors.Count == 0)
@@ -135,12 +147,11 @@ namespace BlackHole.Core
             SizeClasses = sizeClasses == null || sizeClasses.Count == 0
                 ? Array.AsReadOnly(new[] { SizeClassDefinition.Base })
                 : Array.AsReadOnly(Copy(sizeClasses));
-            GoldenMultiplier = goldenMultiplier;
-            DeathEffect = deathEffect;
+            Traits = traits == null ? Array.AsReadOnly(Array.Empty<EnemyTraitDefinition>()) : Array.AsReadOnly(Copy(traits));
             UpgradesTo = string.IsNullOrEmpty(upgradesTo) ? null : upgradesTo;
-            SpecialOf = string.IsNullOrEmpty(specialOf) ? null : specialOf;
             BaseUpgrade = baseUpgrade;
             BaseUpgradeFromStage = baseUpgradeFromStage;
+            PickupPeriod = pickupPeriod;
         }
 
         // 성장도가 stage일 때 노드 밖의 기본 변환 비율(%).
@@ -160,17 +171,18 @@ namespace BlackHole.Core
             return chosen.TierRatios;
         }
 
-        // 판 구성 composition에서 색 등급 tier·크기 등급 sizeClass의 실행 수치.
+        // 판 구성 composition에서 색 등급 tier·크기 등급 sizeClass·성질 trait(없으면 null)의 실행 수치.
         // HP = 색의 기본 HP × 질량 단계의 HP 계수 × 크기 등급의 HP 계수,
         // Gold = 색의 기본 Gold × 질량 단계의 Gold 계수 × 크기 등급의 Gold 계수(반올림 [임시]),
         // 크기 = 색의 크기 × 크기 등급의 크기 계수, 속도 = 종류의 속도,
-        // EXP = 색의 EXP × 크기 등급의 EXP 계수(반올림, 질량 단계·황금과 무관).
-        // 황금이면 Gold에 판 구성의 황금 배율을 한 번 더 곱한다(반올림). HP·크기는 같은 색과 같다 [임시].
+        // EXP = 색의 EXP × 크기 등급의 EXP 계수(반올림, 질량 단계·성질과 무관).
+        // 성질이 황금이면 Gold에 판 구성의 황금 배율을 한 번 더 곱한다(반올림). 다른 성질은 수치를 바꾸지 않는다.
+        // trait는 판 구성의 성질(composition.Traits)이어야 한다 — 노드가 반영된 배율이 거기 있다.
         // 판 조립(EnemyStatTable)과 다음 판을 미리 보는 콘솔이 같은 계산을 쓴다.
-        public EnemyStats StatsAt(EnemyComposition composition, int tier, bool golden = false, int sizeClass = 0)
+        public EnemyStats StatsAt(EnemyComposition composition, int tier, EnemyTraitDefinition trait = null, int sizeClass = 0)
         {
-            if (golden && !CanBeGolden)
-                throw new ArgumentException($"'{Id}'는 황금이 되지 않는다.", nameof(golden));
+            if (trait != null && composition.IndexOfTrait(trait) < 0)
+                throw new ArgumentException($"'{trait.Id}'는 이 판 구성에서 '{Id}'의 성질이 아니다.", nameof(trait));
 
             int massLevel = composition.MassLevel;
 
@@ -191,8 +203,8 @@ namespace BlackHole.Core
             EnemyTier row = Tiers[tier];
             long gold = Multiply(row.Gold, (double)level.GoldMultiplier * size.GoldMultiplier);
 
-            if (golden)
-                gold = Multiply(gold, composition.GoldenMultiplier);
+            if (trait?.Effect is GoldenDefinition golden)
+                gold = Multiply(gold, golden.Multiplier);
 
             return new EnemyStats(
                 row.MaxHealth * level.HealthMultiplier * size.HealthMultiplier,

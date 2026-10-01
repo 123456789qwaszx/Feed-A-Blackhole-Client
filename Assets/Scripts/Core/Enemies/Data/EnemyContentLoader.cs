@@ -10,8 +10,8 @@ namespace BlackHole.Core
     // 수치 규칙은 정의 생성자를, 콘텐츠 전체 규칙은 EnemyContentInvariants를 그대로 호출해 경로를 붙인다.
     //
     // 세 단계로 읽는다. 앞 단계에 오류가 있으면 뒤 단계를 보지 않는다(잘못된 정의가 거짓 참조 오류를 만들지 않게).
-    // 1. 개별 정의: 적 종류(색 등급·성장도별 색 비율·질량 단계·사망 효과), 출현 배치.
-    // 2. 적 종류를 가리키는 것: 적 ID 유일, 종류 사이 연결(변환 대상·부모), 공급, 전체 개체 수 상한.
+    // 1. 개별 정의: 적 종류(색 등급·성장도별 색 비율·질량 단계·특수 성질과 그 사망 효과), 출현 배치.
+    // 2. 적 종류를 가리키는 것: 적 ID 유일, 종류 사이 연결(변환 대상), 공급(픽업 제외), 전체 개체 수 상한.
     // 3. 전체: 전투 시작 공급이 상한 안인가.
     public static class EnemyContentLoader
     {
@@ -37,6 +37,7 @@ namespace BlackHole.Core
             EnemyContentInvariants.CollectEnemies(enemies, into, out Dictionary<string, EnemyDefinition> enemiesById);
             EnemyContentInvariants.CheckKindLinks(enemies, enemiesById, into);
             List<SupplyRequest> startSupply = LoadSupplyList(data.StartSupply, "StartSupply", enemiesById, into);
+            EnemyContentInvariants.CheckSupplyKinds(startSupply, "StartSupply", into);
 
             if (startSupply.Count > 0 && placement == null)
                 into.Add(new ContentDiagnostic("EnemyPlacement", "공급이 있으면 출현 배치가 필요하다."));
@@ -73,7 +74,7 @@ namespace BlackHole.Core
                 }
 
                 int errors = into.Count;
-                DeathEffectDefinition deathEffect = LoadDeathEffect(item.DeathEffect, at + ".DeathEffect", into);
+                List<EnemyTraitDefinition> traits = LoadTraits(item.Traits, at + ".Traits", into);
                 List<EnemyTier> tiers = LoadTiers(item.Tiers, at + ".Tiers", into);
                 List<StageColorDefinition> stageColors = LoadStageColors(item.StageColors, at + ".StageColors", into);
                 List<MassLevelDefinition> massLevels = LoadMassLevels(item.MassLevels, at + ".MassLevels", into);
@@ -83,8 +84,8 @@ namespace BlackHole.Core
                     continue;
 
                 EnemyDefinition enemy = Guard(at, into, () =>
-                    new EnemyDefinition(item.Id, item.MoveSpeed, tiers, stageColors, massLevels, item.GoldenMultiplier, deathEffect, item.UpgradesTo, item.SpecialOf,
-                        item.BaseUpgrade, item.BaseUpgradeFromStage, sizeClasses));
+                    new EnemyDefinition(item.Id, item.MoveSpeed, tiers, stageColors, massLevels, traits, item.UpgradesTo,
+                        item.BaseUpgrade, item.BaseUpgradeFromStage, sizeClasses, item.PickupPeriod));
 
                 if (enemy != null)
                     enemies.Add(enemy);
@@ -190,25 +191,66 @@ namespace BlackHole.Core
             return rows;
         }
 
-        // 없거나 종류 이름이 비어 있으면 효과가 없다(null). 종류 이름을 하위 정의로 바꾸고, 가능한 값을 진단에 싣는다.
+        // 줄마다 ID와 효과를 검사한다. ID 유일·픽업의 성질 수는 EnemyDefinition이 검사한다.
+        private static List<EnemyTraitDefinition> LoadTraits(List<EnemyTraitData> items, string at, List<ContentDiagnostic> into)
+        {
+            var traits = new List<EnemyTraitDefinition>();
+
+            for (int i = 0; items != null && i < items.Count; i++)
+            {
+                EnemyTraitData item = items[i];
+                string itemAt = At(at, i, item?.Id);
+
+                if (item == null)
+                {
+                    into.Add(new ContentDiagnostic(itemAt, "데이터가 없다."));
+                    continue;
+                }
+
+                int errors = into.Count;
+                DeathEffectDefinition effect = LoadDeathEffect(item.Effect, itemAt + ".Effect", into);
+
+                if (into.Count > errors)
+                    continue;
+
+                EnemyTraitDefinition trait = Guard(itemAt, into, () => new EnemyTraitDefinition(item.Id, effect));
+
+                if (trait != null)
+                    traits.Add(trait);
+            }
+
+            return traits;
+        }
+
+        // 종류 이름을 하위 정의로 바꾸고, 가능한 값을 진단에 싣는다. 성질에는 효과가 있어야 하므로 비어 있으면 오류다.
+        public static readonly string[] DeathEffectKinds = { "Golden", "ChainLightning", "Explosion", "LaserBurst", "MoonBuff", "CometBuff" };
+
         private static DeathEffectDefinition LoadDeathEffect(DeathEffectData item, string at, List<ContentDiagnostic> into)
         {
             if (item == null || string.IsNullOrEmpty(item.Kind))
+            {
+                into.Add(new ContentDiagnostic(at + ".Kind", $"성질의 사망 효과가 비어 있다. 가능한 값: {string.Join(", ", DeathEffectKinds)}."));
                 return null;
+            }
 
             switch (item.Kind)
             {
+                case "Golden":
+                    return Guard(at, into, () => new GoldenDefinition(item.Multiplier));
                 case "ChainLightning":
-                    return Guard(at, into, () => new ChainLightningDefinition(item.Damage, item.Radius, item.MaxTargets));
+                    return Guard(at, into, () => new ChainLightningDefinition(
+                        item.Damage, item.Radius, item.MaxTargets, item.BranchChance, item.CritChance, item.CritMultiplier));
                 case "Explosion":
-                    return Guard(at, into, () => new ExplosionDefinition(item.Damage, item.Radius));
+                    return Guard(at, into, () => new ExplosionDefinition(item.HealthFraction, item.Radius));
+                case "LaserBurst":
+                    return Guard(at, into, () => new LaserBurstDefinition(item.Damage, item.Width, item.CritChance, item.CritMultiplier));
                 case "MoonBuff":
                     return Guard(at, into, () => new MoonBuffDefinition());
                 case "CometBuff":
                     return Guard(at, into, () => new CometBuffDefinition());
                 default:
                     into.Add(new ContentDiagnostic(at + ".Kind",
-                        $"알 수 없는 사망 효과 종류 '{item.Kind}'. 가능한 값: ChainLightning, Explosion, MoonBuff, CometBuff."));
+                        $"알 수 없는 사망 효과 종류 '{item.Kind}'. 가능한 값: {string.Join(", ", DeathEffectKinds)}."));
                     return null;
             }
         }
