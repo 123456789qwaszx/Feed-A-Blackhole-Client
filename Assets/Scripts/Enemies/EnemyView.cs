@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 namespace BlackHole.Unity
 {
     // 적 시스템의 화면. 매 프레임 World의 살아 있는 적을 읽어 스프라이트를 맞추고, 짧은 피격 흔들림 연출도 같이 진행시킨다.
-    // 게임 상태를 바꾸지 않는다. 외형은 적 종류 에셋이 가진다(EnemyLooks). 색은 적의 색 등급으로, 크기는 적의 수치로 정한다.
+    // 게임 상태를 바꾸지 않는다. 외형은 적 종류 에셋이 가진다(EnemyLooks). 색은 적의 색 등급으로, 크기는 적의 수치로 정한다.   
     // 특수 성질이 붙었으면 그 색의 윤곽 안에 성질의 표식 색으로 속을 한 겹 더 그린다(황금이면 노란 속, 임시 표식). 스프라이트가 없는 종류는 적 ID에 맞는 다각형으로 그린다.
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다. 파괴·흡수 연출은 연출 작업에서 사망 기록을 읽어 더한다.
     // 규칙 평면은 장면의 z = 0이고 x·y는 같다. HQ(원점)가 장면의 원점이다.
@@ -62,6 +62,9 @@ namespace BlackHole.Unity
                 visual.Hit.Advance(delta, visual.Renderer.transform);
             }
 
+            // 사망 파편의 흡입 스월은 개별 적이 아니라 공용 파티클 시스템 하나를 매 프레임 진행시키는 일이라,
+            // 위치/피격 흔들림과 같은 자리에서 한 번만 호출
+            _hitParticles.Advance();
             _gone.Clear();
 
             foreach (EnemyId id in _visuals.Keys)
@@ -82,7 +85,7 @@ namespace BlackHole.Unity
 
         // 관리하는 적 스프라이트가 없고, 지운 객체도 장면에서 모두 사라졌는가.
         // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _visuals.Count == 0 && _root.childCount == 0;
+        public bool IsClear => _visuals.Count == 0 && _root.childCount == 1 && _hitParticles.IsClear;
 
         // 판이 바뀌거나 판을 정리할 때 모든 적 스프라이트를 지운다. 정리는 처치가 아니므로 연출도 없다.
         public void Reset()
