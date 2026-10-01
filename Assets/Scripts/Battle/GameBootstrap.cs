@@ -104,7 +104,7 @@ namespace BlackHole.Unity
         private void BootstrapBattleViews()
         {
             _enemyLooks = new EnemyLooks(_enemyCatalog.Kinds());
-            _enemyView = new EnemyView(transform, _enemyLooks);
+            _enemyView = new EnemyView(transform, _enemyLooks, _breakerLook);
             _breakerView = new BreakerView(transform, _breakerLook);
             _skillView = new SkillView(transform);
             _deathEffectView = new DeathEffectView(transform);
