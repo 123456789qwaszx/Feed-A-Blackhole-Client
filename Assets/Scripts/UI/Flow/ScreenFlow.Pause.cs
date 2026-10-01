@@ -60,6 +60,8 @@ namespace BlackHole.Unity
         private async Task LeaveBattleToTitleAsync()
         {
             _ui.PopAllPanels(Unbind);
+            _pauseOpen = false;
+            _settingsOpen = false;
 
             try
             {
