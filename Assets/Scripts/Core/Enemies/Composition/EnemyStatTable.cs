@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 적 스탯:
-    // - 종류 별 구성(질량 단계·황금 비율·황금 배율)
+    // - 종류 별 구성(질량 단계·성질 확률·성질 수치)
     // - 색 비율(판을 시작할 때의 블랙홀 성장도)
     //
     // 전투 Session이 시작되기 전, 미리 값을 한 번 정하여 사용.
@@ -13,7 +13,6 @@ namespace BlackHole.Core
     {
         private readonly Dictionary<EnemyDefinition, Row> _rows = new Dictionary<EnemyDefinition, Row>();
         private readonly Dictionary<EnemyDefinition, EnemyDefinition> _upgradeTargets = new Dictionary<EnemyDefinition, EnemyDefinition>();
-        private readonly Dictionary<EnemyDefinition, List<EnemyDefinition>> _specials = new Dictionary<EnemyDefinition, List<EnemyDefinition>>();
 
         // 블랙홀의 성장도. (행성의 색 비율을 결정)
         public int Stage { get; }
@@ -35,30 +34,31 @@ namespace BlackHole.Core
                     ? chosen
                     : EnemyComposition.Base(kind);
 
-                if (composition.GoldenRatio > 0 && !kind.CanBeGolden)
-                    throw new ArgumentException($"'{kind.Id}'는 황금이 되지 않는다.", nameof(compositions));
+                if (composition.Traits.Count != kind.Traits.Count)
+                    throw new ArgumentException($"'{kind.Id}'의 판 구성 성질 수가 종류의 성질 수와 다르다.", nameof(compositions));
 
-                // [크기 등급][색 등급]. 크기 등급은 이 판에 열린 것(0 ~ SizeLevel)만 있다.
-                var stats = new EnemyStats[composition.SizeLevel + 1][];
-                EnemyStats[][] goldenStats = kind.CanBeGolden ? new EnemyStats[stats.Length][] : null;
+                if (composition.TraitChanceSum > 1 + 1e-4f)
+                    throw new ArgumentException($"'{kind.Id}'의 성질 확률 합이 100%를 넘는다({composition.TraitChanceSum * 100:0.##}%).", nameof(compositions));
 
-                for (int size = 0; size < stats.Length; size++)
+                // [성질 칸][크기 등급][색 등급]. 성질 칸 0은 성질 없음, i + 1은 판 구성의 성질 i다.
+                // 크기 등급은 이 판에 열린 것(0 ~ SizeLevel)만 있다.
+                var stats = new EnemyStats[composition.Traits.Count + 1][][];
+
+                for (int slot = 0; slot < stats.Length; slot++)
                 {
-                    stats[size] = new EnemyStats[kind.Tiers.Count];
+                    EnemyTraitDefinition trait = slot == 0 ? null : composition.Traits[slot - 1];
+                    stats[slot] = new EnemyStats[composition.SizeLevel + 1][];
 
-                    if (goldenStats != null)
-                        goldenStats[size] = new EnemyStats[kind.Tiers.Count];
-
-                    for (int tier = 0; tier < kind.Tiers.Count; tier++)
+                    for (int size = 0; size < stats[slot].Length; size++)
                     {
-                        stats[size][tier] = kind.StatsAt(composition, tier, sizeClass: size);
+                        stats[slot][size] = new EnemyStats[kind.Tiers.Count];
 
-                        if (goldenStats != null)
-                            goldenStats[size][tier] = kind.StatsAt(composition, tier, golden: true, sizeClass: size);
+                        for (int tier = 0; tier < kind.Tiers.Count; tier++)
+                            stats[slot][size][tier] = kind.StatsAt(composition, tier, trait, size);
                     }
                 }
 
-                _rows.Add(kind, new Row(composition, stats, goldenStats));
+                _rows.Add(kind, new Row(composition, stats));
                 kinds[i] = kind;
             }
 
@@ -82,16 +82,6 @@ namespace BlackHole.Core
             return _upgradeTargets.TryGetValue(kind, out EnemyDefinition target) ? target : null;
         }
 
-        // 이 종류로 정해진 생성 중 생성 확률만큼 대신 나오는 특수 종류(콘텐츠 순서). 없으면 비어 있다.
-        public IReadOnlyList<EnemyDefinition> SpecialsOf(EnemyDefinition kind)
-        {
-            Require(kind);
-
-            return _specials.TryGetValue(kind, out List<EnemyDefinition> specials)
-                ? specials
-                : (IReadOnlyList<EnemyDefinition>)Array.Empty<EnemyDefinition>();
-        }
-
         private void LinkKinds(EnemyDefinition[] kinds)
         {
             var byId = new Dictionary<string, EnemyDefinition>(StringComparer.Ordinal);
@@ -99,39 +89,19 @@ namespace BlackHole.Core
             foreach (EnemyDefinition kind in kinds)
                 byId[kind.Id] = kind;
 
-            var chanceSums = new Dictionary<EnemyDefinition, float>();
-
             foreach (EnemyDefinition kind in kinds)
             {
-                if (kind.UpgradesTo != null)
-                    _upgradeTargets.Add(kind, Find(byId, kind.UpgradesTo, kind));
-
-                if (kind.SpecialOf == null)
+                if (kind.UpgradesTo == null)
                     continue;
 
-                EnemyDefinition parent = Find(byId, kind.SpecialOf, kind);
+                if (!byId.TryGetValue(kind.UpgradesTo, out EnemyDefinition target))
+                    throw new ArgumentException($"'{kind.Id}'가 가리키는 종류 '{kind.UpgradesTo}'가 이 판에 없다.");
 
-                if (!_specials.TryGetValue(parent, out List<EnemyDefinition> specials))
-                    _specials.Add(parent, specials = new List<EnemyDefinition>());
-
-                specials.Add(kind);
-                float sum = (chanceSums.TryGetValue(parent, out float before) ? before : 0) + CompositionOf(kind).SpecialChance;
-                chanceSums[parent] = sum;
-
-                if (sum > 1 + 1e-4f)
-                    throw new ArgumentException($"'{parent.Id}'의 특수 종류 생성 확률 합이 100%를 넘는다({sum * 100:0.##}%).");
+                _upgradeTargets.Add(kind, target);
             }
         }
 
-        private static EnemyDefinition Find(Dictionary<string, EnemyDefinition> byId, string id, EnemyDefinition from)
-        {
-            if (!byId.TryGetValue(id, out EnemyDefinition kind))
-                throw new ArgumentException($"'{from.Id}'가 가리키는 종류 '{id}'가 이 판에 없다.");
-
-            return kind;
-        }
-
-        // 이 판에서 이 종류의 판 구성(질량 단계·황금 비율·황금 배율·공급·변환·특수 확률·크기 등급).
+        // 이 판에서 이 종류의 판 구성(질량 단계·공급·변환·크기 등급·성질 확률·성질 수치·등장 확률).
         public EnemyComposition CompositionOf(EnemyDefinition kind) => RowOf(kind).Composition;
 
         // 이 판에서 이 종류의 색 비율(색 등급 표 순서). 판을 시작할 때의 성장도로 고른 줄이다.
@@ -141,25 +111,32 @@ namespace BlackHole.Core
             return kind.TierRatiosAt(Stage);
         }
 
-        // 이 판에서 이 종류·색 등급·크기 등급(황금이면 황금)이 받는 수치.
-        public EnemyStats Of(EnemyDefinition kind, int tier, bool golden = false, int sizeClass = 0)
+        // 이 판에서 이 종류·색 등급·크기 등급·성질(없으면 null)이 받는 수치. 성질은 이 판 구성의 것(CompositionOf(kind).Traits)이다.
+        public EnemyStats Of(EnemyDefinition kind, int tier, EnemyTraitDefinition trait = null, int sizeClass = 0)
         {
             Row row = RowOf(kind);
+            int slot = 0;
 
-            if (sizeClass < 0 || sizeClass >= row.Stats.Length)
+            if (trait != null)
+            {
+                int index = row.Composition.IndexOfTrait(trait);
+
+                if (index < 0)
+                    throw new ArgumentException($"'{trait.Id}'는 이 판에서 '{kind.Id}'의 성질이 아니다.", nameof(trait));
+
+                slot = index + 1;
+            }
+
+            EnemyStats[][] stats = row.Stats[slot];
+
+            if (sizeClass < 0 || sizeClass >= stats.Length)
                 throw new ArgumentOutOfRangeException(
-                    nameof(sizeClass), $"이 판에서 '{kind.Id}'의 크기 등급은 0부터 {row.Stats.Length - 1}까지다. 받은 값: {sizeClass}.");
+                    nameof(sizeClass), $"이 판에서 '{kind.Id}'의 크기 등급은 0부터 {stats.Length - 1}까지다. 받은 값: {sizeClass}.");
 
-            if (tier < 0 || tier >= row.Stats[sizeClass].Length)
-                throw new ArgumentOutOfRangeException(nameof(tier), $"'{kind.Id}'의 색 등급은 0부터 {row.Stats[sizeClass].Length - 1}까지다. 받은 값: {tier}.");
+            if (tier < 0 || tier >= stats[sizeClass].Length)
+                throw new ArgumentOutOfRangeException(nameof(tier), $"'{kind.Id}'의 색 등급은 0부터 {stats[sizeClass].Length - 1}까지다. 받은 값: {tier}.");
 
-            if (!golden)
-                return row.Stats[sizeClass][tier];
-
-            if (row.GoldenStats == null)
-                throw new ArgumentException($"'{kind.Id}'는 황금이 되지 않는다.", nameof(golden));
-
-            return row.GoldenStats[sizeClass][tier];
+            return stats[sizeClass][tier];
         }
 
         // 이 판의 종류가 아니면 예외다.
@@ -176,16 +153,13 @@ namespace BlackHole.Core
         private readonly struct Row
         {
             public readonly EnemyComposition Composition;
-            // [크기 등급][색 등급].
-            public readonly EnemyStats[][] Stats;
-            // 황금이 되지 않는 종류는 null이다.
-            public readonly EnemyStats[][] GoldenStats;
+            // [성질 칸][크기 등급][색 등급].
+            public readonly EnemyStats[][][] Stats;
 
-            public Row(EnemyComposition composition, EnemyStats[][] stats, EnemyStats[][] goldenStats)
+            public Row(EnemyComposition composition, EnemyStats[][][] stats)
             {
                 Composition = composition;
                 Stats = stats;
-                GoldenStats = goldenStats;
             }
         }
     }

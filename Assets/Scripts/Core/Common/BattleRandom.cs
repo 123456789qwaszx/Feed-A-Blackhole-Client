@@ -3,17 +3,19 @@ namespace BlackHole.Core
     // 한 전투의 난수. 판 조립 때 seed로 만들고 판이 끝나면 버린다.
     // seed와 입력과 진행 시간이 같으면 같은 값이 같은 순서로 나온다(기준 상황 재현, S12).
     // 엔진의 난수를 쓰지 않는다. 용도마다 스트림이 다르다: 한 용도가 난수를 더 쓰거나 덜 써도 다른 용도의 순서는 그대로다
-    // (예: 황금 비율을 바꿔도 출현 위치가 같고, 치명타 확률을 바꿔도 레이저 시작점이 같다).
+    // (예: 성질 확률을 바꿔도 출현 위치가 같고, 치명타 확률을 바꿔도 레이저 시작점이 같다).
     internal sealed class BattleRandom
     {
         // 용도의 번호. 판에 하나인 용도(World)와 참가자마다의 용도(BattlePlayer)가 있다.
         public const int PlacementStream = 0;
         public const int TierStream = 1;
-        public const int GoldenStream = 2;
+        public const int TraitStream = 2;
         public const int LaserStream = 3;
         public const int CriticalStream = 4;
         public const int KindStream = 5;
         public const int SizeStream = 6;
+        public const int PickupStream = 7;
+        public const int DeathEffectStream = 8;
 
         private uint _state;
 

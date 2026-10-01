@@ -15,6 +15,8 @@ namespace BlackHole.Unity
         private const float ExplosionWidth = 0.12f;
         private const float ExplosionSeconds = 0.4f;
         private static readonly Color LightningColor = new Color(0.55f, 0.8f, 1f, 1f);
+        // 치명타 번개는 Breaker 치명타처럼 노란색이다.
+        private static readonly Color CriticalLightningColor = new Color(1f, 0.85f, 0.25f, 1f);
         private static readonly Color ExplosionColor = new Color(1f, 0.45f, 0.15f, 1f);
 
         private readonly LineStrokes _strokes;
@@ -35,7 +37,8 @@ namespace BlackHole.Unity
                     continue;
 
                 drawn = Math.Max(drawn, hits[i].Sequence);
-                LineStrokes.SetSegment(_strokes.Flash("Lightning", LightningWidth, LightningColor, LightningSeconds), hits[i].From, hits[i].To);
+                Color color = hits[i].Critical ? CriticalLightningColor : LightningColor;
+                LineStrokes.SetSegment(_strokes.Flash("Lightning", LightningWidth, color, LightningSeconds), hits[i].From, hits[i].To);
             }
 
             IReadOnlyList<ExplosionBlast> explosions = world.DeathEffects.Explosions;

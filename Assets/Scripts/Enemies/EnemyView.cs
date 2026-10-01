@@ -8,7 +8,7 @@ namespace BlackHole.Unity
 {
     // 적 시스템의 화면. 매 프레임 World의 살아 있는 적을 읽어 스프라이트를 맞추고, 짧은 피격 흔들림 연출도 같이 진행시킨다.
     // 게임 상태를 바꾸지 않는다. 외형은 적 종류 에셋이 가진다(EnemyLooks). 색은 적의 색 등급으로, 크기는 적의 수치로 정한다.
-    // 황금이면 그 색의 윤곽 안에 노란 속을 한 겹 더 그린다. 스프라이트가 없는 종류는 적 ID에 맞는 다각형으로 그린다.
+    // 특수 성질이 붙었으면 그 색의 윤곽 안에 성질의 표식 색으로 속을 한 겹 더 그린다(황금이면 노란 속, 임시 표식). 스프라이트가 없는 종류는 적 ID에 맞는 다각형으로 그린다.
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다. 파괴·흡수 연출은 연출 작업에서 사망 기록을 읽어 더한다.
     // 규칙 평면은 장면의 z = 0이고 x·y는 같다. HQ(원점)가 장면의 원점이다.
     internal sealed class EnemyView : IDisposable
@@ -104,7 +104,8 @@ namespace BlackHole.Unity
         private EnemyVisual Create(Enemy enemy)
         {
             string kind = enemy.Definition.Id;
-            var view = new GameObject(enemy.IsGolden ? $"{kind} #{enemy.Id.Value} (golden)" : $"{kind} #{enemy.Id.Value}");
+            string trait = enemy.Trait?.Id;
+            var view = new GameObject(trait != null ? $"{kind} #{enemy.Id.Value} ({trait})" : $"{kind} #{enemy.Id.Value}");
             view.transform.SetParent(_root, false);
 
             var renderer = view.AddComponent<SpriteRenderer>();
@@ -116,15 +117,17 @@ namespace BlackHole.Unity
             float longest = Mathf.Max(bounds.x, bounds.y);
             view.transform.localScale = Vector3.one * (enemy.Stats.Size * 2 / longest);
 
-            if (enemy.IsGolden)
+            Color marker = _looks.TraitColorOf(kind, trait);
+
+            if (marker.a > 0)
             {
-                var fill = new GameObject("Golden");
+                var fill = new GameObject(trait);
                 fill.transform.SetParent(view.transform, false);
-                fill.transform.localScale = Vector3.one * EnemyLooks.GoldenFillScale;
+                fill.transform.localScale = Vector3.one * EnemyLooks.TraitFillScale;
 
                 var fillRenderer = fill.AddComponent<SpriteRenderer>();
                 fillRenderer.sprite = renderer.sprite;
-                fillRenderer.color = EnemyLooks.GoldenFill;
+                fillRenderer.color = marker;
                 fillRenderer.sortingOrder = renderer.sortingOrder + 1;
             }
 

@@ -39,6 +39,16 @@ namespace BlackHole.Core
                         : $"전투 시작 공급이 {worst}마리인데, 전체 개체 수 상한은 {maxAliveEnemies}마리다."));
         }
 
+        // 공급은 픽업을 가리킬 수 없다 — 픽업은 등장 주기마다 나온다.
+        public static void CheckSupplyKinds(IReadOnlyList<SupplyRequest> supply, string section, ICollection<ContentDiagnostic> into)
+        {
+            for (int i = 0; i < supply.Count; i++)
+            {
+                if (supply[i].Enemy.IsPickup)
+                    into.Add(new ContentDiagnostic($"{section}[{i}].Enemy", $"'{supply[i].Enemy.Id}'는 픽업이라 공급할 수 없다."));
+            }
+        }
+
         public static void CollectEnemies(
             IReadOnlyList<EnemyDefinition> enemies,
             ICollection<ContentDiagnostic> into,
@@ -47,8 +57,8 @@ namespace BlackHole.Core
             enemiesById = Index(enemies, "Enemies", "적", e => e.Id, into);
         }
 
-        // 종류 사이의 연결(BLACKHOLE_LEVEL_PLAN 4.3): 변환 대상과 부모 종류는 콘텐츠에 있어야 한다.
-        // 부모는 특수 종류가 아니어야 하고(한 단계), 변환 사슬은 제자리로 돌아오지 않는다(한 마리의 변환이 끝나야 한다).
+        // 종류 사이의 연결(BLACKHOLE_LEVEL_PLAN 4.3): 변환 대상은 콘텐츠에 있고 픽업이 아니어야 한다.
+        // 변환 사슬은 제자리로 돌아오지 않는다(한 마리의 변환이 끝나야 한다).
         public static void CheckKindLinks(
             IReadOnlyList<EnemyDefinition> enemies,
             IReadOnlyDictionary<string, EnemyDefinition> enemiesById,
@@ -61,15 +71,12 @@ namespace BlackHole.Core
 
                 string at = $"Enemies[{kind.Id}]";
 
-                if (kind.UpgradesTo != null && !enemiesById.ContainsKey(kind.UpgradesTo))
-                    into.Add(new ContentDiagnostic(at + ".UpgradesTo", $"정의되지 않은 적 ID '{kind.UpgradesTo}'."));
-
-                if (kind.SpecialOf != null)
+                if (kind.UpgradesTo != null)
                 {
-                    if (!enemiesById.TryGetValue(kind.SpecialOf, out EnemyDefinition parent))
-                        into.Add(new ContentDiagnostic(at + ".SpecialOf", $"정의되지 않은 적 ID '{kind.SpecialOf}'."));
-                    else if (parent.IsSpecial)
-                        into.Add(new ContentDiagnostic(at + ".SpecialOf", $"부모 '{parent.Id}'도 특수 종류다. 부모는 특수 종류가 아니어야 한다."));
+                    if (!enemiesById.TryGetValue(kind.UpgradesTo, out EnemyDefinition target))
+                        into.Add(new ContentDiagnostic(at + ".UpgradesTo", $"정의되지 않은 적 ID '{kind.UpgradesTo}'."));
+                    else if (target.IsPickup)
+                        into.Add(new ContentDiagnostic(at + ".UpgradesTo", $"'{target.Id}'는 픽업이라 변환 대상이 될 수 없다."));
                 }
 
                 var seen = new HashSet<string>(StringComparer.Ordinal) { kind.Id };
