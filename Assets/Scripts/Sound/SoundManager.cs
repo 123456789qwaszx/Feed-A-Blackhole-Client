@@ -1,4 +1,5 @@
 using System.Collections;
+using BlackHole.Unity;
 using UnityEngine;
 
 public class SoundManager : MonoBehaviour
@@ -12,12 +13,22 @@ public class SoundManager : MonoBehaviour
     [Header("SoundSO를 직접 추가"), SerializeField] private UISoundSetup _soundSetup;
 
     private Coroutine _bgmRoutine;
+    private GameSettings _settings;
 
-    public float BgmVolume { get { return _bgmSource.volume; } }
-    public float SfxVolume { get { return _sfxSource.volume; } }
+    public void Bind(GameSettings settings)
+    {
+        if (SoundManager.Instance != null)
+        {
+            if (_settings != null) _settings.Changed -= HandleSettingChanged;
+            _settings = settings;
+            _settings.Changed += HandleSettingChanged;
 
-    private const string BgmKey = "BgmVolume";
-    private const string SfxKey = "SfxVolume";
+            // 게임을 켠 직후에는 로드값을 읽기만 하고 실제로는 값을 바꾼 상황이 아니라 Changed 이벤트가 안 울림.
+            // 그 때 사운드 설정이 안 된 상태로 들리기 때문에 강제로 AudioSource 건들여 슬라이더에 보이는 값과 일치시킴
+            ApplyVolumes();
+            StartBgm();
+        }
+    }
 
     private void Reset()
     {
@@ -37,15 +48,9 @@ public class SoundManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
-    {
-        _bgmSource.volume = PlayerPrefs.GetFloat(BgmKey, 0.5f); // 저장된 값 없으면 0.5로 설정
-        _bgmSource.volume = PlayerPrefs.GetFloat(SfxKey, 0.5f);
-        StartBgm();
-    }
-
     private void OnDestroy()
     {
+        if (_settings != null) _settings.Changed -= HandleSettingChanged;
         if (Instance == this) Instance = null;
     }
 
@@ -222,24 +227,20 @@ public class SoundManager : MonoBehaviour
 
     #region 사운드 조절
 
-    /// <summary>
-    /// BGM 크기 조절
-    /// </summary>
-    /// <param name="value"></param>
-    public void SetBgmVolume(float value)
+    private void HandleSettingChanged(string id) // id 확인
     {
-        _bgmSource.volume = Mathf.Clamp01(value); // 값 설정
-        PlayerPrefs.SetFloat(BgmKey, _bgmSource.volume); // 저장
+        if (id == GameSettings.MasterVolume || id == GameSettings.EffectsVolume || id == GameSettings.MusicVolume)
+        {
+            ApplyVolumes();
+        }
     }
 
-    /// <summary>
-    /// SFX 크기 조절
-    /// </summary>
-    /// <param name="value"></param>
-    public void SetSfxVolume(float value)
+    private void ApplyVolumes() // 사운드 조절
     {
-        _bgmSource.volume = Mathf.Clamp01(value); // 값 설정
-        PlayerPrefs.SetFloat(SfxKey, _sfxSource.volume); // 저장
+        float masterVolume = _settings.LevelOf(GameSettings.MasterVolume);
+
+        _sfxSource.volume = masterVolume * _settings.LevelOf(GameSettings.EffectsVolume);
+        _bgmSource.volume = masterVolume * _settings.LevelOf(GameSettings.MusicVolume);
     }
 
     #endregion
