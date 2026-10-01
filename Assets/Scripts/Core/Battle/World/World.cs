@@ -175,6 +175,7 @@ namespace BlackHole.Core
         // 확정된 사망 중 아직 처리가 끝나지 않은 것이 있는가. 판을 정리하기 전에 이것이 false여야 한다.
         // 사망 처리(목록에서 빠짐·사망 기록·처치 수·Gold 합계)는 사망 확정 순간에 끝난다. 사망 효과는 같은 Step의 4 자리에서
         // 처리되므로 Step이 끝나면 대기열이 비어 있다. Step 밖에서 준 피해(DealDamage)로 죽은 특수 적은 다음 Step까지 남는다.
+        // 예외로 레이저 별의 레이저는 예고 시간 동안 남는다 — 판 정리(ClearRemainingEnemies)가 쏘지 않고 버린다.
         // 처리되지 않은 파괴 요청은 아직 사망이 아니다 — 판이 끝나면 처리되지 않고 판 정리가 버린다.
         public bool HasPendingDeathProcessing => DeathEffects.HasPending;
 
@@ -312,7 +313,8 @@ namespace BlackHole.Core
         // 1. Enemy Action: 살아 있는 적이 행동에 따라 움직인다.
         // 2. Passive Attack: 참가자 순서로 스킬이 공격한다. 피해로 죽은 적은 그 순간 사망이 확정된다(DealDamage).
         // 3. Damage / Death: 쌓인 파괴 요청의 사망을 확정한다.
-        // 4. Death Effect: 이번 Step에 피해로 죽은 특수 적의 성질 효과를 사망 순서대로 처리한다. 효과로 죽은 적도 같은 Step의 사망이다.
+        // 4. Death Effect: 예고가 끝난 레이저 별 레이저를 쏜 뒤, 이번 Step에 피해로 죽은 특수 적의 성질 효과를 사망 순서대로 처리한다.
+        //    효과로 죽은 적도 같은 Step의 사망이다. 레이저 별은 여기서 예고를 시작하고, 예고 시간이 지난 Step에 쏜다.
         // 5. HQ EXP / Level: 쌓인 EXP로 블랙홀의 Level을 올린다.
         //    이정표 앞 성장도의 판이 목표 Level에 닿았으면 여기서 멈춘다 — 6·7·8을 하지 않고, 판(GameSession)이 끝난다.
         // 6. Growth: 오른 Level마다 종류의 성장 공급을 생성 요청으로 넣는다. 시간 연장은 판(GameSession)이 종료 판정 전에 한다.
@@ -328,7 +330,7 @@ namespace BlackHole.Core
                 player.Attack(delta, this);
 
             ProcessDestroyRequests();
-            DeathEffects.Resolve(this);
+            DeathEffects.Resolve(this, delta);
 
             int raised = Hq.RaiseLevels();
 
