@@ -86,7 +86,7 @@ namespace BlackHole.Unity
             Session.Begin();
             _enemyView.Reset();
             // 시작 직후 스냅: 아직 지난 시간이 없으니 흔들림 연출 없이 위치만 맞춘다.
-            _enemyView.Synchronize(Session.World, 0f);
+            _enemyView.Synchronize(Session.World, false, 0f);
             _breakerView.Reset();
             _skillView.Reset();
             _deathEffectView.Reset();
@@ -110,10 +110,11 @@ namespace BlackHole.Unity
             int raised = Session.Advance(delta);
 
             //Session.Advance(delta);
-            _enemyView.Synchronize(Session.World, delta);
-            _breakerView.Synchronize(Session.World, Session.Phase == SessionPhase.Paused, delta);
+            bool paused = Session.Phase == SessionPhase.Paused;
+            _enemyView.Synchronize(Session.World, paused, delta);
+            _breakerView.Synchronize(Session.World, paused, delta);
             _skillView.Synchronize(Session.World, delta);
-            _deathEffectView.Synchronize(Session.World, delta);
+            _deathEffectView.Synchronize(Session.World, Session.Phase == SessionPhase.Paused, delta);
             _hqView.Synchronize(Session.World, delta);
 
             bool battleEnded = wasRunning && Session.Phase == SessionPhase.Ended;
@@ -185,6 +186,69 @@ namespace BlackHole.Unity
         {
             if (!passed)
                 throw new InvalidOperationException($"전투 정리 단계 실패: {stepName}.");
+        }
+
+        /// <summary>
+        /// 전투 중도 포기
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> TryAbandonAsync()
+        {
+            if (_state != State.Running) return false;
+
+            _state = State.ShuttingDown;
+
+            try
+            {
+                // 이번 판의 결과를 PlayerState에 반영하지 않는다.
+                // Session.Settle()을 호출하지 않는다.
+
+                Session.RequestEnd();
+                Session.ClearRemainingEnemies();
+
+                World world = Session.World;
+
+                Verify(
+                    world.Enemies.Count == 0 &&
+                    world.PendingSpawns.Count == 0 &&
+                    world.PendingDestroys.Count == 0,
+                    "Enemies on screen: 0"
+                );
+
+                Verify(!Session.World.HasPendingDeathProcessing,
+                    "Dead enemies processed");
+
+                // 이번 판의 RawData도 필요 없다면 생성하지 않아도 된다.
+                // LastRawData도 유지하지 않는다.
+
+                _enemyView.Reset();
+                _breakerView.Reset();
+                _skillView.Reset();
+                _deathEffectView.Reset();
+                _hqView.Reset();
+
+                await Awaitable.NextFrameAsync();
+
+                Verify(
+                    _enemyView.IsClear &&
+                    _breakerView.IsClear &&
+                    _skillView.IsClear &&
+                    _deathEffectView.IsClear &&
+                    _hqView.IsClear,
+                    "Presentation cleared"
+                );
+
+                // 전투 자체를 폐기
+                Session = null;
+                _state = State.Idle;
+
+                return true;
+            }
+            catch
+            {
+                _state = State.Faulted;
+                throw;
+            }
         }
     }
 }

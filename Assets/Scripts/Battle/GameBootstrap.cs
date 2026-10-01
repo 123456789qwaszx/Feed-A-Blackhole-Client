@@ -30,6 +30,8 @@ namespace BlackHole.Unity
 
         [Header("Looks")]
         [SerializeField] private BreakerLook _breakerLook;
+        [SerializeField] private ExplosionLook _explosionLook;
+        [SerializeField] private LightningLook _lightningLook;
 
         [Header("UI Layers")]
         [SerializeField] private RectTransform _rootLayer;
@@ -104,10 +106,10 @@ namespace BlackHole.Unity
         private void BootstrapBattleViews()
         {
             _enemyLooks = new EnemyLooks(_enemyCatalog.Kinds());
-            _enemyView = new EnemyView(transform, _enemyLooks);
+            _enemyView = new EnemyView(transform, _enemyLooks, _breakerLook);
             _breakerView = new BreakerView(transform, _breakerLook);
             _skillView = new SkillView(transform);
-            _deathEffectView = new DeathEffectView(transform);
+            _deathEffectView = new DeathEffectView(transform, _lightningLook, _explosionLook);
             _hqView = new HqView(transform);
 
             // 전투 카메라를 화면비에 맞춘다(좁은 화면에서도 16:9의 가로 폭을 보여 준다). 씬에 없으면 여기서 붙인다.
@@ -177,7 +179,11 @@ namespace BlackHole.Unity
                 _enemyLooks, _enemyView, _breakerView, _skillView, _deathEffectView, _hqView, _cameraShake);
         }
 
-        private void Start() => _host?.Start();
+        private void Start()
+        {
+            _host?.Start();
+            SoundManager.Instance.Bind(_settings);
+        }
 
         private void Update() => _host?.Tick(Time.deltaTime);
 
@@ -191,12 +197,28 @@ namespace BlackHole.Unity
 
         private bool HasConfiguredLooks()
         {
-            if (_breakerLook != null && _breakerLook.Material != null && _breakerLook.OrbMaterial != null
-                && _breakerLook.CometAuraMaterial != null)
-                return true;
+            bool configured = true;
 
-            Debug.LogError("[외형] GameBootstrap에 Breaker 외형(BreakerLook)을, Breaker 외형에 링·버프 구체·혜성 배경 원 머티리얼을 연결해야 한다.", this);
-            return false;
+            if (_breakerLook == null || _breakerLook.Material == null || _breakerLook.OrbMaterial == null
+                || _breakerLook.CometAuraMaterial == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 Breaker 외형(BreakerLook)을, Breaker 외형에 링·버프 구체·혜성 배경 원 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            if (_explosionLook == null || _explosionLook.Material == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 폭발 외형(ExplosionLook)을, 폭발 외형에 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            if (_lightningLook == null || _lightningLook.Material == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 번개 외형(LightningLook)을, 번개 외형에 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            return configured;
         }
 
         private bool HasConfiguredUI()

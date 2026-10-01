@@ -9,6 +9,7 @@ namespace BlackHole.Unity
     // 적 시스템의 화면. 매 프레임 World의 살아 있는 적을 읽어 스프라이트를 맞추고, 짧은 피격 흔들림 연출도 같이 진행시킨다.
     // 게임 상태를 바꾸지 않는다. 외형은 적 종류 에셋이 가진다(EnemyLooks). 색은 적의 색 등급으로, 크기는 적의 수치로 정한다.   
     // 특수 성질이 붙었으면 그 색의 윤곽 안에 성질의 표식 색으로 속을 한 겹 더 그린다(황금이면 노란 속, 임시 표식). 스프라이트가 없는 종류는 적 ID에 맞는 다각형으로 그린다.
+    // 달 성질이 붙은 적은 Breaker 달과 같은 모양의 달 하나가 주위를 공전한다. 크기·위상·속도는 출현 때 정해진다(일시정지 중에는 멈춘다).
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다. 파괴·흡수 연출은 연출 작업에서 사망 기록을 읽어 더한다.
     // 규칙 평면은 장면의 z = 0이고 x·y는 같다. HQ(원점)가 장면의 원점이다.
     internal sealed class EnemyView : IDisposable
@@ -19,26 +20,61 @@ namespace BlackHole.Unity
         {
             public SpriteRenderer Renderer;
             public EnemyHitAnimation Hit;
+            // 달 성질이 붙은 적만 가진다(없으면 null). 적 스프라이트의 형제라 피격 흔들림·배율의 영향을 받지 않는다.
+            public MeshRenderer Moon;
+            // 달 공전의 위상(바퀴)과 속도(바퀴/초, 시계방향). 적마다 출현 때 한 번 정해진다.
+            public float MoonPhase;
+            public float MoonSpeed;
         }
+
+        // 달 성질 ID. 달을 가진 적에는 달 하나가 공전한다(EnemyKind의 성질 ID와 같다).
+        private const string MoonTrait = "moon";
+        // 달 구체의 반지름(월드 단위). 모든 행성이 같은 크기의 달을 가진다. Breaker 달(BreakerLook.OrbRadius)보다 작다 [임시].
+        private const float MoonRadius = 0.2f;
+        // 공전 속도 배율의 범위. 기본 속도(BreakerLook.OrbitSpeed)에 곱해 적마다 다르게 돈다.
+        private const float MoonSpeedMin = 0.8f;
+        private const float MoonSpeedMax = 1.2f;
+        // 달은 적 스프라이트(0)와 성질 속 채움(1) 위, Breaker 링 계열(5 ~ 11) 아래에 그린다.
+        private const int MoonSortingOrder = 2;
+        private const float MeshMargin = 1.1f;
+        // 셰이더(BlackHole/Breaker Orbs)의 MAX_ORBS와 같다. 달만 그리므로 칸 종류는 모두 0(달)이다.
+        private const int MaxOrbs = 64;
+
+        private static readonly int _orbitRadiusId = Shader.PropertyToID("_OrbitRadius");
+        private static readonly int _orbRadiusId = Shader.PropertyToID("_OrbRadius");
+        private static readonly int _orbCountId = Shader.PropertyToID("_OrbCount");
+        private static readonly int _phaseId = Shader.PropertyToID("_Phase");
+        private static readonly int _moonFillId = Shader.PropertyToID("_MoonFill");
+        private static readonly int _moonOutlineId = Shader.PropertyToID("_MoonOutline");
+        private static readonly int _outlineWidthId = Shader.PropertyToID("_OutlineWidth");
+        private static readonly int _orbKindsId = Shader.PropertyToID("_OrbKinds");
 
         private readonly Transform _root;
         private readonly EnemyLooks _looks;
+        private readonly BreakerLook _breakerLook;
+        private readonly Mesh _quad;
+        private readonly MaterialPropertyBlock _properties = new MaterialPropertyBlock();
+        private readonly float[] _moonKinds = new float[MaxOrbs];
         private readonly EnemyHitParticles _hitParticles;
         private readonly Dictionary<EnemyId, EnemyVisual> _visuals = new Dictionary<EnemyId, EnemyVisual>();
         private readonly Dictionary<EnemyId, Enemy> _models = new Dictionary<EnemyId, Enemy>();
         private readonly HashSet<EnemyId> _seen = new HashSet<EnemyId>();
         private readonly List<EnemyId> _gone = new List<EnemyId>();
 
-        public EnemyView(Transform parent, EnemyLooks looks)
+        // breakerLook: 달의 외형(머티리얼·색·간격·기본 공전 속도)을 Breaker 달과 같게 맞추려고 받는다.
+        public EnemyView(Transform parent, EnemyLooks looks, BreakerLook breakerLook)
         {
             _root = new GameObject("Enemy View").transform;
             _root.SetParent(parent, false);
             _looks = looks;
+            _breakerLook = breakerLook;
+            _quad = QuadRenderers.CreateMesh();
             _hitParticles = _root.gameObject.AddComponent<EnemyHitParticles>();
         }
 
-        // delta: 이번 호출 사이 지난 시간. 피격 흔들림 진행에 쓴다(즉시 스냅만 하고 싶을 때는 0을 넘긴다).
-        public void Synchronize(World world, float delta)
+        // paused: 일시정지 중이면 달 공전을 멈춘다.
+        // delta: 이번 호출 사이 지난 시간. 피격 흔들림·달 공전 진행에 쓴다(즉시 스냅만 하고 싶을 때는 0을 넘긴다).
+        public void Synchronize(World world, bool paused, float delta)
         {
             _seen.Clear();
             IReadOnlyList<Enemy> enemies = world.Enemies;
@@ -60,6 +96,9 @@ namespace BlackHole.Unity
 
                 visual.Renderer.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
                 visual.Hit.Advance(delta, visual.Renderer.transform);
+
+                if (visual.Moon != null)
+                    AdvanceMoon(visual, enemy, paused, delta);
             }
 
             // 사망 파편의 흡입 스월은 개별 적이 아니라 공용 파티클 시스템 하나를 매 프레임 진행시키는 일이라,
@@ -77,7 +116,7 @@ namespace BlackHole.Unity
             {
                 _models[id].Damaged -= _visuals[id].Hit.Play;
                 _hitParticles.Unregister(_models[id]);
-                Object.Destroy(_visuals[id].Renderer.gameObject);
+                Destroy(_visuals[id]);
                 _visuals.Remove(id);
                 _models.Remove(id);
             }
@@ -94,7 +133,7 @@ namespace BlackHole.Unity
             {
                 _models[entry.Key].Damaged -= entry.Value.Hit.Play;
                 _hitParticles.Unregister(_models[entry.Key]);
-                Object.Destroy(entry.Value.Renderer.gameObject);
+                Destroy(entry.Value);
             }
 
             _visuals.Clear();
@@ -102,7 +141,19 @@ namespace BlackHole.Unity
             _hitParticles.Clear();
         }
 
-        public void Dispose() => Object.Destroy(_root.gameObject);
+        public void Dispose()
+        {
+            Object.Destroy(_root.gameObject);
+            Object.Destroy(_quad);
+        }
+
+        private static void Destroy(EnemyVisual visual)
+        {
+            Object.Destroy(visual.Renderer.gameObject);
+
+            if (visual.Moon != null)
+                Object.Destroy(visual.Moon.gameObject);
+        }
 
         private EnemyVisual Create(Enemy enemy)
         {
@@ -134,7 +185,58 @@ namespace BlackHole.Unity
                 fillRenderer.sortingOrder = renderer.sortingOrder + 1;
             }
 
-            return new EnemyVisual { Renderer = renderer, Hit = new EnemyHitAnimation() };
+            var visual = new EnemyVisual { Renderer = renderer, Hit = new EnemyHitAnimation() };
+
+            if (trait == MoonTrait)
+                CreateMoon(visual, enemy);
+
+            return visual;
+        }
+
+        // 달은 출현 때 한 번 만든다. 적의 크기는 변하지 않으므로 궤도와 사각형 크기도 여기서 한 번만 정한다.
+        // 외형은 Breaker 달과 같은 셰이더·머티리얼이다. 궤도는 적의 반지름 바로 바깥이다(Breaker는 링 바깥 가장자리).
+        private void CreateMoon(EnemyVisual visual, Enemy enemy)
+        {
+            var moon = QuadRenderers.Create($"Moon #{enemy.Id.Value}", _root, _quad, _breakerLook.OrbMaterial, MoonSortingOrder);
+            float orbitRadius = enemy.Stats.Size + _breakerLook.OrbitOffset + MoonRadius;
+            float size = 2 * (orbitRadius + MoonRadius) * MeshMargin;
+            moon.transform.localScale = new Vector3(size, size, 1);
+
+            moon.GetPropertyBlock(_properties);
+            _properties.SetFloat(_orbitRadiusId, orbitRadius);
+            _properties.SetFloat(_orbRadiusId, MoonRadius);
+            _properties.SetFloat(_orbCountId, 1);
+            _properties.SetColor(_moonFillId, _breakerLook.MoonFill);
+            _properties.SetColor(_moonOutlineId, _breakerLook.MoonOutline);
+            _properties.SetFloat(_outlineWidthId, _breakerLook.MoonOutlineWidth);
+            _properties.SetFloatArray(_orbKindsId, _moonKinds);
+            moon.SetPropertyBlock(_properties);
+
+            moon.enabled = true;
+            visual.Moon = moon;
+            visual.MoonPhase = UnityEngine.Random.value;
+            visual.MoonSpeed = _breakerLook.OrbitSpeed * UnityEngine.Random.Range(MoonSpeedMin, MoonSpeedMax);
+            moon.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
+            SetMoonPhase(visual);
+        }
+
+        private void AdvanceMoon(EnemyVisual visual, Enemy enemy, bool paused, float delta)
+        {
+            visual.Moon.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
+
+            if (paused || delta <= 0)
+                return;
+
+            // 시계방향으로 돌므로 위상이 줄어든다.
+            visual.MoonPhase = Mathf.Repeat(visual.MoonPhase - visual.MoonSpeed * delta, 1);
+            SetMoonPhase(visual);
+        }
+
+        private void SetMoonPhase(EnemyVisual visual)
+        {
+            visual.Moon.GetPropertyBlock(_properties);
+            _properties.SetFloat(_phaseId, visual.MoonPhase);
+            visual.Moon.SetPropertyBlock(_properties);
         }
     }
 }
