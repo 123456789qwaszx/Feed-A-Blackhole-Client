@@ -13,17 +13,17 @@ namespace BlackHole.Unity
         [SerializeField] private Material _material;
         [Tooltip("밝은 심의 굵기(월드 단위).")]
         [Min(0.001f)]
-        [SerializeField] private float _thickness = 0.05f;
+        [SerializeField] private float _thickness = 0.1f;
         [Tooltip("번짐의 색.")]
         [SerializeField] private Color _color = new(0.55f, 0.8f, 1f, 1f);
         [Tooltip("심의 색.")]
         [SerializeField] private Color _coreColor = new(0.95f, 0.98f, 1f, 1f);
         [Tooltip("심 바깥으로 번지는 빛의 폭(월드 단위). 이만큼 멀어지면 약 37%로 옅어진다.")]
         [Min(0.001f)]
-        [SerializeField] private float _glowWidth = 0.12f;
+        [SerializeField] private float _glowWidth = 0.18f;
         [Tooltip("번짐의 세기. 0이면 번지지 않는다.")]
         [Range(0, 1)]
-        [SerializeField] private float _glowStrength = 0.7f;
+        [SerializeField] private float _glowStrength = 1f;
 
         [Header("꺾임")]
         [Tooltip("가운데에서 꺾임이 벗어나는 최대 폭(월드 단위). 양 끝으로 갈수록 줄어 끝점에 붙는다.")]
@@ -34,12 +34,12 @@ namespace BlackHole.Unity
         [SerializeField] private float _kinksPerUnit = 3;
         [Tooltip("1초에 꺾임 모양이 바뀌는 횟수(깜빡임). 0이면 바뀌지 않는다.")]
         [Min(0)]
-        [SerializeField] private float _flickerRate = 20;
+        [SerializeField] private float _flickerRate = 12;
 
         [Header("움직임: 가로는 진행(0 ~ 1)")]
         [Tooltip("번개 한 줄기가 보이는 시간(초).")]
         [Min(0.01f)]
-        [SerializeField] private float _duration = 0.3f;
+        [SerializeField] private float _duration = 0.45f;
         [Tooltip("연쇄에서 다음 줄기가 늦게 나타나는 시간(초). 번개가 옮겨 가는 것처럼 보인다.")]
         [Min(0)]
         [SerializeField] private float _hopDelay = 0.04f;

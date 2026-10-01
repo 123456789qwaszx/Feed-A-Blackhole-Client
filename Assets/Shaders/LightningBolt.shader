@@ -3,7 +3,8 @@
 // - Core: 꺾인 선에서 굵기 _Thickness 안의 밝은 심. Glow: 심 밖으로 옅어지는 번짐.
 // - _Seed가 바뀌면 꺾임 모양이 바뀐다. 부르는 쪽(LightningBolts)이 짧은 간격으로 바꿔 깜빡이게 한다.
 // 사각형 메시(quad)를 선 방향으로 돌려 놓고 그린다. 길이 파라미터는 모두 월드 단위다.
-// 가산 혼합: 화면 색에 더한다. 알파(_Fade)는 전체 세기로 쓴다.
+// 알파 혼합: 심을 번짐 위에 덮어(over) 화면 위에 그린다. 밝은 배경에서도 색이 그대로 보인다(Breaker 셰이더와 같은 혼합).
+// 알파(_Fade)는 전체 세기로 쓴다.
 Shader "BlackHole/Lightning Bolt"
 {
     Properties
@@ -12,11 +13,11 @@ Shader "BlackHole/Lightning Bolt"
         _Segments ("Segments", Float) = 3
         _Amplitude ("Amplitude", Float) = 0.18
         _Seed ("Seed", Float) = 0
-        _Thickness ("Thickness", Float) = 0.05
+        _Thickness ("Thickness", Float) = 0.1
         _Color ("Color", Color) = (0.55, 0.8, 1, 1)
         _CoreColor ("Core Color", Color) = (0.95, 0.98, 1, 1)
-        _GlowWidth ("Glow Width", Float) = 0.12
-        _GlowStrength ("Glow Strength", Range(0, 1)) = 0.7
+        _GlowWidth ("Glow Width", Float) = 0.18
+        _GlowStrength ("Glow Strength", Range(0, 1)) = 1
         _Fade ("Fade", Range(0, 1)) = 1
     }
 
@@ -30,7 +31,7 @@ Shader "BlackHole/Lightning Bolt"
             "IgnoreProjector" = "True"
         }
 
-        Blend SrcAlpha One
+        Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
         Cull Off
 
@@ -124,10 +125,14 @@ Shader "BlackHole/Lightning Bolt"
                 float core = 1 - smoothstep(halfThickness - aa, halfThickness + aa, gap);
                 float glow = exp(-max(gap - halfThickness, 0) / max(_GlowWidth, 1e-4)) * _GlowStrength;
 
-                half3 color = _Color.rgb * saturate(glow) * _Color.a + _CoreColor.rgb * core * _CoreColor.a;
+                half glowAmount = saturate(glow) * _Color.a;
+                half coreAmount = core * _CoreColor.a;
+                // 심을 번짐 위에 덮는다(over). 색은 덮은 양으로 나눠 알파와 따로 둔다.
+                half alpha = coreAmount + glowAmount * (1 - coreAmount);
+                half3 color = (_CoreColor.rgb * coreAmount + _Color.rgb * glowAmount * (1 - coreAmount)) / max(alpha, 1e-4);
 
-                // Blend SrcAlpha One: 화면 += color * _Fade.
-                return half4(color, _Fade);
+                // Blend SrcAlpha OneMinusSrcAlpha: 화면 = lerp(화면, color, alpha × _Fade).
+                return half4(color, alpha * _Fade);
             }
             ENDHLSL
         }
