@@ -6,7 +6,7 @@ namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
-        // 물질 행의 종류 ID. 특수 종류는 부모 종류로 센다(전기 소행성 → 소행성, 혜성·달 → 행성, 초신성 → 별).
+        // 물질 행의 종류 ID. 특수 성질(황금·전기·달·슈퍼노바 …)은 종류가 아니므로 그 종류로 센다. 혜성(픽업)은 물질 행에 넣지 않는다.
         private const string AsteroidKindId = "asteroid";
         private const string PlanetKindId = "planet";
         private const string StarKindId = "star";
@@ -52,8 +52,7 @@ namespace BlackHole.Unity
 
             foreach (EnemyKillCount kill in kills)
             {
-                string kind = kill.Enemy.IsSpecial ? kill.Enemy.SpecialOf : kill.Enemy.Id;
-                if (string.Equals(kind, family, StringComparison.Ordinal))
+                if (string.Equals(kill.Enemy.Id, family, StringComparison.Ordinal))
                     count += kill.Count;
             }
 

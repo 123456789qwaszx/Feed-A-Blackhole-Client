@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 한 판의 적 목록과 사망 절차.
-    // - 출현: 정의·색 등급·황금 여부·이 판의 수치·위치로 적을 만들고 번호를 줌.
+    // - 출현: 정의·색 등급·성질·이 판의 수치·위치로 적을 만들고 번호를 줌.
     // - 이동: 살아 있는 적이 행동에 따라 움직임.
     // - 피해: 이 목록에 살아 있는 적 체크, Hp0될 시, 사망 기록, 처치수 ++, 보상 Gold량 합.
     // - 파괴: 피해·HP 계산 없이 사망을 확정한다. 이 목록에 살아 있는 적만 죽고, 그 뒤는 피해로 죽을 때와 같다.
@@ -48,13 +48,13 @@ namespace BlackHole.Core
             return System.Array.AsReadOnly(kills);
         }
 
-        public Enemy Spawn(EnemyDefinition definition, int tier, bool golden, EnemyStats stats, Point2 position)
+        public Enemy Spawn(EnemyDefinition definition, int tier, EnemyTraitDefinition trait, EnemyStats stats, Point2 position)
         {
             var enemy = new Enemy(
                 new EnemyId(_nextEnemyId++),
                 definition,
                 tier,
-                golden,
+                trait,
                 stats,
                 position);
 
