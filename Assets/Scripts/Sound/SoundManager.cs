@@ -17,24 +17,9 @@ public class SoundManager : MonoBehaviour
 
     private int _lastBgmIndex = -1;
 
-    public void Bind(GameSettings settings)
-    {
-        if (SoundManager.Instance != null)
-        {
-            if (_settings != null) _settings.Changed -= HandleSettingChanged;
-            _settings = settings;
-            _settings.Changed += HandleSettingChanged;
-
-            // 게임을 켠 직후에는 로드값을 읽기만 하고 실제로는 값을 바꾼 상황이 아니라 Changed 이벤트가 안 울림.
-            // 그 때 사운드 설정이 안 된 상태로 들리기 때문에 강제로 AudioSource 건들여 슬라이더에 보이는 값과 일치시킴
-            ApplyVolumes();
-            StartBgm();
-        }
-    }
-
     private void Reset()
     {
-        AudioSource[] sources = GetComponentsInChildren<AudioSource>();
+        AudioSource[] sources = GetComponents<AudioSource>();
         if (sources.Length > 0) _sfxSource = sources[0];
         if (sources.Length > 1) _bgmSource = sources[1];
     }
@@ -54,6 +39,18 @@ public class SoundManager : MonoBehaviour
     {
         if (_settings != null) _settings.Changed -= HandleSettingChanged;
         if (Instance == this) Instance = null;
+    }
+
+    public void Bind(GameSettings settings)
+    {
+        if (_settings != null) _settings.Changed -= HandleSettingChanged;
+        _settings = settings;
+        _settings.Changed += HandleSettingChanged;
+
+        // 게임을 켠 직후에는 로드값을 읽기만 하고 실제로는 값을 바꾼 상황이 아니라 Changed 이벤트가 안 울림.
+        // 그 때 사운드 설정이 안 된 상태로 들리기 때문에 강제로 AudioSource 건들여 슬라이더에 보이는 값과 일치시킴
+        ApplyVolumes();
+        StartBgm();
     }
 
     #region SFX 재생
@@ -194,13 +191,13 @@ public class SoundManager : MonoBehaviour
         _bgmRoutine = StartCoroutine(BgmLoop());
     }
 
-
-    public int NextBgmIndex(int current)
+    // 실행할 다음 BGM
+    private int NextBgmIndex(int current)
     {
         int count = _soundSetup.BgmList.Count;
 
         if (count <= 1) return 0; // BGM이 하나 밖에 없다면 그 BGM만 계속 재생
-        if (_settings != null && _settings.IsOn(GameSettings.ShuffleMusic)) // 셔플On이면
+        if (_settings != null && _settings.IsOn(GameSettings.ShuffleMusic)) // 셔플On이면 랜덤 재생
         {
             int next = Random.Range(0, count);
 
@@ -215,7 +212,8 @@ public class SoundManager : MonoBehaviour
     // BGM 반복 코루틴
     private IEnumerator BgmLoop()
     {
-        int index = NextBgmIndex(-1); // 첫 곡부터 랜덤으로 나옴
+        // 게임 시작시 Shuffle이 On이면 랜덤 재생, Off면 첫 BGM부터 실행
+        int index = NextBgmIndex(_lastBgmIndex);
 
         while (true)
         {
