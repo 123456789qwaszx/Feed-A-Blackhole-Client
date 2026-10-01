@@ -1,9 +1,9 @@
 using System;
-using System.Collections;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 namespace BlackHole.Unity
@@ -107,6 +107,16 @@ namespace BlackHole.Unity
         private float _matterTimer;
         private const float MatterDuration = 1.0f;
         private bool _isShowMatter;
+
+        // 확대 효과 (강조 표시를 위해 짠 하고 나타나는 효과
+        private readonly Dictionary<TMP_Text, int> _previousKills = new();
+        private readonly Dictionary<TMP_Text, long> _previousGolds = new();
+        private TMP_Text _scaleTarget;
+        private float _scaleTimer;
+
+        private const float ScaleDuration = 0.15f;
+        private const float HighlightScale = 1.2f;
+        private bool _isScaleEffect;
         #endregion
 
         protected override void OnInitialize()
@@ -368,6 +378,8 @@ namespace BlackHole.Unity
 
             if (_isShowMatter)
                 ShowMatter();
+
+            UpdateScaleEffect();
         }
 
         /// <summary>
@@ -436,8 +448,15 @@ namespace BlackHole.Unity
 
             int value = IncreaseLerp(_target, t);
             if (_text != null)
+            {
                 _text.text = Count(value);
 
+                if (!_previousKills.TryGetValue(_text, out int previous) || previous != value)
+                {
+                    PlayScaleEffect(_text);
+                    _previousKills[_text] = value;
+                }
+            }
 
             if (t >= 1f)
             {
@@ -465,8 +484,16 @@ namespace BlackHole.Unity
             // Total은 이번판에 얻은 Gold를 더해서 결산
             long value = _matterType.Equals(MatterType.Total) ?
                 LerpLong(_totalBegin, _target, t) : LerpLong(_target, t);
-            if(_text != null)
+            if (_text != null)
+            {
                 _text.text = Money(value);
+
+                if (!_previousGolds.TryGetValue(_text, out long previous) || previous != value)
+                {
+                    PlayScaleEffect(_text);
+                    _previousGolds[_text] = value;
+                }
+            }
 
             if (t >= 1f)
             {
@@ -494,5 +521,50 @@ namespace BlackHole.Unity
         private int IncreaseLerp(int _target, float t) => Mathf.RoundToInt(Mathf.Lerp(0, _target, t));
         private long LerpLong(long target, float t) => (long)((double)target * t);
         private long LerpLong(long start, long target, float t) => start + (long)((double)(target - start) * t);
+
+        // 확대 효과
+        private void PlayScaleEffect(TMP_Text text)
+        {
+            // 기존 효과가 남아있으면 원상복구
+            if (_scaleTarget != null)
+                _scaleTarget.transform.localScale = Vector3.one;
+
+            _scaleTarget = text;
+            _scaleTimer = 0f;
+            _isScaleEffect = true;
+        }
+        private void UpdateScaleEffect()
+        {
+            if (!_isScaleEffect || _scaleTarget == null) return;
+
+            _scaleTimer += Time.deltaTime;
+
+            float t = _scaleTimer / ScaleDuration;
+
+            if (t <= 0.5f)
+            {
+                float scaleT = t * 2f;
+
+                _scaleTarget.transform.localScale =
+                    Vector3.Lerp(
+                        Vector3.one, Vector3.one * HighlightScale,
+                        scaleT);
+            }
+            else
+            {
+                float scaleT = (t - 0.5f) * 2f;
+
+                _scaleTarget.transform.localScale =
+                    Vector3.Lerp(
+                        Vector3.one * HighlightScale, Vector3.one,
+                        scaleT);
+            }
+
+            if (t >= 1f)
+            {
+                _scaleTarget = null;
+                _isScaleEffect = false;
+            }
+        }
     }
 }
