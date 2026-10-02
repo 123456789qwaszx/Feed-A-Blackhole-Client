@@ -180,7 +180,11 @@ namespace BlackHole.Unity
                 if (!tick.Center.HasValue)
                     continue;
 
-                float strength = tick.HitCount > 0 ? 1 : _look.MissStrength;
+                // 맞췄으면 타격음, 못 맞췄으면 헛침 소리
+                if (tick.HitCount > 0) SoundManager.Instance?.RequestHitSound();
+                else SoundManager.Instance.PlayWhiff();
+
+                    float strength = tick.HitCount > 0 ? 1 : _look.MissStrength;
 
                 if (!punched)
                 {

@@ -65,6 +65,8 @@ namespace BlackHole.Unity
         private readonly HashSet<EnemyId> _seen = new HashSet<EnemyId>();
         private readonly List<EnemyId> _gone = new List<EnemyId>();
 
+        private long _lastDeathSequence; // 마지막으로 소리를 낸 사망 기록의 번호.
+
         // breakerLook: 달의 외형(머티리얼·색·간격·기본 공전 속도)을 Breaker 달과 같게 맞추려고 받는다.
         // cometLook: 혜성(픽업)의 외형. 혜성의 화면은 CometView가 맡는다.
         public EnemyView(Transform parent, EnemyLooks looks, BreakerLook breakerLook, CometLook cometLook)
@@ -136,6 +138,35 @@ namespace BlackHole.Unity
             }
 
             _comets.Retain(_seen);
+            ReadDeaths(world); // 이번 프레임에 새로 확정된 사망이 있으면 파괴음을 낸다.
+        }
+
+        // world.Deaths에서 아직 처리하지 않은 새 사망 기록(Sequence가 더 큰 것)이 있는지 확인하고 소리를 낸다.
+        // 일시정지 중에는 판이 기록을 비우지 않아 같은 기록이 매 프레임 남아 있으므로, 번호로 걸러 한 번만 소리를 낸다.
+        private void ReadDeaths(World world)
+        {
+            IReadOnlyList<DeathRecord> deaths = world.Deaths;
+
+            // 이번 프레임에서 확인한 가장 큰 번호. 루프가 끝난 뒤 _lastDeathSequence에 반영한다.
+            long latest = _lastDeathSequence;
+            bool anynew = false;
+
+            // 매 프레임 경로: IReadOnlyList를 인덱스로 돈다
+            for (int i = 0; i < deaths.Count; i++)
+            {
+                long sequence = deaths[i].Sequence;
+
+                if (sequence <= _lastDeathSequence) continue; // 이미 소리를 낸 기록이면 건너뛴다.
+
+                if (sequence > latest) latest = sequence;
+
+                anynew = true;
+
+                // 한 프레임에 여러 마리가 죽어도 소리는 한 번만 낸다(소리가 겹쳐 커지는 것을 막는다).
+                if (anynew) SoundManager.Instance?.RequestDestroyed();
+
+                _lastDeathSequence = latest; // 다음 프레임에는 여기까지 처리한 기록을 건너뛴다.
+            }
         }
 
         // 관리하는 적 스프라이트가 없고, 지운 객체도 장면에서 모두 사라졌는가.
@@ -154,6 +185,9 @@ namespace BlackHole.Unity
             _hitParticles.Clear();
             _goldText.Reset();
             _damageText.Reset();
+
+            // 새 판의 사망 번호는 1부터 다시 시작하므로 함께 되돌린다. 빠뜨리면 다음 판에서 소리가 나지 않는다.
+            _lastDeathSequence = 0;
         }
 
         public void Dispose()

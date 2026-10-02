@@ -21,6 +21,9 @@ public class SoundManager : MonoBehaviour
     private const int _lastBgmIndex = -1;
     private const float MinInterval = 0.05f; // 같은 소리는 이 시간 안에 중복 재생 안 함
 
+    private bool _playHit;
+    private bool _playDestroyed;
+
     private void Reset()
     {
         AudioSource[] sources = GetComponents<AudioSource>();
@@ -39,10 +42,36 @@ public class SoundManager : MonoBehaviour
         Instance = this;
     }
 
+    private void LateUpdate()
+    {
+        // 같은 프레임이면 파괴음부터 실행되고 타격음은 안 들림
+        if (_playDestroyed) Play(_soundSetup.Destroyed);
+        else if (_playHit) Play(_soundSetup.Hit);
+
+        _playHit = false;
+        _playDestroyed = false;
+    }
+
     private void OnDestroy()
     {
         if (_settings != null) _settings.Changed -= HandleSettingChanged;
         if (Instance == this) Instance = null;
+    }
+
+    /// <summary>
+    /// HitSound SFX 요청, Destroyed SFX와 동시에 재생되었을 때 Destroyed SFX만 재생시키기 위함
+    /// </summary>
+    public void RequestHitSound()
+    {
+        _playHit = true;
+    }
+
+    /// <summary>
+    /// Destroyed SFX 요청
+    /// </summary>
+    public void RequestDestroyed()
+    {
+        _playDestroyed = true;
     }
 
     public void Bind(GameSettings settings)
