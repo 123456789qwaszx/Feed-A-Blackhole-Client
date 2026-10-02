@@ -62,7 +62,7 @@ namespace BlackHole.Core
                 }
             }
 
-            // 한 부모의 특수 종류 생성 확률 합은 100%를 넘을 수 없다. 종류마다의 판 구성이 모두 계산될 때만 본다.
+            // 판 구성끼리 맞물리는 규칙(변환 대상이 판에 있는가 등)은 적 수치 표가 본다. 종류마다의 판 구성이 모두 계산될 때만 본다.
             if (compositions.Count == enemies.Enemies.Count)
             {
                 try

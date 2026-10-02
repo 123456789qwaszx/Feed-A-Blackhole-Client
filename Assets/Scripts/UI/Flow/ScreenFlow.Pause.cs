@@ -20,6 +20,8 @@ namespace BlackHole.Unity
                 _pausePresentation,
                 afterPresented: panel => BindView(panel, ApplyBindings),
                 afterClosed: Unbind);
+
+            _pauseOpen = true;
         }
 
         private void ApplyBindings(PausePanel panel)
@@ -46,6 +48,7 @@ namespace BlackHole.Unity
         {
             _ui.PopPanel(Unbind);
             SetBattlePaused(false);
+            _pauseOpen = false;
         }
 
         // 설정: 일시 정지 창 위에 설정 창을 쌓는다. 설정 창을 닫으면 일시 정지 창으로 돌아온다.
@@ -57,11 +60,14 @@ namespace BlackHole.Unity
         private async Task LeaveBattleToTitleAsync()
         {
             _ui.PopAllPanels(Unbind);
+            _pauseOpen = false;
+            _settingsOpen = false;
 
             try
             {
-                BattleRawData raw = await _battle.TryEndAsync();
-                if (raw != null)
+                bool raw = await _battle.TryAbandonAsync();
+
+                if (raw)
                     ShowTitle();
             }
             catch (Exception error) { Debug.LogException(error); }

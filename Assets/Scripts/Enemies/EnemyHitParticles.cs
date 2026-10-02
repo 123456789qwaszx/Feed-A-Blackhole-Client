@@ -12,6 +12,16 @@ namespace BlackHole.Unity
         private const float FragmentSize = 0.12f;
         private const float BaseSpeed = 1.5f;
         private const int FragmentTextureSize = 16;
+
+        // 사망 시 파티클
+        private const int DeathFragmentCount = 8;
+        private const float DeathLifetime = 1.8f;
+        private const float DeathSuctionDelay = 0.12f;
+        private const float DeathFragmentSize = 0.24f;
+        private const float DeathBurstSpeed = 4f;
+        private const float SwirlRate = 8.5f;
+        private const float InwardRate = 3f;
+        private const float CenterRadius = 0.06f;
         private static readonly Vector2[] FragmentVertices =
         {
             new Vector2(-0.46f, 0.24f),
@@ -23,6 +33,8 @@ namespace BlackHole.Unity
         };
 
         private ParticleSystem _particles;
+        private ParticleSystem _deathParticles;
+        private readonly ParticleSystem.Particle[] _deathParticleBuffer = new ParticleSystem.Particle[DeathFragmentCount * 16];
         private Texture2D _fragmentTexture;
         private Material _fragmentMaterial;
         private readonly Dictionary<EnemyId, Color> _colors = new Dictionary<EnemyId, Color>();
@@ -73,21 +85,62 @@ namespace BlackHole.Unity
             particleRenderer.renderMode = ParticleSystemRenderMode.Billboard;
             particleRenderer.sharedMaterial = _fragmentMaterial;
             particleRenderer.sortingOrder = 2;
+
+            // 사망 시 파티클 로직
+            var deathParticleObject = new GameObject("Enemy Death Particles");
+            deathParticleObject.transform.SetParent(transform, false);
+            _deathParticles = deathParticleObject.AddComponent<ParticleSystem>();
+            _deathParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            ParticleSystem.MainModule deathMain = _deathParticles.main;
+            deathMain.playOnAwake = false;
+            deathMain.loop = false;
+            deathMain.duration = DeathLifetime;
+            deathMain.startLifetime = DeathLifetime;
+            deathMain.startSpeed = 0;
+            deathMain.startSize = DeathFragmentSize;
+            deathMain.startColor = Color.white;
+            deathMain.maxParticles = _deathParticleBuffer.Length;
+            deathMain.simulationSpace = ParticleSystemSimulationSpace.Local;
+
+            ParticleSystem.EmissionModule deathEmission = _deathParticles.emission;
+            deathEmission.rateOverTime = 0;
+            deathEmission.rateOverDistance = 0;
+
+            ParticleSystem.ShapeModule deathShape = _deathParticles.shape;
+            deathShape.enabled = false;
+
+            ParticleSystem.ColorOverLifetimeModule deathColor = _deathParticles.colorOverLifetime;
+            deathColor.enabled = true;
+            deathColor.color = fade;
+
+            ParticleSystemRenderer deathRenderer = _deathParticles.GetComponent<ParticleSystemRenderer>();
+            deathRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+            deathRenderer.sharedMaterial = _fragmentMaterial;
+            deathRenderer.sortingOrder = 2;
         }
 
         public void Register(Enemy enemy, Color color)
         {
             _colors[enemy.Id] = color;
             enemy.Damaged += Emit;
+            enemy.Died += EmitDeath;
         }
 
         public void Unregister(Enemy enemy)
         {
             enemy.Damaged -= Emit;
+            enemy.Died -= EmitDeath;
             _colors.Remove(enemy.Id);
         }
 
-        public void Clear() => _particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        public bool IsClear => _particles.particleCount == 0 && _deathParticles.particleCount == 0;
+
+        public void Clear()
+        {
+            _particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            _deathParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
 
         private void OnDestroy()
         {
@@ -95,7 +148,7 @@ namespace BlackHole.Unity
             Object.Destroy(_fragmentTexture);
         }
 
-        private void Emit(Enemy enemy)
+        private void Emit(Enemy enemy, Damage damage)
         {
             if (!_particles.isPlaying)
                 _particles.Play(false);
@@ -120,6 +173,75 @@ namespace BlackHole.Unity
 
                 _particles.Emit(parameters, 1);
             }
+        }
+
+        private void EmitDeath(Enemy enemy)
+        {
+            if (!_deathParticles.isPlaying)
+                _deathParticles.Play(false);
+
+            // 파괴 단계: 사망 위치에서 크고 빠른 파편을 사방으로 강하게 튀긴다.
+            float baseAngle = (_burstIndex++ % 16) * Mathf.PI / 8f;
+            var position = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
+            Color color = _colors.TryGetValue(enemy.Id, out Color enemyColor) ? enemyColor : Color.white;
+
+            for (int i = 0; i < DeathFragmentCount; i++)
+            {
+                float angle = baseAngle + i * Mathf.PI * 2f / DeathFragmentCount;
+                float speed = DeathBurstSpeed + (i % 3) * 0.8f;
+                var parameters = new ParticleSystem.EmitParams
+                {
+                    position = position,
+                    velocity = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * speed,
+                    startLifetime = DeathLifetime,
+                    startSize = DeathFragmentSize + (i % 3) * 0.07f,
+                    startColor = color,
+                    rotation = angle + i * 0.61f,
+                };
+
+                _deathParticles.Emit(parameters, 1);
+            }
+        }
+
+        // EnemyView.Synchronize에서 매 프레임 한 번 호출된다. 이 컴포넌트는 EnemyView당 하나뿐이라
+        // Update()로 두어도 인스턴스 수에 비례해 늘어나는 비용은 아니지만, 흡입 스월 계산이
+        // 위치 동기화와 같은 타이밍에 같은 순서로 돌아야 하므로(스크립트 실행 순서에 기대지 않도록)
+        // 공용 루프 쪽에서 직접 구동한다.
+        public void Advance()
+        {
+            int count = _deathParticles.GetParticles(_deathParticleBuffer);
+            if (count == 0)
+                return;
+
+            // 흡입 단계: 잠깐 퍼진 뒤 접선 방향으로 회전시키면서 HQ 원점 쪽으로 끌어당긴다.
+            bool changed = false;
+            for (int i = 0; i < count; i++)
+            {
+                ParticleSystem.Particle particle = _deathParticleBuffer[i];
+                float age = particle.startLifetime - particle.remainingLifetime;
+                if (age < DeathSuctionDelay)
+                    continue;
+
+                Vector2 offset = new Vector2(particle.position.x, particle.position.y);
+                float distance = offset.magnitude;
+                if (distance <= CenterRadius)
+                {
+                    particle.remainingLifetime = 0;
+                    _deathParticleBuffer[i] = particle;
+                    changed = true;
+                    continue;
+                }
+
+                Vector2 radial = offset / distance;
+                Vector2 tangent = new Vector2(-radial.y, radial.x);
+                Vector2 velocity = tangent * (distance * SwirlRate) - radial * (distance * InwardRate);
+                particle.velocity = new Vector3(velocity.x, velocity.y, 0);
+                _deathParticleBuffer[i] = particle;
+                changed = true;
+            }
+
+            if (changed)
+                _deathParticles.SetParticles(_deathParticleBuffer, count);
         }
 
         private static Texture2D CreateFragmentTexture()

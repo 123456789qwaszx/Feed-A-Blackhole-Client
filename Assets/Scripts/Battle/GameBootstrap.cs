@@ -7,7 +7,7 @@ using UnityEngine;
 namespace BlackHole.Unity
 {
     // 씬의 직렬화 설정으로 게임을 조립하는 Unity 진입점.
-    // - Awake: 콘텐츠·노드 트리 로드·검증, 적 화면·스킬 화면·사망 효과 화면·블랙홀 화면, 진행 상태, 전투 시스템, 조준 입력,
+    // - Awake: 콘텐츠·노드 트리 로드·검증, 적 화면·Breaker 화면·사망 효과 화면·블랙홀 화면, 진행 상태, 전투 시스템, 조준 입력,
     //   UI(UIManager와 타이틀·업그레이드·전투·결산 화면), 화면 흐름, GameHost 조립.
     // - Start/Update: 조립한 GameHost에 Unity 수명을 전달한다.
     //
@@ -30,6 +30,9 @@ namespace BlackHole.Unity
 
         [Header("Looks")]
         [SerializeField] private BreakerLook _breakerLook;
+        [SerializeField] private ExplosionLook _explosionLook;
+        [SerializeField] private LightningLook _lightningLook;
+        [SerializeField] private CometLook _cometLook;
         [SerializeField] private GameObject _blackHole;
 
         [Header("UI Layers")]
@@ -59,6 +62,9 @@ namespace BlackHole.Unity
         [Header("Runtime")]
         [SerializeField] private UIDisplayRefreshDriver _displayRefreshDriver;
 
+        [Header("Input")]
+        [SerializeField] private KeyInput _keyInput;
+
         private readonly List<UIPresentationSpec> _emptyPresentations = new List<UIPresentationSpec>();
         private GameContent _content;
         private NodeTreeData _layout;
@@ -66,7 +72,6 @@ namespace BlackHole.Unity
         private EnemyLooks _enemyLooks;
         private EnemyView _enemyView;
         private BreakerView _breakerView;
-        private SkillView _skillView;
         private DeathEffectView _deathEffectView;
         private HqView _hqView;
         private BattleSystem _battle;
@@ -99,14 +104,16 @@ namespace BlackHole.Unity
             BootstrapUI();
             BootstrapScreenFlow();
             BootstrapHost();
-
+            BootstarpKeyInput();
         }
 
         private void BootstrapBattleViews()
         {
             _enemyLooks = new EnemyLooks(_enemyCatalog.Kinds());
-            _enemyView = new EnemyView(transform, _enemyLooks);
+            _enemyView = new EnemyView(transform, _enemyLooks, _breakerLook, _cometLook);
             _breakerView = new BreakerView(transform, _breakerLook);
+            _deathEffectView = new DeathEffectView(transform, _lightningLook, _explosionLook);
+            _hqView = new HqView(transform);
             _skillView = new SkillView(transform);
             _deathEffectView = new DeathEffectView(transform);
             _hqView = new HqView(transform, _blackHole);
@@ -121,7 +128,7 @@ namespace BlackHole.Unity
         {
             // 화면이 보는 진행 상태: 방장의 것. 전투 사이에 이어진다(저장은 없다).
             _viewer = new PlayerState(Host);
-            _battle = new BattleSystem(_content, _viewer, _enemyView, _breakerView, _skillView, _deathEffectView, _hqView);
+            _battle = new BattleSystem(_content, _viewer, _enemyView, _breakerView, _deathEffectView, _hqView);
             // 마우스가 조준하는 참가자: 방장.
             _aim = new AimInput(_battle, _viewer.Id);
         }
@@ -175,10 +182,23 @@ namespace BlackHole.Unity
         private void BootstrapHost()
         {
             _host = new GameHost(_ui, _battle, _aim, _screens,
-                _enemyLooks, _enemyView, _breakerView, _skillView, _deathEffectView, _hqView, _cameraShake);
+                _enemyLooks, _enemyView, _breakerView, _deathEffectView, _hqView, _cameraShake);
         }
 
-        private void Start() => _host?.Start();
+        private void BootstarpKeyInput()
+        {
+            if (_keyInput == null) return;
+
+            _keyInput.ContinuePressed += _screens.HandleKeyActionSpace;
+            _keyInput.UpgradePressed += _screens.HandleKeyActionShift;
+            _keyInput.PausePressed += _screens.HandleKeyActionEsc;
+        }
+
+        private void Start()
+        {
+            _host?.Start();
+            SoundManager.Instance.Bind(_settings);
+        }
 
         private void Update() => _host?.Tick(Time.deltaTime);
 
@@ -188,16 +208,45 @@ namespace BlackHole.Unity
 
             foreach (UIPresentationSpec presentation in _emptyPresentations)
                 Destroy(presentation);
+
+            if(_keyInput != null && _screens != null)
+            {
+                _keyInput.ContinuePressed -= _screens.HandleKeyActionSpace;
+                _keyInput.UpgradePressed -= _screens.HandleKeyActionShift;
+                _keyInput.PausePressed -= _screens.HandleKeyActionEsc;
+            }
         }
 
         private bool HasConfiguredLooks()
         {
-            if (_breakerLook != null && _breakerLook.Material != null && _breakerLook.OrbMaterial != null
-                && _breakerLook.CometAuraMaterial != null)
-                return true;
+            bool configured = true;
 
-            Debug.LogError("[외형] GameBootstrap에 Breaker 외형(BreakerLook)을, Breaker 외형에 링·버프 구체·혜성 배경 원 머티리얼을 연결해야 한다.", this);
-            return false;
+            if (_breakerLook == null || _breakerLook.Material == null || _breakerLook.OrbMaterial == null
+                || _breakerLook.CometAuraMaterial == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 Breaker 외형(BreakerLook)을, Breaker 외형에 링·버프 구체·혜성 배경 원 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            if (_explosionLook == null || _explosionLook.Material == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 폭발 외형(ExplosionLook)을, 폭발 외형에 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            if (_cometLook == null || _cometLook.Material == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 혜성 외형(CometLook)을, 혜성 외형에 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            if (_lightningLook == null || _lightningLook.Material == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 번개 외형(LightningLook)을, 번개 외형에 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            return configured;
         }
 
         private bool HasConfiguredUI()

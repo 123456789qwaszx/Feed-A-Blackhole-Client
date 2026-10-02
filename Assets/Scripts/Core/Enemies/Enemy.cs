@@ -10,10 +10,14 @@ namespace BlackHole.Core
         // 색 등급(종류의 색 등급 표 번호).
         public int Tier { get; }
 
-        // 황금인가. 출현 때 정해짐.
-        public bool IsGolden { get; }
+        // 붙은 특수 성질(황금·전기·달 …). 없으면 null. 출현 때 정해지고, 한 마리에 최대 하나다.
+        // 이 판 구성의 성질 객체다(노드가 반영된 수치 — EnemyComposition.Traits).
+        public EnemyTraitDefinition Trait { get; }
 
-        // 적의 스탯 수치. 출현 때 판의 적 수치 표에서 (종류, 색 등급, 황금)의 값을 받고 받음..
+        // 특수 적인가(성질이 붙었는가). 특수 적은 사망 때 성질의 효과가 발동하고, 사망 효과의 피해를 받지 않는다.
+        public bool IsSpecial => Trait != null;
+
+        // 적의 스탯 수치. 출현 때 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기 등급)의 값을 받음.
         public EnemyStats Stats { get; }
 
         public float Health { get; private set; }
@@ -24,20 +28,21 @@ namespace BlackHole.Core
 
         public PlayerId? LastDamageSource { get; private set; }
 
-        public event Action<Enemy> Damaged;
+        public event Action<Enemy, Damage> Damaged;
+        public event Action<Enemy> Died;
 
         internal Enemy(
             EnemyId id,
             EnemyDefinition definition,
             int tier,
-            bool golden,
+            EnemyTraitDefinition trait,
             EnemyStats stats,
             Point2 position)
         {
             Id = id;
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
             Tier = tier;
-            IsGolden = golden;
+            Trait = trait;
             Stats = stats;
             Health = stats.MaxHealth;
             Position = position;
@@ -62,12 +67,13 @@ namespace BlackHole.Core
 
             Health = Math.Max(0, Health - damage.Amount);
             LastDamageSource = damage.Source;
-            Damaged?.Invoke(this);
+            Damaged?.Invoke(this, damage);
 
             if (Health > 0)
                 return false;
 
             IsAlive = false;
+            Died?.Invoke(this);
             return true;
         }
 
@@ -77,6 +83,7 @@ namespace BlackHole.Core
                 return false;
 
             IsAlive = false;
+            Died?.Invoke(this);
             return true;
         }
     }

@@ -1,6 +1,6 @@
 namespace BlackHole.Core
 {
-    // 개체 수 상한(콘텐츠의 MaxAliveEnemies) 체크.
+    // 개체 수 상한(콘텐츠의 MaxAliveEnemies) 체크. 상한은 공급된 적에만 건다 — 픽업은 세지 않는다(World).
     internal sealed class SpawnFilter
     {
         private readonly int _maxAliveEnemies;
@@ -10,6 +10,6 @@ namespace BlackHole.Core
             _maxAliveEnemies = maxAliveEnemies;
         }
 
-        public bool Allows(EnemyRoster roster) => roster.Alive.Count < _maxAliveEnemies;
+        public bool Allows(int suppliedAlive) => suppliedAlive < _maxAliveEnemies;
     }
 }

@@ -5,29 +5,37 @@ using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 사망 효과의 화면. 매 프레임 판의 효과 기록을 읽어 번개 선과 폭발 원을 잠깐 그린다.
-    // 게임 상태를 바꾸지 않고, 피해를 다시 계산하지 않는다(SYSTEM_CATALOG S06 → S09).
-    // 정지 중에는 판이 기록을 비우지 않으므로, 이미 그린 기록은 번호로 걸러 두 번 그리지 않는다.
+    // 사망 효과의 화면. 매 프레임 판의 효과 기록을 읽어 번개·폭발·레이저를 그린다.
+    // 게임 상태를 바꾸지 않고, 피해를 다시 계산하지 않는다
     internal sealed class DeathEffectView : IDisposable
     {
-        private const float LightningWidth = 0.08f;
-        private const float LightningSeconds = 0.25f;
-        private const float ExplosionWidth = 0.12f;
-        private const float ExplosionSeconds = 0.4f;
-        private static readonly Color LightningColor = new Color(0.55f, 0.8f, 1f, 1f);
-        private static readonly Color ExplosionColor = new Color(1f, 0.45f, 0.15f, 1f);
+        private readonly LightningBolts _lightning;
+        private readonly ExplosionRings _explosions;
+        private readonly LaserBeams _lasers;
 
-        private readonly LineStrokes _strokes;
-        // 그린 기록의 가장 큰 번호. 번개와 폭발은 같은 번호 줄을 쓴다.
-        private long _drawn;
+        private long _drawn; // 그린 기록의 가장 큰 번호. 번개·폭발·레이저는 같은 번호 줄을 쓴다.
 
-        public DeathEffectView(Transform parent) => _strokes = new LineStrokes(parent, "Death Effect View");
-
-        public void Synchronize(World world, float delta)
+        public DeathEffectView(Transform parent, LightningLook lightningLook, ExplosionLook explosionLook)
         {
-            _strokes.Age(delta);
+            _lightning = new LightningBolts(parent, lightningLook);
+            _explosions = new ExplosionRings(parent, explosionLook);
+            _lasers = new LaserBeams(parent);
+        }
+
+        public void Synchronize(World world, bool paused, float delta)
+        {
+            if (!paused)
+            {
+                _lightning.Age(delta);
+                _explosions.Age(delta);
+                _lasers.Age(delta);
+            }
+
             long drawn = _drawn;
             IReadOnlyList<LightningHit> hits = world.DeathEffects.LightningHits;
+            // 연쇄: 판은 옮겨 간 순서대로 기록한다. 앞 줄기가 끝난 자리에서 시작하는 줄기는 같은 연쇄의 다음 줄기다.
+            int hop = 0;
+            Point2? chainEnd = null;
 
             for (int i = 0; i < hits.Count; i++)
             {
@@ -35,7 +43,9 @@ namespace BlackHole.Unity
                     continue;
 
                 drawn = Math.Max(drawn, hits[i].Sequence);
-                LineStrokes.SetSegment(_strokes.Flash("Lightning", LightningWidth, LightningColor, LightningSeconds), hits[i].From, hits[i].To);
+                hop = chainEnd.HasValue && chainEnd.Value.Equals(hits[i].From) ? hop + 1 : 0;
+                chainEnd = hits[i].To;
+                _lightning.Play(hits[i].From, hits[i].To, hop);
             }
 
             IReadOnlyList<ExplosionBlast> explosions = world.DeathEffects.Explosions;
@@ -46,23 +56,39 @@ namespace BlackHole.Unity
                     continue;
 
                 drawn = Math.Max(drawn, explosions[i].Sequence);
-                LineStrokes.SetCircle(_strokes.Flash("Explosion", ExplosionWidth, ExplosionColor, ExplosionSeconds),
-                    explosions[i].Center, explosions[i].Radius);
+                _explosions.Play(explosions[i].Center, explosions[i].Radius);
+            }
+
+            IReadOnlyList<LaserBurst> lasers = world.DeathEffects.LaserBursts;
+
+            for (int i = 0; i < lasers.Count; i++)
+            {
+                if (lasers[i].Sequence <= _drawn)
+                    continue;
+
+                drawn = Math.Max(drawn, lasers[i].Sequence);
+                _lasers.Play(lasers[i].Start, lasers[i].End, lasers[i].Definition.Width);
             }
 
             _drawn = drawn;
+            _lasers.ShowTelegraphs(world.DeathEffects.LaserTelegraphs);
         }
 
-        // 그리는 선이 없고, 지운 객체도 장면에서 모두 사라졌는가(Reset 뒤 한 프레임).
-        public bool IsClear => _strokes.IsClear;
+        public bool IsClear => _lightning.IsClear && _explosions.IsClear && _lasers.IsClear;
 
-        // 판이 바뀌거나 판을 정리할 때 모든 선을 지운다. 새 판의 기록 번호는 1부터다.
         public void Reset()
         {
-            _strokes.Reset();
+            _lightning.Reset();
+            _explosions.Reset();
+            _lasers.Reset();
             _drawn = 0;
         }
 
-        public void Dispose() => _strokes.Dispose();
+        public void Dispose()
+        {
+            _lightning.Dispose();
+            _explosions.Dispose();
+            _lasers.Dispose();
+        }
     }
 }

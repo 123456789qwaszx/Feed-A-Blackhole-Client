@@ -16,14 +16,13 @@ namespace BlackHole.Unity
         private readonly EnemyLooks _enemyLooks;
         private readonly EnemyView _enemyView;
         private readonly BreakerView _breakerView;
-        private readonly SkillView _skillView;
         private readonly DeathEffectView _deathEffectView;
         private readonly HqView _hqView;
         private readonly CameraShake _cameraShake;
 
         public GameHost(UIManager ui, BattleSystem battle, AimInput aim, ScreenFlow screens,
             EnemyLooks enemyLooks, EnemyView enemyView, BreakerView breakerView,
-            SkillView skillView, DeathEffectView deathEffectView, HqView hqView, CameraShake cameraShake)
+            DeathEffectView deathEffectView, HqView hqView, CameraShake cameraShake)
         {
             _ui = ui;
             _battle = battle;
@@ -32,7 +31,6 @@ namespace BlackHole.Unity
             _enemyLooks = enemyLooks;
             _enemyView = enemyView;
             _breakerView = breakerView;
-            _skillView = skillView;
             _deathEffectView = deathEffectView;
             _hqView = hqView;
             _cameraShake = cameraShake;
@@ -93,7 +91,6 @@ namespace BlackHole.Unity
             _screens.Dispose();
             _deathEffectView.Dispose();
             _hqView.Dispose();
-            _skillView.Dispose();
             _breakerView.Dispose();
             _enemyView.Dispose();
             _enemyLooks.Dispose();

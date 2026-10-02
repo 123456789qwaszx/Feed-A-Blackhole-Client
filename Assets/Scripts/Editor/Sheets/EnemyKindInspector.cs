@@ -7,7 +7,7 @@ namespace BlackHole.EditorTools
     [CustomEditor(typeof(EnemyKind))]
     internal sealed class EnemyKindInspector : SheetOwnedInspector
     {
-        protected override string Tabs => "Enemies·EnemyTiers·EnemyStageColors·EnemyMassLevels·EnemySizeClasses";
+        protected override string Tabs => "Enemies·EnemyTiers·EnemyStageColors·EnemyMassLevels·EnemySizeClasses·EnemyTraits";
         protected override string[] AssetOwned => new[] { "id", "sprite" };
     }
 }

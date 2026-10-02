@@ -16,8 +16,8 @@ namespace BlackHole.Unity
         private float _elapsed = Duration;
         private float _direction = 1f;
 
-        // Enemy.Damaged(Action<Enemy>)에 그대로 구독·해제할 수 있도록 시그니처를 맞춘다.
-        public void Play(Enemy enemy)
+        // Enemy.Damaged(Action<Enemy, Damage>)에 그대로 구독·해제할 수 있도록 시그니처를 맞춘다.
+        public void Play(Enemy enemy, Damage damage)
         {
             _direction = -_direction;
             _elapsed = 0f;

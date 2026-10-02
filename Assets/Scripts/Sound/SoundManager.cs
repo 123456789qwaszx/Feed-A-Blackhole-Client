@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using BlackHole.Unity;
 using UnityEngine;
 
 public class SoundManager : MonoBehaviour
@@ -12,10 +14,16 @@ public class SoundManager : MonoBehaviour
     [Header("SoundSO를 직접 추가"), SerializeField] private UISoundSetup _soundSetup;
 
     private Coroutine _bgmRoutine;
+    private GameSettings _settings;
+    // 클립마다 "마지막으로 재생한 시각"을 저장하는 딕셔너리, key: AudioClip / value: 시각
+    private readonly Dictionary<AudioClip, float> _lastPlayTime = new Dictionary<AudioClip, float>();
+
+    private const int _lastBgmIndex = -1;
+    private const float MinInterval = 0.05f; // 같은 소리는 이 시간 안에 중복 재생 안 함
 
     private void Reset()
     {
-        AudioSource[] sources = GetComponentsInChildren<AudioSource>();
+        AudioSource[] sources = GetComponents<AudioSource>();
         if (sources.Length > 0) _sfxSource = sources[0];
         if (sources.Length > 1) _bgmSource = sources[1];
     }
@@ -31,14 +39,22 @@ public class SoundManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
-    {
-        StartBgm();
-    }
-
     private void OnDestroy()
     {
+        if (_settings != null) _settings.Changed -= HandleSettingChanged;
         if (Instance == this) Instance = null;
+    }
+
+    public void Bind(GameSettings settings)
+    {
+        if (_settings != null) _settings.Changed -= HandleSettingChanged;
+        _settings = settings;
+        _settings.Changed += HandleSettingChanged;
+
+        // 게임을 켠 직후에는 로드값을 읽기만 하고 실제로는 값을 바꾼 상황이 아니라 Changed 이벤트가 안 울림.
+        // 그 때 사운드 설정이 안 된 상태로 들리기 때문에 강제로 AudioSource 건들여 슬라이더에 보이는 값과 일치시킴
+        ApplyVolumes();
+        StartBgm();
     }
 
     #region SFX 재생
@@ -49,7 +65,18 @@ public class SoundManager : MonoBehaviour
     /// <param name="clip">재생할 sfx 파일</param>
     private void Play(AudioClip clip)
     {
-        if (clip != null) _sfxSource.PlayOneShot(clip);
+        if (clip != null)
+        {
+            // 같은 소리의 재생 간격 제한
+            float now = Time.unscaledTime; // 현 시각
+            float last; // _lastPlayTime 딕셔너리의 value로 사용될 변수
+
+            // 이 클립의 마지막 재생 기록이 있고, 지금과의 차이가 MinInterval보다 작으면 return
+            if (_lastPlayTime.TryGetValue(clip, out last) && now - last < MinInterval) return;
+
+            _lastPlayTime[clip] = now; // 이 클립의 마지막 재생 시각을 지금 시각으로 변경
+            _sfxSource.PlayOneShot(clip);
+        }
     }
 
     /// <summary>
@@ -179,20 +206,29 @@ public class SoundManager : MonoBehaviour
         _bgmRoutine = StartCoroutine(BgmLoop());
     }
 
-    /// <summary>
-    /// BGM 사운드 정지
-    /// </summary>
-    public void StopBgm()
+    // 실행할 다음 BGM
+    private int NextBgmIndex(int current)
     {
-        if (_bgmRoutine != null) StopCoroutine(_bgmRoutine);
-        _bgmRoutine = null;
-        _bgmSource.Stop();
+        int count = _soundSetup.BgmList.Count;
+
+        if (count <= 1) return 0; // BGM이 하나 밖에 없다면 그 BGM만 계속 재생
+        if (_settings != null && _settings.IsOn(GameSettings.ShuffleMusic)) // 셔플On이면 랜덤 재생
+        {
+            int next = Random.Range(0, count);
+
+            while (next == current) next = Random.Range(0, count); // 같은 곡이 연속으로 재생되지 않게 함
+
+            return next;
+        }
+
+        return (current + 1) % count; // 셔플이 아니라면 리스트의 첫 BGM 실행
     }
 
     // BGM 반복 코루틴
     private IEnumerator BgmLoop()
     {
-        int index = 0;
+        // 게임 시작시 Shuffle이 On이면 랜덤 재생, Off면 첫 BGM부터 실행
+        int index = NextBgmIndex(_lastBgmIndex);
 
         while (true)
         {
@@ -202,12 +238,32 @@ public class SoundManager : MonoBehaviour
             {
                 _bgmSource.clip = clip;
                 _bgmSource.Play();
-                yield return new WaitForSecondsRealtime(clip.length + 1f); // BGM길이 + 1초 텀 만큼 대기
+                yield return new WaitForSecondsRealtime(clip.length); // BGM길이
             }
             else yield return null; // null 칸이면 한 프레임 쉬고 다음 곡으로
 
-            index = (index + 1) % _soundSetup.BgmList.Count;
+            index = NextBgmIndex(index);
         }
+    }
+
+    #endregion
+
+    #region 사운드 조절
+
+    private void HandleSettingChanged(string id) // id 확인
+    {
+        if (id == GameSettings.MasterVolume || id == GameSettings.EffectsVolume || id == GameSettings.MusicVolume)
+        {
+            ApplyVolumes();
+        }
+    }
+
+    private void ApplyVolumes() // 사운드 조절
+    {
+        float masterVolume = _settings.LevelOf(GameSettings.MasterVolume);
+
+        _sfxSource.volume = masterVolume * _settings.LevelOf(GameSettings.EffectsVolume);
+        _bgmSource.volume = masterVolume * _settings.LevelOf(GameSettings.MusicVolume);
     }
 
     #endregion
