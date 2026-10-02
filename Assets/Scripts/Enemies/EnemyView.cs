@@ -10,6 +10,7 @@ namespace BlackHole.Unity
     // 게임 상태를 바꾸지 않는다. 외형은 적 종류 에셋이 가진다(EnemyLooks). 색은 적의 색 등급으로, 크기는 적의 수치로 정한다.   
     // 특수 성질이 붙었으면 그 색의 윤곽 안에 성질의 표식 색으로 속을 한 겹 더 그린다(황금이면 노란 속, 임시 표식). 스프라이트가 없는 종류는 적 ID에 맞는 다각형으로 그린다.
     // 달 성질이 붙은 적은 Breaker 달과 같은 모양의 달 하나가 주위를 공전한다. 크기·위상·속도는 출현 때 정해진다(일시정지 중에는 멈춘다).
+    // 픽업(혜성)의 화면은 CometView가 맡는다(스프라이트가 아니라 셰이더). 여기서는 사망 파편·골드 텍스트 등록만 다른 적과 똑같이 한다.
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다. 파괴·흡수 연출은 연출 작업에서 사망 기록을 읽어 더한다.
     // 규칙 평면은 장면의 z = 0이고 x·y는 같다. HQ(원점)가 장면의 원점이다.
     internal sealed class EnemyView : IDisposable
@@ -52,6 +53,7 @@ namespace BlackHole.Unity
         private readonly Transform _root;
         private readonly EnemyLooks _looks;
         private readonly BreakerLook _breakerLook;
+        private readonly CometView _comets;
         private readonly Mesh _quad;
         private readonly MaterialPropertyBlock _properties = new MaterialPropertyBlock();
         private readonly float[] _moonKinds = new float[MaxOrbs];
@@ -63,12 +65,14 @@ namespace BlackHole.Unity
         private readonly List<EnemyId> _gone = new List<EnemyId>();
 
         // breakerLook: 달의 외형(머티리얼·색·간격·기본 공전 속도)을 Breaker 달과 같게 맞추려고 받는다.
-        public EnemyView(Transform parent, EnemyLooks looks, BreakerLook breakerLook)
+        // cometLook: 혜성(픽업)의 외형. 혜성의 화면은 CometView가 맡는다.
+        public EnemyView(Transform parent, EnemyLooks looks, BreakerLook breakerLook, CometLook cometLook)
         {
             _root = new GameObject("Enemy View").transform;
             _root.SetParent(parent, false);
             _looks = looks;
             _breakerLook = breakerLook;
+            _comets = new CometView(parent, cometLook);
             _quad = QuadRenderers.CreateMesh();
             _hitParticles = _root.gameObject.AddComponent<EnemyHitParticles>();
             _goldText = new EnemyGoldText(_root, _looks);
@@ -87,14 +91,25 @@ namespace BlackHole.Unity
                 Enemy enemy = enemies[i];
                 _seen.Add(enemy.Id);
 
+                // 처음 보는 적은 종류와 상관없이 사망 파편·골드 텍스트에 등록한다. _models가 이 등록의 장부다.
+                if (!_models.ContainsKey(enemy.Id))
+                {
+                    _models.Add(enemy.Id, enemy);
+                    _hitParticles.Register(enemy, _looks.ColorOf(enemy.Definition.Id, enemy.Tier));
+                    _goldText.Register(enemy);
+                }
+
+                if (enemy.Definition.IsPickup)
+                {
+                    _comets.Show(enemy, paused, delta);
+                    continue;
+                }
+
                 if (!_visuals.TryGetValue(enemy.Id, out EnemyVisual visual))
                 {
                     visual = Create(enemy);
                     _visuals.Add(enemy.Id, visual);
-                    _models.Add(enemy.Id, enemy);
                     enemy.Damaged += visual.Hit.Play;
-                    _hitParticles.Register(enemy, _looks.ColorOf(enemy.Definition.Id, enemy.Tier));
-                    _goldText.Register(enemy);
                 }
 
                 visual.Renderer.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
@@ -110,7 +125,7 @@ namespace BlackHole.Unity
             _goldText.Age(delta);
             _gone.Clear();
 
-            foreach (EnemyId id in _visuals.Keys)
+            foreach (EnemyId id in _models.Keys)
             {
                 if (!_seen.Contains(id))
                     _gone.Add(id);
@@ -118,48 +133,54 @@ namespace BlackHole.Unity
 
             foreach (EnemyId id in _gone)
             {
-                _models[id].Damaged -= _visuals[id].Hit.Play;
-                _hitParticles.Unregister(_models[id]);
-                _goldText.Unregister(_models[id]);
-                Destroy(_visuals[id]);
-                _visuals.Remove(id);
+                Release(_models[id]);
                 _models.Remove(id);
             }
+
+            _comets.Retain(_seen);
         }
 
         // 관리하는 적 스프라이트가 없고, 지운 객체도 장면에서 모두 사라졌는가.
         // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _visuals.Count == 0 && _root.childCount == 2 && _hitParticles.IsClear && _goldText.IsClear;
+        public bool IsClear => _visuals.Count == 0 && _root.childCount == 2 && _comets.IsClear && _hitParticles.IsClear && _goldText.IsClear;
 
         // 판이 바뀌거나 판을 정리할 때 모든 적 스프라이트를 지운다. 정리는 처치가 아니므로 연출도 없다.
         public void Reset()
         {
-            foreach (KeyValuePair<EnemyId, EnemyVisual> entry in _visuals)
-            {
-                _models[entry.Key].Damaged -= entry.Value.Hit.Play;
-                _hitParticles.Unregister(_models[entry.Key]);
-                _goldText.Unregister(_models[entry.Key]);
-                Destroy(entry.Value);
-            }
+            foreach (Enemy enemy in _models.Values)
+                Release(enemy);
 
             _visuals.Clear();
             _models.Clear();
+            _comets.Reset();
             _hitParticles.Clear();
             _goldText.Reset();
         }
 
         public void Dispose()
         {
+            _comets.Dispose();
             Object.Destroy(_root.gameObject);
             Object.Destroy(_quad);
         }
 
-        private static void Destroy(EnemyVisual visual)
+        // 적의 등록(사망 파편·골드 텍스트)을 풀고, 스프라이트 적이면 그 화면(스프라이트·달)도 지운다. _models·_visuals에서 빼는 것은 호출자가 한다.
+        // 혜성의 화면은 CometView가 지운다(Retain·Reset).
+        private void Release(Enemy enemy)
         {
+            _hitParticles.Unregister(enemy);
+            _goldText.Unregister(enemy);
+
+            if (!_visuals.TryGetValue(enemy.Id, out EnemyVisual visual))
+                return;
+
+            enemy.Damaged -= visual.Hit.Play;
             Object.Destroy(visual.Renderer.gameObject);
 
             if (visual.Moon != null)
                 Object.Destroy(visual.Moon.gameObject);
+
+            _visuals.Remove(enemy.Id);
         }
 
         private EnemyVisual Create(Enemy enemy)

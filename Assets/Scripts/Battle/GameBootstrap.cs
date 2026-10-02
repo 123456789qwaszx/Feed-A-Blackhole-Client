@@ -32,6 +32,7 @@ namespace BlackHole.Unity
         [SerializeField] private BreakerLook _breakerLook;
         [SerializeField] private ExplosionLook _explosionLook;
         [SerializeField] private LightningLook _lightningLook;
+        [SerializeField] private CometLook _cometLook;
 
         [Header("UI Layers")]
         [SerializeField] private RectTransform _rootLayer;
@@ -108,7 +109,7 @@ namespace BlackHole.Unity
         private void BootstrapBattleViews()
         {
             _enemyLooks = new EnemyLooks(_enemyCatalog.Kinds());
-            _enemyView = new EnemyView(transform, _enemyLooks, _breakerLook);
+            _enemyView = new EnemyView(transform, _enemyLooks, _breakerLook, _cometLook);
             _breakerView = new BreakerView(transform, _breakerLook);
             _deathEffectView = new DeathEffectView(transform, _lightningLook, _explosionLook);
             _hqView = new HqView(transform);
@@ -226,6 +227,12 @@ namespace BlackHole.Unity
             if (_explosionLook == null || _explosionLook.Material == null)
             {
                 Debug.LogError("[외형] GameBootstrap에 폭발 외형(ExplosionLook)을, 폭발 외형에 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            if (_cometLook == null || _cometLook.Material == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 혜성 외형(CometLook)을, 혜성 외형에 머티리얼을 연결해야 한다.", this);
                 configured = false;
             }
 
