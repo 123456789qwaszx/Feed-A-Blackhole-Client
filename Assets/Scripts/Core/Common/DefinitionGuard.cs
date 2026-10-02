@@ -13,6 +13,14 @@ namespace BlackHole.Core
             return value;
         }
 
+        // 부호가 뜻을 가진 값(공전 방향 등)의 검사: 유한하고 0이 아니면 양수든 음수든 된다.
+        public static float NonZeroFinite(float value, string name)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value) || value == 0)
+                throw new ArgumentOutOfRangeException(name, "0이 아닌 유한한 값이 필요하다.");
+            return value;
+        }
+
         public static long NotNegative(long value, string name)
         {
             if (value < 0)

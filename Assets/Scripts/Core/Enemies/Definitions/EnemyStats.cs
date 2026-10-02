@@ -5,7 +5,7 @@ namespace BlackHole.Core
     {
         public float MaxHealth { get; }
 
-        // 이동 속도(초당 거리).
+        // 이동 속도(초당 거리). 부호가 공전 방향이다: 양수는 반시계, 음수는 시계방향.
         public float MoveSpeed { get; }
 
         // 크기(반지름).
@@ -20,7 +20,7 @@ namespace BlackHole.Core
         public EnemyStats(float maxHealth, float moveSpeed, float size, long gold, long exp = 0)
         {
             MaxHealth = DefinitionGuard.Positive(maxHealth, nameof(maxHealth));
-            MoveSpeed = DefinitionGuard.Positive(moveSpeed, nameof(moveSpeed));
+            MoveSpeed = DefinitionGuard.NonZeroFinite(moveSpeed, nameof(moveSpeed));
             Size = DefinitionGuard.Positive(size, nameof(size));
             Gold = DefinitionGuard.NotNegative(gold, nameof(gold));
             Exp = DefinitionGuard.NotNegative(exp, nameof(exp));
