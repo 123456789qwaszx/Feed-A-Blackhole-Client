@@ -209,7 +209,7 @@ namespace BlackHole.Unity
                 fillRenderer.sortingOrder = renderer.sortingOrder + 1;
             }
 
-            var visual = new EnemyVisual { Model = enemy, Renderer = renderer, Hit = new EnemyHitAnimation() };
+            var visual = new EnemyVisual { Model = enemy, Renderer = renderer, Hit = new EnemyHitAnimation(renderer.transform) };
 
             if (trait == MoonTrait)
                 CreateMoon(visual, enemy);
