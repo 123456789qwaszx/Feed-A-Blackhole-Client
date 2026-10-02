@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.CometLook
   _material: {fileID: 2100000, guid: c66d4c2bfb094a888f2ca9525a6c61fb, type: 2}
   _tailLength: 1.5
-  _spinSpeedMin: -60
-  _spinSpeedMax: 60
+  _spinSpeedMin: -1
+  _spinSpeedMax: 1
