@@ -44,6 +44,7 @@ namespace BlackHole.Core
                 seed,
                 stats,
                 enemies.EnemyPlacement,
+                enemies.PickupPlacement,
                 enemies.MaxAliveEnemies,
                 hq,
                 battlePlayers);

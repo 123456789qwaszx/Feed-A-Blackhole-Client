@@ -5,7 +5,7 @@ namespace BlackHole.Core
 {
     // (색이 다르더라도.)
     // 적 한 종류의 정의:
-    // - 이동 속도,
+    // - 이동 속도(부호는 공전 방향),
     // - 색 등급 표,
     // - 성장도별 색 비율,
     // - 질량 단계 표,
@@ -15,6 +15,8 @@ namespace BlackHole.Core
     public sealed class EnemyDefinition
     {
         public string Id { get; }
+
+        // 공전 속도(초당 이동 거리). 0이 아닌 값이고, 부호가 공전 방향이다: 양수는 반시계, 음수는 시계방향.
         public float MoveSpeed { get; }
 
         // 색 등급 표. 번호가 적의 색 등급(Enemy.Tier)이다.
@@ -140,7 +142,7 @@ namespace BlackHole.Core
             }
 
             Id = id;
-            MoveSpeed = DefinitionGuard.Positive(moveSpeed, nameof(moveSpeed));
+            MoveSpeed = DefinitionGuard.NonZeroFinite(moveSpeed, nameof(moveSpeed));
             Tiers = Array.AsReadOnly(Copy(tiers));
             StageColors = Array.AsReadOnly(Copy(stageColors));
             MassLevels = Array.AsReadOnly(Copy(massLevels));

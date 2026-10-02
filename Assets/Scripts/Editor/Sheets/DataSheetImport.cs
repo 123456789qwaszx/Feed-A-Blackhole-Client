@@ -145,7 +145,7 @@ namespace BlackHole.EditorTools
                 assets.Supply.WriteTo(before);
                 List<EnemySupplySetup.Entry> entries = EntriesOf(data.Enemies.StartSupply, assets.Enemies);
                 Collect(changes, written, unchanged, assets.Supply, SupplyCsv(before) == SupplyCsv(data.Enemies),
-                    () => assets.Supply.Replace(data.Enemies.EnemyPlacement, data.Enemies.MaxAliveEnemies, entries));
+                    () => assets.Supply.Replace(data.Enemies.EnemyPlacement, data.Enemies.PickupPlacement, data.Enemies.MaxAliveEnemies, entries));
             }
 
             if (nodes)

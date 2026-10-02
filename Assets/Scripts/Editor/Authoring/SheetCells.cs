@@ -46,7 +46,9 @@ namespace BlackHole.Authoring
         }
 
         // key | value 표에서 키마다의 시트 행. 모르는 키, 두 번 나온 키, 빠진 키는 진단한다.
-        public static Dictionary<string, int> KeyRows(List<string[]> rows, string tab, IReadOnlyCollection<string> keys, List<ContentDiagnostic> diagnostics)
+        // optionalKeys: 있어도 없어도 되는 키(없으면 호출자가 기존 값을 유지한다). 알려진 키로 치지만 빠졌다고 진단하지 않는다.
+        public static Dictionary<string, int> KeyRows(List<string[]> rows, string tab, IReadOnlyCollection<string> keys, List<ContentDiagnostic> diagnostics,
+            IReadOnlyCollection<string> optionalKeys = null)
         {
             var found = new Dictionary<string, int>(StringComparer.Ordinal);
 
@@ -54,6 +56,13 @@ namespace BlackHole.Authoring
                 return found;
 
             var known = new HashSet<string>(keys, StringComparer.Ordinal);
+            string allowed = string.Join(", ", keys);
+
+            if (optionalKeys != null)
+            {
+                known.UnionWith(optionalKeys);
+                allowed += ", " + string.Join(", ", optionalKeys) + "(생략 가능)";
+            }
 
             for (int r = 1; r < rows.Count; r++)
             {
@@ -64,7 +73,7 @@ namespace BlackHole.Authoring
                 int sheetRow = r + 1;
 
                 if (!known.Contains(key))
-                    diagnostics.Add(new ContentDiagnostic(Cell(tab, 0, sheetRow), $"모르는 키다: '{key}'. 쓸 수 있는 키: {string.Join(", ", keys)}."));
+                    diagnostics.Add(new ContentDiagnostic(Cell(tab, 0, sheetRow), $"모르는 키다: '{key}'. 쓸 수 있는 키: {allowed}."));
                 else if (found.TryGetValue(key, out int first))
                     diagnostics.Add(new ContentDiagnostic(Cell(tab, 0, sheetRow), $"'{key}'가 {first}행에도 있다."));
                 else
