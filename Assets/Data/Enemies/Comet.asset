@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Comet
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.EnemyKind
   id: comet
-  moveSpeed: 3
+  moveSpeed: 5
   upgradesTo: {fileID: 0}
   baseUpgrade: 0
   baseUpgradeFromStage: 0

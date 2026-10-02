@@ -7,6 +7,7 @@ namespace BlackHole.Unity
 {
     // 적 종류의 외형 조회: 종류 ID → 스프라이트, (종류 ID, 색 등급) → 색. 외형은 적 종류 에셋(EnemyKind)이 가진다.
     // 스프라이트가 없는 종류와 목록에 없는 종류는 임시 다각형(흰색)이다. 적 화면과 조종 콘솔이 같은 외형을 쓴다.
+    // 혜성(픽업)은 일반 적과 성격이 달라 여기서 다루지 않는다. 스프라이트가 아니라 셰이더로 그리며, 외형은 CometLook이 가진다.
     internal sealed class EnemyLooks : IDisposable
     {
         private const int ShapePixels = 64;
@@ -27,9 +28,7 @@ namespace BlackHole.Unity
         private readonly Texture2D[] _shapeTextures = new Texture2D[ShapeVertices.Length];
         private readonly Sprite[] _shapes = new Sprite[ShapeVertices.Length];
 
-        // 계열별 전용 도형(혜성·행성·별). 소행성은 위 _shapes 5종을 그대로 사용
-        private Texture2D _cometTexture;
-        private Sprite _cometShape;
+        // 계열별 전용 도형(행성·별). 소행성은 위 _shapes 5종을 그대로 사용. 혜성은 도형이 아니라 셰이더로 그린다(EnemyView).
         private Texture2D _planetTexture;
         private Sprite _planetShape;
         private Texture2D _starTexture;
@@ -49,9 +48,6 @@ namespace BlackHole.Unity
                 _shapes[i] = Sprite.Create(_shapeTextures[i], new Rect(0, 0, ShapePixels, ShapePixels), new Vector2(0.5f, 0.5f), ShapePixels);
             }
 
-            _cometTexture = CreateEllipse();
-            _cometShape = Sprite.Create(_cometTexture, new Rect(0, 0, ShapePixels, ShapePixels), new Vector2(0.5f, 0.5f), ShapePixels);
-
             _planetTexture = CreateCircle();
             _planetShape = Sprite.Create(_planetTexture, new Rect(0, 0, ShapePixels, ShapePixels), new Vector2(0.5f, 0.5f), ShapePixels);
 
@@ -66,8 +62,6 @@ namespace BlackHole.Unity
 
             switch (kindId)
             {
-                case "comet":
-                    return _cometShape;
                 case "planet":
                     return _planetShape;
                 case "star":
@@ -93,8 +87,6 @@ namespace BlackHole.Unity
                 Object.Destroy(_shapeTextures[i]);
             }
 
-            Object.Destroy(_cometShape);
-            Object.Destroy(_cometTexture);
             Object.Destroy(_planetShape);
             Object.Destroy(_planetTexture);
             Object.Destroy(_starShape);
@@ -168,41 +160,6 @@ namespace BlackHole.Unity
                 for (int x = 0; x < ShapePixels; x++)
                 {
                     float distance = radius - new Vector2(x - center, y - center).magnitude;
-                    pixels[y * ShapePixels + x] = new Color32(255, 255, 255, (byte)(Mathf.Clamp01(distance + 0.5f) * 255));
-                }
-            }
-
-            texture.SetPixels32(pixels);
-            texture.Apply();
-            return texture;
-        }
-
-        // 타원(혜성). 가로세로 반지름 비율 약 1.4:1.
-        private static Texture2D CreateEllipse()
-        {
-            var texture = new Texture2D(ShapePixels, ShapePixels, TextureFormat.RGBA32, false)
-            {
-                name = "Enemy Ellipse",
-                filterMode = FilterMode.Bilinear,
-                wrapMode = TextureWrapMode.Clamp,
-            };
-
-            float center = (ShapePixels - 1) / 2f;
-            float a = ShapePixels * 0.47f; // 가로 반지름
-            float b = ShapePixels * 0.34f; // 세로 반지름
-            var pixels = new Color32[ShapePixels * ShapePixels];
-
-            for (int y = 0; y < ShapePixels; y++)
-            {
-                for (int x = 0; x < ShapePixels; x++)
-                {
-                    float dx = x - center;
-                    float dy = y - center;
-                    float f = (dx * dx) / (a * a) + (dy * dy) / (b * b) - 1f;
-                    float gradX = dx / (a * a);
-                    float gradY = dy / (b * b);
-                    float gradMag = 2f * Mathf.Sqrt(gradX * gradX + gradY * gradY);
-                    float distance = -f / Mathf.Max(gradMag, 1e-5f);
                     pixels[y * ShapePixels + x] = new Color32(255, 255, 255, (byte)(Mathf.Clamp01(distance + 0.5f) * 255));
                 }
             }
