@@ -1151,6 +1151,7 @@ MonoBehaviour:
   _skillSetup: {fileID: 11400000, guid: 3ab44acfb37f427790e580c9f6a10538, type: 2}
   _nodeCatalog: {fileID: 11400000, guid: dc906d29ddfc4d0089200fffb6c6e8be, type: 2}
   _breakerLook: {fileID: 11400000, guid: 268024120f990294aa0012c4df22b246, type: 2}
+  _blackHole: {fileID: 344693896}
   _rootLayer: {fileID: 238476925}
   _panelLayer: {fileID: 1238912222}
   _screenTransitionLook: {fileID: 11400000, guid: e8b5a01a379f4963816ccd796b04a8b7, type: 2}
@@ -2031,7 +2032,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 4, y: 4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 344693897}
