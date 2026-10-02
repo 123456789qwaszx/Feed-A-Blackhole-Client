@@ -148,7 +148,7 @@ namespace BlackHole.Unity
             Object.Destroy(_fragmentTexture);
         }
 
-        private void Emit(Enemy enemy)
+        private void Emit(Enemy enemy, Damage damage)
         {
             if (!_particles.isPlaying)
                 _particles.Play(false);
