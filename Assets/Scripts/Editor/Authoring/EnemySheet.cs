@@ -265,6 +265,7 @@ namespace BlackHole.Authoring
             {
                 Enemies = enemies,
                 EnemyPlacement = into.Enemies.EnemyPlacement,
+                PickupPlacement = into.Enemies.PickupPlacement,
                 MaxAliveEnemies = into.Enemies.MaxAliveEnemies,
                 StartSupply = into.Enemies.StartSupply,
             };

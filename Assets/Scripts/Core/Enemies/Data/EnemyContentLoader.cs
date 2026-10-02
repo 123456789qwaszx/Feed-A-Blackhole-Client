@@ -10,8 +10,8 @@ namespace BlackHole.Core
     // 수치 규칙은 정의 생성자를, 콘텐츠 전체 규칙은 EnemyContentInvariants를 그대로 호출해 경로를 붙인다.
     //
     // 세 단계로 읽는다. 앞 단계에 오류가 있으면 뒤 단계를 보지 않는다(잘못된 정의가 거짓 참조 오류를 만들지 않게).
-    // 1. 개별 정의: 적 종류(색 등급·성장도별 색 비율·질량 단계·특수 성질과 그 사망 효과), 출현 배치.
-    // 2. 적 종류를 가리키는 것: 적 ID 유일, 종류 사이 연결(변환 대상), 공급(픽업 제외), 전체 개체 수 상한.
+    // 1. 개별 정의: 적 종류(색 등급·성장도별 색 비율·질량 단계·특수 성질과 그 사망 효과), 출현 배치, 픽업 출현 배치.
+    // 2. 적 종류를 가리키는 것: 적 ID 유일, 종류 사이 연결(변환 대상), 공급(픽업 제외), 픽업 출현 배치, 전체 개체 수 상한.
     // 3. 전체: 전투 시작 공급이 상한 안인가.
     public static class EnemyContentLoader
     {
@@ -30,6 +30,7 @@ namespace BlackHole.Core
 
             List<EnemyDefinition> enemies = LoadEnemies(data.Enemies, into);
             EnemyPlacementDefinition placement = LoadPlacement(data.EnemyPlacement, into);
+            PickupPlacementDefinition pickupPlacement = LoadPickupPlacement(data.PickupPlacement, into);
 
             if (into.Count > errors)
                 return null;
@@ -42,6 +43,7 @@ namespace BlackHole.Core
             if (startSupply.Count > 0 && placement == null)
                 into.Add(new ContentDiagnostic("EnemyPlacement", "공급이 있으면 출현 배치가 필요하다."));
 
+            EnemyContentInvariants.CheckPickupPlacement(enemies, placement, pickupPlacement, into);
             EnemyContentInvariants.CheckMaxAlive(placement, data.MaxAliveEnemies, into);
 
             if (into.Count > errors)
@@ -52,7 +54,7 @@ namespace BlackHole.Core
             if (into.Count > errors)
                 return null;
 
-            return new EnemyContent(enemies, placement, data.MaxAliveEnemies, startSupply);
+            return new EnemyContent(enemies, placement, data.MaxAliveEnemies, startSupply, pickupPlacement);
         }
 
         private static List<EnemyDefinition> LoadEnemies(List<EnemyData> items, List<ContentDiagnostic> into)
@@ -262,6 +264,15 @@ namespace BlackHole.Core
                 return null;
 
             return Guard("EnemyPlacement", into, () => new EnemyPlacementDefinition(item.MinDistance, item.MaxDistance));
+        }
+
+        // 없으면 null이다. 픽업 종류가 있을 때만 필요하다(Load에서 본다).
+        private static PickupPlacementDefinition LoadPickupPlacement(PickupPlacementData item, List<ContentDiagnostic> into)
+        {
+            if (item == null)
+                return null;
+
+            return Guard("PickupPlacement", into, () => new PickupPlacementDefinition(item.InnerOffset, item.OuterOffset));
         }
 
         private static List<SupplyRequest> LoadSupplyList(

@@ -13,7 +13,7 @@ namespace BlackHole.Core
     //   한 마리마다: 생성 여과(전체 상한) → 종류(변환 사슬) → 색 등급(그 종류의 색 비율) → 특수 성질(그 종류의 성질 확률, 최대 하나)
     //   → 크기 등급(열린 크기 등급이 같은 몫) → 위치.
     //   색·성질·크기는 몫 방식(QuotaPicker)으로 정한다. 수치(Gold 포함)는 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기 등급)의 값이다.
-    // - 픽업(혜성)은 요청으로 나오지 않는다 → 8. Pickup 자리: 종류의 등장 주기마다 등장 확률로 하나를 만든다(전체 상한과 무관).
+    // - 픽업(혜성)은 요청으로 나오지 않는다 → 8. Pickup 자리: 종류의 등장 주기마다 등장 확률로 하나를 일반 띠와 다른 픽업 띠 안에 만든다(전체 상한과 무관).
     // 같은 Step에서 사망이 생성보다 먼저다. 그래서 죽어서 비운 자리(전체 상한)에 같은 Step의 생성이 들어갈 수 있다.
     // 생성된 적은 다음 Step부터 움직이고 공격 대상이 된다. 처리되지 않은 요청은 판 정리가 버린다.
     //
@@ -24,7 +24,10 @@ namespace BlackHole.Core
         private readonly EnemyRoster _enemies = new EnemyRoster();
         private readonly SpawnFilter _filter;
         private readonly EnemyPlacementDefinition _placement;
+        // 픽업(혜성)의 출현 띠: 일반 띠 바깥 반지름 기준 오프셋. 소환 때마다 그때의 일반 띠로 푼다.
+        private readonly PickupPlacementDefinition _pickupPlacement;
         private readonly BattleRandom _placementRandom;
+        private readonly BattleRandom _pickupPlacementRandom;
         private readonly BattleRandom _pickupRandom;
         // 종류마다 색 등급과 성질을 고르는 몫. 판 조립 때 만들고 판 동안 이어진다(공급이 여러 번이어도 비율이 판 전체에 걸쳐 맞는다).
         // 성질 몫은 성질 확률 합이 0보다 큰 종류에만 있고, 칸은 (성질 없음, 성질 0, 성질 1, …)이다.
@@ -69,6 +72,7 @@ namespace BlackHole.Core
             int seed,
             EnemyStatTable stats,
             EnemyPlacementDefinition placement,
+            PickupPlacementDefinition pickupPlacement,
             int maxAliveEnemies,
             Hq hq,
             IReadOnlyList<BattlePlayer> players)
@@ -76,7 +80,9 @@ namespace BlackHole.Core
             Stats = stats ?? throw new ArgumentNullException(nameof(stats));
             Hq = hq ?? throw new ArgumentNullException(nameof(hq));
             _placement = placement;
+            _pickupPlacement = pickupPlacement;
             _placementRandom = new BattleRandom(seed, BattleRandom.PlacementStream);
+            _pickupPlacementRandom = new BattleRandom(seed, BattleRandom.PickupPlacementStream);
             _pickupRandom = new BattleRandom(seed, BattleRandom.PickupStream);
             _filter = new SpawnFilter(maxAliveEnemies);
             MaxAliveEnemies = maxAliveEnemies;
@@ -273,11 +279,13 @@ namespace BlackHole.Core
             return picked > 0 ? Stats.CompositionOf(kind).Traits[picked - 1] : null;
         }
 
-        // 픽업 처리: 픽업 종류마다 등장 주기가 찰 때마다 등장 확률로 하나를 배치 띠 안에 만든다. 전체 상한과 무관하다.
+        // 픽업 처리: 픽업 종류마다 등장 주기가 찰 때마다 등장 확률로 하나를 픽업 전용 띠 안에 만든다. 전체 상한과 무관하다.
+        // 픽업 띠는 일반 띠의 바깥 반지름 기준 오프셋이라 소환 때마다 그때의 일반 띠로 푼다. 위치 난수도 일반 적과 따로다.
+        // 일반 띠나 픽업 띠가 없으면 나오지 않는다(콘텐츠 로더가 픽업 종류가 있으면 픽업 띠를 요구한다).
         // 픽업의 성질(혜성 버프)은 언제나 붙는다. 색은 그 종류의 색 비율이다.
         private void AdvancePickups(float delta)
         {
-            if (_placement == null)
+            if (_placement == null || _pickupPlacement == null)
                 return;
 
             foreach (PickupClock clock in _pickupClocks)
@@ -295,7 +303,8 @@ namespace BlackHole.Core
 
                     int tier = _tierPickers[kind].Pick();
                     EnemyTraitDefinition trait = composition.Traits[0];
-                    _enemies.Spawn(kind, tier, trait, Stats.Of(kind, tier, trait), _placement.Pick(_placementRandom));
+                    Point2 position = _pickupPlacement.Resolve(_placement).Pick(_pickupPlacementRandom);
+                    _enemies.Spawn(kind, tier, trait, Stats.Of(kind, tier, trait), position);
                 }
             }
         }
