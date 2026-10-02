@@ -11,6 +11,8 @@ namespace BlackHole.Core
         public List<EnemyData> Enemies = new List<EnemyData>();
         // 출현 위치. 공급이 하나라도 있으면 필요하다.
         public EnemyPlacementData EnemyPlacement;
+        // 픽업(혜성)의 출현 띠(일반 띠 바깥 반지름 기준 오프셋). 픽업 종류가 있으면 필요하다.
+        public PickupPlacementData PickupPlacement;
         // 한 판에 동시에 살아 있을 수 있는 적의 전체 최대 수(성능 예산). 출현 배치가 있으면 1 이상이어야 한다.
         public int MaxAliveEnemies;
         // 전투 시작 공급. 전투를 시작할 때(0초) 한 번 공급한다.

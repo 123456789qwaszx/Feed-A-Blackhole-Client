@@ -18,6 +18,45 @@ namespace BlackHole.Core
                 into.Add(new ContentDiagnostic("MaxAliveEnemies", "출현 배치가 있으면 전체 개체 수 상한(1 이상)이 필요하다."));
         }
 
+        // 픽업 종류가 있으면 픽업 출현 띠가 있어야 하고, 일반 출현 띠에서 풀었을 때 띠가 되어야 한다(바깥 반지름이 0보다 크다).
+        // 일반 띠가 없으면 픽업도 나오지 않으므로 풀어 보지 않는다. 픽업 종류가 없으면 픽업 띠는 쓰이지 않아 보지 않는다.
+        public static void CheckPickupPlacement(
+            IReadOnlyList<EnemyDefinition> enemies,
+            EnemyPlacementDefinition placement,
+            PickupPlacementDefinition pickupPlacement,
+            ICollection<ContentDiagnostic> into)
+        {
+            bool hasPickup = false;
+
+            foreach (EnemyDefinition kind in enemies)
+            {
+                if (kind != null && kind.IsPickup)
+                    hasPickup = true;
+            }
+
+            if (!hasPickup)
+                return;
+
+            if (pickupPlacement == null)
+            {
+                into.Add(new ContentDiagnostic("PickupPlacement", "픽업 종류가 있으면 픽업 출현 배치가 필요하다."));
+                return;
+            }
+
+            if (placement == null)
+                return;
+
+            try
+            {
+                pickupPlacement.Resolve(placement);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                into.Add(new ContentDiagnostic("PickupPlacement",
+                    $"일반 출현 띠(바깥 반지름 {placement.MaxDistance})에서 풀면 띠가 되지 않는다: {ex.Message}"));
+            }
+        }
+
         // 전투 시작 공급의 합(과 업그레이드가 더할 수 있는 공급 수 extra)이 전체 개체 수 상한 안이다.
         // 전투 시작에는 살아 있는 적이 없으므로, 이 합이 상한을 넘으면 약속한 적이 매 판 시작부터 버려진다.
         // extra는 노드를 모두 산 경우의 더할 공급 수다(UpgradeContentCheck). 콘텐츠만 볼 때는 0이다.

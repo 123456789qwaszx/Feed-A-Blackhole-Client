@@ -103,7 +103,7 @@ namespace BlackHole.Unity
         [Tooltip("공급과 다른 데이터가 이 종류를 가리키는 식별자. 정한 뒤에는 바꾸지 않는다.")]
         [SerializeField] private string id;
 
-        [Tooltip("초당 이동 거리. 모든 색 등급이 같다.")]
+        [Tooltip("초당 이동 거리. 모든 색 등급이 같다. 0이 아닌 값이고, 부호가 공전 방향이다(양수 = 반시계, 음수 = 시계방향).")]
         [SerializeField] private float moveSpeed = 1;
 
         [Header("종류 사이 (BATTLE_COMPOSITION_PLAN 3.4)")]
