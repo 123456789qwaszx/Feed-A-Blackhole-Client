@@ -17,7 +17,7 @@ MonoBehaviour:
   upgradesTo: {fileID: 0}
   baseUpgrade: 0
   baseUpgradeFromStage: 0
-  pickupPeriod: 5
+  pickupPeriod: 1
   tiers:
   - color: {r: 0.6, g: 0.95, b: 1, a: 1}
     maxHealth: 1
