@@ -186,7 +186,7 @@ namespace BlackHole.Core
                 _struck.Add(nearest);
                 _lightningHits.Add(new LightningHit(_nextSequence++, origin, nearest.Position, critical));
                 origin = nearest.Position;
-                world.DealDamage(nearest, new Damage(amount, pending.Source));
+                world.DealDamage(nearest, new Damage(amount, pending.Source, critical));
             }
         }
 
@@ -275,7 +275,7 @@ namespace BlackHole.Core
 
             var damage = new Damage(critical
                 ? laser.Damage * laser.CritMultiplier
-                : laser.Damage, charging.Source);
+                : laser.Damage, charging.Source, critical);
 
             foreach (Enemy target in _targets)
                 world.DealDamage(target, damage);

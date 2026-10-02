@@ -148,7 +148,7 @@ namespace BlackHole.Core
             }
 
             bool critical = _targets.Count > 0 && RollCritical();
-            var damage = new Damage(critical ? Definition.Damage * (1 + CurrentCritDamage) : Definition.Damage, owner.Id);
+            var damage = new Damage(critical ? Definition.Damage * (1 + CurrentCritDamage) : Definition.Damage, owner.Id, critical);
 
             foreach (Enemy target in _targets)
                 world.DealDamage(target, damage);

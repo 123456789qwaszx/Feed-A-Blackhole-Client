@@ -57,6 +57,7 @@ namespace BlackHole.Unity
         private readonly float[] _moonKinds = new float[MaxOrbs];
         private readonly EnemyHitParticles _hitParticles;
         private readonly EnemyGoldText _goldText;
+        private readonly EnemyDamageText _damageText;
         private readonly Dictionary<EnemyId, EnemyVisual> _visuals = new Dictionary<EnemyId, EnemyVisual>();
         private readonly Dictionary<EnemyId, Enemy> _models = new Dictionary<EnemyId, Enemy>();
         private readonly HashSet<EnemyId> _seen = new HashSet<EnemyId>();
@@ -72,6 +73,7 @@ namespace BlackHole.Unity
             _quad = QuadRenderers.CreateMesh();
             _hitParticles = _root.gameObject.AddComponent<EnemyHitParticles>();
             _goldText = new EnemyGoldText(_root, _looks);
+            _damageText = new EnemyDamageText(_root);
         }
 
         // paused: 일시정지 중이면 달 공전을 멈춘다.
@@ -95,6 +97,7 @@ namespace BlackHole.Unity
                     enemy.Damaged += visual.Hit.Play;
                     _hitParticles.Register(enemy, _looks.ColorOf(enemy.Definition.Id, enemy.Tier));
                     _goldText.Register(enemy);
+                    _damageText.Register(enemy);
                 }
 
                 visual.Renderer.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
@@ -108,6 +111,7 @@ namespace BlackHole.Unity
             // 진행시키는 일이라, 위치/피격 흔들림과 같은 자리에서 한 번만 호출한다(따로 Update를 두지 않는다).
             _hitParticles.Advance();
             _goldText.Age(delta);
+            _damageText.Age(delta);
             _gone.Clear();
 
             foreach (EnemyId id in _visuals.Keys)
@@ -121,6 +125,7 @@ namespace BlackHole.Unity
                 _models[id].Damaged -= _visuals[id].Hit.Play;
                 _hitParticles.Unregister(_models[id]);
                 _goldText.Unregister(_models[id]);
+                _damageText.Unregister(_models[id]);
                 Destroy(_visuals[id]);
                 _visuals.Remove(id);
                 _models.Remove(id);
@@ -129,7 +134,8 @@ namespace BlackHole.Unity
 
         // 관리하는 적 스프라이트가 없고, 지운 객체도 장면에서 모두 사라졌는가.
         // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _visuals.Count == 0 && _root.childCount == 2 && _hitParticles.IsClear && _goldText.IsClear;
+        public bool IsClear => _visuals.Count == 0 && _root.childCount == 3
+            && _hitParticles.IsClear && _goldText.IsClear && _damageText.IsClear;
 
         // 판이 바뀌거나 판을 정리할 때 모든 적 스프라이트를 지운다. 정리는 처치가 아니므로 연출도 없다.
         public void Reset()
@@ -139,6 +145,7 @@ namespace BlackHole.Unity
                 _models[entry.Key].Damaged -= entry.Value.Hit.Play;
                 _hitParticles.Unregister(_models[entry.Key]);
                 _goldText.Unregister(_models[entry.Key]);
+                _damageText.Unregister(_models[entry.Key]);
                 Destroy(entry.Value);
             }
 
@@ -146,6 +153,7 @@ namespace BlackHole.Unity
             _models.Clear();
             _hitParticles.Clear();
             _goldText.Reset();
+            _damageText.Reset();
         }
 
         public void Dispose()
