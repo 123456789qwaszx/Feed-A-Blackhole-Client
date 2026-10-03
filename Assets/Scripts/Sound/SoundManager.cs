@@ -24,6 +24,18 @@ public class SoundManager : MonoBehaviour
     private bool _playHit;
     private bool _playDestroyed;
 
+    /// <summary>
+    /// 슬라이더 SFX 재생 길이
+    /// </summary>
+    public float SliderLength
+    {
+        get
+        {
+            if (_soundSetup.Slider == null) return 0f;
+            return _soundSetup.Slider.length;
+        }
+    }
+
     private void Reset()
     {
         AudioSource[] sources = GetComponents<AudioSource>();
