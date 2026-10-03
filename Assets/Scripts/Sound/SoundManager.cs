@@ -19,6 +19,7 @@ public class SoundManager : MonoBehaviour
     private readonly Dictionary<AudioClip, float> _lastPlayTime = new Dictionary<AudioClip, float>();
 
     private const int _lastBgmIndex = -1;
+    private int _nodeUpgradeIndex; // 다음에 재생할 노드 업그레이드 효과음 번호
     private const float MinInterval = 0.05f; // 같은 소리는 이 시간 안에 중복 재생 안 함
 
     private bool _playHit;
@@ -96,6 +97,14 @@ public class SoundManager : MonoBehaviour
         // 그 때 사운드 설정이 안 된 상태로 들리기 때문에 강제로 AudioSource 건들여 슬라이더에 보이는 값과 일치시킴
         ApplyVolumes();
         StartBgm();
+    }
+
+    /// <summary>
+    /// 노드 업그레이드 사운드 인덱스 초기화
+    /// </summary>
+    public void ResetNodeUpgradeIndex()
+    {
+        _nodeUpgradeIndex = 0;
     }
 
     #region SFX 재생
@@ -213,7 +222,17 @@ public class SoundManager : MonoBehaviour
     /// </summary>
     public void PlayNodeUpgrade()
     {
-        Play(_soundSetup.NodeUpgrade);
+        List<AudioClip> clips = _soundSetup.NodeUpgrade;
+
+        if (clips == null || clips.Count == 0) return;
+
+        // 리스트 길이가 줄어든 경우를 대비해 마지막 번호로 보정
+        if (_nodeUpgradeIndex >= clips.Count) _nodeUpgradeIndex = clips.Count - 1;
+
+        Play(clips[_nodeUpgradeIndex]);
+
+        // 마지막에 도달하면 더 올리지 않고 마지막 소리를 유지한다
+        if (_nodeUpgradeIndex < clips.Count - 1) _nodeUpgradeIndex++;
     }
 
     /// <summary>
