@@ -7,7 +7,7 @@ namespace BlackHole.Core
     // 배치는 칸·선·시작 노드를, 콘텐츠는 노드 ID·Rank·비용·효과를 가진다.
     //
     // 세 단계에 걸쳐 로드.
-    // 1. 배치 노드 하나씩: ID가 있고, 콘텐츠(Nodes 시트)에 있는 노드.
+    // 1. 배치 노드 하나씩: 콘텐츠(Nodes 시트)에 있는 노드.
     // 2. 노드 사이: ID 유일, 선이 가리키는 노드가 배치에 있고 자기 자신이 아님.
     // 3. 그래프 전체: 배치된 노드가 있으면 시작 노드가 하나 이상이고, 모든 배치 노드가 시작 노드에서 선을 따라 닿음.
     // 콘텐츠에만 있는 노드(아직 배치하지 않음)는 오류가 아니다 — 트리에서 빠지고 결과의 Unplaced로 알린다.
@@ -20,12 +20,6 @@ namespace BlackHole.Core
             if (data == null)
             {
                 diagnostics.Add(new ContentDiagnostic(string.Empty, "노드 트리 배치 데이터가 null이다."));
-                return Fail(diagnostics);
-            }
-
-            if (content == null)
-            {
-                diagnostics.Add(new ContentDiagnostic(string.Empty, "노드 콘텐츠가 null이다."));
                 return Fail(diagnostics);
             }
 
@@ -66,12 +60,6 @@ namespace BlackHole.Core
             if (item == null)
             {
                 into.Add(new ContentDiagnostic(at, "노드 데이터가 null이다."));
-                return null;
-            }
-
-            if (string.IsNullOrWhiteSpace(item.Id))
-            {
-                into.Add(new ContentDiagnostic(at, "ID가 비어 있다."));
                 return null;
             }
 
@@ -163,6 +151,6 @@ namespace BlackHole.Core
             string.IsNullOrWhiteSpace(id) ? $"Nodes[{index}]" : $"Nodes[{id}]";
 
         private static NodeTreeLoadResult Fail(List<ContentDiagnostic> diagnostics) =>
-            new NodeTreeLoadResult(null, diagnostics);
+            new NodeTreeLoadResult(null, diagnostics, new List<string>());
     }
 }

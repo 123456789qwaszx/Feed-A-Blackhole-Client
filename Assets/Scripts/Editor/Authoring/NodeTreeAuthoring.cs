@@ -37,11 +37,10 @@ namespace BlackHole.Authoring
             return null;
         }
 
-        // 콘텐츠의 노드 id를 빈 칸에 놓는다. 선은 긋지 않는다.
-        // id가 비었거나, 이미 놓였거나, 칸이 차 있으면 아무것도 하지 않고 null이다. id가 콘텐츠에 있는지는 부르는 쪽이 본다.
+        // 아직 놓지 않은 노드 id를 빈 칸에 놓는다. 선은 긋지 않는다. 칸이 차 있으면 null이다.
         public static NodeData Place(NodeTreeData tree, string id, int x, int y)
         {
-            if (string.IsNullOrWhiteSpace(id) || Find(tree, id) != null || At(tree, x, y) != null)
+            if (At(tree, x, y) != null)
                 return null;
 
             var node = new NodeData { Id = id, Start = tree.Nodes.Count == 0, X = x, Y = y };
@@ -55,10 +54,7 @@ namespace BlackHole.Authoring
             var placed = new HashSet<string>(StringComparer.Ordinal);
 
             foreach (NodeData node in tree.Nodes)
-            {
-                if (node?.Id != null)
-                    placed.Add(node.Id);
-            }
+                placed.Add(node.Id);
 
             var unplaced = new List<string>();
 

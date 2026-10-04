@@ -64,7 +64,7 @@ namespace BlackHole.Core
         public static UpgradeStatValues StatsFor(PlayerState state, NodeTree tree)
         {
             Verify(state, tree);
-            return StatsFor(tree, node => Math.Min(state.RankOf(node.Id), node.MaxRank));
+            return StatsFor(tree, node => state.RankOf(node.Id));
         }
 
         // [임시] 전투 쪽이 지금 읽는 옛 업그레이드 표. StatsFor의 값을 옛 수치 이름으로 옮긴다(NodeUpgradeBridge).

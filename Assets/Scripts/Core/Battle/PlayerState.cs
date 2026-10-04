@@ -26,7 +26,7 @@ namespace BlackHole.Core
             OwnedNodes = _ownedNodes.AsReadOnly();
         }
 
-        // 이 노드를 몇 Rank까지 샀는가. 사지 않았으면 0이다. 최대 Rank는 모른다(노드 정의의 것) — 구매 규칙이 넘지 않게 한다.
+        // 이 노드를 몇 Rank까지 샀는가. 사지 않았으면 0이다.
         public int RankOf(string nodeId) =>
             nodeId != null && _ranks.TryGetValue(nodeId, out int rank) ? rank : 0;
 
@@ -52,13 +52,9 @@ namespace BlackHole.Core
             GrowthStage = stage;
         }
 
-        // 구매 규칙(NodePurchase.TryPurchase)이 확인한 뒤에만 부른다. 노드의 Rank를 하나 올린다.
-        // 진행 상태는 노드를 ID와 비용으로만 안다. 최대 Rank와 Gold 판정은 구매 규칙의 일이다.
+        // 구매 규칙(NodePurchase.TryPurchase)이 최대 Rank와 Gold를 확인한 뒤에만 부른다. 노드의 Rank를 하나 올린다.
         internal void BuyRank(string nodeId, long cost)
         {
-            if (cost < 0 || cost > Gold)
-                throw new ArgumentOutOfRangeException(nameof(cost), $"비용은 0 이상, 가진 Gold({Gold}) 이하여야 한다. 받은 값: {cost}.");
-
             Gold -= cost;
             int rank = RankOf(nodeId) + 1;
             _ranks[nodeId] = rank;

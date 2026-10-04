@@ -43,22 +43,19 @@ namespace BlackHole.Core
         private static readonly HashSet<string> _routed = RoutedStats();
 
         // 이 수치가 전투에 이어져 있는가(노드를 사면 지금 효과가 있는가).
-        public static bool IsRouted(string statId) => statId != null && _routed.Contains(statId);
+        public static bool IsRouted(string statId) => _routed.Contains(statId);
 
         public static UpgradeTable ToUpgradeTable(UpgradeStatValues values)
         {
-            if (values == null)
-                throw new ArgumentNullException(nameof(values));
-
             var upgrades = new List<Upgrade>();
 
             foreach (Route route in _routes)
             {
                 // 시트에서 수치가 빠졌으면 옮길 것이 없다.
-                if (!values.TryGetDefinition(route.StatId, out UpgradeStatDefinition stat))
+                if (!values.Has(route.StatId))
                     continue;
 
-                float gained = values.ValueOf(route.StatId) - stat.DefaultValue;
+                float gained = values.ValueOf(route.StatId) - values.DefinitionOf(route.StatId).DefaultValue;
 
                 if (gained != 0)
                     upgrades.Add(new Upgrade(route.Target, route.Operation, gained * route.Scale));

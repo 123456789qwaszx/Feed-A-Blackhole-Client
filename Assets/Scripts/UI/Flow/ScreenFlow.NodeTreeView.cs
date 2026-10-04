@@ -58,7 +58,7 @@ namespace BlackHole.Unity
             if (!_tree.TryGet(id, out NodeDefinition node))
                 return string.Empty;
 
-            int rank = Math.Min(_player.RankOf(id), node.MaxRank);
+            int rank = _player.RankOf(id);
             bool maxed = rank >= node.MaxRank;
             NodeRankDefinition shown = node.RankAt(maxed ? node.MaxRank : rank + 1);
             UpgradeStatValues values = NodePurchase.StatsFor(_player, _tree);
@@ -69,9 +69,7 @@ namespace BlackHole.Unity
 
             foreach (NodeEffect effect in shown.Effects)
             {
-                if (!values.TryGetDefinition(effect.StatId, out UpgradeStatDefinition stat))
-                    continue;
-
+                UpgradeStatDefinition stat = values.DefinitionOf(effect.StatId);
                 string unit = stat.Unit == UpgradeStatUnit.Percent ? "%" : string.Empty;
                 float now = values.ValueOf(effect.StatId);
                 text.Append(effect.StatId).Append(' ').Append(NumberText.Signed(effect.Value)).Append(unit);

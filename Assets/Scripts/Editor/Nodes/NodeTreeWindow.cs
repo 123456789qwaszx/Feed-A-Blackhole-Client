@@ -141,7 +141,7 @@ namespace BlackHole.EditorTools
             var filter = new TextField("찾기") { value = _unplacedFilter };
             filter.RegisterValueChangedCallback(evt =>
             {
-                _unplacedFilter = evt.newValue ?? string.Empty;
+                _unplacedFilter = evt.newValue;
                 BuildUnplaced();
             });
             _unplacedSection.Add(filter);
@@ -362,7 +362,7 @@ namespace BlackHole.EditorTools
         // 노드 칸의 글자: ID와 Rank 1 비용(여러 Rank면 ×Rank 수). 미리보기에서는 산 Rank / 최대 Rank.
         public string LabelOf(NodeData node)
         {
-            if (node.Id == null || _content?.Content == null || !_content.Content.TryGetNode(node.Id, out NodeDefinition definition))
+            if (_content?.Content == null || !_content.Content.TryGetNode(node.Id, out NodeDefinition definition))
                 return node.Id;
 
             if (_preview)
@@ -387,22 +387,17 @@ namespace BlackHole.EditorTools
 
                 string id = _placingId;
                 string next = NextUnplacedAfter(id);
-                bool placed = false;
 
                 Edit("노드 놓기", tree =>
                 {
                     NodeData node = NodeTreeAuthoring.Place(tree, id, x, y);
 
-                    if (node == null)
-                        return;
-
-                    placed = true;
-                    Select(node, false);
-                    _placingId = next;
+                    if (node != null)
+                    {
+                        Select(node, false);
+                        _placingId = next;
+                    }
                 });
-
-                if (!placed)
-                    ShowMessage($"'{id}'를 놓지 못했다: 이미 놓였거나 칸이 차 있다.");
 
                 return;
             }
@@ -633,9 +628,6 @@ namespace BlackHole.EditorTools
 
                 _panel.Add(new Label($"Rank {rank.Rank} · {rank.Cost.ToString("N0", CultureInfo.InvariantCulture)} · {string.Join(", ", effects)}"));
             }
-
-            if (definition.Memo.Length > 0)
-                _panel.Add(Note(definition.Memo));
         }
 
         // 여러 노드를 골랐을 때: 저작 명령.

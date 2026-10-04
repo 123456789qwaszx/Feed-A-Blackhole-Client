@@ -45,7 +45,7 @@ namespace BlackHole.Unity
             // 최대 Rank. 둘 이상이면 Rank 딱지를 단다.
             public int MaxRank { get; }
 
-            public NodeItem(string id, int x, int y, long price, string stat = null, int maxRank = 1)
+            public NodeItem(string id, int x, int y, long price, string stat, int maxRank)
             {
                 Id = id;
                 X = x;
@@ -141,18 +141,17 @@ namespace BlackHole.Unity
 
         // 노드마다 상태(와 다음 Rank 비용, 산 Rank)를 받아 칠한다. 바뀐 프레임에만 호출.
         // costs에 없는 노드(마지막 Rank까지 산 노드)는 가격을 바꾸지 않는다 — Owned면 가격을 쓰지 않는다.
-        public void Show(IReadOnlyDictionary<string, NodeState> states, IReadOnlyDictionary<string, long> costs = null,
-            IReadOnlyDictionary<string, int> ranks = null)
+        public void Show(IReadOnlyDictionary<string, NodeState> states, IReadOnlyDictionary<string, long> costs,
+            IReadOnlyDictionary<string, int> ranks)
         {
             foreach (NodeVisual node in _nodes.Values)
             {
                 node.State = states[node.Id];
+                node.Rank = ranks[node.Id];
 
-                if (costs != null && costs.TryGetValue(node.Id, out long cost))
+                if (costs.TryGetValue(node.Id, out long cost))
                     node.Price = cost;
 
-                if (ranks != null && ranks.TryGetValue(node.Id, out int rank))
-                    node.Rank = rank;
                 bool visible = node.State != NodeState.Hidden;
                 node.Root.SetActive(visible);
 

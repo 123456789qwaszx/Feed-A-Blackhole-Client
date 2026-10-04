@@ -18,8 +18,6 @@ namespace BlackHole.Core
         private static readonly string[] _nodesColumns = { "NodeId", "Rank 수" };
         private static readonly string[] _costColumns = { "NodeId", "Rank", "Cost" };
         private static readonly string[] _effectsColumns = { "NodeId", "Rank", "StatId", "Value", "단위" };
-        // Nodes 시트에 있으면 읽는다.
-        private const string MemoColumn = "Memo";
 
         // 시트 4개를 읽어 불러온다. null은 시트가 없다(연결되지 않음)는 뜻이다.
         // 형식 오류가 하나라도 있으면 규칙 검사 없이 실패한다.
@@ -36,9 +34,6 @@ namespace BlackHole.Core
         // 형식 오류는 into에 더하고, 그 칸은 0이나 빈 글자로 둔다. into가 늘었으면 결과를 쓰지 않는다.
         public static NodeContentData Read(string statsCsv, string nodesCsv, string costCsv, string effectsCsv, List<ContentDiagnostic> into)
         {
-            if (into == null)
-                throw new ArgumentNullException(nameof(into));
-
             var data = new NodeContentData();
             Sheet stats = Sheet.Open(StatsTab, statsCsv, _statsColumns, into);
             Sheet nodes = Sheet.Open(NodesTab, nodesCsv, _nodesColumns, into);
@@ -73,7 +68,6 @@ namespace BlackHole.Core
                         Row = Sheet.SheetRow(r),
                         NodeId = nodes.Text(r, "NodeId"),
                         RankCount = nodes.Int(r, "Rank 수"),
-                        Memo = nodes.Has(MemoColumn) ? nodes.Text(r, MemoColumn) : string.Empty,
                     });
                 }
             }
@@ -172,8 +166,6 @@ namespace BlackHole.Core
 
             // 표의 행 번호 → 시트 행 번호(머리칸이 1행).
             public static int SheetRow(int r) => r + 1;
-
-            public bool Has(string column) => _columns.ContainsKey(column);
 
             // 머리칸 아래의 행 가운데, 읽는 칸이 모두 비지 않은 행.
             public IEnumerable<int> Rows()

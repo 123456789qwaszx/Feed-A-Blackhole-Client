@@ -48,7 +48,7 @@ namespace BlackHole.Unity
             foreach (NodeDefinition node in _tree.Nodes)
             {
                 states.Add(node.Id, NodePurchase.StateOf(_player, _tree, node.Id));
-                ranks.Add(node.Id, Math.Min(_player.RankOf(node.Id), node.MaxRank));
+                ranks.Add(node.Id, _player.RankOf(node.Id));
 
                 if (NodePurchase.TryGetNextCost(_player, _tree, node.Id, out long cost))
                     costs.Add(node.Id, cost);
