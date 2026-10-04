@@ -13,8 +13,10 @@ namespace BlackHole.Unity
     //
     // 좌표: 칸 (X, Y)의 노드는 트리 공간의 (X × 칸 크기, Y × 칸 크기)에 놓인다.
     // 보이기: 숨은 노드는 그리지 않는다. 선은 양 끝이 모두 보일 때만 그린다.
-    // 모양: 노드 그림·선 색·가격 색은 NodeTreeLook이 정한다(스탯마다의 노드 그림). 가격은 노드 아래에 쓴다.
+    // 모양: 노드 그림·선 색·가격 색은 NodeTreeLook이 정한다(스탯마다의 노드 그림). 가격(다음 Rank 비용)은 노드 아래에 줄여 쓴다(1.5T).
     //   Look이 비어 있으면 예전처럼 상태 색 칸에 ID·가격을 쓴다.
+    // Rank: Rank가 둘 이상인 노드는 오른쪽 위에 "산 Rank/최대 Rank" 딱지를 단다. 일부만 산 노드는 산 색을 엷게 섞는다.
+    //   선 색은 Rank를 하나라도 산 노드를 산 것으로 본다(이웃이 드러나는 기준과 같다).
     // 조작: 빈 곳이나 노드 위를 끌면 이동, 휠은 커서를 중심으로 확대·축소.
     // 올림: 포인터 아래의 노드가 바뀌면 NodeHovered·NodeLeft로 알린다(툴팁은 호스트가 띄운다).
     //   노드마다 입력 컴포넌트를 붙이지 않고 트리 영역이 포인터 이동을 받아 찾는다 — UI_EventHandler를 노드에 붙이면
@@ -40,14 +42,17 @@ namespace BlackHole.Unity
             public long Price { get; }
             // 노드 그림을 고르는 스탯 키(Rank 1 첫 효과의 StatId). 없으면 기본 그림.
             public string Stat { get; }
+            // 최대 Rank. 둘 이상이면 Rank 딱지를 단다.
+            public int MaxRank { get; }
 
-            public NodeItem(string id, int x, int y, long price, string stat = null)
+            public NodeItem(string id, int x, int y, long price, string stat = null, int maxRank = 1)
             {
                 Id = id;
                 X = x;
                 Y = y;
                 Price = price;
                 Stat = stat;
+                MaxRank = maxRank;
             }
         }
 
@@ -58,6 +63,12 @@ namespace BlackHole.Unity
         private const float PriceHeight = 30;
         private const float PriceSize = 24;
         private const float PricePadding = 16;
+        // 노드 오른쪽 위 Rank 딱지.
+        private const float RankHeight = 26;
+        private const float RankSize = 18;
+        private const float RankPadding = 12;
+        // 일부만 산 노드에 산 색을 섞는 비율.
+        private const float PartialMix = 0.35f;
         private const float MinZoom = 0.3f;
         private const float MaxZoom = 2.5f;
         private const float FitZoomLimit = 1.5f;
@@ -128,9 +139,10 @@ namespace BlackHole.Unity
             _framePending = true;
         }
 
-        // 노드마다 상태(와 다음 Rank 비용)를 받아 칠한다. 바뀐 프레임에만 호출.
+        // 노드마다 상태(와 다음 Rank 비용, 산 Rank)를 받아 칠한다. 바뀐 프레임에만 호출.
         // costs에 없는 노드(마지막 Rank까지 산 노드)는 가격을 바꾸지 않는다 — Owned면 가격을 쓰지 않는다.
-        public void Show(IReadOnlyDictionary<string, NodeState> states, IReadOnlyDictionary<string, long> costs = null)
+        public void Show(IReadOnlyDictionary<string, NodeState> states, IReadOnlyDictionary<string, long> costs = null,
+            IReadOnlyDictionary<string, int> ranks = null)
         {
             foreach (NodeVisual node in _nodes.Values)
             {
@@ -138,6 +150,9 @@ namespace BlackHole.Unity
 
                 if (costs != null && costs.TryGetValue(node.Id, out long cost))
                     node.Price = cost;
+
+                if (ranks != null && ranks.TryGetValue(node.Id, out int rank))
+                    node.Rank = rank;
                 bool visible = node.State != NodeState.Hidden;
                 node.Root.SetActive(visible);
 
@@ -160,10 +175,13 @@ namespace BlackHole.Unity
                 if (!visible)
                     continue;
 
+                NodeState from = LinkStateOf(link.From);
+                NodeState to = LinkStateOf(link.To);
+
                 if (_look != null)
-                    link.Image.color = _look.LinkColorOf(link.From.State, link.To.State);
+                    link.Image.color = _look.LinkColorOf(from, to);
                 else
-                    link.Image.color = link.From.State == NodeState.Owned && link.To.State == NodeState.Owned ? OwnedLinkColor : LinkColor;
+                    link.Image.color = from == NodeState.Owned && to == NodeState.Owned ? OwnedLinkColor : LinkColor;
             }
         }
 
@@ -280,25 +298,34 @@ namespace BlackHole.Unity
             return _canvas.scaleFactor;
         }
 
-        // 노드 하나를 지금 상태(와 올림)대로 칠한다. 가격은 사지 않은 노드에만 쓴다.
+        // 선 색을 고를 때의 상태: Rank를 하나라도 산 노드는 산 것으로 본다.
+        private static NodeState LinkStateOf(NodeVisual node) => node.Rank > 0 ? NodeState.Owned : node.State;
+
+        // 노드 하나를 지금 상태(와 올림)대로 칠한다. 가격은 마지막 Rank까지 사지 않은 노드에만 쓴다.
         private void Paint(NodeVisual node)
         {
             if (node.State == NodeState.Hidden)
                 return;
 
-            string price = node.Price.ToString("N0", CultureInfo.InvariantCulture);
+            string price = NumberText.Compact(node.Price);
+            bool partial = node.Rank > 0 && node.State != NodeState.Owned;
+
+            if (node.RankLabel != null)
+                node.RankLabel.text = node.Rank.ToString(CultureInfo.InvariantCulture) + "/" + node.MaxRank.ToString(CultureInfo.InvariantCulture);
 
             if (_look == null)
             {
                 node.Image.sprite = null;
-                node.Image.color = ColorOf(node.State);
+                Color color = ColorOf(node.State);
+                node.Image.color = partial ? Color.Lerp(color, OwnedColor, PartialMix) : color;
                 node.Label.color = Color.white;
                 node.Label.text = node.State == NodeState.Owned ? $"{node.Id}\nowned" : $"{node.Id}\n{price}";
                 return;
             }
 
             node.Image.sprite = _look.SpriteOf(node.Stat, node.State, node == _hovered);
-            node.Image.color = _look.TintOf(node.State);
+            Color tint = _look.TintOf(node.State);
+            node.Image.color = partial ? Color.Lerp(tint, OwnedColor, PartialMix) : tint;
 
             bool showPrice = node.State != NodeState.Owned;
             if (node.Badge != null && node.Badge.gameObject.activeSelf != showPrice)
@@ -370,6 +397,7 @@ namespace BlackHole.Unity
             }
 
             var label = labelRect.gameObject.AddComponent<TextMeshProUGUI>();
+            TMP_Text rankLabel = item.MaxRank > 1 ? CreateRankBadge(rect) : null;
 
             if (_look != null)
             {
@@ -393,7 +421,35 @@ namespace BlackHole.Unity
             label.overflowMode = TextOverflowModes.Ellipsis;
             label.raycastTarget = false;
 
-            return new NodeVisual(item.Id, item.Stat, item.Price, position, rect.gameObject, image, button, label, badge);
+            return new NodeVisual(item.Id, item.Stat, item.Price, item.MaxRank, position, rect.gameObject, image, button, label, badge, rankLabel);
+        }
+
+        // Rank 딱지: 노드 오른쪽 위 모서리에 걸친다. 글자는 칠할 때 쓴다("3/10").
+        private TMP_Text CreateRankBadge(RectTransform node)
+        {
+            RectTransform badge = Child(node, "Rank");
+            badge.anchorMin = new Vector2(1, 1);
+            badge.anchorMax = new Vector2(1, 1);
+            badge.pivot = new Vector2(1, 1);
+            badge.anchoredPosition = new Vector2(RankPadding, RankPadding);
+            badge.sizeDelta = new Vector2(NodeSize * 0.6f, RankHeight);
+
+            var back = badge.gameObject.AddComponent<Image>();
+            back.color = _look != null ? _look.PriceBackColor : new Color(0.1f, 0.1f, 0.12f, 0.85f);
+            back.raycastTarget = false;
+
+            RectTransform textRect = Child(badge, "Label");
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.sizeDelta = Vector2.zero;
+
+            var text = textRect.gameObject.AddComponent<TextMeshProUGUI>();
+            text.fontSize = RankSize;
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = _look != null ? _look.PriceColorOf(NodeState.Purchasable) : Color.white;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.raycastTarget = false;
+            return text;
         }
 
         // 두 노드 중심을 잇는 얇은 막대: 가운데에 놓고, 길이만큼 늘리고, 방향만큼 돌린다.
@@ -448,8 +504,11 @@ namespace BlackHole.Unity
         {
             public readonly string Id;
             public readonly string Stat;
+            public readonly int MaxRank;
             // 다음 Rank의 비용.
             public long Price;
+            // 산 Rank.
+            public int Rank;
             public readonly Vector2 Position;
             public readonly GameObject Root;
             public readonly Image Image;
@@ -457,14 +516,18 @@ namespace BlackHole.Unity
             public readonly TMP_Text Label;
             // 가격 딱지(Look이 있을 때만). 샀으면 숨긴다.
             public readonly RectTransform Badge;
+            // Rank 딱지의 글자(Rank가 둘 이상인 노드만).
+            public readonly TMP_Text RankLabel;
             public NodeState State = NodeState.Hidden;
 
-            public NodeVisual(string id, string stat, long price, Vector2 position, GameObject root, Image image, Button button, TMP_Text label,
-                RectTransform badge)
+            public NodeVisual(string id, string stat, long price, int maxRank, Vector2 position, GameObject root, Image image, Button button,
+                TMP_Text label, RectTransform badge, TMP_Text rankLabel)
             {
                 Id = id;
                 Stat = stat;
                 Price = price;
+                MaxRank = maxRank;
+                RankLabel = rankLabel;
                 Position = position;
                 Root = root;
                 Image = image;
