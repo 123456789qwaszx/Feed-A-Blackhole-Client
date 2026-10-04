@@ -16,7 +16,7 @@ namespace BlackHole.EditorTools
     // 노드 콘텐츠(UpgradeStats·Nodes·NodeCost·NodeEffects)는 여기서 다루지 않는다 — 내려받은 CSV를 Assets/Data/NodeTable에 그대로 둔다(NodeContentSource).
     // 다만 전체 검사는 노드 트리(콘텐츠 + 배치)까지 게임과 같이 본다.
     // 가져오기는 받은 탭의 묶음만 다루고, 묶음의 탭이 일부만 오면 오류다.
-    // 모두 통과해야 쓴다(부분 통과 금지): 탭마다의 칸·규칙 검사 → 게임 시작(GameBootstrap)과 같은 전체 검사.
+    // 모두 통과해야 쓴다(부분 통과 금지): 탭마다의 칸·규칙 검사 → 게임 시작(GameContentLoader)과 같은 전체 검사.
     // 그래서 가져오기가 통과했으면 Play도 콘텐츠 오류 없이 시작한다.
     internal static class DataSheetImport
     {
@@ -74,7 +74,7 @@ namespace BlackHole.EditorTools
                 return errors;
 
             // 지금 에셋으로 채운 뒤 받은 묶음만 시트 값으로 바꾼다. 받지 않은 묶음은 지금 에셋 값으로 함께 검사한다.
-            ContentData data = GameBootstrap.ContentDataFrom(assets.Skills, assets.Enemies, assets.Supply, assets.Growth);
+            ContentData data = GameContentLoader.ContentDataFrom(assets.Skills, assets.Enemies, assets.Supply, assets.Growth);
 
             if (growth)
                 errors.AddRange(HqGrowthSheet.Read(csvByTab[HqGrowthSheet.StagesTab], csvByTab[HqGrowthSheet.MilestonesTab], data));
