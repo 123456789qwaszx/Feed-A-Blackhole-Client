@@ -296,12 +296,13 @@ namespace BlackHole.Unity
                 _starText.text = Count(0);
         }
 
-        // earned: 이 판이 번 Gold. settled: 결산이 더한 Gold(이정표로 끝났으면 이정표 보상). total: 결산 뒤 진행 상태의 Gold.
+        // earned: 이 판이 번 Gold. settled: 결산이 더한 Gold(이정표로 끝났으면 목표 잔액까지의 차액). total: 결산 뒤 진행 상태의 Gold.
         public void ShowGold(long earned, long settled, bool milestone, long total)
         {
             _earnedTarget = milestone ? settled : earned;
             _totalTarget = total;
-            _totalBegin = total - earned;
+            // 결산 전 잔액. 실제로 더해진 것은 settled다(이정표 판은 번 Gold를 버린다).
+            _totalBegin = total - settled;
 
             if (_totalLabel != null)
                 _totalLabel.text = milestone ? "REWARD" : "TOTAL";
