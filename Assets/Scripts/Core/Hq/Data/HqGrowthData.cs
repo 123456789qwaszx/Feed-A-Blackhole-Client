@@ -3,12 +3,13 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 블랙홀 성장: Stages[s]가 성장도 s의 판에서 쓰는 Level 표와 목표 Level이다. 성장 효과는 노드가 정한다.
+    // 블랙홀 성장: 모든 판이 함께 쓰는 Level 사다리와 이정표. 성장 효과(Level업 시간 등)는 노드가 정한다.
     [Serializable]
     public sealed class HqGrowthData
     {
-        public List<GrowthStageData> Stages = new List<GrowthStageData>();
-        // 이정표(성장도가 커지는 순서). 그 앞 성장도의 판이 목표 Level에 닿으면 판이 끝나고 결산이 번 Gold 대신 보상을 준다.
-        public List<HqMilestoneData> Milestones = new List<HqMilestoneData>();
+        // LevelExp[i]는 Level (i + 1)에 닿는 누적 EXP(앞 줄보다 커야 한다).
+        public List<long> LevelExp = new();
+        // 이정표(Level이 커지는 순서). 판이 그 Level에 닿으면 판이 끝나고 결산이 잔액을 목표 잔액까지 채운다.
+        public List<HqMilestoneData> Milestones = new();
     }
 }

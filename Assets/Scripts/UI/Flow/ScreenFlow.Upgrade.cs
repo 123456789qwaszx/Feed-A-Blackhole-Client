@@ -40,7 +40,7 @@ namespace BlackHole.Unity
             root.ShowGold(_player.Gold);
 
             int stage = _player.GrowthStage;
-            root.ShowHq(stage, _growth.StageAt(stage).GoalLevel);
+            root.ShowHq(stage, _growth.GoalLevelAt(stage));
 
             var states = new Dictionary<string, NodeState>(_tree.Nodes.Count, StringComparer.Ordinal);
             foreach (NodeDefinition node in _tree.Nodes)

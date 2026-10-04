@@ -29,7 +29,7 @@ namespace BlackHole.Core
                     seed),
             };
 
-            // 이 판의 블랙홀: Level 0에서 시작하고, 성장도 기반 Level 표를 고른다.
+            // 이 판의 블랙홀: 성장도가 시작 Level(마지막 이정표)과 목표 Level(다음 이정표)을 정한다.
             var hq = new Hq(content.Growth, HqUpgradeStats.GrowthTimeFrom(table), progress.GrowthStage);
 
             // 전투 Session이 시작되기 전,

@@ -16,8 +16,8 @@ namespace BlackHole.Core
         public long Gold { get; private set; }
         // 산 노드의 ID(산 순서). ID로 기록하므로 트리를 다시 불러와도 이어진다.
         public IReadOnlyList<string> OwnedNodes { get; }
-        // 블랙홀의 성장도. 새 진행은 0이다. 결산 때만, 한 판에 최대 1 오른다. 줄지 않는다(BATTLE_COMPOSITION_PLAN 8절).
-        // 판의 Level·EXP는 저장하지 않는다 — 매 판 0에서 시작한다. 이정표 진행도는 성장도로 계산한다.
+        // 블랙홀의 성장도: 도달한 이정표의 수. 새 진행은 0이다. 결산 때만, 한 판에 최대 1 오른다. 줄지 않는다.
+        // 판의 Level·EXP는 저장하지 않는다 — 매 판 성장도의 시작 Level(마지막 이정표의 Level)에서 시작한다(HqGrowthDefinition).
         public int GrowthStage { get; private set; } = HqGrowthDefinition.StartStage;
 
         public PlayerState(PlayerId id)
