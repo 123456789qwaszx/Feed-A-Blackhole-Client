@@ -32,7 +32,7 @@ namespace BlackHole.EditorTools
     // 조작(편집):
     // - 노드 클릭: 고르기. Ctrl(Mac은 Cmd)+클릭: 고른 것에 더하거나 빼기. 빈 곳 끌기: 박스로 고르기.
     // - 노드 끌기: 고른 노드들을 함께 옮기기(선은 그대로). Shift+노드에서 노드로 끌기: 잇기.
-    // - 선 클릭: 선 고르기(Delete로 끊는다). 빈 칸 더블클릭: 노드 놓기. Delete: 고른 선 또는 노드 지우기. F: 전체 보기.
+    // - 선 클릭: 선 고르기(Delete로 끊는다). 빈 칸 더블클릭: 고른 미배치 노드 놓기(창이 정한다). Delete: 고른 선 끊기 또는 노드를 배치에서 빼기. F: 전체 보기.
     // - 휠: 확대. 가운데·오른쪽 버튼(또는 Alt+왼쪽) 끌기: 이동. 미리보기에서는 노드 클릭과 이동·확대만 된다.
     internal sealed class NodeGridCanvas : VisualElement
     {

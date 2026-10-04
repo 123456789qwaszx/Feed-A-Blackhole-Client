@@ -5,16 +5,16 @@ using BlackHole.Core;
 
 namespace BlackHole.Authoring
 {
-    // 노드 도구의 편집 규칙. 저작 형식(NodeTreeData)을 고친다. 엔진을 모르고, 게임 빌드에는 들어가지 않는다(에디터 전용 어셈블리).
+    // 노드 도구의 편집 규칙. 배치의 저작 형식(NodeTreeData)을 고친다. 엔진을 모르고, 게임 빌드에는 들어가지 않는다(에디터 전용 어셈블리).
     //
+    // 노드 ID는 노드 콘텐츠(Nodes 시트)가 정한다. 이 도구는 ID를 만들거나 바꾸지 않는다:
+    // 콘텐츠에 있는 ID를 빈 칸에 놓고(Place), 옮기고, 잇고, 배치에서 뺀다(Remove — 콘텐츠의 노드는 그대로 남아 다시 놓을 수 있다).
     // 선은 제작자가 그은 것만이다. 좌표는 표시용이고 선은 게임 규칙이므로, 놓기와 옮기기는 선을 건드리지 않는다.
     // 격자 이웃 잇기(LinkNeighbors)는 저작 명령이다: 고른 노드 가운데 상하좌우로 붙은 쌍을 그 순간 잇는다.
     // 그 뒤에 노드를 옮겨도 선은 그대로다. 자동 연결은 규칙의 원천이 아니라 손을 덜어 주는 기능이다.
-    // 첫 노드는 시작 노드가 된다. 비용·효과는 노드 콘텐츠(시트)의 것이라 여기서 다루지 않는다.
+    // 처음 놓은 노드는 시작 노드가 된다. 비용·효과는 노드 콘텐츠의 것이라 여기서 다루지 않는다.
     public static class NodeTreeAuthoring
     {
-        public const string IdPrefix = "node-";
-
         public static NodeData At(NodeTreeData tree, int x, int y)
         {
             foreach (NodeData node in tree.Nodes)
@@ -37,15 +37,38 @@ namespace BlackHole.Authoring
             return null;
         }
 
-        // 빈 칸에 새 노드를 놓는다. 선은 긋지 않는다. 칸이 차 있으면 null이다.
-        public static NodeData Place(NodeTreeData tree, int x, int y)
+        // 콘텐츠의 노드 id를 빈 칸에 놓는다. 선은 긋지 않는다.
+        // id가 비었거나, 이미 놓였거나, 칸이 차 있으면 아무것도 하지 않고 null이다. id가 콘텐츠에 있는지는 부르는 쪽이 본다.
+        public static NodeData Place(NodeTreeData tree, string id, int x, int y)
         {
-            if (At(tree, x, y) != null)
+            if (string.IsNullOrWhiteSpace(id) || Find(tree, id) != null || At(tree, x, y) != null)
                 return null;
 
-            var node = new NodeData { Id = NextId(tree), Start = tree.Nodes.Count == 0, X = x, Y = y };
+            var node = new NodeData { Id = id, Start = tree.Nodes.Count == 0, X = x, Y = y };
             tree.Nodes.Add(node);
             return node;
+        }
+
+        // ids 가운데 아직 놓지 않은 것(ids 순서).
+        public static List<string> Unplaced(NodeTreeData tree, IEnumerable<string> ids)
+        {
+            var placed = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (NodeData node in tree.Nodes)
+            {
+                if (node?.Id != null)
+                    placed.Add(node.Id);
+            }
+
+            var unplaced = new List<string>();
+
+            foreach (string id in ids)
+            {
+                if (!placed.Contains(id))
+                    unplaced.Add(id);
+            }
+
+            return unplaced;
         }
 
         // 노드들을 함께 (dx, dy)칸 옮긴다. 선은 그대로다.
@@ -74,7 +97,7 @@ namespace BlackHole.Authoring
             return true;
         }
 
-        // 노드를 지우고, 다른 노드에 적힌 그 노드와의 선도 지운다.
+        // 노드를 배치에서 빼고, 다른 노드에 적힌 그 노드와의 선도 지운다. 콘텐츠의 노드는 그대로라 다시 놓을 수 있다.
         public static void Remove(NodeTreeData tree, NodeData node)
         {
             tree.Nodes.Remove(node);
@@ -172,41 +195,6 @@ namespace BlackHole.Authoring
             return removed;
         }
 
-        // ID를 바꾸고, 다른 노드에 적힌 선도 새 ID로 바꾼다. 비었거나 이미 쓰는 ID면 바꾸지 않고 false다.
-        // ID는 진행 상태의 저장 키다. 플레이어가 산 뒤에 바꾸면 그 노드를 산 기록이 끊긴다.
-        public static bool Rename(NodeTreeData tree, NodeData node, string id)
-        {
-            id = id?.Trim();
-
-            if (string.IsNullOrEmpty(id))
-                return false;
-
-            if (id == node.Id)
-                return true;
-
-            if (Find(tree, id) != null)
-                return false;
-
-            string old = node.Id;
-            node.Id = id;
-
-            foreach (NodeData other in tree.Nodes)
-            {
-                if (other == null)
-                    continue;
-
-                List<string> links = LinksOf(other);
-
-                for (int i = 0; i < links.Count; i++)
-                {
-                    if (links[i] == old)
-                        links[i] = id;
-                }
-            }
-
-            return true;
-        }
-
         // 그릴 선: 양 끝이 모두 있는 선을 한 번씩.
         public static List<(NodeData A, NodeData B)> Links(NodeTreeData tree)
         {
@@ -262,17 +250,6 @@ namespace BlackHole.Authoring
             (value >= 0 ? "+" : string.Empty) + Number(value) + (unit == UpgradeStatUnit.Percent ? "%" : string.Empty);
 
         private static List<string> LinksOf(NodeData node) => node.Links ??= new List<string>();
-
-        private static string NextId(NodeTreeData tree)
-        {
-            for (int n = 1; ; n++)
-            {
-                string id = IdPrefix + n.ToString(CultureInfo.InvariantCulture);
-
-                if (Find(tree, id) == null)
-                    return id;
-            }
-        }
 
         // NodeTreeLoader와 같은 경로 모양이다. 진단을 누르면 도구가 이 경로로 노드를 찾는다.
         private static string At(int index, string id) =>

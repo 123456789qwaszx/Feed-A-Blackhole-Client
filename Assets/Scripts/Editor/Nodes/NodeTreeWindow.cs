@@ -13,8 +13,10 @@ namespace BlackHole.EditorTools
 {
     // 노드 도구(F03, 메뉴 BlackHole > Node Tree). 노드 목록 에셋(NodeCatalog)의 배치를 격자 위에서 고친다.
     //
-    // 어떤 노드가 있는지와 Rank·비용·효과는 노드 콘텐츠(시트 CSV, NodeCatalog가 가리키는 NodeContentSource)가 원본이고 여기서는 보기만 한다.
-    // 이 도구가 원본인 것은 칸·선·시작 노드다.
+    // 어떤 노드가 있는지(ID)와 Rank·비용·효과는 노드 콘텐츠(시트 CSV, NodeCatalog가 가리키는 NodeContentSource)가 원본이고 여기서는 보기만 한다.
+    // 이 도구가 원본인 것은 칸·선·시작 노드다. ID를 만들거나 바꾸지 않는다:
+    // - 놓기: 오른쪽 "미배치 노드" 목록에서 콘텐츠의 노드를 고르고 빈 칸을 더블클릭한다. 놓으면 목록의 다음 노드로 넘어간다.
+    // - 빼기: 노드를 고르고 Delete(또는 "배치에서 빼기"). 콘텐츠의 노드는 그대로라 목록으로 돌아간다.
     // - 편집: 선은 그은 것만이다. 놓기·옮기기는 선을 건드리지 않는다(좌표는 표시용, 선은 게임 규칙).
     //   잇기는 Shift+끌기, 끊기는 선을 눌러 Delete. 여러 노드를 고르면 명령이 나온다:
     //   둘 잇기, 이웃끼리 잇기(격자 이웃을 그 순간 잇는 저작 명령), 선택끼리 끊기, 선 모두 지우기. 편집 규칙은 NodeTreeAuthoring에 있다.
@@ -39,6 +41,7 @@ namespace BlackHole.EditorTools
         private static readonly Color ErrorBorder = new Color(0.95f, 0.3f, 0.3f);
         private static readonly Color ErrorText = new Color(1f, 0.55f, 0.55f);
         private static readonly Color WarningText = new Color(1f, 0.85f, 0.45f);
+        private static readonly Color PlacingFill = new Color(0.22f, 0.42f, 0.62f);
 
         [SerializeField] private NodeCatalog catalog;
 
@@ -51,6 +54,12 @@ namespace BlackHole.EditorTools
         private NodeGridCanvas _canvas;
         private VisualElement _panel;
         private VisualElement _diagnosticsList;
+        private VisualElement _unplacedSection;
+        private Label _unplacedHeader;
+        private VisualElement _unplacedList;
+        private string _unplacedFilter = string.Empty;
+        // 다음에 빈 칸을 더블클릭하면 놓을 콘텐츠 노드의 ID. 없으면 null.
+        private string _placingId;
         private (string A, string B)? _selectedLink;
         private string _message;
         private bool _preview;
@@ -112,7 +121,8 @@ namespace BlackHole.EditorTools
             _canvas = new NodeGridCanvas(this);
             left.Add(_canvas);
             var help = new Label(
-                "빈 칸 더블클릭: 놓기 · 클릭/박스: 고르기 (Ctrl: 더하기) · 끌기: 옮기기 · Shift+끌기: 잇기 · 선 클릭 후 Delete: 끊기 · 휠: 확대 · 가운데/오른쪽 끌기: 이동");
+                "미배치 노드를 고른 뒤 빈 칸 더블클릭: 놓기 · 클릭/박스: 고르기 (Ctrl: 더하기) · 끌기: 옮기기 · Shift+끌기: 잇기 · " +
+                "선 클릭 후 Delete: 끊기 · 노드 고르고 Delete: 배치에서 빼기 · 휠: 확대 · 가운데/오른쪽 끌기: 이동");
             help.style.whiteSpace = WhiteSpace.Normal;
             help.style.paddingLeft = 6;
             help.style.paddingTop = 2;
@@ -124,6 +134,21 @@ namespace BlackHole.EditorTools
             side.style.paddingRight = 8;
             _panel = new VisualElement();
             side.Add(_panel);
+
+            _unplacedSection = new VisualElement();
+            _unplacedHeader = Header("미배치 노드");
+            _unplacedSection.Add(_unplacedHeader);
+            var filter = new TextField("찾기") { value = _unplacedFilter };
+            filter.RegisterValueChangedCallback(evt =>
+            {
+                _unplacedFilter = evt.newValue ?? string.Empty;
+                BuildUnplaced();
+            });
+            _unplacedSection.Add(filter);
+            _unplacedList = new VisualElement();
+            _unplacedSection.Add(_unplacedList);
+            side.Add(_unplacedSection);
+
             side.Add(Header("검사"));
             _diagnosticsList = new VisualElement();
             side.Add(_diagnosticsList);
@@ -240,6 +265,7 @@ namespace BlackHole.EditorTools
 
             _canvas.Refresh();
             BuildPanel();
+            BuildUnplaced();
             BuildDiagnostics();
         }
 
@@ -353,13 +379,31 @@ namespace BlackHole.EditorTools
 
             if (clickCount >= 2)
             {
+                if (_placingId == null)
+                {
+                    ShowMessage("놓을 노드를 오른쪽 '미배치 노드' 목록에서 먼저 고른다.");
+                    return;
+                }
+
+                string id = _placingId;
+                string next = NextUnplacedAfter(id);
+                bool placed = false;
+
                 Edit("노드 놓기", tree =>
                 {
-                    NodeData node = NodeTreeAuthoring.Place(tree, x, y);
+                    NodeData node = NodeTreeAuthoring.Place(tree, id, x, y);
 
-                    if (node != null)
-                        Select(node, false);
+                    if (node == null)
+                        return;
+
+                    placed = true;
+                    Select(node, false);
+                    _placingId = next;
                 });
+
+                if (!placed)
+                    ShowMessage($"'{id}'를 놓지 못했다: 이미 놓였거나 칸이 차 있다.");
+
                 return;
             }
 
@@ -463,7 +507,7 @@ namespace BlackHole.EditorTools
             if (selected.Count == 0)
                 return;
 
-            Edit("노드 지우기", tree =>
+            Edit("배치에서 빼기", tree =>
             {
                 foreach (NodeData node in selected)
                     NodeTreeAuthoring.Remove(tree, node);
@@ -524,26 +568,9 @@ namespace BlackHole.EditorTools
         {
             _panel.Add(Header("노드"));
 
-            var id = new TextField("ID") { value = node.Id, isDelayed = true };
-            id.RegisterValueChangedCallback(evt =>
-            {
-                string before = node.Id;
-                bool renamed = false;
-                Edit("ID 바꾸기", tree => renamed = NodeTreeAuthoring.Rename(tree, NodeTreeAuthoring.Find(tree, before), evt.newValue));
-
-                if (renamed)
-                {
-                    ClearSelection();
-                    _selectedIds.Add(evt.newValue.Trim());
-                    RefreshSelection();
-                }
-                else
-                {
-                    ShowMessage($"'{evt.newValue}'로 바꿀 수 없다: 비었거나 이미 쓰는 ID다.");
-                }
-            });
+            var id = new TextField("ID") { value = node.Id, isReadOnly = true };
             _panel.Add(id);
-            _panel.Add(Note("ID는 산 노드를 기록하는 저장 키다. 플레이어가 산 뒤에는 바꾸지 않는다."));
+            _panel.Add(Note("ID는 노드 콘텐츠(Nodes 시트)의 것이고, 산 노드를 기록하는 저장 키다. 여기서는 바꾸지 않는다."));
 
             var start = new Toggle("시작 노드") { value = node.Start };
             start.RegisterValueChangedCallback(evt => Edit("시작 노드 바꾸기", tree => NodeTreeAuthoring.Find(tree, node.Id).Start = evt.newValue));
@@ -574,7 +601,7 @@ namespace BlackHole.EditorTools
             BuildRanks(node.Id);
             _panel.Add(Note("Rank·비용·효과는 데이터 시트(Nodes·NodeCost·NodeEffects 탭)에서 고치고, 내려받은 CSV를 Assets/Data/NodeTable에 넣는다."));
 
-            var remove = new Button(OnDeletePressed) { text = "노드 지우기" };
+            var remove = new Button(OnDeletePressed) { text = "배치에서 빼기" };
             remove.style.marginTop = 12;
             _panel.Add(remove);
         }
@@ -626,7 +653,7 @@ namespace BlackHole.EditorTools
             _panel.Add(new Button(() => Command("선 모두 지우기", tree => NodeTreeAuthoring.ClearLinks(tree, selected), "선 {0}개를 지웠다.")) { text = "선 모두 지우기" });
             _panel.Add(Note("선택끼리 끊기: 고른 노드 사이의 선만. 선 모두 지우기: 고른 노드에 닿은 선 전부."));
 
-            var remove = new Button(OnDeletePressed) { text = "노드 지우기" };
+            var remove = new Button(OnDeletePressed) { text = "배치에서 빼기" };
             remove.style.marginTop = 12;
             _panel.Add(remove);
         }
@@ -657,11 +684,91 @@ namespace BlackHole.EditorTools
             }
 
             _panel.Add(Header("트리"));
-            _panel.Add(new Label($"노드 {Tree.Nodes.Count}개 · 시작 노드 {starts}개 · 선 {NodeTreeAuthoring.Links(Tree).Count}개"));
-            _panel.Add(Note("빈 칸을 더블클릭하면 노드를 놓는다. 노드를 여럿 고르면(박스·Ctrl+클릭) 이웃끼리 잇기 같은 명령이 나온다."));
+            string content = _content?.Content != null ? $" / 콘텐츠 {_content.Content.Nodes.Count}개" : string.Empty;
+            _panel.Add(new Label($"배치한 노드 {Tree.Nodes.Count}개{content} · 시작 노드 {starts}개 · 선 {NodeTreeAuthoring.Links(Tree).Count}개"));
+            _panel.Add(Note("아래 '미배치 노드'에서 노드를 고르고 빈 칸을 더블클릭하면 놓는다. 노드를 여럿 고르면(박스·Ctrl+클릭) 이웃끼리 잇기 같은 명령이 나온다."));
         }
 
-        // 미리보기: 산 노드 수, 쓴 Gold, 수치별 업그레이드 합계. 가져가는 시스템의 기본값은 모르므로 기본값 0과 1일 때를 보여 준다.
+        // 미배치 노드: 콘텐츠에는 있지만 아직 놓지 않은 노드(콘텐츠 순서). 하나를 고르면 빈 칸 더블클릭으로 놓는다.
+        // 편집 중이고 콘텐츠를 불러왔을 때만 보인다.
+        private void BuildUnplaced()
+        {
+            _unplacedList.Clear();
+            bool shown = catalog != null && !_preview && _content?.Content != null;
+            _unplacedSection.style.display = shown ? DisplayStyle.Flex : DisplayStyle.None;
+
+            if (!shown)
+                return;
+
+            List<string> unplaced = UnplacedIds();
+
+            if (_placingId != null && !unplaced.Contains(_placingId))
+                _placingId = null;
+
+            _unplacedHeader.text = $"미배치 노드 {unplaced.Count}개";
+
+            if (unplaced.Count == 0)
+            {
+                _unplacedList.Add(Note("콘텐츠의 노드를 모두 놓았다."));
+                return;
+            }
+
+            _unplacedList.Add(Note(_placingId == null
+                ? "놓을 노드를 누른 뒤 빈 칸을 더블클릭한다."
+                : $"놓을 노드: {_placingId}. 빈 칸을 더블클릭한다. 놓으면 목록의 다음 노드로 넘어간다. 다시 누르면 고르기를 푼다."));
+
+            foreach (string id in unplaced)
+            {
+                if (_unplacedFilter.Length > 0 && id.IndexOf(_unplacedFilter, StringComparison.OrdinalIgnoreCase) < 0)
+                    continue;
+
+                string target = id;
+                var button = new Button(() =>
+                {
+                    _placingId = _placingId == target ? null : target;
+                    BuildUnplaced();
+                })
+                {
+                    text = UnplacedLabel(target),
+                };
+
+                button.style.unityTextAlign = TextAnchor.MiddleLeft;
+
+                if (target == _placingId)
+                    button.style.backgroundColor = PlacingFill;
+
+                _unplacedList.Add(button);
+            }
+        }
+
+        private List<string> UnplacedIds()
+        {
+            var ids = new List<string>(_content.Content.Nodes.Count);
+
+            foreach (NodeDefinition node in _content.Content.Nodes)
+                ids.Add(node.Id);
+
+            return NodeTreeAuthoring.Unplaced(Tree, ids);
+        }
+
+        // 놓은 뒤 고를 다음 노드: 미배치 목록(콘텐츠 순서)에서 id 바로 다음. 없으면 null.
+        private string NextUnplacedAfter(string id)
+        {
+            List<string> unplaced = UnplacedIds();
+            int index = unplaced.IndexOf(id);
+            return index >= 0 && index + 1 < unplaced.Count ? unplaced[index + 1] : null;
+        }
+
+        private string UnplacedLabel(string id)
+        {
+            if (!_content.Content.TryGetNode(id, out NodeDefinition node))
+                return id;
+
+            string cost = Compact(node.RankAt(1).Cost);
+            return node.MaxRank > 1 ? $"{id}  ·  {cost} ×{node.MaxRank}" : $"{id}  ·  {cost}";
+        }
+
+        // 미리보기: 산 노드 수, 쓴 Gold, 수치별 값(기본값 → 지금 값).
         private void BuildPreviewPanel()
         {
             _panel.Add(Header("구매 미리보기"));
