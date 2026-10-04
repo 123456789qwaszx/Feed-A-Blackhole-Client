@@ -3,18 +3,18 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // Player 한 명의 진행 상태: Gold, 산 노드, 블랙홀의 성장도. 전투 사이에 유지된다(앱 종료 후 저장은 하지 않는다).
+    // Player 한 명의 진행 상태: Gold, 노드마다 산 Rank, 블랙홀의 성장도. 전투 사이에 유지된다(앱 종료 후 저장은 하지 않는다).
     // 새 진행은 새 PlayerState로 시작한다. 판은 PlayerState 목록을 받는다 — 지금 1명일 뿐 하나로 고정된 것이 아니다.
     // 산 노드는 전투 밖에서만 바뀐다(NodePurchase.TryPurchase).
     public sealed class PlayerState
     {
         private readonly List<string> _ownedNodes = new List<string>();
-        private readonly HashSet<string> _owned = new HashSet<string>(StringComparer.Ordinal);
+        private readonly Dictionary<string, int> _ranks = new Dictionary<string, int>(StringComparer.Ordinal);
 
         public PlayerId Id { get; }
         // 원작의 금액은 T(조) 단위까지 오르므로 int(약 21억)가 아니라 long이다.
         public long Gold { get; private set; }
-        // 산 노드의 ID(산 순서). ID로 기록하므로 트리를 다시 불러와도 이어진다.
+        // Rank를 하나라도 산 노드의 ID(처음 산 순서). ID로 기록하므로 트리를 다시 불러와도 이어진다.
         public IReadOnlyList<string> OwnedNodes { get; }
         // 블랙홀의 성장도. 새 진행은 0이다. 결산 때만, 한 판에 최대 1 오른다. 줄지 않는다(BATTLE_COMPOSITION_PLAN 8절).
         // 판의 Level·EXP는 저장하지 않는다 — 매 판 0에서 시작한다. 이정표 진행도는 성장도로 계산한다.
@@ -26,8 +26,12 @@ namespace BlackHole.Core
             OwnedNodes = _ownedNodes.AsReadOnly();
         }
 
-        public bool Owns(string nodeId) =>
-            nodeId != null && _owned.Contains(nodeId);
+        // 이 노드를 몇 Rank까지 샀는가. 사지 않았으면 0이다. 최대 Rank는 모른다(노드 정의의 것) — 구매 규칙이 넘지 않게 한다.
+        public int RankOf(string nodeId) =>
+            nodeId != null && _ranks.TryGetValue(nodeId, out int rank) ? rank : 0;
+
+        // Rank를 하나라도 샀는가. 선으로 이어진 노드가 드러나는 기준이다(NodeGraph.IsRevealed).
+        public bool Owns(string nodeId) => RankOf(nodeId) > 0;
 
         // Gold를 더한다. 전투 중에는 부르지 않는다 — 판이 끝난 뒤 결산(GameSession.Settle)이 그 판이 번 Gold로 한 번 부른다.
         // 그래서 진행 상태는 전투 밖에서만 바뀌고, 저장 시점도 전투 밖이다.
@@ -48,12 +52,18 @@ namespace BlackHole.Core
             GrowthStage = stage;
         }
 
-        // 구매 규칙(NodePurchase.TryPurchase)이 확인한 뒤에만 부른다. 진행 상태는 노드를 ID와 가격으로만 안다.
-        internal void Buy(string nodeId, long price)
+        // 구매 규칙(NodePurchase.TryPurchase)이 확인한 뒤에만 부른다. 노드의 Rank를 하나 올린다.
+        // 진행 상태는 노드를 ID와 비용으로만 안다. 최대 Rank와 Gold 판정은 구매 규칙의 일이다.
+        internal void BuyRank(string nodeId, long cost)
         {
-            Gold -= price;
+            if (cost < 0 || cost > Gold)
+                throw new ArgumentOutOfRangeException(nameof(cost), $"비용은 0 이상, 가진 Gold({Gold}) 이하여야 한다. 받은 값: {cost}.");
 
-            if (_owned.Add(nodeId))
+            Gold -= cost;
+            int rank = RankOf(nodeId) + 1;
+            _ranks[nodeId] = rank;
+
+            if (rank == 1)
                 _ownedNodes.Add(nodeId);
         }
     }

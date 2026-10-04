@@ -16,6 +16,7 @@ namespace BlackHole.EditorTools
         Color FillOf(NodeData node);
         Color BorderOf(NodeData node);
         bool IsSelectedLink(NodeData a, NodeData b);
+        string LabelOf(NodeData node);
         void OnEmptyCellClicked(int x, int y, int clickCount, bool additive);
         void OnNodeClicked(NodeData node, bool additive);
         void OnLinkClicked(NodeData a, NodeData b);
@@ -353,7 +354,7 @@ namespace BlackHole.EditorTools
                 }
 
                 Vector2 center = CellCenter(node.X, node.Y);
-                label.text = $"{node.Id}\n{node.Price}";
+                label.text = _host.LabelOf(node);
                 label.style.display = shown ? DisplayStyle.Flex : DisplayStyle.None;
                 label.style.left = center.x - size * 0.5f;
                 label.style.top = center.y - size * 0.5f;

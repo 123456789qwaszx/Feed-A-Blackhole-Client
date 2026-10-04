@@ -4,44 +4,27 @@ using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 게임에 등록된 노드 전체의 목록:
-    // - 노드마다 ID,
-    // - 가격,
-    // - 시작 노드인가,
-    // - 격자 칸,
-    // - 이어진 노드,
-    // - 구매 시 업그레이드.
+    // 게임의 노드 트리 = 노드 콘텐츠 + 배치.
+    // - 노드 콘텐츠(NodeContentSource): 어떤 노드가 있는가(ID·Rank·비용·효과)와 수치 정의. 데이터 시트(CSV)가 원본이다.
+    // - 배치: 노드마다 격자 칸, 시작 노드인가, 이어진 노드. 노드 도구(메뉴 BlackHole > Node Tree)가 원본이다.
+    // 둘은 노드 ID로 짝짓는다(NodeTreeLoader). 배치하지 않은 콘텐츠 노드는 트리에 들어가지 않는다.
     [CreateAssetMenu(fileName = "NodeCatalog", menuName = "BlackHole/Node Catalog")]
     public sealed class NodeCatalog : ScriptableObject
     {
-        [SerializeField] private NodeTreeData tree = new();
+        [Tooltip("노드 콘텐츠(UpgradeStats·Nodes·NodeCost·NodeEffects CSV).")]
+        [SerializeField] private NodeContentSource _content;
 
-        // 노드 도구(메뉴 BlackHole > Node Tree)가 고치는 원본. 게임 코드는 ToData()로 읽는다.
-        // 노드의 칸·선·시작 노드는 노드 도구가, 가격·업그레이드는 데이터 시트(Nodes·NodeUpgrades 탭)가 원본이다.
-        internal NodeTreeData Tree => tree;
+        [SerializeField] private NodeTreeData _layout = new();
 
-        // 데이터 시트 가져오기(메뉴 BlackHole > Data Sheets)만 부른다. 같은 ID의 노드에 가격·업그레이드만 옮긴다.
-        internal void ReplaceNumbers(NodeTreeData numbers)
-        {
-            var byId = new Dictionary<string, NodeData>();
+        public NodeContentSource Content => _content;
 
-            foreach (NodeData node in numbers.Nodes)
-                byId[node.Id] = node;
-
-            foreach (NodeData node in tree.Nodes)
-            {
-                if (!byId.TryGetValue(node.Id, out NodeData source))
-                    continue;
-
-                node.Price = source.Price;
-                node.Upgrades = new List<UpgradeData>(source.Upgrades);
-            }
-        }
+        // 노드 도구가 고치는 배치 원본. 게임 코드는 ToData()로 읽는다.
+        internal NodeTreeData Tree => _layout;
 
         public NodeTreeData ToData() =>
             new NodeTreeData
             {
-                Nodes = new List<NodeData>(tree.Nodes)
+                Nodes = new List<NodeData>(_layout.Nodes)
             };
     }
 }

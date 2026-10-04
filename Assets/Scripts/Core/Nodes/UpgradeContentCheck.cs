@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
+    // 노드를 모두 산 경우(배치된 모든 노드를 마지막 Rank까지)에도 판을 조립할 수 있는가.
+    // 전투 쪽이 받는 옛 업그레이드 표(NodeUpgradeBridge)로 판 조립의 규칙을 미리 돌려 본다.
     public static class UpgradeContentCheck
     {
         public static IReadOnlyList<ContentDiagnostic> Check(GameContent content, NodeTree nodes)
@@ -14,12 +16,7 @@ namespace BlackHole.Core
                 throw new ArgumentNullException(nameof(nodes));
 
             var diagnostics = new List<ContentDiagnostic>();
-            var everything = new List<Upgrade>();
-
-            foreach (NodeDefinition node in nodes.Nodes)
-                everything.AddRange(node.Upgrades);
-
-            var table = new UpgradeTable(everything);
+            UpgradeTable table = NodeUpgradeBridge.ToUpgradeTable(NodePurchase.StatsFor(nodes, node => node.MaxRank));
             long extraSupply = 0;
 
             if (content.Breaker != null)

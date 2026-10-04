@@ -12,1048 +12,1428 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 165e9022097e4ead9e9b181d76230366, type: 3}
   m_Name: NodeCatalog
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.NodeCatalog
-  tree:
+  _content: {fileID: 11400000, guid: 4199414299434bddae230f7ea80da893, type: 2}
+  _layout:
     Nodes:
-    - Id: start
-      Price: 5
+    - Id: timer-01
       Start: 1
-      X: -2
+      X: 0
       Y: 0
-      Links:
-      - damage-1
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 0
-        Value: 1
-    - Id: damage-1
-      Price: 11
-      Start: 0
-      X: 0
-      Y: -1
-      Links:
-      - square-a
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 0
-        Value: 1
-    - Id: speed-1
-      Price: 17
-      Start: 0
-      X: 1
-      Y: 0
-      Links:
-      - start
-      Upgrades:
-      - Stat: breaker.speed
-        Operation: 1
-        Value: 0.25
-    - Id: speed-2
-      Price: 180
-      Start: 0
-      X: 2
-      Y: 0
-      Links:
-      - speed-1
-      Upgrades:
-      - Stat: breaker.speed
-        Operation: 1
-        Value: 0.25
-    - Id: growth-time
-      Price: 31
-      Start: 0
-      X: 0
-      Y: 1
-      Links:
-      - start
-      Upgrades:
-      - Stat: hq.growth-time
-        Operation: 0
-        Value: 2
-    - Id: asteroid-growth-supply
-      Price: 40
-      Start: 0
-      X: 1
-      Y: 1
-      Links:
-      - growth-time
-      Upgrades:
-      - Stat: enemy.asteroid.growth-supply
-        Operation: 0
-        Value: 3
-    - Id: square-a
-      Price: 34
-      Start: 0
-      X: 0
-      Y: -2
-      Links:
-      - square-c
-      Upgrades:
-      - Stat: breaker.radius
-        Operation: 1
-        Value: 0.1
-    - Id: square-b
-      Price: 510
-      Start: 0
-      X: 2
-      Y: -3
-      Links:
-      - square-d
-      Upgrades:
-      - Stat: breaker.radius
-        Operation: 1
-        Value: 0.1
-    - Id: square-c
-      Price: 92
-      Start: 0
-      X: 0
-      Y: -3
-      Links:
-      - square-d
-      Upgrades:
-      - Stat: breaker.crit-chance
-        Operation: 0
-        Value: 0.05
-    - Id: square-d
-      Price: 3700
-      Start: 0
-      X: 1
-      Y: -3
       Links: []
-      Upgrades:
-      - Stat: breaker.crit-chance
-        Operation: 0
-        Value: 0.05
-    - Id: damage-2
-      Price: 17
+    - Id: timer-02
       Start: 0
       X: 1
-      Y: -1
+      Y: 0
       Links:
-      - damage-1
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-3
-      Price: 100
+      - timer-01
+    - Id: timer-03
       Start: 0
       X: 2
-      Y: -1
+      Y: 0
       Links:
-      - damage-2
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-4
-      Price: 260
+      - timer-02
+    - Id: timer-04
       Start: 0
       X: 3
-      Y: -1
+      Y: 0
       Links:
-      - damage-3
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-5
-      Price: 4200
+      - timer-03
+    - Id: growth.time-01
+      Start: 1
+      X: 0
+      Y: -1
+      Links: []
+    - Id: growth.asteroids-01
+      Start: 1
+      X: 0
+      Y: -2
+      Links: []
+    - Id: growth.asteroids-02
+      Start: 0
+      X: 1
+      Y: -2
+      Links:
+      - growth.asteroids-01
+    - Id: growth.asteroids-03
+      Start: 0
+      X: 2
+      Y: -2
+      Links:
+      - growth.asteroids-02
+    - Id: growth.planets-01
+      Start: 1
+      X: 0
+      Y: -3
+      Links: []
+    - Id: growth.planets-02
+      Start: 0
+      X: 1
+      Y: -3
+      Links:
+      - growth.planets-01
+    - Id: growth.stars-01
+      Start: 1
+      X: 0
+      Y: -4
+      Links: []
+    - Id: breaker.damage-01
+      Start: 1
+      X: 0
+      Y: -5
+      Links: []
+    - Id: breaker.damage-02
+      Start: 0
+      X: 1
+      Y: -5
+      Links:
+      - breaker.damage-01
+    - Id: breaker.damage-03
+      Start: 0
+      X: 2
+      Y: -5
+      Links:
+      - breaker.damage-02
+    - Id: breaker.damage-04
+      Start: 0
+      X: 3
+      Y: -5
+      Links:
+      - breaker.damage-03
+    - Id: breaker.damage-05
       Start: 0
       X: 4
-      Y: -1
+      Y: -5
       Links:
-      - damage-4
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-6
-      Price: 12000
+      - breaker.damage-04
+    - Id: breaker.damage-06
       Start: 0
       X: 5
-      Y: -1
+      Y: -5
       Links:
-      - damage-5
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-7
-      Price: 64000
+      - breaker.damage-05
+    - Id: breaker.damage-07
       Start: 0
       X: 6
-      Y: -1
+      Y: -5
       Links:
-      - damage-6
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-8
-      Price: 160000
+      - breaker.damage-06
+    - Id: breaker.damage-08
       Start: 0
       X: 7
-      Y: -1
+      Y: -5
       Links:
-      - damage-7
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-9
-      Price: 190000
+      - breaker.damage-07
+    - Id: breaker.damage-09
       Start: 0
       X: 8
-      Y: -1
+      Y: -5
       Links:
-      - damage-8
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-10
-      Price: 230000
+      - breaker.damage-08
+    - Id: breaker.damage-10
       Start: 0
       X: 9
-      Y: -1
+      Y: -5
       Links:
-      - damage-9
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-11
-      Price: 280000
+      - breaker.damage-09
+    - Id: breaker.damage-11
       Start: 0
       X: 10
-      Y: -1
+      Y: -5
       Links:
-      - damage-10
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-12
-      Price: 340000
+      - breaker.damage-10
+    - Id: breaker.damage-12
       Start: 0
       X: 11
-      Y: -1
+      Y: -5
       Links:
-      - damage-11
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-13
-      Price: 510000
+      - breaker.damage-11
+    - Id: breaker.damage-13
       Start: 0
       X: 12
-      Y: -1
+      Y: -5
       Links:
-      - damage-12
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-14
-      Price: 1100000
+      - breaker.damage-12
+    - Id: breaker.damage-14
       Start: 0
       X: 13
-      Y: -1
+      Y: -5
       Links:
-      - damage-13
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-15
-      Price: 1300000
+      - breaker.damage-13
+    - Id: breaker.damage-15
       Start: 0
       X: 14
-      Y: -1
+      Y: -5
       Links:
-      - damage-14
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-16
-      Price: 1600000
+      - breaker.damage-14
+    - Id: breaker.damage-16
       Start: 0
       X: 15
-      Y: -1
+      Y: -5
       Links:
-      - damage-15
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-17
-      Price: 1900000
+      - breaker.damage-15
+    - Id: breaker.damage-17
       Start: 0
       X: 16
-      Y: -1
+      Y: -5
       Links:
-      - damage-16
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-18
-      Price: 5600000
+      - breaker.damage-16
+    - Id: breaker.damage-18
       Start: 0
       X: 17
-      Y: -1
+      Y: -5
       Links:
-      - damage-17
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-19
-      Price: 13000000
+      - breaker.damage-17
+    - Id: breaker.damage-19
       Start: 0
       X: 18
-      Y: -1
+      Y: -5
       Links:
-      - damage-18
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: damage-20
-      Price: 30000000
+      - breaker.damage-18
+    - Id: breaker.damage-20
       Start: 0
       X: 19
-      Y: -1
+      Y: -5
       Links:
-      - damage-19
-      Upgrades:
-      - Stat: breaker.damage
-        Operation: 2
-        Value: 1.5
-    - Id: speed-3
-      Price: 120000
+      - breaker.damage-19
+    - Id: breaker.damage-21
       Start: 0
-      X: 3
-      Y: 0
+      X: 20
+      Y: -5
       Links:
-      - speed-2
-      Upgrades:
-      - Stat: breaker.speed
-        Operation: 1
-        Value: 0.25
-    - Id: speed-4
-      Price: 480000
+      - breaker.damage-20
+    - Id: breaker.damage-22
       Start: 0
-      X: 4
-      Y: 0
+      X: 21
+      Y: -5
       Links:
-      - speed-3
-      Upgrades:
-      - Stat: breaker.speed
-        Operation: 1
-        Value: 0.25
-    - Id: speed-5
-      Price: 7200000
+      - breaker.damage-21
+    - Id: breaker.damage-23
       Start: 0
-      X: 5
-      Y: 0
+      X: 22
+      Y: -5
       Links:
-      - speed-4
-      Upgrades:
-      - Stat: breaker.speed
-        Operation: 1
-        Value: 0.25
-    - Id: square-e
-      Price: 120000
+      - breaker.damage-22
+    - Id: breaker.damage-24
       Start: 0
-      X: 3
-      Y: -3
+      X: 23
+      Y: -5
       Links:
-      - square-b
-      Upgrades:
-      - Stat: breaker.radius
-        Operation: 1
-        Value: 0.1
-    - Id: square-f
-      Price: 1100000
+      - breaker.damage-23
+    - Id: breaker.damage-25
       Start: 0
-      X: 4
-      Y: -3
+      X: 24
+      Y: -5
       Links:
-      - square-e
-      Upgrades:
-      - Stat: breaker.radius
-        Operation: 1
-        Value: 0.1
-    - Id: square-g
-      Price: 120000
+      - breaker.damage-24
+    - Id: breaker.damage-26
       Start: 0
-      X: 5
-      Y: -3
+      X: 25
+      Y: -5
       Links:
-      - square-f
-      Upgrades:
-      - Stat: breaker.crit-chance
-        Operation: 0
-        Value: 0.05
-    - Id: square-h
-      Price: 1100000
+      - breaker.damage-25
+    - Id: breaker.damage-27
       Start: 0
-      X: 6
-      Y: -3
+      X: 26
+      Y: -5
       Links:
-      - square-g
-      Upgrades:
-      - Stat: breaker.crit-chance
-        Operation: 0
-        Value: 0.05
-    - Id: growth-time-2
-      Price: 25000
+      - breaker.damage-26
+    - Id: breaker.damage-28
       Start: 0
-      X: 0
-      Y: 2
+      X: 27
+      Y: -5
       Links:
-      - growth-time
-      Upgrades:
-      - Stat: hq.growth-time
-        Operation: 0
-        Value: 1
-    - Id: growth-time-3
-      Price: 200000
-      Start: 0
-      X: 0
-      Y: 3
-      Links:
-      - growth-time-2
-      Upgrades:
-      - Stat: hq.growth-time
-        Operation: 0
-        Value: 1
-    - Id: asteroid-growth-supply-2
-      Price: 8600
-      Start: 0
-      X: 2
-      Y: 1
-      Links:
-      - asteroid-growth-supply
-      Upgrades:
-      - Stat: enemy.asteroid.growth-supply
-        Operation: 0
-        Value: 3
-    - Id: asteroid-growth-supply-3
-      Price: 58000
-      Start: 0
-      X: 3
-      Y: 1
-      Links:
-      - asteroid-growth-supply-2
-      Upgrades:
-      - Stat: enemy.asteroid.growth-supply
-        Operation: 0
-        Value: 3
-    - Id: asteroid-mass-1
-      Price: 15
+      - breaker.damage-27
+    - Id: breaker.radius-01
       Start: 1
-      X: -2
-      Y: 1
-      Links: []
-      Upgrades:
-      - Stat: enemy.asteroid.mass-level
-        Operation: 0
-        Value: 1
-    - Id: asteroid-mass-2
-      Price: 41
-      Start: 0
-      X: -3
-      Y: 0
-      Links:
-      - asteroid-mass-1
-      Upgrades:
-      - Stat: enemy.asteroid.mass-level
-        Operation: 0
-        Value: 1
-    - Id: asteroid-mass-3
-      Price: 130
-      Start: 0
-      X: -4
-      Y: 0
-      Links:
-      - asteroid-mass-2
-      Upgrades:
-      - Stat: enemy.asteroid.mass-level
-        Operation: 0
-        Value: 1
-    - Id: asteroid-mass-4
-      Price: 260
-      Start: 0
-      X: -5
-      Y: 0
-      Links:
-      - asteroid-mass-3
-      Upgrades:
-      - Stat: enemy.asteroid.mass-level
-        Operation: 0
-        Value: 1
-    - Id: asteroid-mass-5
-      Price: 780
-      Start: 0
-      X: -6
-      Y: 0
-      Links:
-      - asteroid-mass-4
-      Upgrades:
-      - Stat: enemy.asteroid.mass-level
-        Operation: 0
-        Value: 1
-    - Id: asteroid-mass-6
-      Price: 8600
-      Start: 0
-      X: -7
-      Y: 0
-      Links:
-      - asteroid-mass-5
-      Upgrades:
-      - Stat: enemy.asteroid.mass-level
-        Operation: 0
-        Value: 1
-    - Id: asteroid-mass-7
-      Price: 26000
-      Start: 0
-      X: -8
-      Y: 0
-      Links:
-      - asteroid-mass-6
-      Upgrades:
-      - Stat: enemy.asteroid.mass-level
-        Operation: 0
-        Value: 1
-    - Id: asteroid-mass-8
-      Price: 63000
-      Start: 0
-      X: -9
-      Y: 0
-      Links:
-      - asteroid-mass-7
-      Upgrades:
-      - Stat: enemy.asteroid.mass-level
-        Operation: 0
-        Value: 1
-    - Id: asteroid-supply-1
-      Price: 31
-      Start: 0
-      X: -3
-      Y: 1
-      Links:
-      - asteroid-mass-2
-      Upgrades:
-      - Stat: enemy.asteroid.start-supply
-        Operation: 0
-        Value: 4
-    - Id: asteroid-supply-2
-      Price: 180
-      Start: 0
-      X: -3
-      Y: 2
-      Links:
-      - asteroid-supply-1
-      Upgrades:
-      - Stat: enemy.asteroid.start-supply
-        Operation: 0
-        Value: 4
-    - Id: asteroid-supply-3
-      Price: 3700
-      Start: 0
-      X: -3
-      Y: 3
-      Links:
-      - asteroid-supply-2
-      Upgrades:
-      - Stat: enemy.asteroid.start-supply
-        Operation: 0
-        Value: 4
-    - Id: asteroid-supply-4
-      Price: 8600
-      Start: 0
-      X: -3
-      Y: 4
-      Links:
-      - asteroid-supply-3
-      Upgrades:
-      - Stat: enemy.asteroid.start-supply
-        Operation: 0
-        Value: 4
-    - Id: asteroid-supply-5
-      Price: 25000
-      Start: 0
-      X: -3
-      Y: 5
-      Links:
-      - asteroid-supply-4
-      Upgrades:
-      - Stat: enemy.asteroid.start-supply
-        Operation: 0
-        Value: 4
-    - Id: asteroid-supply-6
-      Price: 58000
-      Start: 0
-      X: -3
-      Y: 6
-      Links:
-      - asteroid-supply-5
-      Upgrades:
-      - Stat: enemy.asteroid.start-supply
-        Operation: 0
-        Value: 4
-    - Id: golden-asteroid
-      Price: 510
-      Start: 0
-      X: -5
-      Y: 1
-      Links:
-      - asteroid-mass-4
-      Upgrades:
-      - Stat: enemy.asteroid.trait.golden.chance
-        Operation: 0
-        Value: 10
-    - Id: golden-multiplier-1
-      Price: 25000
-      Start: 0
-      X: -5
-      Y: 2
-      Links:
-      - golden-asteroid
-      Upgrades:
-      - Stat: enemy.asteroid.trait.golden.multiplier
-        Operation: 2
-        Value: 2
-    - Id: golden-multiplier-2
-      Price: 120000
-      Start: 0
-      X: -5
-      Y: 3
-      Links:
-      - golden-multiplier-1
-      Upgrades:
-      - Stat: enemy.asteroid.trait.golden.multiplier
-        Operation: 2
-        Value: 2
-    - Id: golden-multiplier-3
-      Price: 940000
-      Start: 0
-      X: -5
-      Y: 4
-      Links:
-      - golden-multiplier-2
-      Upgrades:
-      - Stat: enemy.asteroid.trait.golden.multiplier
-        Operation: 2
-        Value: 2
-    - Id: electric-asteroid-chance-1
-      Price: 3700
-      Start: 0
-      X: -5
-      Y: -1
-      Links:
-      - asteroid-mass-4
-      Upgrades:
-      - Stat: enemy.asteroid.trait.electric.chance
-        Operation: 0
-        Value: 10
-    - Id: asteroid-to-planet-1
-      Price: 690000
-      Start: 0
-      X: -9
-      Y: -1
-      Links:
-      - asteroid-mass-8
-      Upgrades:
-      - Stat: enemy.asteroid.upgrade
-        Operation: 0
-        Value: 52
-    - Id: asteroid-to-planet-2
-      Price: 120000
-      Start: 0
-      X: -10
-      Y: -1
-      Links:
-      - asteroid-to-planet-1
-      Upgrades:
-      - Stat: enemy.asteroid.upgrade
-        Operation: 0
-        Value: 5
-    - Id: asteroid-to-planet-3
-      Price: 150000
-      Start: 0
-      X: -11
-      Y: -1
-      Links:
-      - asteroid-to-planet-2
-      Upgrades:
-      - Stat: enemy.asteroid.upgrade
-        Operation: 0
-        Value: 5
-    - Id: asteroid-to-planet-4
-      Price: 200000
-      Start: 0
-      X: -12
-      Y: -1
-      Links:
-      - asteroid-to-planet-3
-      Upgrades:
-      - Stat: enemy.asteroid.upgrade
-        Operation: 0
-        Value: 5
-    - Id: asteroid-to-planet-5
-      Price: 380000
-      Start: 0
-      X: -13
-      Y: -1
-      Links:
-      - asteroid-to-planet-4
-      Upgrades:
-      - Stat: enemy.asteroid.upgrade
-        Operation: 0
-        Value: 5
-    - Id: moon-chance-1
-      Price: 120000
-      Start: 0
-      X: -8
-      Y: -1
-      Links:
-      - asteroid-to-planet-1
-      Upgrades:
-      - Stat: enemy.planet.trait.moon.chance
-        Operation: 0
-        Value: 10
-    - Id: planet-mass-1
-      Price: 150000
-      Start: 0
-      X: -9
-      Y: -2
-      Links:
-      - asteroid-to-planet-1
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-2
-      Price: 180000
-      Start: 0
-      X: -8
-      Y: -2
-      Links:
-      - planet-mass-1
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-3
-      Price: 220000
-      Start: 0
-      X: -7
-      Y: -2
-      Links:
-      - planet-mass-2
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-4
-      Price: 260000
-      Start: 0
-      X: -6
-      Y: -2
-      Links:
-      - planet-mass-3
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-5
-      Price: 310000
-      Start: 0
-      X: -5
-      Y: -2
-      Links:
-      - planet-mass-4
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-6
-      Price: 370000
-      Start: 0
-      X: -4
-      Y: -2
-      Links:
-      - planet-mass-5
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-7
-      Price: 510000
-      Start: 0
-      X: -3
-      Y: -2
-      Links:
-      - planet-mass-6
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: planet-mass-8
-      Price: 930000
-      Start: 0
-      X: -2
-      Y: -2
-      Links:
-      - planet-mass-7
-      Upgrades:
-      - Stat: enemy.planet.mass-level
-        Operation: 0
-        Value: 1
-    - Id: comet-chance-1
-      Price: 200000
-      Start: 0
-      X: -6
-      Y: -1
-      Links:
-      - planet-mass-4
-      Upgrades:
-      - Stat: enemy.comet.chance
-        Operation: 0
-        Value: 10
-    - Id: planet-growth-supply
-      Price: 120000
-      Start: 0
-      X: -10
-      Y: -2
-      Links:
-      - planet-mass-1
-      Upgrades:
-      - Stat: enemy.planet.growth-supply
-        Operation: 0
-        Value: 2
-    - Id: planet-growth-supply-2
-      Price: 140000
-      Start: 0
-      X: -11
-      Y: -2
-      Links:
-      - planet-growth-supply
-      Upgrades:
-      - Stat: enemy.planet.growth-supply
-        Operation: 0
-        Value: 2
-    - Id: planet-growth-supply-3
-      Price: 480000
-      Start: 0
-      X: -12
-      Y: -2
-      Links:
-      - planet-growth-supply-2
-      Upgrades:
-      - Stat: enemy.planet.growth-supply
-        Operation: 0
-        Value: 2
-    - Id: planet-to-star-1
-      Price: 5600000
-      Start: 0
-      X: -2
-      Y: -5
-      Links:
-      - planet-mass-8
-      Upgrades:
-      - Stat: enemy.planet.upgrade
-        Operation: 0
-        Value: 10
-    - Id: planet-to-star-2
-      Price: 1100000
-      Start: 0
-      X: -1
-      Y: -5
-      Links:
-      - planet-to-star-1
-      Upgrades:
-      - Stat: enemy.planet.upgrade
-        Operation: 0
-        Value: 2
-    - Id: planet-to-star-3
-      Price: 2200000
-      Start: 0
       X: 0
-      Y: -5
-      Links:
-      - planet-to-star-2
-      Upgrades:
-      - Stat: enemy.planet.upgrade
-        Operation: 0
-        Value: 2
-    - Id: planet-to-star-4
-      Price: 7200000
+      Y: -6
+      Links: []
+    - Id: breaker.radius-02
       Start: 0
       X: 1
-      Y: -5
+      Y: -6
       Links:
-      - planet-to-star-3
-      Upgrades:
-      - Stat: enemy.planet.upgrade
-        Operation: 0
-        Value: 2
-    - Id: planet-to-star-5
-      Price: 16000000
+      - breaker.radius-01
+    - Id: breaker.radius-03
       Start: 0
       X: 2
-      Y: -5
-      Links:
-      - planet-to-star-4
-      Upgrades:
-      - Stat: enemy.planet.upgrade
-        Operation: 0
-        Value: 2
-    - Id: star-mass-1
-      Price: 1400000
-      Start: 0
-      X: -2
       Y: -6
       Links:
-      - planet-to-star-1
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-2
-      Price: 1700000
+      - breaker.radius-02
+    - Id: breaker.radius-04
       Start: 0
-      X: -3
+      X: 3
       Y: -6
       Links:
-      - star-mass-1
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-3
-      Price: 2000000
+      - breaker.radius-03
+    - Id: breaker.radius-05
       Start: 0
-      X: -4
+      X: 4
       Y: -6
       Links:
-      - star-mass-2
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-4
-      Price: 2500000
+      - breaker.radius-04
+    - Id: breaker.radius-06
       Start: 0
-      X: -5
+      X: 5
       Y: -6
       Links:
-      - star-mass-3
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-5
-      Price: 6600000
+      - breaker.radius-05
+    - Id: breaker.radius-07
       Start: 0
-      X: -6
+      X: 6
       Y: -6
       Links:
-      - star-mass-4
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-6
-      Price: 12000000
+      - breaker.radius-06
+    - Id: breaker.radius-08
       Start: 0
-      X: -7
+      X: 7
       Y: -6
       Links:
-      - star-mass-5
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-7
-      Price: 25000000
+      - breaker.radius-07
+    - Id: breaker.radius-09
       Start: 0
-      X: -8
+      X: 8
       Y: -6
       Links:
-      - star-mass-6
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: star-mass-8
-      Price: 46000000
+      - breaker.radius-08
+    - Id: breaker.radius-10
       Start: 0
-      X: -9
+      X: 9
       Y: -6
       Links:
-      - star-mass-7
-      Upgrades:
-      - Stat: enemy.star.mass-level
-        Operation: 0
-        Value: 1
-    - Id: supernova-chance-1
-      Price: 1700000
+      - breaker.radius-09
+    - Id: breaker.radius-11
       Start: 0
-      X: -5
-      Y: -7
+      X: 10
+      Y: -6
       Links:
-      - star-mass-4
-      Upgrades:
-      - Stat: enemy.star.trait.supernova.chance
-        Operation: 0
-        Value: 10
-    - Id: laser-star-chance-1
-      Price: 1
+      - breaker.radius-10
+    - Id: breaker.radius-12
+      Start: 0
+      X: 11
+      Y: -6
+      Links:
+      - breaker.radius-11
+    - Id: breaker.radius-13
+      Start: 0
+      X: 12
+      Y: -6
+      Links:
+      - breaker.radius-12
+    - Id: breaker.speed-01
       Start: 1
-      X: -4
+      X: 0
+      Y: -7
+      Links: []
+    - Id: breaker.speed-02
+      Start: 0
+      X: 1
       Y: -7
       Links:
-      - star-mass-3
-      Upgrades:
-      - Stat: enemy.star.trait.laser.chance
-        Operation: 0
-        Value: 20
-    - Id: star-growth-supply
-      Price: 1100000
+      - breaker.speed-01
+    - Id: breaker.speed-03
       Start: 0
-      X: -2
+      X: 2
       Y: -7
       Links:
-      - star-mass-1
-      Upgrades:
-      - Stat: enemy.star.growth-supply
-        Operation: 0
-        Value: 1
-    - Id: star-growth-supply-2
-      Price: 4300000
+      - breaker.speed-02
+    - Id: breaker.speed-04
       Start: 0
-      X: -2
+      X: 3
+      Y: -7
+      Links:
+      - breaker.speed-03
+    - Id: breaker.speed-05
+      Start: 0
+      X: 4
+      Y: -7
+      Links:
+      - breaker.speed-04
+    - Id: breaker.speed-06
+      Start: 0
+      X: 5
+      Y: -7
+      Links:
+      - breaker.speed-05
+    - Id: breaker.speed-07
+      Start: 0
+      X: 6
+      Y: -7
+      Links:
+      - breaker.speed-06
+    - Id: breaker.speed-08
+      Start: 0
+      X: 7
+      Y: -7
+      Links:
+      - breaker.speed-07
+    - Id: breaker.speed-09
+      Start: 0
+      X: 8
+      Y: -7
+      Links:
+      - breaker.speed-08
+    - Id: breaker.speed-10
+      Start: 0
+      X: 9
+      Y: -7
+      Links:
+      - breaker.speed-09
+    - Id: breaker.speed-11
+      Start: 0
+      X: 10
+      Y: -7
+      Links:
+      - breaker.speed-10
+    - Id: breaker.speed-12
+      Start: 0
+      X: 11
+      Y: -7
+      Links:
+      - breaker.speed-11
+    - Id: breaker.critChance-01
+      Start: 1
+      X: 0
+      Y: -8
+      Links: []
+    - Id: breaker.critChance-02
+      Start: 0
+      X: 1
       Y: -8
       Links:
-      - star-growth-supply
-      Upgrades:
-      - Stat: enemy.star.growth-supply
-        Operation: 0
-        Value: 1
-    - Id: star-growth-supply-3
-      Price: 24000000
+      - breaker.critChance-01
+    - Id: breaker.critChance-03
       Start: 0
-      X: -2
+      X: 2
+      Y: -8
+      Links:
+      - breaker.critChance-02
+    - Id: breaker.critChance-04
+      Start: 0
+      X: 3
+      Y: -8
+      Links:
+      - breaker.critChance-03
+    - Id: breaker.critChance-05
+      Start: 0
+      X: 4
+      Y: -8
+      Links:
+      - breaker.critChance-04
+    - Id: breaker.critBonus-01
+      Start: 1
+      X: 0
+      Y: -9
+      Links: []
+    - Id: breaker.critBonus-02
+      Start: 0
+      X: 1
       Y: -9
       Links:
-      - star-growth-supply-2
-      Upgrades:
-      - Stat: enemy.star.growth-supply
-        Operation: 0
-        Value: 1
+      - breaker.critBonus-01
+    - Id: breaker.critBonus-03
+      Start: 0
+      X: 2
+      Y: -9
+      Links:
+      - breaker.critBonus-02
+    - Id: breaker.critBonus-04
+      Start: 0
+      X: 3
+      Y: -9
+      Links:
+      - breaker.critBonus-03
+    - Id: breaker.critBonus-05
+      Start: 0
+      X: 4
+      Y: -9
+      Links:
+      - breaker.critBonus-04
+    - Id: breaker.planetBonus-01
+      Start: 1
+      X: 0
+      Y: -10
+      Links: []
+    - Id: breaker.planetBonus-02
+      Start: 0
+      X: 1
+      Y: -10
+      Links:
+      - breaker.planetBonus-01
+    - Id: breaker.planetBonus-03
+      Start: 0
+      X: 2
+      Y: -10
+      Links:
+      - breaker.planetBonus-02
+    - Id: breaker.planetBonus-04
+      Start: 0
+      X: 3
+      Y: -10
+      Links:
+      - breaker.planetBonus-03
+    - Id: breaker.starBonus-01
+      Start: 1
+      X: 0
+      Y: -11
+      Links: []
+    - Id: breaker.starBonus-02
+      Start: 0
+      X: 1
+      Y: -11
+      Links:
+      - breaker.starBonus-01
+    - Id: asteroid.count-01
+      Start: 1
+      X: 0
+      Y: -12
+      Links: []
+    - Id: asteroid.count-02
+      Start: 0
+      X: 1
+      Y: -12
+      Links:
+      - asteroid.count-01
+    - Id: asteroid.count-03
+      Start: 0
+      X: 2
+      Y: -12
+      Links:
+      - asteroid.count-02
+    - Id: asteroid.count-04
+      Start: 0
+      X: 3
+      Y: -12
+      Links:
+      - asteroid.count-03
+    - Id: asteroid.count-05
+      Start: 0
+      X: 4
+      Y: -12
+      Links:
+      - asteroid.count-04
+    - Id: asteroid.size-01
+      Start: 1
+      X: 0
+      Y: -13
+      Links: []
+    - Id: asteroid.size-02
+      Start: 0
+      X: 1
+      Y: -13
+      Links:
+      - asteroid.size-01
+    - Id: asteroid.massScale-01
+      Start: 1
+      X: 0
+      Y: -14
+      Links: []
+    - Id: asteroid.massScale-02
+      Start: 0
+      X: 1
+      Y: -14
+      Links:
+      - asteroid.massScale-01
+    - Id: asteroid.massScale-03
+      Start: 0
+      X: 2
+      Y: -14
+      Links:
+      - asteroid.massScale-02
+    - Id: asteroid.massScale-04
+      Start: 0
+      X: 3
+      Y: -14
+      Links:
+      - asteroid.massScale-03
+    - Id: asteroid.massScale-05
+      Start: 0
+      X: 4
+      Y: -14
+      Links:
+      - asteroid.massScale-04
+    - Id: asteroid.massScale-06
+      Start: 0
+      X: 5
+      Y: -14
+      Links:
+      - asteroid.massScale-05
+    - Id: asteroid.massScale-07
+      Start: 0
+      X: 6
+      Y: -14
+      Links:
+      - asteroid.massScale-06
+    - Id: asteroid.massScale-08
+      Start: 0
+      X: 7
+      Y: -14
+      Links:
+      - asteroid.massScale-07
+    - Id: asteroid.massScale-09
+      Start: 0
+      X: 8
+      Y: -14
+      Links:
+      - asteroid.massScale-08
+    - Id: asteroid.massScale-10
+      Start: 0
+      X: 9
+      Y: -14
+      Links:
+      - asteroid.massScale-09
+    - Id: asteroid.timeChance-01
+      Start: 1
+      X: 0
+      Y: -15
+      Links: []
+    - Id: asteroid.timeChance-02
+      Start: 0
+      X: 1
+      Y: -15
+      Links:
+      - asteroid.timeChance-01
+    - Id: asteroid.respawnChance-01
+      Start: 1
+      X: 0
+      Y: -16
+      Links: []
+    - Id: asteroid.respawnChance-02
+      Start: 0
+      X: 1
+      Y: -16
+      Links:
+      - asteroid.respawnChance-01
+    - Id: asteroid.respawnChance-03
+      Start: 0
+      X: 2
+      Y: -16
+      Links:
+      - asteroid.respawnChance-02
+    - Id: asteroid.respawnChance-04
+      Start: 0
+      X: 3
+      Y: -16
+      Links:
+      - asteroid.respawnChance-03
+    - Id: asteroid.respawnChance-05
+      Start: 0
+      X: 4
+      Y: -16
+      Links:
+      - asteroid.respawnChance-04
+    - Id: asteroid.toPlanet-01
+      Start: 1
+      X: 0
+      Y: -17
+      Links: []
+    - Id: asteroid.toPlanet-02
+      Start: 0
+      X: 1
+      Y: -17
+      Links:
+      - asteroid.toPlanet-01
+    - Id: asteroid.toPlanet-03
+      Start: 0
+      X: 2
+      Y: -17
+      Links:
+      - asteroid.toPlanet-02
+    - Id: asteroid.toPlanet-04
+      Start: 0
+      X: 3
+      Y: -17
+      Links:
+      - asteroid.toPlanet-03
+    - Id: asteroid.toPlanet-05
+      Start: 0
+      X: 4
+      Y: -17
+      Links:
+      - asteroid.toPlanet-04
+    - Id: planet.toStar-01
+      Start: 1
+      X: 0
+      Y: -18
+      Links: []
+    - Id: planet.toStar-02
+      Start: 0
+      X: 1
+      Y: -18
+      Links:
+      - planet.toStar-01
+    - Id: planet.toStar-03
+      Start: 0
+      X: 2
+      Y: -18
+      Links:
+      - planet.toStar-02
+    - Id: planet.toStar-04
+      Start: 0
+      X: 3
+      Y: -18
+      Links:
+      - planet.toStar-03
+    - Id: planet.toStar-05
+      Start: 0
+      X: 4
+      Y: -18
+      Links:
+      - planet.toStar-04
+    - Id: planet.toStar-06
+      Start: 0
+      X: 5
+      Y: -18
+      Links:
+      - planet.toStar-05
+    - Id: electricAsteroid.spawnChance-01
+      Start: 1
+      X: 0
+      Y: -19
+      Links: []
+    - Id: electricAsteroid.damage-01
+      Start: 1
+      X: 0
+      Y: -20
+      Links: []
+    - Id: electricAsteroid.damage-02
+      Start: 0
+      X: 1
+      Y: -20
+      Links:
+      - electricAsteroid.damage-01
+    - Id: electricAsteroid.damage-03
+      Start: 0
+      X: 2
+      Y: -20
+      Links:
+      - electricAsteroid.damage-02
+    - Id: electricAsteroid.critChance-01
+      Start: 1
+      X: 0
+      Y: -21
+      Links: []
+    - Id: electricAsteroid.critChance-02
+      Start: 0
+      X: 1
+      Y: -21
+      Links:
+      - electricAsteroid.critChance-01
+    - Id: electricAsteroid.chain-01
+      Start: 1
+      X: 0
+      Y: -22
+      Links: []
+    - Id: electricAsteroid.chain-02
+      Start: 0
+      X: 1
+      Y: -22
+      Links:
+      - electricAsteroid.chain-01
+    - Id: electricAsteroid.splitChance-01
+      Start: 1
+      X: 0
+      Y: -23
+      Links: []
+    - Id: electricAsteroid.splitChance-02
+      Start: 0
+      X: 1
+      Y: -23
+      Links:
+      - electricAsteroid.splitChance-01
+    - Id: electricAsteroid.critBonus-01
+      Start: 1
+      X: 0
+      Y: -24
+      Links: []
+    - Id: electricAsteroid.critBonus-02
+      Start: 0
+      X: 1
+      Y: -24
+      Links:
+      - electricAsteroid.critBonus-01
+    - Id: goldenAsteroid.spawnChance-01
+      Start: 1
+      X: 0
+      Y: -25
+      Links: []
+    - Id: goldenAsteroid.rewardScale-01
+      Start: 1
+      X: 0
+      Y: -26
+      Links: []
+    - Id: goldenAsteroid.rewardScale-02
+      Start: 0
+      X: 1
+      Y: -26
+      Links:
+      - goldenAsteroid.rewardScale-01
+    - Id: goldenAsteroid.rewardScale-03
+      Start: 0
+      X: 2
+      Y: -26
+      Links:
+      - goldenAsteroid.rewardScale-02
+    - Id: goldenAsteroid.rewardScale-04
+      Start: 0
+      X: 3
+      Y: -26
+      Links:
+      - goldenAsteroid.rewardScale-03
+    - Id: goldenAsteroid.rewardScale-05
+      Start: 0
+      X: 4
+      Y: -26
+      Links:
+      - goldenAsteroid.rewardScale-04
+    - Id: goldenAsteroid.critChance-01
+      Start: 1
+      X: 0
+      Y: -27
+      Links: []
+    - Id: goldenAsteroid.critChance-02
+      Start: 0
+      X: 1
+      Y: -27
+      Links:
+      - goldenAsteroid.critChance-01
+    - Id: goldenAsteroid.critChance-03
+      Start: 0
+      X: 2
+      Y: -27
+      Links:
+      - goldenAsteroid.critChance-02
+    - Id: goldenAsteroid.critRewardScale-01
+      Start: 1
+      X: 0
+      Y: -28
+      Links: []
+    - Id: goldenAsteroid.critRewardScale-02
+      Start: 0
+      X: 1
+      Y: -28
+      Links:
+      - goldenAsteroid.critRewardScale-01
+    - Id: goldenAsteroid.critRewardScale-03
+      Start: 0
+      X: 2
+      Y: -28
+      Links:
+      - goldenAsteroid.critRewardScale-02
+    - Id: goldenAsteroid.critRewardScale-04
+      Start: 0
+      X: 3
+      Y: -28
+      Links:
+      - goldenAsteroid.critRewardScale-03
+    - Id: moonPlanet.spawnChance-01
+      Start: 1
+      X: 0
+      Y: -29
+      Links: []
+    - Id: moonPlanet.spawnChance-02
+      Start: 0
+      X: 1
+      Y: -29
+      Links:
+      - moonPlanet.spawnChance-01
+    - Id: moonPlanet.speedScale-01
+      Start: 1
+      X: 0
+      Y: -30
+      Links: []
+    - Id: moonPlanet.speedScale-02
+      Start: 0
+      X: 1
+      Y: -30
+      Links:
+      - moonPlanet.speedScale-01
+    - Id: moonPlanet.speedScale-03
+      Start: 0
+      X: 2
+      Y: -30
+      Links:
+      - moonPlanet.speedScale-02
+    - Id: moonPlanet.speedScale-04
+      Start: 0
+      X: 3
+      Y: -30
+      Links:
+      - moonPlanet.speedScale-03
+    - Id: moonPlanet.rangeScale-01
+      Start: 1
+      X: 0
+      Y: -31
+      Links: []
+    - Id: moonPlanet.rangeScale-02
+      Start: 0
+      X: 1
+      Y: -31
+      Links:
+      - moonPlanet.rangeScale-01
+    - Id: moonPlanet.rangeScale-03
+      Start: 0
+      X: 2
+      Y: -31
+      Links:
+      - moonPlanet.rangeScale-02
+    - Id: moonPlanet.rangeScale-04
+      Start: 0
+      X: 3
+      Y: -31
+      Links:
+      - moonPlanet.rangeScale-03
+    - Id: moonPlanet.rangeScale-05
+      Start: 0
+      X: 4
+      Y: -31
+      Links:
+      - moonPlanet.rangeScale-04
+    - Id: moonPlanet.rangeScale-06
+      Start: 0
+      X: 5
+      Y: -31
+      Links:
+      - moonPlanet.rangeScale-05
+    - Id: moonPlanet.rangeScale-07
+      Start: 0
+      X: 6
+      Y: -31
+      Links:
+      - moonPlanet.rangeScale-06
+    - Id: moonPlanet.duration-01
+      Start: 1
+      X: 0
+      Y: -32
+      Links: []
+    - Id: moonPlanet.duration-02
+      Start: 0
+      X: 1
+      Y: -32
+      Links:
+      - moonPlanet.duration-01
+    - Id: moonPlanet.duration-03
+      Start: 0
+      X: 2
+      Y: -32
+      Links:
+      - moonPlanet.duration-02
+    - Id: moonPlanet.duration-04
+      Start: 0
+      X: 3
+      Y: -32
+      Links:
+      - moonPlanet.duration-03
+    - Id: moonPlanet.maxCount-01
+      Start: 1
+      X: 0
+      Y: -33
+      Links: []
+    - Id: planet.size-01
+      Start: 1
+      X: 0
+      Y: -34
+      Links: []
+    - Id: planet.size-02
+      Start: 0
+      X: 1
+      Y: -34
+      Links:
+      - planet.size-01
+    - Id: planet.respawnChance-01
+      Start: 1
+      X: 0
+      Y: -35
+      Links: []
+    - Id: planet.respawnChance-02
+      Start: 0
+      X: 1
+      Y: -35
+      Links:
+      - planet.respawnChance-01
+    - Id: planet.respawnChance-03
+      Start: 0
+      X: 2
+      Y: -35
+      Links:
+      - planet.respawnChance-02
+    - Id: planet.respawnChance-04
+      Start: 0
+      X: 3
+      Y: -35
+      Links:
+      - planet.respawnChance-03
+    - Id: planet.massScale-01
+      Start: 1
+      X: 0
+      Y: -36
+      Links: []
+    - Id: planet.massScale-02
+      Start: 0
+      X: 1
+      Y: -36
+      Links:
+      - planet.massScale-01
+    - Id: planet.massScale-03
+      Start: 0
+      X: 2
+      Y: -36
+      Links:
+      - planet.massScale-02
+    - Id: planet.massScale-04
+      Start: 0
+      X: 3
+      Y: -36
+      Links:
+      - planet.massScale-03
+    - Id: planet.massScale-05
+      Start: 0
+      X: 4
+      Y: -36
+      Links:
+      - planet.massScale-04
+    - Id: planet.massScale-06
+      Start: 0
+      X: 5
+      Y: -36
+      Links:
+      - planet.massScale-05
+    - Id: planet.massScale-07
+      Start: 0
+      X: 6
+      Y: -36
+      Links:
+      - planet.massScale-06
+    - Id: planet.massScale-08
+      Start: 0
+      X: 7
+      Y: -36
+      Links:
+      - planet.massScale-07
+    - Id: planet.timeChance-01
+      Start: 1
+      X: 0
+      Y: -37
+      Links: []
+    - Id: planet.timeChance-02
+      Start: 0
+      X: 1
+      Y: -37
+      Links:
+      - planet.timeChance-01
+    - Id: comet.spawnChance-01
+      Start: 1
+      X: 0
+      Y: -38
+      Links: []
+    - Id: comet.spawnChance-02
+      Start: 0
+      X: 1
+      Y: -38
+      Links:
+      - comet.spawnChance-01
+    - Id: comet.spawnChance-03
+      Start: 0
+      X: 2
+      Y: -38
+      Links:
+      - comet.spawnChance-02
+    - Id: comet.spawnChance-04
+      Start: 0
+      X: 3
+      Y: -38
+      Links:
+      - comet.spawnChance-03
+    - Id: comet.duration-01
+      Start: 1
+      X: 0
+      Y: -39
+      Links: []
+    - Id: comet.critBonus-01
+      Start: 1
+      X: 0
+      Y: -40
+      Links: []
+    - Id: comet.rainChance-01
+      Start: 1
+      X: 0
+      Y: -41
+      Links: []
+    - Id: comet.rainChance-02
+      Start: 0
+      X: 1
+      Y: -41
+      Links:
+      - comet.rainChance-01
+    - Id: comet.rainChance-03
+      Start: 0
+      X: 2
+      Y: -41
+      Links:
+      - comet.rainChance-02
+    - Id: comet.rainChance-04
+      Start: 0
+      X: 3
+      Y: -41
+      Links:
+      - comet.rainChance-03
+    - Id: star.respawnChance-01
+      Start: 1
+      X: 0
+      Y: -42
+      Links: []
+    - Id: star.respawnChance-02
+      Start: 0
+      X: 1
+      Y: -42
+      Links:
+      - star.respawnChance-01
+    - Id: star.respawnChance-03
+      Start: 0
+      X: 2
+      Y: -42
+      Links:
+      - star.respawnChance-02
+    - Id: star.respawnChance-04
+      Start: 0
+      X: 3
+      Y: -42
+      Links:
+      - star.respawnChance-03
+    - Id: star.timeChance-01
+      Start: 1
+      X: 0
+      Y: -43
+      Links: []
+    - Id: star.timeChance-02
+      Start: 0
+      X: 1
+      Y: -43
+      Links:
+      - star.timeChance-01
+    - Id: star.size-01
+      Start: 1
+      X: 0
+      Y: -44
+      Links: []
+    - Id: star.size-02
+      Start: 0
+      X: 1
+      Y: -44
+      Links:
+      - star.size-01
+    - Id: star.size-03
+      Start: 0
+      X: 2
+      Y: -44
+      Links:
+      - star.size-02
+    - Id: star.massScale-01
+      Start: 1
+      X: 0
+      Y: -45
+      Links: []
+    - Id: star.massScale-02
+      Start: 0
+      X: 1
+      Y: -45
+      Links:
+      - star.massScale-01
+    - Id: star.massScale-03
+      Start: 0
+      X: 2
+      Y: -45
+      Links:
+      - star.massScale-02
+    - Id: star.massScale-04
+      Start: 0
+      X: 3
+      Y: -45
+      Links:
+      - star.massScale-03
+    - Id: star.massScale-05
+      Start: 0
+      X: 4
+      Y: -45
+      Links:
+      - star.massScale-04
+    - Id: star.massScale-06
+      Start: 0
+      X: 5
+      Y: -45
+      Links:
+      - star.massScale-05
+    - Id: star.massScale-07
+      Start: 0
+      X: 6
+      Y: -45
+      Links:
+      - star.massScale-06
+    - Id: star.massScale-08
+      Start: 0
+      X: 7
+      Y: -45
+      Links:
+      - star.massScale-07
+    - Id: star.massScale-09
+      Start: 0
+      X: 8
+      Y: -45
+      Links:
+      - star.massScale-08
+    - Id: star.massScale-10
+      Start: 0
+      X: 9
+      Y: -45
+      Links:
+      - star.massScale-09
+    - Id: electricStar.spawnChance-01
+      Start: 1
+      X: 0
+      Y: -46
+      Links: []
+    - Id: electricStar.damage-01
+      Start: 1
+      X: 0
+      Y: -47
+      Links: []
+    - Id: electricStar.damage-02
+      Start: 0
+      X: 1
+      Y: -47
+      Links:
+      - electricStar.damage-01
+    - Id: electricStar.critChance-01
+      Start: 1
+      X: 0
+      Y: -48
+      Links: []
+    - Id: electricStar.chain-01
+      Start: 1
+      X: 0
+      Y: -49
+      Links: []
+    - Id: electricStar.chain-02
+      Start: 0
+      X: 1
+      Y: -49
+      Links:
+      - electricStar.chain-01
+    - Id: electricStar.chain-03
+      Start: 0
+      X: 2
+      Y: -49
+      Links:
+      - electricStar.chain-02
+    - Id: electricStar.splitChance-01
+      Start: 1
+      X: 0
+      Y: -50
+      Links: []
+    - Id: electricStar.splitChance-02
+      Start: 0
+      X: 1
+      Y: -50
+      Links:
+      - electricStar.splitChance-01
+    - Id: electricStar.splitChance-03
+      Start: 0
+      X: 2
+      Y: -50
+      Links:
+      - electricStar.splitChance-02
+    - Id: electricStar.critBonus-01
+      Start: 1
+      X: 0
+      Y: -51
+      Links: []
+    - Id: electricStar.critBonus-02
+      Start: 0
+      X: 1
+      Y: -51
+      Links:
+      - electricStar.critBonus-01
+    - Id: laserStar.spawnChance-01
+      Start: 1
+      X: 0
+      Y: -52
+      Links: []
+    - Id: laserStar.width-01
+      Start: 1
+      X: 0
+      Y: -53
+      Links: []
+    - Id: laserStar.width-02
+      Start: 0
+      X: 1
+      Y: -53
+      Links:
+      - laserStar.width-01
+    - Id: laserStar.width-03
+      Start: 0
+      X: 2
+      Y: -53
+      Links:
+      - laserStar.width-02
+    - Id: laserStar.width-04
+      Start: 0
+      X: 3
+      Y: -53
+      Links:
+      - laserStar.width-03
+    - Id: laserStar.width-05
+      Start: 0
+      X: 4
+      Y: -53
+      Links:
+      - laserStar.width-04
+    - Id: laserStar.width-06
+      Start: 0
+      X: 5
+      Y: -53
+      Links:
+      - laserStar.width-05
+    - Id: laserStar.width-07
+      Start: 0
+      X: 6
+      Y: -53
+      Links:
+      - laserStar.width-06
+    - Id: laserStar.width-08
+      Start: 0
+      X: 7
+      Y: -53
+      Links:
+      - laserStar.width-07
+    - Id: laserStar.width-09
+      Start: 0
+      X: 8
+      Y: -53
+      Links:
+      - laserStar.width-08
+    - Id: laserStar.width-10
+      Start: 0
+      X: 9
+      Y: -53
+      Links:
+      - laserStar.width-09
+    - Id: laserStar.critChance-01
+      Start: 1
+      X: 0
+      Y: -54
+      Links: []
+    - Id: laserStar.damage-01
+      Start: 1
+      X: 0
+      Y: -55
+      Links: []
+    - Id: laserStar.damage-02
+      Start: 0
+      X: 1
+      Y: -55
+      Links:
+      - laserStar.damage-01
+    - Id: laserStar.damage-03
+      Start: 0
+      X: 2
+      Y: -55
+      Links:
+      - laserStar.damage-02
+    - Id: laserStar.damage-04
+      Start: 0
+      X: 3
+      Y: -55
+      Links:
+      - laserStar.damage-03
+    - Id: laserStar.damage-05
+      Start: 0
+      X: 4
+      Y: -55
+      Links:
+      - laserStar.damage-04
+    - Id: laserStar.damage-06
+      Start: 0
+      X: 5
+      Y: -55
+      Links:
+      - laserStar.damage-05
+    - Id: laserStar.critBonus-01
+      Start: 1
+      X: 0
+      Y: -56
+      Links: []
+    - Id: laserStar.critBonus-02
+      Start: 0
+      X: 1
+      Y: -56
+      Links:
+      - laserStar.critBonus-01
+    - Id: laserStar.critBonus-03
+      Start: 0
+      X: 2
+      Y: -56
+      Links:
+      - laserStar.critBonus-02
+    - Id: supernovaStar.range-01
+      Start: 1
+      X: 0
+      Y: -57
+      Links: []
+    - Id: supernovaStar.range-02
+      Start: 0
+      X: 1
+      Y: -57
+      Links:
+      - supernovaStar.range-01
+    - Id: supernovaStar.range-03
+      Start: 0
+      X: 2
+      Y: -57
+      Links:
+      - supernovaStar.range-02
+    - Id: supernovaStar.range-04
+      Start: 0
+      X: 3
+      Y: -57
+      Links:
+      - supernovaStar.range-03
+    - Id: supernovaStar.hpDamage-01
+      Start: 1
+      X: 0
+      Y: -58
+      Links: []
+    - Id: supernovaStar.hpDamage-02
+      Start: 0
+      X: 1
+      Y: -58
+      Links:
+      - supernovaStar.hpDamage-01
+    - Id: supernovaStar.hpDamage-03
+      Start: 0
+      X: 2
+      Y: -58
+      Links:
+      - supernovaStar.hpDamage-02
+    - Id: supernovaStar.hpDamage-04
+      Start: 0
+      X: 3
+      Y: -58
+      Links:
+      - supernovaStar.hpDamage-03
+    - Id: supernovaStar.hpDamage-05
+      Start: 0
+      X: 4
+      Y: -58
+      Links:
+      - supernovaStar.hpDamage-04
+    - Id: supernovaStar.hpDamage-06
+      Start: 0
+      X: 5
+      Y: -58
+      Links:
+      - supernovaStar.hpDamage-05
+    - Id: supernovaStar.spawnChance-01
+      Start: 1
+      X: 0
+      Y: -59
+      Links: []

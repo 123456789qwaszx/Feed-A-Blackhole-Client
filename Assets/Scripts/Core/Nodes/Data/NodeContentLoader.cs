@@ -6,7 +6,7 @@ namespace BlackHole.Core
     // NodeContentData(시트 4개의 행) → NodeContent.
     // 행 순서에 뜻을 두지 않는다: 수치는 StatId로, 노드는 NodeId로, Rank는 (NodeId, Rank)로 짝짓는다.
     //
-    // 검사. 수치 규칙은 정의 생성자(UpgradeStatDefinition·NodeEffect·NodeRankDefinition·NodeContentDefinition)를 그대로 부른다.
+    // 검사. 수치 규칙은 정의 생성자(UpgradeStatDefinition·NodeEffect·NodeRankDefinition·NodeDefinition)를 그대로 부른다.
     // 1. 수치: StatId 유일, ValueType·Unit 이름, Aggregation은 Add뿐, 기본값·하한·상한.
     // 2. 노드: NodeId 유일, Rank 수 1 이상.
     // 3. 비용: Nodes 시트에 있는 노드, Rank는 1 ~ Rank 수, (노드, Rank)마다 하나, 0보다 큼.
@@ -46,7 +46,7 @@ namespace BlackHole.Core
             Dictionary<(string, int), List<NodeEffect>> effects =
                 LoadEffects(data.Effects ?? new List<NodeEffectRowData>(), nodeIds, nodesById, statIds, statsById, effectRanks, diagnostics);
 
-            List<NodeContentDefinition> definitions = Assemble(nodes, costs, effects, effectRanks, diagnostics);
+            List<NodeDefinition> definitions = Assemble(nodes, costs, effects, effectRanks, diagnostics);
 
             return diagnostics.Count > 0
                 ? new NodeContentLoadResult(null, diagnostics)
@@ -271,10 +271,10 @@ namespace BlackHole.Core
         }
 
         // 5. 노드마다 Rank 1부터 Rank 수까지 비용과 효과를 모아 정의를 만든다. Nodes 시트 순서를 지킨다.
-        private static List<NodeContentDefinition> Assemble(List<NodeEntry> nodes, Dictionary<(string, int), (long Cost, string At)> costs,
+        private static List<NodeDefinition> Assemble(List<NodeEntry> nodes, Dictionary<(string, int), (long Cost, string At)> costs,
             Dictionary<(string, int), List<NodeEffect>> effects, HashSet<(string, int)> effectRanks, List<ContentDiagnostic> into)
         {
-            var definitions = new List<NodeContentDefinition>(nodes.Count);
+            var definitions = new List<NodeDefinition>(nodes.Count);
 
             foreach (NodeEntry node in nodes)
             {
@@ -320,7 +320,7 @@ namespace BlackHole.Core
 
                 try
                 {
-                    definitions.Add(new NodeContentDefinition(node.Id, node.Memo, ranks));
+                    definitions.Add(new NodeDefinition(node.Id, node.Memo, ranks));
                 }
                 catch (ArgumentException error)
                 {

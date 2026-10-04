@@ -13,14 +13,14 @@ namespace BlackHole.Core
     public sealed class NodeContent
     {
         private readonly Dictionary<string, UpgradeStatDefinition> _statsById = new(StringComparer.Ordinal);
-        private readonly Dictionary<string, NodeContentDefinition> _nodesById = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, NodeDefinition> _nodesById = new(StringComparer.Ordinal);
 
         // UpgradeStats 시트 순서.
         public IReadOnlyList<UpgradeStatDefinition> Stats { get; }
         // Nodes 시트 순서.
-        public IReadOnlyList<NodeContentDefinition> Nodes { get; }
+        public IReadOnlyList<NodeDefinition> Nodes { get; }
 
-        internal NodeContent(List<UpgradeStatDefinition> stats, List<NodeContentDefinition> nodes)
+        internal NodeContent(List<UpgradeStatDefinition> stats, List<NodeDefinition> nodes)
         {
             Stats = stats.AsReadOnly();
             Nodes = nodes.AsReadOnly();
@@ -28,7 +28,7 @@ namespace BlackHole.Core
             foreach (UpgradeStatDefinition stat in stats)
                 _statsById.Add(stat.StatId, stat);
 
-            foreach (NodeContentDefinition node in nodes)
+            foreach (NodeDefinition node in nodes)
                 _nodesById.Add(node.Id, node);
         }
 
@@ -38,7 +38,7 @@ namespace BlackHole.Core
             return statId != null && _statsById.TryGetValue(statId, out stat);
         }
 
-        public bool TryGetNode(string nodeId, out NodeContentDefinition node)
+        public bool TryGetNode(string nodeId, out NodeDefinition node)
         {
             node = null;
             return nodeId != null && _nodesById.TryGetValue(nodeId, out node);

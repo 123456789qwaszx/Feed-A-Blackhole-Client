@@ -10,7 +10,7 @@ namespace BlackHole.Authoring
     // 선은 제작자가 그은 것만이다. 좌표는 표시용이고 선은 게임 규칙이므로, 놓기와 옮기기는 선을 건드리지 않는다.
     // 격자 이웃 잇기(LinkNeighbors)는 저작 명령이다: 고른 노드 가운데 상하좌우로 붙은 쌍을 그 순간 잇는다.
     // 그 뒤에 노드를 옮겨도 선은 그대로다. 자동 연결은 규칙의 원천이 아니라 손을 덜어 주는 기능이다.
-    // 첫 노드는 시작 노드가 된다. 새 노드의 가격은 1이다 [임시].
+    // 첫 노드는 시작 노드가 된다. 비용·효과는 노드 콘텐츠(시트)의 것이라 여기서 다루지 않는다.
     public static class NodeTreeAuthoring
     {
         public const string IdPrefix = "node-";
@@ -43,7 +43,7 @@ namespace BlackHole.Authoring
             if (At(tree, x, y) != null)
                 return null;
 
-            var node = new NodeData { Id = NextId(tree), Price = 1, Start = tree.Nodes.Count == 0, X = x, Y = y };
+            var node = new NodeData { Id = NextId(tree), Start = tree.Nodes.Count == 0, X = x, Y = y };
             tree.Nodes.Add(node);
             return node;
         }
@@ -234,7 +234,6 @@ namespace BlackHole.Authoring
 
         // 도구만 보는 검사. 게임 규칙의 검사는 NodeTreeLoader가 한다.
         // - 한 칸에 노드 둘: 화면에서 겹친다.
-        // - 1보다 작은 곱하기: 값을 줄인다. "10% 더"를 곱하기 0.1로 적는 실수를 잡는다.
         public static List<ContentDiagnostic> Check(NodeTreeData tree)
         {
             var diagnostics = new List<ContentDiagnostic>();
@@ -253,32 +252,14 @@ namespace BlackHole.Authoring
                     diagnostics.Add(new ContentDiagnostic(at, $"칸 ({node.X}, {node.Y})에서 '{first.Id}'와 겹친다."));
                 else
                     cells.Add((node.X, node.Y), node);
-
-                List<UpgradeData> upgrades = node.Upgrades ?? new List<UpgradeData>();
-
-                for (int j = 0; j < upgrades.Count; j++)
-                {
-                    UpgradeData upgrade = upgrades[j];
-
-                    if (upgrade != null && upgrade.Operation == UpgradeOperation.Multiply && upgrade.Value < 1)
-                        diagnostics.Add(new ContentDiagnostic($"{at}.Upgrades[{j}]",
-                            $"곱하기 {Number(upgrade.Value)}는 값을 줄인다. 10% 늘리려면 비율 0.1 또는 곱하기 1.1이다."));
-                }
             }
 
             return diagnostics;
         }
 
-        // 값의 뜻: 더하기 +1, 비율 +25%, 곱하기 ×10.
-        public static string Notation(UpgradeOperation operation, float value)
-        {
-            switch (operation)
-            {
-                case UpgradeOperation.Add: return (value >= 0 ? "+" : string.Empty) + Number(value);
-                case UpgradeOperation.Percent: return (value >= 0 ? "+" : string.Empty) + Number(value * 100) + "%";
-                default: return "×" + Number(value);
-            }
-        }
+        // 효과 값의 표기(시트의 "표시" 칸과 같다): Flat +3, Percent +25%. 값은 시트 단위 그대로다.
+        public static string Notation(UpgradeStatUnit unit, float value) =>
+            (value >= 0 ? "+" : string.Empty) + Number(value) + (unit == UpgradeStatUnit.Percent ? "%" : string.Empty);
 
         private static List<string> LinksOf(NodeData node) => node.Links ??= new List<string>();
 

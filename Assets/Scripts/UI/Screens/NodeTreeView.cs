@@ -36,8 +36,9 @@ namespace BlackHole.Unity
             public string Id { get; }
             public int X { get; }
             public int Y { get; }
+            // 처음 그릴 때의 가격(Rank 1 비용). 이후에는 Show가 다음 Rank 비용으로 바꾼다.
             public long Price { get; }
-            // 노드 그림을 고르는 스탯 키(첫 업그레이드의 스탯). 없으면 기본 그림.
+            // 노드 그림을 고르는 스탯 키(Rank 1 첫 효과의 StatId). 없으면 기본 그림.
             public string Stat { get; }
 
             public NodeItem(string id, int x, int y, long price, string stat = null)
@@ -127,12 +128,16 @@ namespace BlackHole.Unity
             _framePending = true;
         }
 
-        // 노드마다 상태를 받아 칠한다. 바뀐 프레임에만 호출.
-        public void Show(IReadOnlyDictionary<string, NodeState> states)
+        // 노드마다 상태(와 다음 Rank 비용)를 받아 칠한다. 바뀐 프레임에만 호출.
+        // costs에 없는 노드(마지막 Rank까지 산 노드)는 가격을 바꾸지 않는다 — Owned면 가격을 쓰지 않는다.
+        public void Show(IReadOnlyDictionary<string, NodeState> states, IReadOnlyDictionary<string, long> costs = null)
         {
             foreach (NodeVisual node in _nodes.Values)
             {
                 node.State = states[node.Id];
+
+                if (costs != null && costs.TryGetValue(node.Id, out long cost))
+                    node.Price = cost;
                 bool visible = node.State != NodeState.Hidden;
                 node.Root.SetActive(visible);
 
@@ -443,7 +448,8 @@ namespace BlackHole.Unity
         {
             public readonly string Id;
             public readonly string Stat;
-            public readonly long Price;
+            // 다음 Rank의 비용.
+            public long Price;
             public readonly Vector2 Position;
             public readonly GameObject Root;
             public readonly Image Image;

@@ -40,7 +40,7 @@ namespace BlackHole.Unity
             int effects = 0;
             int repeating = 0;
 
-            foreach (NodeContentDefinition node in content.Nodes)
+            foreach (NodeDefinition node in content.Nodes)
             {
                 ranks += node.MaxRank;
 
