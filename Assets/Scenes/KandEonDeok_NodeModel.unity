@@ -377,6 +377,119 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8ee242afde44fbc920acc77e5b9e4fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.ModeSelectPanel
+--- !u!1001 &198702723
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1238912222}
+    m_Modifications:
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2833807849685437479, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+      propertyPath: m_Name
+      value: ConfirmPanel
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+--- !u!224 &198702724 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2039915121572107526, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+  m_PrefabInstance: {fileID: 198702723}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &198702725 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 771997920816381105, guid: 4cd7ab18e6994809b6f421f0844d2e50, type: 3}
+  m_PrefabInstance: {fileID: 198702723}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 024379d6134d4816aafba4aa1a00ce33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.ConfirmPanel
 --- !u!1 &236909816
 GameObject:
   m_ObjectHideFlags: 0
@@ -1041,6 +1154,7 @@ MonoBehaviour:
   - {fileID: 807488248}
   - {fileID: 52200076}
   - {fileID: 747572562}
+  - {fileID: 198702725}
   _titlePresentation: {fileID: 11400000, guid: 5bf6ea4ae0c89569dabd8cb158fdfe18, type: 2}
   _modeSelectPresentation: {fileID: 11400000, guid: 13520271f37be7f5f476d103f91fea11, type: 2}
   _settingsPresentation: {fileID: 11400000, guid: 79b59cf03ed15cc61b9670cee87c0176, type: 2}
@@ -1359,6 +1473,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 52200075}
+  - {fileID: 198702724}
   m_Father: {fileID: 1407080450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
