@@ -193,7 +193,7 @@ namespace BlackHole.Unity
             // 크기는 규칙 수치(반지름)를 그대로 쓴다: 스프라이트의 긴 변이 지름이 되게 맞춘다.
             Vector3 bounds = renderer.sprite.bounds.size;
             float longest = Mathf.Max(bounds.x, bounds.y);
-            view.transform.localScale = Vector3.one * (enemy.Stats.Size * 2 / longest);
+            view.transform.localScale = Vector3.one * (enemy.Stats.Radius * 2 / longest);
 
             Color marker = _looks.TraitColorOf(kind, trait);
 
@@ -222,7 +222,7 @@ namespace BlackHole.Unity
         private void CreateMoon(EnemyVisual visual, Enemy enemy)
         {
             var moon = QuadRenderers.Create($"Moon #{enemy.Id.Value}", _root, _quad, _breakerLook.OrbMaterial, MoonSortingOrder);
-            float orbitRadius = enemy.Stats.Size + _breakerLook.OrbitOffset + MoonRadius;
+            float orbitRadius = enemy.Stats.Radius + _breakerLook.OrbitOffset + MoonRadius;
             float size = 2 * (orbitRadius + MoonRadius) * MeshMargin;
             moon.transform.localScale = new Vector3(size, size, 1);
 

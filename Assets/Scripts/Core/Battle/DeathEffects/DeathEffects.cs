@@ -168,7 +168,7 @@ namespace BlackHole.Core
                     if (!CanBeStruck(enemy) || _struck.Contains(enemy) || !enemy.IsWithin(origin, chain.Radius))
                         continue;
 
-                    float gap = (float)Math.Sqrt(origin.DistanceSquared(enemy.Position)) - enemy.Stats.Size;
+                    float gap = (float)Math.Sqrt(origin.DistanceSquared(enemy.Position)) - enemy.Stats.Radius;
 
                     if (nearest == null || gap < nearestGap)
                     {

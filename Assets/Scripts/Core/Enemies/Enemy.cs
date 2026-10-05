@@ -17,7 +17,7 @@ namespace BlackHole.Core
         // 특수 적인가(성질이 붙었는가). 특수 적은 사망 때 성질의 효과가 발동하고, 사망 효과의 피해를 받지 않는다.
         public bool IsSpecial => Trait != null;
 
-        // 적의 스탯 수치. 출현 때 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기 등급)의 값을 받음.
+        // 적의 스탯 수치. 출현 때 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기)의 값을 받음.
         public EnemyStats Stats { get; }
 
         public float Health { get; private set; }
@@ -48,10 +48,10 @@ namespace BlackHole.Core
             Position = position;
         }
 
-        // 점 point에서 거리 reach 안에 이 적의 원(반지름 = 크기)이 닿는가. 공격과 사망 효과가 적을 맞히는 판정이다.
+        // 점 point에서 거리 reach 안에 이 적의 원(반지름 Stats.Radius)이 닿는가. 공격과 사망 효과가 적을 맞히는 판정이다.
         internal bool IsWithin(Point2 point, float reach)
         {
-            float touch = reach + Stats.Size;
+            float touch = reach + Stats.Radius;
             return Position.DistanceSquared(point) <= touch * touch;
         }
 

@@ -11,7 +11,7 @@ namespace BlackHole.Core
         // 붙어 있던 특수 성질의 ID. 없으면 null.
         public string TraitId { get; }
         public Point2 Position { get; }
-        public float Size { get; }
+        public float Radius { get; }
 
         internal DeathRecord(long sequence, Enemy enemy)
         {
@@ -20,7 +20,7 @@ namespace BlackHole.Core
             EnemyTypeId = enemy.Definition.Id;
             TraitId = enemy.Trait?.Id;
             Position = enemy.Position;
-            Size = enemy.Stats.Size;
+            Radius = enemy.Stats.Radius;
         }
     }
 }
