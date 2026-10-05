@@ -39,7 +39,9 @@ namespace BlackHole.Unity
 
         private void HandleNodeTreeNodeClicked(string id)
         {
-            NodePurchase.TryPurchase(_player, _tree, id);
+            if (NodePurchase.TryPurchase(_player, _tree, id) == PurchaseResult.Purchased)
+                _progress.Save(_player);
+
             RefreshUpgrade();
         }
 

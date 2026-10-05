@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // Player 한 명의 진행 상태: Gold, 노드마다 산 Rank, 블랙홀의 성장도. 전투 사이에 유지되고, 진행 저장(ProgressSave)으로 앱을 다시 켜도 이어진다.
-    // 새 진행은 새 PlayerState로 시작한다. 판은 PlayerState 목록을 받는다 — 지금 1명일 뿐 하나로 고정된 것이 아니다.
+    // 새 진행은 처음 상태(Gold 0, 성장도 0, 산 노드 없음)에서 시작한다. 판은 PlayerState 목록을 받는다 — 지금 1명일 뿐 하나로 고정된 것이 아니다.
     // 산 노드는 전투 밖에서만 바뀐다(NodePurchase.TryPurchase).
     public sealed class PlayerState
     {

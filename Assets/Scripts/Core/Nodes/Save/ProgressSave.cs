@@ -93,6 +93,10 @@ namespace BlackHole.Core
         public static void Restore(PlayerState state, SavedProgress progress) =>
             state.Restore(progress.Gold, progress.GrowthStage, progress.Ranks);
 
+        // 새 게임: 진행 상태를 처음(새 PlayerState와 같은 상태)으로 되돌린다.
+        public static void StartNew(PlayerState state) =>
+            state.Restore(0, HqGrowthDefinition.StartStage, Array.Empty<(string NodeId, int Rank)>());
+
         // 지금 진행 상태를 저장 형식으로. basis는 불러온 저장이다 — 게임에 쓰지 않은 원래 값을 되돌려 적는다. 새 게임이면 null.
         public static ProgressSaveData Capture(PlayerState state, SavedProgress basis, DateTime savedAtUtc)
         {

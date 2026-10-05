@@ -58,7 +58,11 @@ namespace BlackHole.Unity
             {
                 BattleRawData raw = await _battle.TryEndAsync();
                 if (raw != null)
+                {
+                    // 결산이 진행 상태(Gold·성장도)를 바꿨다.
+                    _progress.Save(_player);
                     ShowSettlement(raw);
+                }
             }
             catch (Exception error) { Debug.LogException(error); }
         }
