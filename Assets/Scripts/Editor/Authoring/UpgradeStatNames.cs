@@ -9,7 +9,7 @@ namespace BlackHole.Authoring
     // 이름은 가져가는 시스템의 것(BreakerUpgradeStats, HqUpgradeStats, EnemyUpgradeStats)을 그대로 쓴다.
     // 새 수치 이름을 Core에 더하면 여기에도 더한다.
     // 적 종류의 수치는 그 종류에 뜻이 있을 때만 낸다: 성질 확률은 그 종류의 성질마다(황금이면 배율도), 변환은 변환 대상이 있는 종류,
-    // 등장 확률은 픽업, 공급 수는 픽업이 아닌 종류, 크기 등급은 크기 등급이 둘 이상인 종류.
+    // 등장 확률은 픽업, 공급 수·질량·크기는 픽업이 아닌 종류.
     public static class UpgradeStatNames
     {
         public static List<(string Name, string Note)> For(IReadOnlyList<EnemyData> enemies)
@@ -32,12 +32,14 @@ namespace BlackHole.Authoring
             foreach (EnemyData enemy in enemies)
             {
                 string id = enemy.Id;
-                names.Add((EnemyUpgradeStats.MassLevel(id), $"{id}의 질량 단계(HP·Gold 계수 줄). 기본값 0, 한 노드 = 더하기 1."));
-
                 bool pickup = enemy.PickupPeriod > 0;
 
                 if (!pickup)
                 {
+                    names.Add((EnemyUpgradeStats.Mass(id),
+                        $"{id}의 질량(%). 기본값 100. 색 분포를 정한다(100%마다 다음 색, 최대 3색, 800%면 마지막 색만). Add만 쓴다(예: 50 = +50%)."));
+                    names.Add((EnemyUpgradeStats.Size(id),
+                        $"{id}의 크기. 기본값 1, 최대 {SizeRule.Max}. 크기 1부터 이 값까지 같은 몫으로 섞여 나온다(크기 k: HP·Gold·EXP k배, 반지름 1 + 0.5(k − 1)배). 한 노드 = 더하기 1."));
                     names.Add((EnemyUpgradeStats.StartSupply(id), $"전투 시작에 {id}를 더 공급하는 수. 기본값 0."));
                     names.Add((EnemyUpgradeStats.GrowthSupply(id), $"블랙홀 Level업마다 {id}를 더 공급하는 수. 기본값 0."));
 
@@ -55,11 +57,7 @@ namespace BlackHole.Authoring
                 }
 
                 if (!string.IsNullOrEmpty(enemy.UpgradesTo))
-                    names.Add((EnemyUpgradeStats.Upgrade(id), $"{id}가 {enemy.UpgradesTo}로 나오는 비율(%). 기본값은 Enemies 탭 baseUpgrade."));
-
-                if (enemy.SizeClasses.Count > 1)
-                    names.Add((EnemyUpgradeStats.SizeLevel(id),
-                        $"{id}의 열린 크기 등급(EnemySizeClasses 탭 class 0부터 이 번호까지 같은 몫으로 섞임). 기본값 0, 한 노드 = 더하기 1."));
+                    names.Add((EnemyUpgradeStats.Upgrade(id), $"{id}가 {enemy.UpgradesTo}로 나오는 비율(%). 기본값 0."));
             }
 
             return names;

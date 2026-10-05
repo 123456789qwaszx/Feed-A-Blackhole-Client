@@ -460,9 +460,9 @@ MonoBehaviour:
       Y: 1
       Links: []
       Upgrades:
-      - Stat: enemy.asteroid.mass-level
+      - Stat: enemy.asteroid.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: asteroid-mass-2
       Price: 41
       Start: 0
@@ -471,9 +471,9 @@ MonoBehaviour:
       Links:
       - asteroid-mass-1
       Upgrades:
-      - Stat: enemy.asteroid.mass-level
+      - Stat: enemy.asteroid.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: asteroid-mass-3
       Price: 130
       Start: 0
@@ -482,9 +482,9 @@ MonoBehaviour:
       Links:
       - asteroid-mass-2
       Upgrades:
-      - Stat: enemy.asteroid.mass-level
+      - Stat: enemy.asteroid.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: asteroid-mass-4
       Price: 260
       Start: 0
@@ -493,9 +493,9 @@ MonoBehaviour:
       Links:
       - asteroid-mass-3
       Upgrades:
-      - Stat: enemy.asteroid.mass-level
+      - Stat: enemy.asteroid.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: asteroid-mass-5
       Price: 780
       Start: 0
@@ -504,9 +504,9 @@ MonoBehaviour:
       Links:
       - asteroid-mass-4
       Upgrades:
-      - Stat: enemy.asteroid.mass-level
+      - Stat: enemy.asteroid.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: asteroid-mass-6
       Price: 8600
       Start: 0
@@ -515,9 +515,9 @@ MonoBehaviour:
       Links:
       - asteroid-mass-5
       Upgrades:
-      - Stat: enemy.asteroid.mass-level
+      - Stat: enemy.asteroid.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: asteroid-mass-7
       Price: 26000
       Start: 0
@@ -526,9 +526,9 @@ MonoBehaviour:
       Links:
       - asteroid-mass-6
       Upgrades:
-      - Stat: enemy.asteroid.mass-level
+      - Stat: enemy.asteroid.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: asteroid-mass-8
       Price: 63000
       Start: 0
@@ -537,9 +537,9 @@ MonoBehaviour:
       Links:
       - asteroid-mass-7
       Upgrades:
-      - Stat: enemy.asteroid.mass-level
+      - Stat: enemy.asteroid.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: asteroid-supply-1
       Price: 31
       Start: 0
@@ -735,9 +735,9 @@ MonoBehaviour:
       Links:
       - asteroid-to-planet-1
       Upgrades:
-      - Stat: enemy.planet.mass-level
+      - Stat: enemy.planet.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: planet-mass-2
       Price: 180000
       Start: 0
@@ -746,9 +746,9 @@ MonoBehaviour:
       Links:
       - planet-mass-1
       Upgrades:
-      - Stat: enemy.planet.mass-level
+      - Stat: enemy.planet.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: planet-mass-3
       Price: 220000
       Start: 0
@@ -757,9 +757,9 @@ MonoBehaviour:
       Links:
       - planet-mass-2
       Upgrades:
-      - Stat: enemy.planet.mass-level
+      - Stat: enemy.planet.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: planet-mass-4
       Price: 260000
       Start: 0
@@ -768,9 +768,9 @@ MonoBehaviour:
       Links:
       - planet-mass-3
       Upgrades:
-      - Stat: enemy.planet.mass-level
+      - Stat: enemy.planet.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: planet-mass-5
       Price: 310000
       Start: 0
@@ -779,9 +779,9 @@ MonoBehaviour:
       Links:
       - planet-mass-4
       Upgrades:
-      - Stat: enemy.planet.mass-level
+      - Stat: enemy.planet.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: planet-mass-6
       Price: 370000
       Start: 0
@@ -790,9 +790,9 @@ MonoBehaviour:
       Links:
       - planet-mass-5
       Upgrades:
-      - Stat: enemy.planet.mass-level
+      - Stat: enemy.planet.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: planet-mass-7
       Price: 510000
       Start: 0
@@ -801,9 +801,9 @@ MonoBehaviour:
       Links:
       - planet-mass-6
       Upgrades:
-      - Stat: enemy.planet.mass-level
+      - Stat: enemy.planet.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: planet-mass-8
       Price: 930000
       Start: 0
@@ -812,9 +812,9 @@ MonoBehaviour:
       Links:
       - planet-mass-7
       Upgrades:
-      - Stat: enemy.planet.mass-level
+      - Stat: enemy.planet.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: comet-chance-1
       Price: 200000
       Start: 0
@@ -922,9 +922,9 @@ MonoBehaviour:
       Links:
       - planet-to-star-1
       Upgrades:
-      - Stat: enemy.star.mass-level
+      - Stat: enemy.star.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: star-mass-2
       Price: 1700000
       Start: 0
@@ -933,9 +933,9 @@ MonoBehaviour:
       Links:
       - star-mass-1
       Upgrades:
-      - Stat: enemy.star.mass-level
+      - Stat: enemy.star.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: star-mass-3
       Price: 2000000
       Start: 0
@@ -944,9 +944,9 @@ MonoBehaviour:
       Links:
       - star-mass-2
       Upgrades:
-      - Stat: enemy.star.mass-level
+      - Stat: enemy.star.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: star-mass-4
       Price: 2500000
       Start: 0
@@ -955,9 +955,9 @@ MonoBehaviour:
       Links:
       - star-mass-3
       Upgrades:
-      - Stat: enemy.star.mass-level
+      - Stat: enemy.star.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: star-mass-5
       Price: 6600000
       Start: 0
@@ -966,9 +966,9 @@ MonoBehaviour:
       Links:
       - star-mass-4
       Upgrades:
-      - Stat: enemy.star.mass-level
+      - Stat: enemy.star.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: star-mass-6
       Price: 12000000
       Start: 0
@@ -977,9 +977,9 @@ MonoBehaviour:
       Links:
       - star-mass-5
       Upgrades:
-      - Stat: enemy.star.mass-level
+      - Stat: enemy.star.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: star-mass-7
       Price: 25000000
       Start: 0
@@ -988,9 +988,9 @@ MonoBehaviour:
       Links:
       - star-mass-6
       Upgrades:
-      - Stat: enemy.star.mass-level
+      - Stat: enemy.star.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: star-mass-8
       Price: 46000000
       Start: 0
@@ -999,9 +999,9 @@ MonoBehaviour:
       Links:
       - star-mass-7
       Upgrades:
-      - Stat: enemy.star.mass-level
+      - Stat: enemy.star.mass
         Operation: 0
-        Value: 1
+        Value: 50
     - Id: supernova-chance-1
       Price: 1700000
       Start: 0
