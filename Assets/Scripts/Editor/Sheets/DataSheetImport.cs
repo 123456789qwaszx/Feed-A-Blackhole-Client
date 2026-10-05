@@ -13,20 +13,18 @@ namespace BlackHole.EditorTools
     //
     // 탭 묶음이 에셋을 채운다: Growth·Milestones → 블랙홀 성장 설정, Skills → 스킬 설정,
     // Enemies·EnemyTiers·EnemyTraits → 적 종류 에셋들(ID로 짝짓는다), Supply·StartSupply → 적 공급 설정.
-    // Nodes·NodeUpgrades → 노드 목록 에셋의 가격·업그레이드(ID로 짝짓는다. 칸·선·시작 노드는 노드 도구의 것). UpgradeStats 탭은 내보내기만 한다.
+    // 노드 콘텐츠(UpgradeStats·Nodes·NodeCost·NodeEffects)는 여기서 다루지 않는다 — 내려받은 CSV를 Assets/Data/NodeTable에 그대로 둔다(NodeContentSource).
+    // 다만 전체 검사는 노드 트리(콘텐츠 + 배치)까지 게임과 같이 본다.
     // 가져오기는 받은 탭의 묶음만 다루고, 묶음의 탭이 일부만 오면 오류다.
-    // 모두 통과해야 쓴다(부분 통과 금지): 탭마다의 칸·규칙 검사 → 게임 시작(GameBootstrap)과 같은 전체 검사.
+    // 모두 통과해야 쓴다(부분 통과 금지): 탭마다의 칸·규칙 검사 → 게임 시작(GameContentLoader)과 같은 전체 검사.
     // 그래서 가져오기가 통과했으면 Play도 콘텐츠 오류 없이 시작한다.
     internal static class DataSheetImport
     {
         public static readonly string[] Tabs =
         {
             HqGrowthSheet.LevelsTab, HqGrowthSheet.MilestonesTab, SkillSheet.Tab,
-            EnemySheet.EnemiesTab, EnemySheet.TiersTab, EnemySheet.TraitsTab, SupplySheet.SupplyTab, SupplySheet.StartSupplyTab, NodeSheet.NodesTab, NodeSheet.UpgradesTab,
+            EnemySheet.EnemiesTab, EnemySheet.TiersTab, EnemySheet.TraitsTab, SupplySheet.SupplyTab, SupplySheet.StartSupplyTab,
         };
-
-        // 내보내기만 하는 탭: NodeUpgrades의 stat 열 드롭다운의 원본.
-        public const string ReferenceTab = NodeSheet.StatsTab;
 
         public static string FileOf(string tab) => tab + ".csv";
 
@@ -51,13 +49,10 @@ namespace BlackHole.EditorTools
             Write(folder, EnemySheet.TraitsTab, EnemySheet.TraitsCsv(enemies.Enemies, TraitColorOf));
             Write(folder, SupplySheet.SupplyTab, SupplySheet.SupplyCsv(supply));
             Write(folder, SupplySheet.StartSupplyTab, SupplySheet.StartSupplyCsv(supply));
-            Write(folder, NodeSheet.NodesTab, NodeSheet.NodesCsv(assets.Nodes.ToData()));
-            Write(folder, NodeSheet.UpgradesTab, NodeSheet.UpgradesCsv(assets.Nodes.ToData()));
-            Write(folder, NodeSheet.StatsTab, NodeSheet.StatsCsv(UpgradeStatNames.For(enemies.Enemies)));
         }
 
         // 반환: 오류(없으면 통과). written에 바꾼 에셋, unchanged에 값이 같아 두지 않은 에셋의 이름을 더한다.
-        // warnings는 가져오기를 막지 않는 알림(값을 줄이는 곱하기)이다.
+        // warnings는 가져오기를 막지 않는 알림이다(지금은 내는 탭이 없다).
         public static List<ContentDiagnostic> Import(ContentAssets assets, IReadOnlyDictionary<string, string> csvByTab,
             List<string> written, List<string> unchanged, List<ContentDiagnostic> warnings)
         {
@@ -66,16 +61,15 @@ namespace BlackHole.EditorTools
             bool skills = Has(csvByTab, errors, SkillSheet.Tab);
             bool enemies = Has(csvByTab, errors, EnemySheet.EnemiesTab, EnemySheet.TiersTab, EnemySheet.TraitsTab);
             bool supply = Has(csvByTab, errors, SupplySheet.SupplyTab, SupplySheet.StartSupplyTab);
-            bool nodes = Has(csvByTab, errors, NodeSheet.NodesTab, NodeSheet.UpgradesTab);
 
-            if (errors.Count == 0 && !growth && !skills && !enemies && !supply && !nodes)
+            if (errors.Count == 0 && !growth && !skills && !enemies && !supply)
                 errors.Add(new ContentDiagnostic(string.Empty, "가져올 탭이 없다."));
 
             if (errors.Count > 0)
                 return errors;
 
             // 지금 에셋으로 채운 뒤 받은 묶음만 시트 값으로 바꾼다. 받지 않은 묶음은 지금 에셋 값으로 함께 검사한다.
-            ContentData data = GameBootstrap.ContentDataFrom(assets.Skills, assets.Enemies, assets.Supply, assets.Growth);
+            ContentData data = GameContentLoader.ContentDataFrom(assets.Skills, assets.Enemies, assets.Supply, assets.Growth);
 
             if (growth)
                 errors.AddRange(HqGrowthSheet.Read(csvByTab[HqGrowthSheet.LevelsTab], csvByTab[HqGrowthSheet.MilestonesTab], data));
@@ -94,23 +88,10 @@ namespace BlackHole.EditorTools
             if (supply)
                 errors.AddRange(SupplySheet.Read(csvByTab[SupplySheet.SupplyTab], csvByTab[SupplySheet.StartSupplyTab], data));
 
-            // 노드 목록 에셋을 바꾸지 않고 수치만 시트 값으로 채운 복사본. 쓸 수 있는 수치 이름은 (시트의) 적 종류로 정한다.
-            NodeTreeData tree = NodeSheet.Copy(assets.Nodes.Tree);
-
-            if (nodes)
-            {
-                var stats = new List<string>();
-
-                foreach ((string name, _) in UpgradeStatNames.For(data.Enemies.Enemies))
-                    stats.Add(name);
-
-                errors.AddRange(NodeSheet.Read(csvByTab[NodeSheet.NodesTab], csvByTab[NodeSheet.UpgradesTab], tree, stats, warnings));
-            }
-
             if (errors.Count > 0)
                 return errors;
 
-            CheckGame(data, tree, errors);
+            CheckGame(data, assets.Nodes, errors);
 
             if (errors.Count > 0)
                 return errors;
@@ -142,10 +123,6 @@ namespace BlackHole.EditorTools
                     () => assets.Supply.Replace(data.Enemies.EnemyPlacement, data.Enemies.PickupPlacement, data.Enemies.MaxAliveEnemies, entries));
             }
 
-            if (nodes)
-                Collect(changes, written, unchanged, assets.Nodes, NodesCsv(assets.Nodes.ToData()) == NodesCsv(tree),
-                    () => assets.Nodes.ReplaceNumbers(tree));
-
             if (changes.Count == 0)
                 return errors;
 
@@ -163,15 +140,11 @@ namespace BlackHole.EditorTools
                 AssetDatabase.SaveAssetIfDirty(asset);
             }
 
-            // 열려 있는 노드 도구가 새 가격·업그레이드를 보이게 한다.
-            if (nodes)
-                NodeTreeWindow.RefreshOpen();
-
             return errors;
         }
 
-        // 게임 시작과 같은 순서: 콘텐츠 로드 → 노드 트리 로드 → 노드를 모두 산 경우의 판 조립 가능 여부.
-        private static void CheckGame(ContentData data, NodeTreeData nodes, List<ContentDiagnostic> errors)
+        // 게임 시작과 같은 순서: 콘텐츠 로드 → 노드 콘텐츠·배치로 노드 트리 로드 → 노드를 모두 산 경우의 판 조립 가능 여부.
+        private static void CheckGame(ContentData data, NodeCatalog nodes, List<ContentDiagnostic> errors)
         {
             ContentLoadResult content = ContentLoader.Load(data);
             AddGame("콘텐츠", content.Diagnostics, errors);
@@ -179,7 +152,19 @@ namespace BlackHole.EditorTools
             if (!content.Succeeded)
                 return;
 
-            NodeTreeLoadResult tree = NodeTreeLoader.Load(nodes);
+            if (nodes.Content == null)
+            {
+                errors.Add(new ContentDiagnostic("게임 검사(노드 콘텐츠)", "노드 목록(NodeCatalog)에 노드 콘텐츠(NodeContentSource)를 연결해야 한다."));
+                return;
+            }
+
+            NodeContentLoadResult nodeContent = nodes.Content.Load();
+            AddGame("노드 콘텐츠", nodeContent.Diagnostics, errors);
+
+            if (!nodeContent.Succeeded)
+                return;
+
+            NodeTreeLoadResult tree = NodeTreeLoader.Load(nodes.ToData(), nodeContent.Content);
             AddGame("노드 트리", tree.Diagnostics, errors);
 
             if (tree.Succeeded)
@@ -299,8 +284,6 @@ namespace BlackHole.EditorTools
         private static string GrowthCsv(HqGrowthData data) => HqGrowthSheet.LevelsCsv(data) + HqGrowthSheet.MilestonesCsv(data);
 
         private static string SupplyCsv(EnemyContentData data) => SupplySheet.SupplyCsv(data) + SupplySheet.StartSupplyCsv(data);
-
-        private static string NodesCsv(NodeTreeData tree) => NodeSheet.NodesCsv(tree) + NodeSheet.UpgradesCsv(tree);
 
         private static void Write(string folder, string tab, string csv) =>
             File.WriteAllText(Path.Combine(folder, FileOf(tab)), csv, new UTF8Encoding(false));

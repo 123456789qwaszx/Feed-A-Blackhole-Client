@@ -158,9 +158,9 @@ namespace BlackHole.EditorTools
 
             EditorUserSettings.SetConfigValue(FolderKey, folder);
             DataSheetImport.Export(assets, folder);
-            ShowMessage($"탭 {DataSheetImport.Tabs.Length + 1}개({string.Join(", ", DataSheetImport.Tabs)}, {DataSheetImport.ReferenceTab})를 CSV로 냈다. " +
+            ShowMessage($"탭 {DataSheetImport.Tabs.Length}개({string.Join(", ", DataSheetImport.Tabs)})를 CSV로 냈다. " +
                 "시트의 같은 이름 탭에 파일 → 가져오기 → 현재 시트 바꾸기로 넣는다. " +
-                $"{DataSheetImport.ReferenceTab}는 가져오지 않는다(NodeUpgrades의 stat 열 드롭다운 원본).", _okText);
+                "노드 콘텐츠 탭(UpgradeStats·Nodes·NodeCost·NodeEffects)은 이 창이 다루지 않는다 — CSV를 Assets/Data/NodeTable에 넣는다.", _okText);
             EditorUtility.RevealInFinder(Path.Combine(folder, DataSheetImport.FileOf(DataSheetImport.Tabs[0])));
         }
 
