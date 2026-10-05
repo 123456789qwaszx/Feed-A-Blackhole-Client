@@ -12,7 +12,7 @@ namespace BlackHole.Core
         public const int Base = 1;
 
         // 노드 저작 실수를 막는 상한. 판 조립이 크기마다 수치를 미리 계산하므로 둔다.
-        public const int Max = 10;
+        public const int Max = 20;
 
         private const float StatStep = 1.0f;
         private const float RadiusStep = 0.5f;
