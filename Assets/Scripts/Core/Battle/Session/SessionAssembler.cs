@@ -29,16 +29,15 @@ namespace BlackHole.Core
                     seed),
             };
 
-            // 이 판의 블랙홀: Level 0에서 시작하고, 성장도 기반 Level 표를 고른다.
+            // 이 판의 블랙홀: 성장도가 시작 Level(마지막 이정표)과 목표 Level(다음 이정표)을 정한다.
             var hq = new Hq(content.Growth, HqUpgradeStats.GrowthTimeFrom(table), progress.GrowthStage);
 
             // 전투 Session이 시작되기 전,
-            // 적의 수치(Gold 포함)와 색·황금 비율을 결정해둠.
-            // 색 비율은 성장도에 의해 결정.
+            // 적의 수치(Gold 포함)와 색·크기·성질 비율을 결정해둠.
+            // 모두 업그레이드 표로만 정해진다. 성장도는 블랙홀(시작·목표 Level)에만 들어간다.
             var stats = new EnemyStatTable(
                 enemies.Enemies,
-                CompositionsOf(enemies, table, hq.Stage),
-                hq.Stage);
+                CompositionsOf(enemies, table));
 
             var world = new World(
                 seed,
@@ -61,13 +60,12 @@ namespace BlackHole.Core
         // 적 종류마다의 판 구성.
         private static Dictionary<EnemyDefinition, EnemyComposition> CompositionsOf(
             EnemyContent enemies,
-            UpgradeTable upgrades,
-            int stage)
+            UpgradeTable upgrades)
         {
             var compositions = new Dictionary<EnemyDefinition, EnemyComposition>();
 
             foreach (EnemyDefinition kind in enemies.Enemies)
-                compositions.Add(kind, EnemyComposition.From(kind, upgrades, stage));
+                compositions.Add(kind, EnemyComposition.From(kind, upgrades));
 
             return compositions;
         }

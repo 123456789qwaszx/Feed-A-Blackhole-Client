@@ -10,8 +10,8 @@ namespace BlackHole.Core
     // 수치 규칙은 정의 생성자를, 콘텐츠 전체 규칙은 EnemyContentInvariants를 그대로 호출해 경로를 붙인다.
     //
     // 세 단계로 읽는다. 앞 단계에 오류가 있으면 뒤 단계를 보지 않는다(잘못된 정의가 거짓 참조 오류를 만들지 않게).
-    // 1. 개별 정의: 적 종류(색 등급·성장도별 색 비율·질량 단계·특수 성질과 그 사망 효과), 출현 배치, 픽업 출현 배치.
-    // 2. 적 종류를 가리키는 것: 적 ID 유일, 종류 사이 연결(변환 대상), 공급(픽업 제외), 픽업 출현 배치, 전체 개체 수 상한.
+    // 1. 개별 정의: 적 종류(색 등급·특수 성질과 그 사망 효과), 출현 배치, 픽업 출현 배치.
+    // 2. 적 종류를 가리키는 것: 적 ID 유일, 공급되는 종류의 색 수, 종류 사이 연결(변환 대상), 공급(픽업 제외), 픽업 출현 배치, 전체 개체 수 상한.
     // 3. 전체: 전투 시작 공급이 상한 안인가.
     public static class EnemyContentLoader
     {
@@ -36,6 +36,7 @@ namespace BlackHole.Core
                 return null;
 
             EnemyContentInvariants.CollectEnemies(enemies, into, out Dictionary<string, EnemyDefinition> enemiesById);
+            EnemyContentInvariants.CheckTierCounts(enemies, into);
             EnemyContentInvariants.CheckKindLinks(enemies, enemiesById, into);
             List<SupplyRequest> startSupply = LoadSupplyList(data.StartSupply, "StartSupply", enemiesById, into);
             EnemyContentInvariants.CheckSupplyKinds(startSupply, "StartSupply", into);
@@ -78,16 +79,12 @@ namespace BlackHole.Core
                 int errors = into.Count;
                 List<EnemyTraitDefinition> traits = LoadTraits(item.Traits, at + ".Traits", into);
                 List<EnemyTier> tiers = LoadTiers(item.Tiers, at + ".Tiers", into);
-                List<StageColorDefinition> stageColors = LoadStageColors(item.StageColors, at + ".StageColors", into);
-                List<MassLevelDefinition> massLevels = LoadMassLevels(item.MassLevels, at + ".MassLevels", into);
-                List<SizeClassDefinition> sizeClasses = LoadSizeClasses(item.SizeClasses, at + ".SizeClasses", into);
 
                 if (into.Count > errors)
                     continue;
 
                 EnemyDefinition enemy = Guard(at, into, () =>
-                    new EnemyDefinition(item.Id, item.MoveSpeed, tiers, stageColors, massLevels, traits, item.UpgradesTo,
-                        item.BaseUpgrade, item.BaseUpgradeFromStage, sizeClasses, item.PickupPeriod));
+                    new EnemyDefinition(item.Id, item.MoveSpeed, item.Radius, tiers, traits, item.UpgradesTo, item.PickupPeriod));
 
                 if (enemy != null)
                     enemies.Add(enemy);
@@ -96,7 +93,7 @@ namespace BlackHole.Core
             return enemies;
         }
 
-        // 줄마다 수치를 검사한다. 줄 수(하나 이상)와 성장도별 색 비율과의 길이 맞춤은 EnemyDefinition이 검사한다.
+        // 줄마다 수치를 검사한다. 줄 수(하나 이상)는 EnemyDefinition이, 공급되는 종류의 색 수는 EnemyContentInvariants가 검사한다.
         private static List<EnemyTier> LoadTiers(List<EnemyTierData> items, string at, List<ContentDiagnostic> into)
         {
             var tiers = new List<EnemyTier>();
@@ -111,86 +108,13 @@ namespace BlackHole.Core
                     continue;
                 }
 
-                EnemyTier? tier = GuardValue($"{at}[{i}]", into, () => new EnemyTier(item.MaxHealth, item.Size, item.Gold, item.Exp));
+                EnemyTier? tier = GuardValue($"{at}[{i}]", into, () => new EnemyTier(item.MaxHealth, item.Gold, item.Exp));
 
                 if (tier.HasValue)
                     tiers.Add(tier.Value);
             }
 
             return tiers;
-        }
-
-        private static List<MassLevelDefinition> LoadMassLevels(List<MassLevelData> items, string at, List<ContentDiagnostic> into)
-        {
-            var levels = new List<MassLevelDefinition>();
-
-            for (int i = 0; items != null && i < items.Count; i++)
-            {
-                MassLevelData item = items[i];
-
-                if (item == null)
-                {
-                    into.Add(new ContentDiagnostic($"{at}[{i}]", "데이터가 없다."));
-                    continue;
-                }
-
-                MassLevelDefinition level = Guard($"{at}[{i}]", into,
-                    () => new MassLevelDefinition(item.HealthMultiplier, item.GoldMultiplier));
-
-                if (level != null)
-                    levels.Add(level);
-            }
-
-            return levels;
-        }
-
-        // 비어 있으면 크기 등급이 없는 종류다(EnemyDefinition이 모든 계수 1인 한 줄로 둔다).
-        private static List<SizeClassDefinition> LoadSizeClasses(List<SizeClassData> items, string at, List<ContentDiagnostic> into)
-        {
-            var classes = new List<SizeClassDefinition>();
-
-            for (int i = 0; items != null && i < items.Count; i++)
-            {
-                SizeClassData item = items[i];
-
-                if (item == null)
-                {
-                    into.Add(new ContentDiagnostic($"{at}[{i}]", "데이터가 없다."));
-                    continue;
-                }
-
-                SizeClassDefinition size = Guard($"{at}[{i}]", into,
-                    () => new SizeClassDefinition(item.SizeMultiplier, item.HealthMultiplier, item.GoldMultiplier, item.ExpMultiplier));
-
-                if (size != null)
-                    classes.Add(size);
-            }
-
-            return classes;
-        }
-
-        // 줄마다 시작 성장도와 색 비율을 검사한다. 줄 수·순서·색 등급과의 길이 맞춤은 EnemyDefinition이 검사한다.
-        private static List<StageColorDefinition> LoadStageColors(List<StageColorData> items, string at, List<ContentDiagnostic> into)
-        {
-            var rows = new List<StageColorDefinition>();
-
-            for (int i = 0; items != null && i < items.Count; i++)
-            {
-                StageColorData item = items[i];
-
-                if (item == null)
-                {
-                    into.Add(new ContentDiagnostic($"{at}[{i}]", "데이터가 없다."));
-                    continue;
-                }
-
-                StageColorDefinition row = Guard($"{at}[{i}]", into, () => new StageColorDefinition(item.FromStage, item.TierRatios));
-
-                if (row != null)
-                    rows.Add(row);
-            }
-
-            return rows;
         }
 
         // 줄마다 ID와 효과를 검사한다. ID 유일·픽업의 성질 수는 EnemyDefinition이 검사한다.

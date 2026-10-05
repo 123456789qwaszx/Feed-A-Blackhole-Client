@@ -4,40 +4,55 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 블랙홀 성장의 공유 정의:
-    // 1. 성장도마다의 판 Level 표와
-    // 2. 목표 Level
-    // 3. 이정표(성장도 10, 20, 30)
+    // 1. 모든 판이 함께 쓰는 Level 사다리 하나(누적 EXP)
+    // 2. 이정표(Level이 커지는 순서). 판이 다음 이정표의 Level에 닿으면 그 Step에서 판이 끝나고 성장도가 1 오른다.
+    //
+    // 성장도 = 도달한 이정표의 수(0 ~ 이정표 수). 성장도가 정하는 것은 판의 시작 Level과 목표 Level뿐이다:
+    // - 시작 Level: 성장도 0이면 0, 아니면 마지막으로 도달한 이정표의 Level.
+    // - 목표 Level: 다음 이정표의 Level. 마지막 이정표 뒤에는 목표가 없다(판은 시간으로만 끝난다).
     public sealed class HqGrowthDefinition
     {
         public const int StartStage = 0;
+        public const int StartLevel = 0;
+        public const int NoGoal = 0;
 
-        public static readonly HqGrowthDefinition None = new(Array.Empty<GrowthStageDefinition>());
+        public static readonly HqGrowthDefinition None = new(Array.Empty<long>());
 
-        public IReadOnlyList<GrowthStageDefinition> Stages { get; }
-        public int MaxStage => Math.Max(StartStage, Stages.Count - 1);
+        // LevelExp[i]는 Level (i + 1)에 닿는 누적 EXP(Level 0 = EXP 0에서 센다). 양수이고 앞 줄보다 크다.
+        public IReadOnlyList<long> LevelExp { get; }
 
-        // 이정표(성장도가 커지는 순서). 한 성장도에 하나다.
+        public int MaxLevel => StartLevel + LevelExp.Count;
+
+        // 이정표(Level이 커지는 순서). Milestones[s]가 성장도 s의 판이 노리는 이정표다.
         public IReadOnlyList<HqMilestone> Milestones { get; }
 
+        public int MaxStage => StartStage + Milestones.Count;
+
         public HqGrowthDefinition(
-            IReadOnlyList<GrowthStageDefinition> stages,
+            IReadOnlyList<long> levelExp,
             IReadOnlyList<HqMilestone> milestones = null)
         {
-            if (stages == null)
-                throw new ArgumentNullException(nameof(stages));
+            if (levelExp == null)
+                throw new ArgumentNullException(nameof(levelExp));
 
-            var rows = new GrowthStageDefinition[stages.Count];
+            var exps = new long[levelExp.Count];
 
-            for (int i = 0; i < rows.Length; i++)
+            for (int i = 0; i < exps.Length; i++)
             {
-                rows[i] = stages[i] ?? throw new ArgumentException($"성장도 {i}의 표가 null이다.", nameof(stages));
+                long exp = levelExp[i];
 
-                // 마지막 성장도가 아니면 다음 성장도로 가는 목표가 있어야 한다. 목표 0은 그 성장도에서 멈춘다는 뜻이다.
-                if (i < rows.Length - 1 && rows[i].GoalLevel == GrowthStageDefinition.NoGoal)
-                    throw new ArgumentException($"성장도 {i}의 목표 Level이 0이다. 마지막이 아닌 성장도는 목표 Level이 1 이상이어야 한다.", nameof(stages));
+                if (exp <= 0)
+                    throw new ArgumentOutOfRangeException(
+                        nameof(levelExp), $"Level {i + 1}의 누적 EXP는 양수여야 한다. 받은 값: {exp}.");
+
+                if (i > 0 && exp <= exps[i - 1])
+                    throw new ArgumentOutOfRangeException(nameof(levelExp),
+                        $"Level {i + 1}의 누적 EXP {exp}는 Level {i}의 {exps[i - 1]}보다 커야 한다.");
+
+                exps[i] = exp;
             }
 
-            Stages = Array.AsReadOnly(rows);
+            LevelExp = Array.AsReadOnly(exps);
 
             var marks = milestones != null
                 ? new HqMilestone[milestones.Count]
@@ -49,15 +64,17 @@ namespace BlackHole.Core
                     milestones[i] ?? throw new ArgumentException(
                         $"이정표 {i}가 null이다.", nameof(milestones));
 
-                if (mark.Stage <= StartStage || mark.Stage > MaxStage)
+                if (mark.Level > MaxLevel)
                     throw new ArgumentOutOfRangeException(
-                        nameof(milestones), $"이정표 {i}의 성장도 {mark.Stage}는 {StartStage + 1}부터" +
-                                            $" {MaxStage}까지(성장도 표 안)여야 한다.");
+                        nameof(milestones), $"이정표 {i}의 Level {mark.Level}은 Level 사다리 안(최대 {MaxLevel})이어야 한다.");
 
-                if (i > 0 && mark.Stage <= marks[i - 1].Stage)
+                if (i > 0 && mark.Level <= marks[i - 1].Level)
                     throw new ArgumentOutOfRangeException(
-                        nameof(milestones), $"이정표 {i}의 성장도 {mark.Stage}는" +
-                                            $" 앞 이정표의 {marks[i - 1].Stage}보다 커야 한다.");
+                        nameof(milestones), $"이정표 {i}의 Level {mark.Level}은 앞 이정표의 {marks[i - 1].Level}보다 커야 한다.");
+
+                if (i > 0 && mark.TargetGold <= marks[i - 1].TargetGold)
+                    throw new ArgumentOutOfRangeException(
+                        nameof(milestones), $"이정표 {i}의 목표 잔액 {mark.TargetGold}는 앞 이정표의 {marks[i - 1].TargetGold}보다 커야 한다.");
 
                 marks[i] = mark;
             }
@@ -65,39 +82,49 @@ namespace BlackHole.Core
             Milestones = Array.AsReadOnly(marks);
         }
 
-        // 성장도 stage의 판에서 쓰는 표. 표가 없는 정의(None)는 Level이 오르지 않는 빈 표다.
-        public GrowthStageDefinition StageAt(int stage)
+        // 성장도 stage의 판이 시작하는 Level.
+        public int StartLevelAt(int stage)
+        {
+            RequireStage(stage);
+            return stage == StartStage ? StartLevel : Milestones[stage - StartStage - 1].Level;
+        }
+
+        // 성장도 stage의 판이 노리는 이정표. 마지막 이정표 뒤면 null.
+        public HqMilestone NextMilestoneAt(int stage)
+        {
+            RequireStage(stage);
+            return stage < MaxStage ? Milestones[stage - StartStage] : null;
+        }
+
+        // 성장도 stage의 판의 목표 Level(다음 이정표의 Level). 없으면 NoGoal.
+        public int GoalLevelAt(int stage) => NextMilestoneAt(stage)?.Level ?? NoGoal;
+
+        // 이 Level에 닿는 누적 EXP. Level 0은 0이다. 사다리 밖이면 null이다.
+        public long? ExpToReach(int level)
+        {
+            if (level == StartLevel)
+                return 0;
+
+            int index = level - StartLevel - 1;
+            return index >= 0 && index < LevelExp.Count ? LevelExp[index] : (long?)null;
+        }
+
+        // Level level에서 누적 EXP exp일 때, 그 Level의 임계값에서 다음 임계값까지 몇 %인가(0 ~ 1). 마지막 Level이면 1이다.
+        public float ProgressAt(int level, long exp)
+        {
+            long? next = ExpToReach(level + 1);
+            long? from = ExpToReach(level);
+
+            if (!next.HasValue || !from.HasValue)
+                return 1;
+
+            return (float)Math.Max(0, Math.Min(1, (double)(exp - from.Value) / (next.Value - from.Value)));
+        }
+
+        private void RequireStage(int stage)
         {
             if (stage < StartStage || stage > MaxStage)
                 throw new ArgumentOutOfRangeException(nameof(stage), $"성장도는 {StartStage}부터 {MaxStage}까지다. 받은 값: {stage}.");
-
-            return Stages.Count == 0 ? GrowthStageDefinition.Empty : Stages[stage];
-        }
-
-        // 이 성장도에 닿으면 받는 이정표. 없으면 null.
-        public HqMilestone MilestoneAt(int stage)
-        {
-            foreach (HqMilestone mark in Milestones)
-            {
-                if (mark.Stage == stage)
-                    return mark;
-            }
-
-            return null;
-        }
-
-        // 이 성장도 이하인 이정표의 수(이정표 진행도 n / Milestones.Count).
-        public int MilestonesReachedBy(int stage)
-        {
-            int reached = 0;
-
-            foreach (HqMilestone mark in Milestones)
-            {
-                if (mark.Stage <= stage)
-                    reached++;
-            }
-
-            return reached;
         }
     }
 }

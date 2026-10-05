@@ -5,8 +5,8 @@ namespace BlackHole.Core
     // 특수 성질의 수치는 종류 아래 성질 ID로 나뉜다: enemy.<종류>.trait.<성질>.<수치>.
     public static class EnemyUpgradeStats
     {
-        // 질량 증가(HP·Gold 계수의 줄 번호). 한 노드 = 더하기 1.
-        public static string MassLevel(string kindId) => $"enemy.{kindId}.mass-level";
+        // 질량(%, 기본 100). 색 분포를 정한다(MassRule). 노드는 더하기(Add)만 쓴다 — 예: 더하기 50 = +50%.
+        public static string Mass(string kindId) => $"enemy.{kindId}.mass";
         // 전투 시작 공급 수 늘리기. 원작 도전 과제 "50개 이상으로 시작"이 이 강화를 가리킨다. 전체 개체 수 상한 안이어야 한다.
         public static string StartSupply(string kindId) => $"enemy.{kindId}.start-supply";
         // 블랙홀이 Level업할 때마다 이 종류를 더 요청하는 수(원작 "성장 때 소행성 더"). 기본값 0.
@@ -15,8 +15,8 @@ namespace BlackHole.Core
         public static string Upgrade(string kindId) => $"enemy.{kindId}.upgrade";
         // 픽업(혜성)의 등장 확률: 등장 주기마다 이 확률로 하나가 나온다. %, 기본값 0 — 노드를 사야 나온다. 픽업 종류에만 뜻이 있다.
         public static string Chance(string kindId) => $"enemy.{kindId}.chance";
-        // 크기 노드(원작 소행성 크기2·3). 크기 등급 표에서 몇 번째 줄까지 열렸는가. 한 노드 = 더하기 1, 기본값 0(크기 등급 0만 나옴).
-        public static string SizeLevel(string kindId) => $"enemy.{kindId}.size-level";
+        // 크기(기본 1, 상한 SizeRule.Max). 크기 1부터 이 값까지가 같은 몫으로 섞여 나온다(SizeRule). 한 노드 = 더하기 1.
+        public static string Size(string kindId) => $"enemy.{kindId}.size";
         // 특수 성질의 생성 확률(원작 "전기 소행성 생성 확률", "황금 소행성 추가" 등). %, 기본값 0 — 노드를 사야 붙는다.
         public static string TraitChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.chance";
         // 황금 성질의 Gold 배율. 기본값은 그 성질의 배율이다.
