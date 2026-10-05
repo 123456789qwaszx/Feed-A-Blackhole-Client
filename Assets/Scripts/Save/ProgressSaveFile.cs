@@ -42,9 +42,10 @@ namespace BlackHole.Unity
         // 직전 저장. 없거나 JSON으로 읽지 못하면 false.
         public bool TryReadPrevious(out ProgressSaveData data) => TryRead(_previousPath, out data);
 
-        public void MoveCurrentToBackup() => MoveToBackup(_path);
+        // 보관한 경로. 파일이 없었으면 null.
+        public string MoveCurrentToBackup() => MoveToBackup(_path);
 
-        public void MovePreviousToBackup() => MoveToBackup(_previousPath);
+        public string MovePreviousToBackup() => MoveToBackup(_previousPath);
 
         private static bool TryRead(string path, out ProgressSaveData data)
         {
@@ -65,14 +66,20 @@ namespace BlackHole.Unity
             return data != null;
         }
 
-        // 보관 이름에 시각을 붙여 앞서 보관한 파일을 덮지 않는다.
-        private static void MoveToBackup(string path)
+        // 보관 이름에 시각(같은 초에 또 보관하면 번호까지)을 붙여 앞서 보관한 파일을 덮지 않는다.
+        private static string MoveToBackup(string path)
         {
             if (!File.Exists(path))
-                return;
+                return null;
 
             string stamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
-            File.Move(path, $"{path}.{stamp}.bak");
+            string backup = $"{path}.{stamp}.bak";
+
+            for (int n = 1; File.Exists(backup); n++)
+                backup = $"{path}.{stamp}-{n}.bak";
+
+            File.Move(path, backup);
+            return backup;
         }
     }
 }
