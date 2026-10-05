@@ -11,7 +11,7 @@ namespace BlackHole.Unity
     // - Start/Update: 조립한 GameHost에 Unity 수명을 전달한다.
     //
     // 화면은 씬의 UI Canvas에 놓인 화면 프리팹(TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen)을 Root Layer와 Views로,
-    // 패널 프리팹(ModeSelectPanel·SettingsPanel·PausePanel)을 Panel Layer와 Views로 받는다.
+    // 패널 프리팹(ModeSelectPanel·SettingsPanel·PausePanel·ConfirmPanel)을 Panel Layer와 Views로 받는다.
     // 누락된 연결은 조립 전에 오류로 알린다. Presentation을 비워 두면 아무것도 바꾸지 않는 빈 Presentation을 쓴다.
     public sealed class GameBootstrap : MonoBehaviour
     {
@@ -50,6 +50,7 @@ namespace BlackHole.Unity
         [SerializeField] private UIPresentationSpec _battlePresentation;
         [SerializeField] private UIPresentationSpec _settlementPresentation;
         [SerializeField] private UIPresentationSpec _nodeTreePresentation;
+        [SerializeField] private UIPresentationSpec _confirmPresentation;
 
         [Header("UI Context")]
         [SerializeField] private string _themeId = "Light";
@@ -171,6 +172,7 @@ namespace BlackHole.Unity
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
                 OrEmpty(_nodeTreePresentation, "NodeTree"),
+                OrEmpty(_confirmPresentation, "Confirm"),
                 _battle, _viewer, _progress, _loaded.NodeTree, BuildNodeItems(_loaded.NodeTree, _loaded.NodeLayout), _loaded.Content.Growth,
                 _settings, _transition);
         }
@@ -270,6 +272,7 @@ namespace BlackHole.Unity
                 bool hasBattle = false;
                 bool hasSettlement = false;
                 bool hasNodeTree = false;
+                bool hasConfirm = false;
 
                 foreach (UIBase view in _views)
                 {
@@ -281,15 +284,16 @@ namespace BlackHole.Unity
                     hasBattle |= view is BattleScreen;
                     hasSettlement |= view is SettlementScreen;
                     hasNodeTree |= view is NodeTreeView;
+                    hasConfirm |= view is ConfirmPanel;
                 }
 
-                if (hasTitle && hasModeSelect && hasSettings && hasPause && hasUpgrade && hasBattle && hasSettlement && hasNodeTree)
+                if (hasTitle && hasModeSelect && hasSettings && hasPause && hasUpgrade && hasBattle && hasSettlement && hasNodeTree && hasConfirm)
                     return true;
             }
 
             Debug.LogError(
                 "[UI] GameBootstrap에 Root Layer, Panel Layer와 TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen, " +
-                "업그레이드 화면 안의 트리 보기 페이지(NodeTreeView), Panel Layer 아래의 모드 선택 패널(ModeSelectPanel)·설정 패널(SettingsPanel)·일시 정지 패널(PausePanel)을 Registered Views로 연결해야 한다.",
+                "업그레이드 화면 안의 트리 보기 페이지(NodeTreeView), Panel Layer 아래의 모드 선택 패널(ModeSelectPanel)·설정 패널(SettingsPanel)·일시 정지 패널(PausePanel)·확인 창(ConfirmPanel)을 Registered Views로 연결해야 한다.",
                 this);
             return false;
         }

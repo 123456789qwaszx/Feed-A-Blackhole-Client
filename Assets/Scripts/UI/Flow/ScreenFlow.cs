@@ -20,6 +20,7 @@ namespace BlackHole.Unity
         private readonly UIPresentationSpec _battlePresentation;
         private readonly UIPresentationSpec _settlementPresentation;
         private readonly UIPresentationSpec _nodeTreePresentation;
+        private readonly UIPresentationSpec _confirmPresentation;
         private readonly BattleSystem _battle;
         private readonly PlayerState _player;
         // 진행 저장. 진행 상태가 바뀌면(노드 구매, 결산) 저장한다.
@@ -41,6 +42,7 @@ namespace BlackHole.Unity
         public ScreenFlow(UIManager ui, UIPresentationSpec titlePresentation, UIPresentationSpec modeSelectPresentation,
             UIPresentationSpec settingsPresentation, UIPresentationSpec pausePresentation, UIPresentationSpec upgradePresentation,
             UIPresentationSpec battlePresentation, UIPresentationSpec settlementPresentation, UIPresentationSpec nodeTreePresentation,
+            UIPresentationSpec confirmPresentation,
             BattleSystem battle, PlayerState player, ProgressStore progress, NodeTree tree, IReadOnlyList<NodeTreeView.NodeItem> nodes, HqGrowthDefinition growth,
             GameSettings settings, ScreenTransition transition)
         {
@@ -53,6 +55,7 @@ namespace BlackHole.Unity
             _battlePresentation = battlePresentation;
             _settlementPresentation = settlementPresentation;
             _nodeTreePresentation = nodeTreePresentation;
+            _confirmPresentation = confirmPresentation;
             _battle = battle;
             _player = player;
             _progress = progress;
