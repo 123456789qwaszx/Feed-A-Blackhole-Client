@@ -34,52 +34,52 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: 80168dce37ee2c71b5a9ae2f3209872f, type: 3}
     purchased: {fileID: 21300000, guid: 75df5480aabad552d9c6bdaec48f0395, type: 3}
     locked: {fileID: 21300000, guid: 1ec7b5f9022b2d914e7f60781fc6b9d6, type: 3}
-  - stat: breaker.crit-chance
+  - stat: breaker.critChance
     available: {fileID: 21300000, guid: 38ca5ef27396bd58575645c106b3212f, type: 3}
     hover: {fileID: 21300000, guid: f348216d8deb8364e150bf7d60cae24c, type: 3}
     purchased: {fileID: 21300000, guid: 40ee90ea18185758854ff6ab544a2355, type: 3}
     locked: {fileID: 21300000, guid: 067cbc8296e231a4e1caded829790cd7, type: 3}
-  - stat: breaker.crit-multiplier
+  - stat: breaker.critBonus
     available: {fileID: 21300000, guid: c5820fac0240cba0f02e1616deb3adb1, type: 3}
     hover: {fileID: 21300000, guid: 91bdbcb95b8bccd7afb4b24270f54a58, type: 3}
     purchased: {fileID: 21300000, guid: 99374565e1036af5c63e2739efe74b5e, type: 3}
     locked: {fileID: 21300000, guid: 55197022ddec7ef91ccb57f6854901cd, type: 3}
-  - stat: hq.growth-time
+  - stat: growth.time
     available: {fileID: 21300000, guid: 7198f73d912e0b87f862a1c03634b969, type: 3}
     hover: {fileID: 21300000, guid: 71badb1971a2f550b7fdd5ed91943a89, type: 3}
     purchased: {fileID: 21300000, guid: b29e18fc71088bc59f6cd5609ed38d66, type: 3}
     locked: {fileID: 21300000, guid: c20f2490e7efccd8dcc7775e02d48852, type: 3}
-  - stat: enemy.asteroid.mass-level
+  - stat: asteroid.massScale
     available: {fileID: 21300000, guid: 4a70c58e63d1d5d09635cc24edc282ec, type: 3}
     hover: {fileID: 21300000, guid: 2d27e38927fd8fd16b20667385bc1c3d, type: 3}
     purchased: {fileID: 21300000, guid: 8a833e4b12d44bbae652a9366522ba5f, type: 3}
     locked: {fileID: 21300000, guid: c5dd0489473058543c9500383f8c9a4b, type: 3}
-  - stat: enemy.asteroid.trait.golden.chance
+  - stat: goldenAsteroid.spawnChance
     available: {fileID: 21300000, guid: c9cd040f45e6488bd3a0d4e85a1de225, type: 3}
     hover: {fileID: 21300000, guid: 000f02a0b5ec9adac7a365471fe7c1f5, type: 3}
     purchased: {fileID: 21300000, guid: db87ebf0c7950452b3dcf16e9f1a6cb8, type: 3}
     locked: {fileID: 21300000, guid: 6a31d0232e273a22b4e20eb42b1fdbe1, type: 3}
-  - stat: enemy.asteroid.trait.golden.multiplier
+  - stat: goldenAsteroid.rewardScale
     available: {fileID: 21300000, guid: de55b8e4b9e06c2476d0a94457d77ac4, type: 3}
     hover: {fileID: 21300000, guid: 426e278ecb5e2edc8b985afbb26efa5a, type: 3}
     purchased: {fileID: 21300000, guid: dda1d0390320368af2636c851ba2c6a2, type: 3}
     locked: {fileID: 21300000, guid: c7ff613b2d143d59c7cf1f1ad94d1013, type: 3}
-  - stat: enemy.asteroid.start-supply
+  - stat: asteroid.count
     available: {fileID: 21300000, guid: fb835c054e6ee5e021d5ea51e4860f0c, type: 3}
     hover: {fileID: 21300000, guid: 89a6d86ccb37228c87497eb0c97b47db, type: 3}
     purchased: {fileID: 21300000, guid: 69cca40cb95d2f4473d382f5c0d0446b, type: 3}
     locked: {fileID: 21300000, guid: fdb75e88f886a262064a88a3b970e965, type: 3}
-  - stat: enemy.asteroid.growth-supply
+  - stat: growth.asteroids
     available: {fileID: 21300000, guid: 375acfe057a85c6f78029741c455a66b, type: 3}
     hover: {fileID: 21300000, guid: 546f813bc78bc17b29ec452e45b5dfb8, type: 3}
     purchased: {fileID: 21300000, guid: bdd811cfd36249e7cacd6885dad60ce2, type: 3}
     locked: {fileID: 21300000, guid: bc9e2ae03a542d64f86f31821bca56f0, type: 3}
-  - stat: enemy.asteroid.upgrade
+  - stat: asteroid.toPlanet
     available: {fileID: 21300000, guid: 1dff0522ff320ca967b52019b43cef2b, type: 3}
     hover: {fileID: 21300000, guid: 31498ced4f5d49b78ba33c0eeb0a4473, type: 3}
     purchased: {fileID: 21300000, guid: 80fa698467b782c1828f4425140bc96f, type: 3}
     locked: {fileID: 21300000, guid: 52b662c11c0d14c7ce9f1ae667580f58, type: 3}
-  - stat: enemy.asteroid.size-level
+  - stat: asteroid.size
     available: {fileID: 21300000, guid: e12b994944fe3d02e18c692a6f16564d, type: 3}
     hover: {fileID: 21300000, guid: 22f6eee11298104287b3b8ac272561bc, type: 3}
     purchased: {fileID: 21300000, guid: c769b9b6187d62ce83ad2e68da2175af, type: 3}
@@ -99,12 +99,12 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: 024b9e23b4d4403e375a1ea0c71ee7e2, type: 3}
     purchased: {fileID: 21300000, guid: 26f9a881f7c2b495d9377f89a423a578, type: 3}
     locked: {fileID: 21300000, guid: 7109023372cd3a607942dcc5746def08, type: 3}
-  - stat: enemy.planet.trait.moon.chance
+  - stat: moonPlanet.spawnChance
     available: {fileID: 21300000, guid: f2ec28d6953f086cebd004e09e229dda, type: 3}
     hover: {fileID: 21300000, guid: e08fdfeed818a98c33337569e563f13b, type: 3}
     purchased: {fileID: 21300000, guid: 9f52910f24fbc68152c234a2eaada638, type: 3}
     locked: {fileID: 21300000, guid: 987133655076b81416b28f702dc0a146, type: 3}
-  - stat: enemy.planet.mass-level
+  - stat: planet.massScale
     available: {fileID: 21300000, guid: 56186855c8498720feccaecabef79056, type: 3}
     hover: {fileID: 21300000, guid: 079d7809511fca10496a35ab88409320, type: 3}
     purchased: {fileID: 21300000, guid: 0d0d3313f2aa91d924673f83d8bcf8dd, type: 3}
@@ -114,17 +114,17 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: d7b5493f4ffe17c01d16e80a4a46cf06, type: 3}
     purchased: {fileID: 21300000, guid: f12fe8ada3f55c5a8fed5464bfa3792d, type: 3}
     locked: {fileID: 21300000, guid: 125c3ab7981bad51af3e7cda3073618a, type: 3}
-  - stat: enemy.planet.growth-supply
+  - stat: growth.planets
     available: {fileID: 21300000, guid: 6b254423ad6962a2162d5d54088ace1b, type: 3}
     hover: {fileID: 21300000, guid: ba3b340da692db88d042b1766dc86968, type: 3}
     purchased: {fileID: 21300000, guid: 5ef42abe5ce3460b32f0c807a660aaee, type: 3}
     locked: {fileID: 21300000, guid: dd4a5fe7aad93542e38ef059f376511d, type: 3}
-  - stat: enemy.planet.upgrade
+  - stat: planet.toStar
     available: {fileID: 21300000, guid: 49a473fccc51e696699ca127ca77cea8, type: 3}
     hover: {fileID: 21300000, guid: 3db578d814b51b0fe117b6771c123a4c, type: 3}
     purchased: {fileID: 21300000, guid: a74a99e6c72c9a15bc142d1382d93635, type: 3}
     locked: {fileID: 21300000, guid: 3401cc2c3119ef340ebd809d4942ac90, type: 3}
-  - stat: enemy.star.mass-level
+  - stat: star.massScale
     available: {fileID: 21300000, guid: e397d54dbce7b12dd0ec1081dba9e347, type: 3}
     hover: {fileID: 21300000, guid: 29bd525853f00452b85437e421cafbd1, type: 3}
     purchased: {fileID: 21300000, guid: 7242ca83aa3b22eb423055cf87955dd6, type: 3}
@@ -134,7 +134,7 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: 156840c707a8896ba8c89d50e2a0abbb, type: 3}
     purchased: {fileID: 21300000, guid: 49499bcb28e8fd4bc53d50f0cd82119a, type: 3}
     locked: {fileID: 21300000, guid: cbc8d5cc4d7c67d1fb2b6b5500ba173f, type: 3}
-  - stat: enemy.star.growth-supply
+  - stat: growth.stars
     available: {fileID: 21300000, guid: 2004048cc72f94353900969c820f86c8, type: 3}
     hover: {fileID: 21300000, guid: c42e123d0ac5c0675d0dfdeaaec79166, type: 3}
     purchased: {fileID: 21300000, guid: 6d76ba7a43a2319ddadc95d21c35f68d, type: 3}
@@ -154,7 +154,7 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: 81d13923c63b5f3e20d971c4795f0c76, type: 3}
     purchased: {fileID: 21300000, guid: 497a60d293b2b36757de238eebc5aed4, type: 3}
     locked: {fileID: 21300000, guid: 185032a28e864e4816cbb885a7b99867, type: 3}
-  - stat: enemy.comet.chance
+  - stat: comet.spawnChance
     available: {fileID: 21300000, guid: b83856f63de1d01300fdf121f7815f52, type: 3}
     hover: {fileID: 21300000, guid: 5d345991d7ab058756f01dd4d821f628, type: 3}
     purchased: {fileID: 21300000, guid: 0174828afd2446f28dc23a17be53e115, type: 3}
@@ -174,7 +174,7 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: b0da8d54bb321513f8ad825dfba3065e, type: 3}
     purchased: {fileID: 21300000, guid: ce1214bda1b56f0283da371b986ab08a, type: 3}
     locked: {fileID: 21300000, guid: 0845e74e2f7f4cde6b29170a5e07764f, type: 3}
-  - stat: enemy.asteroid.trait.electric.chance
+  - stat: electricAsteroid.spawnChance
     available: {fileID: 21300000, guid: af428646a5500ce5d6337a5afad013ab, type: 3}
     hover: {fileID: 21300000, guid: 5b38408d0efec74e1f5ead7525a0cb77, type: 3}
     purchased: {fileID: 21300000, guid: eea216825f67629818eb99dcb90c0c2d, type: 3}
@@ -194,7 +194,7 @@ MonoBehaviour:
     hover: {fileID: 21300000, guid: 1d0158f85aab0b9d5974cbfb95389f11, type: 3}
     purchased: {fileID: 21300000, guid: 8a07fb4fc4f31a6b1f4b2742fc95e11f, type: 3}
     locked: {fileID: 21300000, guid: 8025cd808ed1952169eeffeb503692a5, type: 3}
-  - stat: enemy.star.trait.supernova.chance
+  - stat: supernovaStar.spawnChance
     available: {fileID: 21300000, guid: 3e26546ae8418b6f94735e60ad670b8b, type: 3}
     hover: {fileID: 21300000, guid: a1d7e3b2be944d866bf4db3df1dd8364, type: 3}
     purchased: {fileID: 21300000, guid: bb2f74d525f02796cd5a7a7e8a06320e, type: 3}

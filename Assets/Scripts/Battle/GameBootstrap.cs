@@ -322,6 +322,7 @@ namespace BlackHole.Unity
         }
 
         // 오류가 있는 노드 트리로도 시작하지 않는다. 업그레이드 화면은 트리(규칙)와 함께 저작 데이터(격자 칸)도 받는다.
+        // 노드 트리 = 노드 콘텐츠(시트 CSV) + 배치(노드 도구). 배치하지 않은 노드는 트리에서 빠진다(경고).
         private bool TryLoadNodeTree(out NodeTreeData layout, out NodeTree tree)
         {
             layout = null;
@@ -333,11 +334,28 @@ namespace BlackHole.Unity
                 return false;
             }
 
+            if (_nodeCatalog.Content == null)
+            {
+                Debug.LogError("[노드 콘텐츠] 노드 목록(NodeCatalog)에 노드 콘텐츠(NodeContentSource)를 연결해야 한다.", _nodeCatalog);
+                return false;
+            }
+
+            NodeContentLoadResult content = _nodeCatalog.Content.Load();
+
+            foreach (ContentDiagnostic diagnostic in content.Diagnostics)
+                Debug.LogError("[노드 콘텐츠] " + diagnostic, _nodeCatalog.Content);
+
+            if (!content.Succeeded)
+                return false;
+
             layout = _nodeCatalog.ToData();
-            NodeTreeLoadResult result = NodeTreeLoader.Load(layout);
+            NodeTreeLoadResult result = NodeTreeLoader.Load(layout, content.Content);
 
             foreach (ContentDiagnostic diagnostic in result.Diagnostics)
                 Debug.LogError("[노드 트리] " + diagnostic, this);
+
+            if (result.Unplaced.Count > 0)
+                Debug.LogWarning($"[노드 트리] 배치하지 않은 노드 {result.Unplaced.Count}개는 트리에서 빠졌다(살 수 없다). 노드 도구(BlackHole > Node Tree)에서 놓는다.", _nodeCatalog);
 
             tree = result.Tree;
             return result.Succeeded;
@@ -370,8 +388,9 @@ namespace BlackHole.Unity
             foreach (NodeDefinition node in tree.Nodes)
             {
                 (int x, int y) = cells.TryGetValue(node.Id, out (int X, int Y) cell) ? cell : (0, 0);
-                string stat = node.Upgrades.Count > 0 ? node.Upgrades[0].Stat : null;   // 노드 그림을 고르는 스탯
-                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, node.Price, stat));
+                NodeRankDefinition first = node.RankAt(1);
+                string stat = first.Effects[0].StatId;   // 노드 그림을 고르는 스탯
+                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, first.Cost, stat, node.MaxRank));
             }
 
             return nodes;

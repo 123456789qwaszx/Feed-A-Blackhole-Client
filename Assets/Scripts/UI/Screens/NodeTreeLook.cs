@@ -6,7 +6,7 @@ using UnityEngine;
 namespace BlackHole.Unity
 {
     // 업그레이드 트리의 모양: 스탯마다의 노드 그림(BlackHoleGUI Stat Nodes)과 선·가격 글자의 색.
-    // 노드는 자기 첫 업그레이드의 스탯 키로 그림을 찾는다. 모르는 스탯은 기본 그림을 쓴다.
+    // 노드는 Rank 1 첫 효과의 StatId(UpgradeStats 시트)로 그림을 찾는다. 모르는 스탯은 기본 그림을 쓴다.
     // 트리 보기(NodeTreeView)가 들고 있고, 비어 있으면 트리 보기는 예전처럼 색 칸으로 그린다.
     [CreateAssetMenu(fileName = "NodeTreeLook", menuName = "BlackHole/Node Tree Look")]
     public sealed class NodeTreeLook : ScriptableObject
