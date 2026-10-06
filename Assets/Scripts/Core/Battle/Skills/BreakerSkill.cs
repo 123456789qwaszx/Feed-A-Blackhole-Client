@@ -148,10 +148,23 @@ namespace BlackHole.Core
             }
 
             bool critical = _targets.Count > 0 && RollCritical();
-            var damage = new Damage(critical ? Definition.Damage * (1 + CurrentCritDamage) : Definition.Damage, owner.Id, critical);
+
+            //var damage = new Damage(critical ? Definition.Damage * (1 + CurrentCritDamage) : Definition.Damage, owner.Id, critical);
+            // 기본 데미지
+            float damage = Definition.Damage;
+            if (critical) damage *= 1 + CurrentCritDamage;
+
 
             foreach (Enemy target in _targets)
-                world.DealDamage(target, damage);
+            {
+                // 행성 + 별 데미지 보너스
+                // if (Enemy.type == Planet)
+                // damage += Definition.PlanetBonus
+                // else if (Enemy.type == Star)
+                // damage += Definition.StarBonus
+
+                world.DealDamage(target, new Damage(damage, owner.Id, critical));
+            }
 
             LastTickHitCount = _targets.Count;
             _ticks.Add(new BreakerTick(TickCount, center, radius, _targets.Count, critical));
