@@ -146,7 +146,7 @@ namespace BlackHole.Core
 
             if (kind.IsPickup && (timeChance > 0 || respawnChance > 0))
                 throw new ArgumentException($"'{kind.Id}'는 픽업이라 시간 추가 / 재생성 확률을 둘 수 없다.", nameof(upgrades));
-             
+
             var traits = new EnemyTraitDefinition[kind.Traits.Count];
             var chances = new float[kind.Traits.Count];
             float chanceSum = 0;
@@ -184,6 +184,22 @@ namespace BlackHole.Core
 
                 if (multiplier != golden.Multiplier)
                     return trait.With(new GoldenDefinition(multiplier));
+            }
+
+            if (trait.Effect is ChainLightningDefinition chainLightning)
+            {
+                float damage = upgrades.Apply(EnemyUpgradeStats.TraitDamage(kind.Id, trait.Id), chainLightning.Damage);
+                int maxTargets = Whole(upgrades.Apply(EnemyUpgradeStats.TraitChain(kind.Id, trait.Id), chainLightning.MaxTargets));
+                // CSV 값은 5%(0~100) 이런 식으로 적혀있기 때문에 변수값을 0.05(0~1)로 단위로 맞추기 위한 작업
+                float branchChance = Math.Min(1, upgrades.Apply(EnemyUpgradeStats.TraitSplitChance(kind.Id, trait.Id), chainLightning.BranchChance * 100) / 100);
+                float critChance = Math.Min(1, upgrades.Apply(EnemyUpgradeStats.TraitCritChance(kind.Id, trait.Id), chainLightning.CritChance * 100) / 100);
+                float critMultiplier = upgrades.Apply(EnemyUpgradeStats.TraitCritBonus(kind.Id, trait.Id), chainLightning.CritMultiplier * 100) / 100;
+
+                if (damage != chainLightning.Damage || maxTargets != chainLightning.MaxTargets || branchChance != chainLightning.BranchChance
+                    || critChance != chainLightning.CritChance || critMultiplier != chainLightning.CritMultiplier)
+                {
+                    return trait.With(new ChainLightningDefinition(damage, chainLightning.Radius, maxTargets, branchChance, critChance, critMultiplier));
+                }
             }
 
             return trait;

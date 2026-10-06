@@ -25,5 +25,13 @@ namespace BlackHole.Core
         public static string TimeChance(string kindId) => $"enemy.{kindId}.timeChance";
         // 소행성이 파괴될 때 새로운 소행성이 생성될 확률. %, 기본값 0 - 노드를 사야 재소환된다. 상한 100%.
         public static string RespawnChance(string kindId) => $"enemy.{kindId}.respawnChance";
+        public static string TraitDamage(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.damage";
+        public static string TraitChain(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.chain";
+        // 전기 소행성이 갈라질 확률. %, 기본값 0 - 노드를 사야 전기 갈라짐이 발생한다.
+        public static string TraitSplitChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.splitChance";
+        // 전기 소행성의 치명타 확률. %, 기본값 0 - 노드를 사야 치명타가 발생한다.
+        public static string TraitCritChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.critChance";
+        // 전기 소행성의 치명타 배율 . %, 기본값 0 - 노드를 사야 치명타 배율이 증가한다.
+        public static string TraitCritBonus(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.critBonus";
     }
 }
