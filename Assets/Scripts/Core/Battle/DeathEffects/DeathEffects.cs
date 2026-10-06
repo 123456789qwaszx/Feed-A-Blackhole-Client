@@ -32,12 +32,15 @@ namespace BlackHole.Core
             public DeathEffectDefinition Effect { get; }
             public Point2 Position { get; }
             public PlayerId Source { get; }
+            // 죽은 적의 크기 배율(반지름 ÷ 크기 1의 반지름, SizeRule). 폭발 반지름이 이만큼 커진다.
+            public float SizeScale { get; }
 
-            public Pending(DeathEffectDefinition effect, Point2 position, PlayerId source)
+            public Pending(DeathEffectDefinition effect, Point2 position, PlayerId source, float sizeScale)
             {
                 Effect = effect;
                 Position = position;
                 Source = source;
+                SizeScale = sizeScale;
             }
         }
 
@@ -76,7 +79,7 @@ namespace BlackHole.Core
         internal void Enqueue(Enemy enemy, PlayerId source)
         {
             if (enemy.Trait != null)
-                _pending.Add(new Pending(enemy.Trait.Effect, enemy.Position, source));
+                _pending.Add(new Pending(enemy.Trait.Effect, enemy.Position, source, enemy.Stats.Radius / enemy.Definition.Radius));
         }
 
         internal void BeginAdvance()
@@ -190,21 +193,23 @@ namespace BlackHole.Core
             }
         }
 
+        // 폭발 반지름 = 정의의 반지름(크기 1 별 기준) × 죽은 별의 크기 배율. 별이 클수록 폭발도 같은 배율로 넓다.
         private void Explode(ExplosionDefinition explosion, Pending pending, World world)
         {
             _targets.Clear();
+            float radius = explosion.Radius * pending.SizeScale;
             IReadOnlyList<Enemy> enemies = world.Enemies;
 
             for (int i = 0; i < enemies.Count; i++)
             {
-                if (CanBeStruck(enemies[i]) && enemies[i].IsWithin(pending.Position, explosion.Radius))
+                if (CanBeStruck(enemies[i]) && enemies[i].IsWithin(pending.Position, radius))
                     _targets.Add(enemies[i]);
             }
 
             foreach (Enemy target in _targets)
                 world.DealDamage(target, new Damage(explosion.DamageTo(target), pending.Source));
 
-            _explosions.Add(new ExplosionBlast(_nextSequence++, pending.Position, explosion.Radius, _targets.Count));
+            _explosions.Add(new ExplosionBlast(_nextSequence++, pending.Position, radius, _targets.Count));
         }
 
         // 레이저 별이 죽은 순간: 경로를 정하고 예고를 시작한다. 피해는 예고가 끝날 때 준다(FireChargedLasers).

@@ -48,7 +48,7 @@ namespace BlackHole.Unity
             public float critChance;
             [Tooltip("ChainLightning·LaserBurst: 치명타일 때 피해 배율.")]
             public float critMultiplier;
-            [Tooltip("Explosion: 대상 최대 HP에 대한 피해 비율(0 ~ 1).")]
+            [Tooltip("Explosion: 맞는 순간 대상의 현재 HP에 대한 피해 비율(0 ~ 1). 올림, 최소 1.")]
             public float healthFraction;
             [Tooltip("LaserBurst: 레이저 너비.")]
             public float width;

@@ -49,7 +49,7 @@ namespace BlackHole.Core
         public static string TraitWidth(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.width";
         // 번개가 한 번 옮겨 가는 최대 거리 / 폭발 반지름.
         public static string TraitRadius(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.radius";
-        // 폭발 피해 = 대상 최대 HP × 이 비율(0 ~ 1, 1을 넘지 않는다).
+        // 폭발 피해 = 대상 현재 HP × 이 비율(0 ~ 1, 1을 넘지 않는다).
         public static string TraitHealthFraction(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.health-fraction";
     }
 }
