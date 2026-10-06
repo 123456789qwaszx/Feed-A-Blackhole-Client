@@ -1,9 +1,10 @@
 using BlackHole.Core;
+using TMPro;
 using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 적이 맞은 피해량을 그 자리 위로 띄우는 연출. 일반 피해는 흰색, 치명타는 연한 노랑색이다.
+    // 적이 맞은 피해량을 그 자리 위로 띄우는 연출. 일반 피해는 흰색, 치명타는 연한 노랑색에 기울임(골든과 모양으로 구분).
     internal sealed class EnemyDamageText : EnemyFloatingText
     {
         private const int MaxLabels = 16;
@@ -27,7 +28,9 @@ namespace BlackHole.Unity
         private void OnDamaged(Enemy enemy, Damage damage)
         {
             Color color = damage.IsCritical ? CriticalColor : NormalColor;
-            Show(new Vector3(enemy.Position.X, enemy.Position.Y, 0), Mathf.RoundToInt(damage.Amount).ToString(), color, damage.IsCritical);
+            FontStyles style = damage.IsCritical ? (FontStyles.Bold | FontStyles.Italic) : FontStyles.Bold;
+            Show(new Vector3(enemy.Position.X, enemy.Position.Y, 0),
+                Mathf.RoundToInt(damage.Amount).ToString(), color, damage.IsCritical, style);
         }
     }
 }

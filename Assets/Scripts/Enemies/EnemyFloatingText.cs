@@ -63,15 +63,19 @@ namespace BlackHole.Unity
         public bool IsClear => _labels.Count == 0 && _root.childCount == 0;
 
         // 쉬는 라벨을 가져와 position 자리에 text를 color로 띄운다. 자식의 구독 콜백이 호출한다.
-        // emphasized면 폰트 크기를 EmphasisFontSizeBonus만큼 키운다. 라벨은 재사용되므로
-        // 매번 크기를 다시 정해 줘야 이전 호출(강조/비강조)의 크기가 남지 않는다.
-        protected void Show(Vector3 position, string text, Color color, bool emphasized = false)
+        // emphasized면 폰트 크기를 EmphasisFontSizeBonus만큼 키운다(크기는 베이스가 들고 있는 폰트
+        // 크기 상수에 관한 일이라 여기서 책임진다). 어떤 모양(볼드/기울임 등)으로 그릴지는 TMP의
+        // FontStyles를 자식이 직접 넘기게 해, 조합이 늘어나도 매개변수를 더 늘릴 필요가 없게 한다.
+        // 라벨은 재사용되므로 매번 다시 정해 줘야 이전 호출의 크기·스타일이 남지 않는다.
+        protected void Show(Vector3 position, string text, Color color, bool emphasized = false,
+            FontStyles style = FontStyles.Bold)
         {
             Label label = Take();
             label.Start = position;
             label.Elapsed = 0;
             label.Playing = true;
             label.Text.fontSize = emphasized ? _fontSize + EmphasisFontSizeBonus : _fontSize;
+            label.Text.fontStyle = style;
             label.Text.text = text;
             label.Text.color = color;
             label.Text.transform.position = position;
