@@ -16,6 +16,10 @@ namespace BlackHole.Core
         // 진행 시간을 더한 값의 끝자리 오차. 이만큼 모자라도 Tick 시각에 닿은 것으로 본다.
         private const float TimeEpsilon = 1e-5f;
 
+        // 보너스 피해를 받는 적 종류(EnemyDefinition.Id — Enemies/Planet.asset, Star.asset의 id).
+        private const string PlanetKind = "planet";
+        private const string StarKind = "star";
+
         private readonly BattleRandom _critical;
         private readonly List<Enemy> _targets = new();
         private readonly List<BreakerTick> _ticks = new();
@@ -148,26 +152,32 @@ namespace BlackHole.Core
             }
 
             bool critical = _targets.Count > 0 && RollCritical();
-
-            //var damage = new Damage(critical ? Definition.Damage * (1 + CurrentCritDamage) : Definition.Damage, owner.Id, critical);
-            // 기본 데미지
-            float damage = Definition.Damage;
-            if (critical) damage *= 1 + CurrentCritDamage;
-
+            float multiplier = critical ? 1 + CurrentCritDamage : 1;
 
             foreach (Enemy target in _targets)
             {
-                // 행성 + 별 데미지 보너스
-                // if (Enemy.type == Planet)
-                // damage += Definition.PlanetBonus
-                // else if (Enemy.type == Star)
-                // damage += Definition.StarBonus
+                float amount = (Definition.Damage + BonusAgainst(target)) * multiplier;
+                var damage = new Damage(amount, owner.Id, critical);
 
-                world.DealDamage(target, new Damage(damage, owner.Id, critical));
+                world.DealDamage(target, damage);
             }
 
             LastTickHitCount = _targets.Count;
             _ticks.Add(new BreakerTick(TickCount, center, radius, _targets.Count, critical));
+        }
+
+        // 대상 종류에 따른 추가 피해(노드 breaker.planetBonus·breaker.starBonus). 행성·별이 아니면 0이다.
+        private float BonusAgainst(Enemy target)
+        {
+            string kind = target.Definition.Id;
+
+            if (kind == PlanetKind)
+                return Definition.PlanetBonus;
+
+            if (kind == StarKind)
+                return Definition.StarBonus;
+
+            return 0;
         }
 
         // 확정 치명타 중이면 굴리지 않고 치명타다. 확률이 0이나 1이면 굴리지 않는다.
