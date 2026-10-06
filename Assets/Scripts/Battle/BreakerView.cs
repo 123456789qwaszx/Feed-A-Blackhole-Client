@@ -80,6 +80,8 @@ namespace BlackHole.Unity
             public float PunchElapsed = float.MaxValue;
             public float PunchStrength;
             public bool PunchCritical;
+            // 마지막으로 획득음을 낸 버프 번호
+            public int SoundedBuff;
         }
 
         public BreakerView(Transform parent, BreakerLook look)
@@ -141,6 +143,7 @@ namespace BlackHole.Unity
             }
 
             ReadTicks(ring, breaker);
+            ReadBuffs(ring, breaker);
 
             // 링·구체·혜성 배경 원의 표시 여부는 여기서만 정한다. 구체와 배경 원은 링이 보일 때만 보인다.
             bool visible = !paused && player.AimPoint.HasValue;
@@ -184,7 +187,11 @@ namespace BlackHole.Unity
                 if (!tick.Center.HasValue)
                     continue;
 
-                float strength = tick.HitCount > 0 ? 1 : _look.MissStrength;
+                // 맞췄으면 타격음, 못 맞췄으면 헛침 소리
+                if (tick.HitCount > 0) SoundManager.Instance?.RequestHitSound();
+                else SoundManager.Instance.PlayWhiff();
+
+                    float strength = tick.HitCount > 0 ? 1 : _look.MissStrength;
 
                 if (!punched)
                 {
@@ -313,6 +320,29 @@ namespace BlackHole.Unity
                 Orbs = CreateQuadRenderer("Buff Orbs", root, _look.OrbMaterial, OrbSortingOrder),
                 Aura = CreateQuadRenderer("Comet Aura", root, _look.CometAuraMaterial, AuraSortingOrder),
             };
+        }
+
+        private void ReadBuffs(Ring ring, BreakerSkill breaker)
+        {
+            int latest = ring.SoundedBuff;
+
+            IReadOnlyList<BreakerBuff> moon = breaker.MoonBuffs;
+            for (int i = 0; i < moon.Count; i++)
+            {
+                if (moon[i].Number > latest) latest = moon[i].Number;
+            }
+
+            IReadOnlyList<BreakerBuff> comet = breaker.CometBuffs;
+            for (int i = 0; i <comet.Count; i++)
+            {
+                if (comet[i].Number > latest) latest = comet[i].Number;
+            }
+
+            if (latest > ring.SoundedBuff)
+            {
+                SoundManager.Instance?.PlayMoonComet();
+                ring.SoundedBuff = latest;
+            }
         }
 
         private MeshRenderer CreateQuadRenderer(string name, Transform parent, Material material, int sortingOrder) =>
