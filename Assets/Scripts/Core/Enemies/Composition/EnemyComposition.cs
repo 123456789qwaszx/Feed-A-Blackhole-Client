@@ -181,9 +181,11 @@ namespace BlackHole.Core
             if (trait.Effect is GoldenDefinition golden)
             {
                 float multiplier = upgrades.Apply(EnemyUpgradeStats.TraitMultiplier(kind.Id, trait.Id), golden.Multiplier);
+                float critChance = Math.Min(1, upgrades.Apply(EnemyUpgradeStats.TraitCritChance(kind.Id, trait.Id), golden.CritChance * 100) / 100);
+                float critRewardScale = upgrades.Apply(EnemyUpgradeStats.TraitCritRewardScale(kind.Id, trait.Id), golden.CritRewardScale * 100) / 100;
 
-                if (multiplier != golden.Multiplier)
-                    return trait.With(new GoldenDefinition(multiplier));
+                if (multiplier != golden.Multiplier || critChance != golden.CritChance || critRewardScale != golden.CritRewardScale)
+                    return trait.With(new GoldenDefinition(multiplier, critChance, critRewardScale));
             }
 
             if (trait.Effect is ChainLightningDefinition chainLightning)
@@ -197,9 +199,7 @@ namespace BlackHole.Core
 
                 if (damage != chainLightning.Damage || maxTargets != chainLightning.MaxTargets || branchChance != chainLightning.BranchChance
                     || critChance != chainLightning.CritChance || critMultiplier != chainLightning.CritMultiplier)
-                {
                     return trait.With(new ChainLightningDefinition(damage, chainLightning.Radius, maxTargets, branchChance, critChance, critMultiplier));
-                }
             }
 
             return trait;

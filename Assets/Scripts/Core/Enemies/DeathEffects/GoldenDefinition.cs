@@ -1,3 +1,5 @@
+using System;
+
 namespace BlackHole.Core
 {
     // 황금: 사망 때 Gold에 Multiplier를 곱한다(원작 황금 소행성).
@@ -7,10 +9,22 @@ namespace BlackHole.Core
     public sealed class GoldenDefinition : DeathEffectDefinition
     {
         public float Multiplier { get; }
+        public float CritChance { get; }
+        public float CritRewardScale { get; }
 
-        public GoldenDefinition(float multiplier)
+        public GoldenDefinition(float multiplier, float critChance, float critRewardScale)
         {
             Multiplier = DefinitionGuard.Positive(multiplier, nameof(multiplier));
+            CritChance = Chance(critChance, nameof(critChance));
+            CritRewardScale = DefinitionGuard.Positive(critRewardScale, nameof(critRewardScale));
+        }
+
+        private static float Chance(float value, string name)
+        {
+            if (float.IsNaN(value) || value < 0 || value > 1)
+                throw new ArgumentOutOfRangeException(name, "0부터 1까지의 값이 필요하다.");
+
+            return value;
         }
     }
 }
