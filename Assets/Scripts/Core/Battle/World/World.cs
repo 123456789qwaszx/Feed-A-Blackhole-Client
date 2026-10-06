@@ -10,9 +10,10 @@ namespace BlackHole.Core
     // 적이 생기고 죽는 일은 요청으로 들어와 쌓이고, Step의 정해진 자리에서 요청 순서대로 처리된다.
     // - 파괴 요청(RequestDestroy) → 13절 3. Damage / Death 자리: 그 적의 사망을 확정한다(피해·HP 계산 없음).
     // - 생성 요청(RequestSpawn)  → 13절 7. Enemy Supply 자리: 생성 여과 장치를 거쳐 한 마리씩 생성한다.
-    //   한 마리마다: 생성 여과(전체 상한) → 종류(변환 사슬) → 색 등급(그 종류의 색 비율) → 특수 성질(그 종류의 성질 확률, 최대 하나)
+    //   한 마리마다: 생성 여과(전체 상한) → 색 등급(그 종류의 색 비율) → 특수 성질(그 종류의 성질 확률, 최대 하나)
     //   → 크기(열린 크기가 같은 몫) → 위치.
     //   색·성질·크기는 몫 방식(QuotaPicker)으로 정한다. 수치(Gold 포함)는 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기)의 값이다.
+    //   종류는 요청한 그대로다. 다음 종류로의 변환(소행성 → 행성)은 판 조립이 전투 시작 공급을 정할 때 한 번 한다(SessionAssembler).
     // - 픽업(혜성)은 요청으로 나오지 않는다 → 8. Pickup 자리: 종류의 등장 주기마다 등장 확률로 하나를 일반 띠와 다른 픽업 띠 안에 만든다(전체 상한과 무관).
     // 같은 Step에서 사망이 생성보다 먼저다. 그래서 죽어서 비운 자리(전체 상한)에 같은 Step의 생성이 들어갈 수 있다.
     // 생성된 적은 다음 Step부터 움직이고 공격 대상이 된다. 처리되지 않은 요청은 판 정리가 버린다.
@@ -35,8 +36,6 @@ namespace BlackHole.Core
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _traitPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
         // 크기 몫은 크기가 2 이상인 종류에만 있고, 칸은 열린 크기(1 ~ Size)다. 칸 번호 + 1이 크기다.
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _sizePickers = new Dictionary<EnemyDefinition, QuotaPicker>();
-        // 종류마다 어떤 종류로 나오는가를 고르는 몫(BLACKHOLE_LEVEL_PLAN 4.3). 칸이 (그대로, 변환 대상) 둘이고 변환 비율이 0보다 큰 종류에만 있다.
-        private readonly Dictionary<EnemyDefinition, QuotaPicker> _upgradePickers = new Dictionary<EnemyDefinition, QuotaPicker>();
         // 픽업 종류마다 다음 등장 판정까지 지난 시간. 등장 확률이 0보다 큰 픽업만 있다.
         private readonly List<PickupClock> _pickupClocks = new List<PickupClock>();
         private readonly List<EnemyDefinition> _pickupKinds = new List<EnemyDefinition>();
@@ -65,6 +64,8 @@ namespace BlackHole.Core
         public EnemyStatTable Stats { get; }
         // 한 판에 동시에 살아 있을 수 있는 공급된 적(픽업 제외)의 전체 최대 수. 이 수에 닿으면 생성 요청을 거른다(SpawnFilter).
         public int MaxAliveEnemies { get; }
+        // 블랙홀 Level업 한 번마다 넣는 생성 요청(판 조립이 이 판의 시작 수 × 성장 공급 %로 정했다). 판 동안 바뀌지 않는다.
+        public IReadOnlyList<SupplyRequest> GrowthSupply { get; }
         // 이 판의 블랙홀. 사망이 확정되는 순간 그 적의 EXP가 들고, Step의 5 자리에서 Level이 오른다.
         public Hq Hq { get; }
 
@@ -75,7 +76,8 @@ namespace BlackHole.Core
             PickupPlacementDefinition pickupPlacement,
             int maxAliveEnemies,
             Hq hq,
-            IReadOnlyList<BattlePlayer> players)
+            IReadOnlyList<BattlePlayer> players,
+            IReadOnlyList<SupplyRequest> growthSupply = null)
         {
             Stats = stats ?? throw new ArgumentNullException(nameof(stats));
             Hq = hq ?? throw new ArgumentNullException(nameof(hq));
@@ -91,11 +93,11 @@ namespace BlackHole.Core
             Players = _players.AsReadOnly();
             PendingSpawns = _spawnRequests.AsReadOnly();
             PendingDestroys = _destroyRequests.AsReadOnly();
+            GrowthSupply = GrowthSupplyOf(growthSupply, stats);
 
             // 종류마다 처음 몫을 콘텐츠 순서로 흩뜨린다. 같은 콘텐츠·판 구성·seed면 같은 종류·색·성질 순서가 나온다.
             var tierRandom = new BattleRandom(seed, BattleRandom.TierStream);
             var traitRandom = new BattleRandom(seed, BattleRandom.TraitStream);
-            var kindRandom = new BattleRandom(seed, BattleRandom.KindStream);
             var sizeRandom = new BattleRandom(seed, BattleRandom.SizeStream);
 
             foreach (EnemyDefinition kind in stats.Kinds)
@@ -137,11 +139,6 @@ namespace BlackHole.Core
 
                     _sizePickers.Add(kind, new QuotaPicker(sizes, sizeRandom));
                 }
-
-                float upgrade = composition.UpgradeRatio;
-
-                if (upgrade > 0)
-                    _upgradePickers.Add(kind, new QuotaPicker(new[] { 1 - upgrade, upgrade }, kindRandom));
             }
         }
 
@@ -222,7 +219,7 @@ namespace BlackHole.Core
 
         // 공급 처리: 쌓인 생성 요청을 요청 순서대로, 한 마리씩 생성 여과 장치(전체 상한)를 거쳐 배치 띠 안에 생성한다.
         // 거른 요청은 버린다 — 나중에 자리가 나도 다시 나오지 않는다. 전투 시작 공급은 Begin(0초)이 바로 부른다.
-        // 여과를 통과한 한 마리마다: 어떤 종류로 나오는가(변환 사슬) → 색 등급 → 성질 → 크기 → 위치.
+        // 여과를 통과한 한 마리마다: 색 등급 → 성질 → 크기 → 위치. 종류는 요청한 그대로다.
         // 여과는 수만 보므로 종류·색·성질 때문에 걸러지는 일은 없고, 걸러진 요청은 몫을 쓰지 않는다.
         internal void ProcessSpawnRequests()
         {
@@ -233,7 +230,7 @@ namespace BlackHole.Core
                     if (!_filter.Allows(SuppliedAlive))
                         continue;
 
-                    EnemyDefinition kind = KindOf(request.Enemy);
+                    EnemyDefinition kind = request.Enemy;
                     int tier = _tierPickers[kind].Pick();
                     EnemyTraitDefinition trait = TraitOf(kind);
                     int size = _sizePickers.TryGetValue(kind, out QuotaPicker sizePicker) ? sizePicker.Pick() + SizeRule.Base : SizeRule.Base;
@@ -256,17 +253,6 @@ namespace BlackHole.Core
 
                 return count;
             }
-        }
-
-        // 요청한 종류에서 이 한 마리가 나올 종류: 변환 몫이 있으면 그 비율만큼 다음 종류로(사슬로 이어진다).
-        private EnemyDefinition KindOf(EnemyDefinition requested)
-        {
-            EnemyDefinition kind = requested;
-
-            while (_upgradePickers.TryGetValue(kind, out QuotaPicker upgrade) && upgrade.Pick() == 1)
-                kind = Stats.UpgradeTargetOf(kind);
-
-            return kind;
         }
 
         // 정해진 종류에 붙을 성질: 성질 몫이 있으면 그 확률만큼 성질 하나(배타). 없으면 null.
@@ -326,7 +312,7 @@ namespace BlackHole.Core
         //    효과로 죽은 적도 같은 Step의 사망이다. 레이저 별은 여기서 예고를 시작하고, 예고 시간이 지난 Step에 쏜다.
         // 5. HQ EXP / Level: 쌓인 EXP로 블랙홀의 Level을 올린다.
         //    이정표 앞 성장도의 판이 목표 Level에 닿았으면 여기서 멈춘다 — 6·7·8을 하지 않고, 판(GameSession)이 끝난다.
-        // 6. Growth: 오른 Level마다 종류의 성장 공급을 생성 요청으로 넣는다. 시간 연장은 판(GameSession)이 종료 판정 전에 한다.
+        // 6. Growth: 오른 Level마다 성장 공급(GrowthSupply)을 생성 요청으로 넣는다. 시간 연장은 판(GameSession)이 종료 판정 전에 한다.
         // 7. Enemy Supply: 쌓인 생성 요청을 처리한다.
         // 8. Pickup: 픽업의 등장 주기를 진행하고, 찬 주기마다 등장 확률로 픽업을 만든다.
         // Gold와 EXP는 따로 자리가 없다 — 사망이 확정되는 순간 그 적에 이미 정해져 있던 값이 이 판의 합계와 블랙홀에 든다.
@@ -355,16 +341,32 @@ namespace BlackHole.Core
             return raised;
         }
 
-        // Level업 한 번의 성장 공급: 종류마다 판 구성의 성장 공급 수만큼(콘텐츠 종류 순서). 나올 종류와 성질은 공급 처리가 정한다.
+        // Level업 한 번의 성장 공급: 판 조립이 정한 요청 그대로(시작 공급 순서). 색·성질·크기는 공급 처리가 정한다.
         private void RequestGrowthSupply()
         {
-            foreach (EnemyDefinition kind in Stats.Kinds)
-            {
-                EnemyComposition composition = Stats.CompositionOf(kind);
+            foreach (SupplyRequest request in GrowthSupply)
+                RequestSpawn(request);
+        }
 
-                if (composition.GrowthSupply > 0)
-                    RequestSpawn(new SupplyRequest(kind, composition.GrowthSupply));
+        // 성장 공급 요청은 이 판의 공급되는 종류여야 한다(픽업은 등장 주기로만 나온다).
+        private static IReadOnlyList<SupplyRequest> GrowthSupplyOf(IReadOnlyList<SupplyRequest> growthSupply, EnemyStatTable stats)
+        {
+            var requests = new List<SupplyRequest>();
+
+            if (growthSupply == null)
+                return requests.AsReadOnly();
+
+            foreach (SupplyRequest request in growthSupply)
+            {
+                stats.Require(request.Enemy);
+
+                if (request.Enemy.IsPickup)
+                    throw new ArgumentException($"'{request.Enemy.Id}'는 픽업이라 성장 공급에 둘 수 없다.", nameof(growthSupply));
+
+                requests.Add(request);
             }
+
+            return requests.AsReadOnly();
         }
 
         // 적에게 피해를 주는 입구. 피해를 주는 쪽(Skill·사망 효과)은 모두 여기로 요청한다.

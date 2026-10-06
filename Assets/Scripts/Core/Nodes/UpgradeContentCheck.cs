@@ -40,6 +40,15 @@ namespace BlackHole.Core
                 diagnostics.Add(new ContentDiagnostic("Nodes(모두 산 경우).Hq", error.Message));
             }
 
+            try
+            {
+                content.TimeLimit.Upgraded(table);
+            }
+            catch (ArgumentException error)
+            {
+                diagnostics.Add(new ContentDiagnostic("Nodes(모두 산 경우).Session", error.Message));
+            }
+
             EnemyContent enemies = content.Enemies;
             bool growthSupply = false;
             var compositions = new Dictionary<EnemyDefinition, EnemyComposition>();
@@ -50,7 +59,7 @@ namespace BlackHole.Core
                 {
                     EnemyComposition composition = EnemyComposition.From(kind, table);
                     extraSupply += composition.StartSupplyBonus;
-                    growthSupply |= composition.GrowthSupply > 0;
+                    growthSupply |= composition.GrowthPercent > 0;
                     compositions.Add(kind, composition);
                 }
                 catch (ArgumentException error)

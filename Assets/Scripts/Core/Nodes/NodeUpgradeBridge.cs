@@ -7,7 +7,8 @@ namespace BlackHole.Core
     // 전투 쪽이 시트 수치(UpgradeStatValues)를 직접 읽게 되면 지운다.
     //
     // 넘기는 것은 "기본값에서 늘어난 양"(하한·상한으로 자른 값 − 기본값)이다. 기본값 자체는 전투 쪽 콘텐츠(Skills·적 종류 시트)의 값을 그대로 쓴다.
-    // 단위는 옛 표의 것으로 바꾼다: 옛 표의 확률·보너스는 0.25 = 25%(× 0.01), 적 성질·픽업 확률은 25 = 25%(EnemyComposition이 ÷100).
+    // 단위는 옛 표의 것으로 바꾼다: 옛 표의 확률·보너스는 0.25 = 25%(× 0.01), 적 성질·픽업 확률은 25 = 25%(EnemyComposition이 ÷100),
+    // 성장 공급은 25 = 시작 수의 25%(판 조립이 시작 수와 곱한다). 제한 시간·천체 변환은 그대로(초, 마리 수).
     // 범위·속도(기본 100%)는 옛 표의 Percent(기본값 × (1 + 늘어난 비율))로, 나머지는 Add로 넘긴다.
     // 적 질량(massScale)은 시트와 전투가 같은 단위(%, 전투 기본 100 = MassRule.Base)라 늘어난 %를 그대로 더한다.
     //
@@ -19,7 +20,11 @@ namespace BlackHole.Core
 
         private static readonly Route[] _routes =
         {
+            new Route("timer", SessionUpgradeStats.TimeLimit, UpgradeOperation.Add, 1),
             new Route("growth.time", HqUpgradeStats.GrowthTime, UpgradeOperation.Add, 1),
+            new Route("growth.asteroids", EnemyUpgradeStats.GrowthSupply("asteroid"), UpgradeOperation.Add, 1),
+            new Route("growth.planets", EnemyUpgradeStats.GrowthSupply("planet"), UpgradeOperation.Add, 1),
+            new Route("growth.stars", EnemyUpgradeStats.GrowthSupply("star"), UpgradeOperation.Add, 1),
             new Route("breaker.damage", BreakerUpgradeStats.Damage, UpgradeOperation.Add, 1),
             new Route("breaker.radius", BreakerUpgradeStats.Radius, UpgradeOperation.Percent, Percent),
             new Route("breaker.speed", BreakerUpgradeStats.Speed, UpgradeOperation.Percent, Percent),
@@ -32,6 +37,8 @@ namespace BlackHole.Core
             new Route("planet.massScale", EnemyUpgradeStats.Mass("planet"), UpgradeOperation.Add, 1),
             new Route("star.size", EnemyUpgradeStats.Size("star"), UpgradeOperation.Add, 1),
             new Route("star.massScale", EnemyUpgradeStats.Mass("star"), UpgradeOperation.Add, 1),
+            new Route("asteroid.toPlanet", EnemyUpgradeStats.Upgrade("asteroid"), UpgradeOperation.Add, 1),
+            new Route("planet.toStar", EnemyUpgradeStats.Upgrade("planet"), UpgradeOperation.Add, 1),
             new Route("electricAsteroid.spawnChance", EnemyUpgradeStats.TraitChance("asteroid", "electric"), UpgradeOperation.Add, 1),
             new Route("goldenAsteroid.spawnChance", EnemyUpgradeStats.TraitChance("asteroid", "golden"), UpgradeOperation.Add, 1),
             new Route("moonPlanet.spawnChance", EnemyUpgradeStats.TraitChance("planet", "moon"), UpgradeOperation.Add, 1),

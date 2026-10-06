@@ -9,9 +9,11 @@ namespace BlackHole.Core
         public static string Mass(string kindId) => $"enemy.{kindId}.mass";
         // 전투 시작 공급 수 늘리기. 원작 도전 과제 "50개 이상으로 시작"이 이 강화를 가리킨다. 전체 개체 수 상한 안이어야 한다.
         public static string StartSupply(string kindId) => $"enemy.{kindId}.start-supply";
-        // 블랙홀이 Level업할 때마다 이 종류를 더 요청하는 수(원작 "성장 때 소행성 더"). 기본값 0.
+        // 블랙홀이 Level업할 때마다 이 종류를 판 시작 수의 몇 % 요청하는가(원작 "블랙홀 성장 시 생성되는 소행성 수"). %, 기본값 0.
+        // 시작 수는 변환까지 반영한 이 판의 전투 시작 공급 수다. 시작 수가 0인 종류는 나오지 않는다.
         public static string GrowthSupply(string kindId) => $"enemy.{kindId}.growth-supply";
-        // 다음 종류로의 변환(원작 "소행성 → 행성 업그레이드", "행성 → 별 업그레이드"). %, 기본값 0.
+        // 판 시작 때 이 종류의 시작 공급 중 몇 마리를 다음 종류로 바꾸는가(원작 "소행성을 행성으로 업그레이드"). 마리 수, 기본값 0.
+        // 시작 공급보다 많으면 시작 공급만큼만 바뀐다. 사슬 앞쪽부터 바꾼다(소행성 → 행성을 먼저, 그다음 행성 → 별).
         public static string Upgrade(string kindId) => $"enemy.{kindId}.upgrade";
         // 픽업(혜성)의 등장 확률: 등장 주기마다 이 확률로 하나가 나온다. %, 기본값 0 — 노드를 사야 나온다. 픽업 종류에만 뜻이 있다.
         public static string Chance(string kindId) => $"enemy.{kindId}.chance";

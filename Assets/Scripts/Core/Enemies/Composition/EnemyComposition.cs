@@ -7,8 +7,8 @@ namespace BlackHole.Core
     // 질량과 그로 정해지는 색 비율,
     // 크기,
     // 더할 시작 공급 수,
-    // Level업마다의 성장 공급 수,
-    // 다음 종류로의 변환 비율,
+    // Level업마다의 성장 공급 %(이 판 시작 수 대비),
+    // 판 시작 때 다음 종류로 바꾸는 수,
     // 특수 성질마다의 생성 확률과 노드가 반영된 성질,
     // 픽업이면 등장 확률.
     public readonly struct EnemyComposition
@@ -28,11 +28,12 @@ namespace BlackHole.Core
         // 콘텐츠의 전투 시작 공급에 더해 이 종류를 몇 마리 더 공급하는가.
         public int StartSupplyBonus { get; }
 
-        // 블랙홀이 Level업할 때마다 이 종류를 몇 마리 요청하는가.
-        public int GrowthSupply { get; }
+        // 블랙홀이 Level업할 때마다 이 종류를 이 판 시작 수(변환 반영)의 몇 % 요청하는가(0 이상, 100 = 시작 수만큼). 노드를 사야 0보다 크다.
+        // 마리 수는 판 조립이 시작 수와 곱해 반올림한다(SessionAssembler). %로 두는 것은 소수 오차 없이 곱하기 위해서다.
+        public float GrowthPercent { get; }
 
-        // 이 종류의 생성 중 변환 대상 종류(EnemyDefinition.UpgradesTo)로 나오는 몫(0 ~ 1). 노드를 사야 0보다 크다.
-        public float UpgradeRatio { get; }
+        // 판 시작 때 이 종류의 시작 공급 중 변환 대상 종류(EnemyDefinition.UpgradesTo)로 바꾸는 수(0 이상). 노드를 사야 0보다 크다.
+        public int UpgradeCount { get; }
 
         // 이 판의 성질(종류의 성질 순서, 노드가 반영된 수치 — 예: 황금 배율). 출현한 적은 이 객체를 받는다.
         public IReadOnlyList<EnemyTraitDefinition> Traits { get; }
@@ -48,8 +49,8 @@ namespace BlackHole.Core
             IReadOnlyList<float> tierRatios,
             int size = SizeRule.Base,
             int startSupplyBonus = 0,
-            int growthSupply = 0,
-            float upgradeRatio = 0,
+            float growthPercent = 0,
+            int upgradeCount = 0,
             IReadOnlyList<EnemyTraitDefinition> traits = null,
             IReadOnlyList<float> traitChances = null,
             float appearChance = 0)
@@ -60,12 +61,18 @@ namespace BlackHole.Core
             if ((traits?.Count ?? 0) != (traitChances?.Count ?? 0))
                 throw new ArgumentException("성질 수와 성질 확률 수가 다르다.", nameof(traitChances));
 
+            if (float.IsNaN(growthPercent) || float.IsInfinity(growthPercent) || growthPercent < 0)
+                throw new ArgumentOutOfRangeException(nameof(growthPercent), "0 이상의 유한한 값이 필요하다.");
+
+            if (upgradeCount < 0)
+                throw new ArgumentOutOfRangeException(nameof(upgradeCount), "0 이상이어야 한다.");
+
             Mass = mass;
             TierRatios = tierRatios;
             Size = size;
             StartSupplyBonus = startSupplyBonus;
-            GrowthSupply = growthSupply;
-            UpgradeRatio = upgradeRatio;
+            GrowthPercent = growthPercent;
+            UpgradeCount = upgradeCount;
             Traits = traits ?? NoTraits;
             TraitChances = traitChances ?? NoChances;
             AppearChance = appearChance;
@@ -108,8 +115,8 @@ namespace BlackHole.Core
             float mass = upgrades.Apply(EnemyUpgradeStats.Mass(kind.Id), MassRule.Base);
             int size = Whole(upgrades.Apply(EnemyUpgradeStats.Size(kind.Id), SizeRule.Base));
             int startSupply = Whole(upgrades.Apply(EnemyUpgradeStats.StartSupply(kind.Id), 0));
-            int growthSupply = Whole(upgrades.Apply(EnemyUpgradeStats.GrowthSupply(kind.Id), 0));
-            float upgrade = Percent(upgrades.Apply(EnemyUpgradeStats.Upgrade(kind.Id), 0), kind.Id, "변환 비율");
+            float growth = NotNegative(upgrades.Apply(EnemyUpgradeStats.GrowthSupply(kind.Id), 0), kind.Id, "성장 공급 %");
+            int upgrade = Whole(upgrades.Apply(EnemyUpgradeStats.Upgrade(kind.Id), 0));
             float appear = Percent(upgrades.Apply(EnemyUpgradeStats.Chance(kind.Id), 0), kind.Id, "등장 확률");
 
             if (float.IsNaN(mass) || float.IsInfinity(mass) || mass < 0)
@@ -120,12 +127,16 @@ namespace BlackHole.Core
                 throw new ArgumentOutOfRangeException(
                     nameof(upgrades), $"'{kind.Id}'의 크기는 {SizeRule.Base}부터 {SizeRule.Max}까지다. 업그레이드 합: {size}.");
 
-            // 변환 대상이 없는 종류는 변환해 나올 종류가 없다. 판 조립과 로드 때의 검사(UpgradeContentCheck)가 이 예외를 본다.
+            if (upgrade < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(upgrades), $"'{kind.Id}'의 변환 수는 0 이상이어야 한다. 업그레이드 합: {upgrade}.");
+
+            // 변환 대상이 없는 종류는 바꿔 줄 종류가 없다. 판 조립과 로드 때의 검사(UpgradeContentCheck)가 이 예외를 본다.
             if (upgrade > 0 && kind.UpgradesTo == null)
-                throw new ArgumentException($"'{kind.Id}'에는 변환 대상이 없어 변환 비율을 둘 수 없다. 업그레이드 합: {upgrade * 100:0.##}%.", nameof(upgrades));
+                throw new ArgumentException($"'{kind.Id}'에는 변환 대상이 없어 변환 수를 둘 수 없다. 업그레이드 합: {upgrade}.", nameof(upgrades));
 
             // 픽업은 공급되지 않고 주기마다 등장 확률로 나온다. 공급·질량·크기 노드와 등장 확률은 서로의 종류에만 뜻이 있다.
-            if (kind.IsPickup && (startSupply > 0 || growthSupply > 0))
+            if (kind.IsPickup && (startSupply > 0 || growth > 0))
                 throw new ArgumentException($"'{kind.Id}'는 픽업이라 공급되지 않는다. 공급 수 노드를 둘 수 없다.", nameof(upgrades));
 
             if (kind.IsPickup && (mass != MassRule.Base || size != SizeRule.Base))
@@ -155,7 +166,7 @@ namespace BlackHole.Core
             if (chanceSum > 1 + 1e-4f)
                 throw new ArgumentException($"'{kind.Id}'의 성질 확률 합이 100%를 넘는다({chanceSum * 100:0.##}%).", nameof(upgrades));
 
-            return new EnemyComposition(mass, RatiosOf(kind, mass), size, startSupply, growthSupply, upgrade,
+            return new EnemyComposition(mass, RatiosOf(kind, mass), size, startSupply, growth, upgrade,
                 Array.AsReadOnly(traits), Array.AsReadOnly(chances), appear);
         }
 
@@ -177,6 +188,18 @@ namespace BlackHole.Core
         }
 
         private static int Whole(float value) => (int)Math.Round(value, MidpointRounding.AwayFromZero);
+
+        // 상한 없는 0 이상의 값(성장 공급 %는 100을 넘을 수 있다).
+        private static float NotNegative(float value, string kindId, string label)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value) || value < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(value), $"'{kindId}'의 {label}는 0 이상의 유한한 값이어야 한다. 업그레이드 합: {value}.");
+            }
+
+            return value;
+        }
 
         private static float Percent(float value, string kindId, string label)
         {

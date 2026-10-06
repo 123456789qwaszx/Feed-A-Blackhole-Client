@@ -73,7 +73,7 @@ namespace BlackHole.Core
             LinkKinds(kinds);
         }
 
-        // 이 종류의 생성 중 변환 비율만큼 나오는 다음 종류. 없으면 null이다.
+        // 판 시작 때 이 종류의 변환 수만큼 바뀌어 나오는 다음 종류(변환 사슬). 없으면 null이다.
         public EnemyDefinition UpgradeTargetOf(EnemyDefinition kind)
         {
             Require(kind);
