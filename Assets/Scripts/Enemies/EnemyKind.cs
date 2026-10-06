@@ -72,8 +72,11 @@ namespace BlackHole.Unity
         [Tooltip("초당 이동 거리. 모든 색 등급이 같다. 0이 아닌 값이고, 부호가 공전 방향이다(양수 = 반시계, 음수 = 시계방향).")]
         [SerializeField] private float moveSpeed = 1;
 
-        [Tooltip("크기 1의 반지름. 모든 색이 같다. 공격 판정과 화면에 그리는 크기다. 크기 k는 1 + 0.5(k − 1)배.")]
+        [Tooltip("크기 1의 반지름. 모든 색이 같다. 공격 판정과 화면에 그리는 크기다. 크기 k는 1 + radiusStep × (k − 1)배.")]
         [SerializeField] private float radius = 0.25f;
+
+        [Tooltip("크기가 1 오를 때 늘어나는 반지름(크기 1의 반지름 대비, 0 이상). 원작 실측: 소행성 0.35, 행성 0.09, 별 0.33. 픽업은 크기가 없다.")]
+        [SerializeField] private float radiusStep = 0.5f;
 
         [Header("종류 사이")]
         [Tooltip("이 종류의 생성 중 변환 비율(노드 enemy.<id>.upgrade, %)만큼 나오는 다음 종류. 비우면 변환하지 않는다. 적 종류 목록에 있어야 한다.")]
@@ -117,6 +120,7 @@ namespace BlackHole.Unity
         {
             moveSpeed = data.MoveSpeed;
             radius = data.Radius;
+            radiusStep = data.RadiusStep;
             upgradesTo = upgradesToKind;
             pickupPeriod = data.PickupPeriod;
 
@@ -159,6 +163,7 @@ namespace BlackHole.Unity
                 Id = id,
                 MoveSpeed = moveSpeed,
                 Radius = radius,
+                RadiusStep = radiusStep,
                 UpgradesTo = upgradesTo != null ? upgradesTo.Id : null,
                 PickupPeriod = pickupPeriod,
             };

@@ -5,13 +5,22 @@ using UnityEngine;
 namespace BlackHole.Unity
 {
     // 블랙홀(HQ)의 화면. 매 프레임 판의 블랙홀을 읽어 원점에 원을 그린다. 게임 상태를 바꾸지 않는다.
-    // 원의 크기는 성장도가 정하고(판 동안 같다), 판 Level이 오른 순간 바깥으로 한 번 번쩍인다. 그림일 뿐이다 — 출현 띠·공전·Breaker와 무관하다(GAME_RULES 3.1).
-    // 원작의 "블랙홀이 한 단계 커진다"를 성장도로 읽었다 [임시, BATTLE_COMPOSITION_PLAN 8.2].
-    // 크기는 [임시]다: 마지막 성장도(30)에서도 가장 작은 출현 거리(2)보다 작게 둔다.
+    // 원의 크기는 판 Level이 정하고, Level이 오른 순간 커지며 바깥으로 한 번 번쩍인다. 그림일 뿐이다 — 출현 띠·공전·Breaker와 무관하다(GAME_RULES 3.1).
+    // 크기는 원작 실측(검은 중심의 C0 화면 지름)을 Level에 맞춘 것이다: Level 0 → 12px, 10 → 47px, 20 → 86px, 30 → 158px, 35 → 232px.
+    // 1 unit = C0 54px(카메라 크기 10)로 바꾼 반지름을 Level 사이에서 직선으로 잇고, 마지막 점 뒤는 그대로 둔다.
+    // 선 굵기는 화면에서 고정이라 판의 전장 배율을 곱한다(원은 월드 크기라 카메라가 넓어지면 작아 보인다).
     internal sealed class HqView : IDisposable
     {
-        private const float BaseRadius = 0.35f;
-        private const float RadiusPerStage = 0.05f;
+        // (Level, 반지름) 실측점. Level이 커지는 순서.
+        private static readonly (int Level, float Radius)[] _radiusPoints =
+        {
+            (0, 0.111f),
+            (10, 0.435f),
+            (20, 0.796f),
+            (30, 1.463f),
+            (35, 2.148f),
+        };
+
         private const float RingWidth = 0.08f;
         private const float FlashWidth = 0.12f;
         private const float FlashSeconds = 0.5f;
@@ -28,19 +37,22 @@ namespace BlackHole.Unity
         {
             _strokes.Age(delta);
 
+            float fieldScale = world.Hq.FieldScale;
+
+            // 판이 바뀌면 Reset이 선을 지우므로, 새 판의 전장 배율로 다시 만든다.
             if (_ring == null)
-                _ring = _strokes.Line("Black Hole", RingWidth, RingColor);
+                _ring = _strokes.Line("Black Hole", RingWidth * fieldScale, RingColor);
 
             int level = world.Hq.Level;
 
             if (level == _shownLevel)
                 return;
 
-            float radius = RadiusOf(world.Hq.Stage);
+            float radius = RadiusOf(level);
             LineStrokes.SetCircle(_ring, BattleSpace.Origin, radius);
 
             if (_shownLevel >= 0 && level > _shownLevel)
-                LineStrokes.SetCircle(_strokes.Flash("Level Up", FlashWidth, FlashColor, FlashSeconds), BattleSpace.Origin, radius * 1.4f);
+                LineStrokes.SetCircle(_strokes.Flash("Level Up", FlashWidth * fieldScale, FlashColor, FlashSeconds), BattleSpace.Origin, radius * 1.4f);
 
             _shownLevel = level;
         }
@@ -58,6 +70,24 @@ namespace BlackHole.Unity
 
         public void Dispose() => _strokes.Dispose();
 
-        private static float RadiusOf(int stage) => BaseRadius + RadiusPerStage * (stage - HqGrowthDefinition.StartStage);
+        // Level의 반지름: 실측점 사이는 직선, 첫 점 앞·마지막 점 뒤는 끝 점의 값.
+        private static float RadiusOf(int level)
+        {
+            if (level <= _radiusPoints[0].Level)
+                return _radiusPoints[0].Radius;
+
+            for (int i = 1; i < _radiusPoints.Length; i++)
+            {
+                (int toLevel, float toRadius) = _radiusPoints[i];
+
+                if (level > toLevel)
+                    continue;
+
+                (int fromLevel, float fromRadius) = _radiusPoints[i - 1];
+                return fromRadius + (toRadius - fromRadius) * (level - fromLevel) / (toLevel - fromLevel);
+            }
+
+            return _radiusPoints[_radiusPoints.Length - 1].Radius;
+        }
     }
 }

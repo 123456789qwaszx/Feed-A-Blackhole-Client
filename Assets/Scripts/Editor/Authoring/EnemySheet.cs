@@ -7,8 +7,9 @@ using static BlackHole.Authoring.SheetCells;
 namespace BlackHole.Authoring
 {
     // 적 종류(ContentData.Enemies.Enemies)와 데이터 시트의 세 탭 사이의 변환. 한 종류가 세 탭에 걸쳐 있고 kind(ID)로 잇는다.
-    // - Enemies 탭: 한 행이 종류 하나. id | moveSpeed | radius | upgradesTo | pickupPeriod
-    //   radius는 크기 1의 반지름. upgradesTo는 다른 종류의 ID이고 비우면 없다. pickupPeriod는 픽업(혜성)의 등장 주기(초)이고 0이면 공급되는 보통 종류다.
+    // - Enemies 탭: 한 행이 종류 하나. id | moveSpeed | radius | radiusStep | upgradesTo | pickupPeriod
+    //   radius는 크기 1의 반지름, radiusStep은 크기가 1 오를 때 늘어나는 반지름(크기 1 대비, 0 이상).
+    //   upgradesTo는 다른 종류의 ID이고 비우면 없다. pickupPeriod는 픽업(혜성)의 등장 주기(초)이고 0이면 공급되는 보통 종류다.
     // - EnemyTiers 탭: kind | tier | color | maxHealth | gold | exp. tier는 종류마다 0부터 차례로(공급되는 종류는 7색). color는 #RRGGBB(#RRGGBBAA).
     //   색 분포는 질량 노드(enemy.<종류>.mass), 크기는 크기 노드(enemy.<종류>.size)가 정한다 — 시트에 칸이 없다.
     // - EnemyTraits 탭: kind | trait | color | effect | multiplier | damage | radius | maxTargets | branchChance | critChance | critMultiplier
@@ -25,7 +26,7 @@ namespace BlackHole.Authoring
 
         private static readonly string[] _enemyColumns =
         {
-            "id", "moveSpeed", "radius", "upgradesTo", "pickupPeriod",
+            "id", "moveSpeed", "radius", "radiusStep", "upgradesTo", "pickupPeriod",
         };
 
         private static readonly string[] _traitColumns =
@@ -84,7 +85,8 @@ namespace BlackHole.Authoring
             {
                 rows.Add(new[]
                 {
-                    enemy.Id, Number(enemy.MoveSpeed), Number(enemy.Radius), enemy.UpgradesTo ?? string.Empty, Number(enemy.PickupPeriod),
+                    enemy.Id, Number(enemy.MoveSpeed), Number(enemy.Radius), Number(enemy.RadiusStep), enemy.UpgradesTo ?? string.Empty,
+                    Number(enemy.PickupPeriod),
                 });
             }
 
@@ -243,8 +245,9 @@ namespace BlackHole.Authoring
                     Id = id,
                     MoveSpeed = ReadFloat(row, 1, EnemiesTab, sheetRow, diagnostics),
                     Radius = ReadFloat(row, 2, EnemiesTab, sheetRow, diagnostics),
-                    UpgradesTo = OrNull(Text(row, 3)),
-                    PickupPeriod = ReadFloat(row, 4, EnemiesTab, sheetRow, diagnostics),
+                    RadiusStep = ReadFloat(row, 3, EnemiesTab, sheetRow, diagnostics),
+                    UpgradesTo = OrNull(Text(row, 4)),
+                    PickupPeriod = ReadFloat(row, 5, EnemiesTab, sheetRow, diagnostics),
                 };
 
                 byId.Add(id, enemy);

@@ -7,7 +7,8 @@ namespace BlackHole.Authoring
 {
     // 블랙홀 성장(ContentData.Growth)과 데이터 시트의 두 탭 사이의 변환.
     // - Growth 탭: level | exp. 한 행이 Level 하나이고, exp는 그 Level에 닿는 누적 EXP다. Level은 1부터 차례로 둔다.
-    // - Milestones 탭: level | targetGold. 판이 그 Level에 닿으면 판이 끝나고 결산이 잔액을 targetGold까지 채운다.
+    // - Milestones 탭: level | targetGold | fieldScale. 판이 그 Level에 닿으면 판이 끝나고 결산이 잔액을 targetGold까지 채운다.
+    //   fieldScale은 그 이정표에 닿은 뒤의 전장 배율(1 이상, 앞 이정표 이상): 카메라와 적 출현 띠가 이 배율로 넓어진다.
     // 읽을 때는 칸의 모양(정수인가, 차례가 맞는가)을 먼저 보고, 통과하면 게임과 같은 로더(HqGrowthLoader)로 규칙을 본다.
     public static class HqGrowthSheet
     {
@@ -15,6 +16,8 @@ namespace BlackHole.Authoring
         public const string MilestonesTab = "Milestones";
 
         private const int ExpColumn = 1;
+
+        private static readonly string[] _milestoneColumns = { "level", "targetGold", "fieldScale" };
 
         public static string LevelsCsv(HqGrowthData data)
         {
@@ -28,10 +31,10 @@ namespace BlackHole.Authoring
 
         public static string MilestonesCsv(HqGrowthData data)
         {
-            var rows = new List<IReadOnlyList<string>> { new[] { "level", "targetGold" } };
+            var rows = new List<IReadOnlyList<string>> { _milestoneColumns };
 
             foreach (HqMilestoneData mark in data.Milestones)
-                rows.Add(new[] { Number(mark.Level), Number(mark.TargetGold) });
+                rows.Add(new[] { Number(mark.Level), Number(mark.TargetGold), Number(mark.FieldScale) });
 
             return Csv.Write(rows);
         }
@@ -92,7 +95,7 @@ namespace BlackHole.Authoring
         {
             var sheetRows = new List<int>();
 
-            if (!HasHeader(rows, MilestonesTab, new[] { "level", "targetGold" }, diagnostics))
+            if (!HasHeader(rows, MilestonesTab, _milestoneColumns, diagnostics))
                 return sheetRows;
 
             for (int r = 1; r < rows.Count; r++)
@@ -100,13 +103,14 @@ namespace BlackHole.Authoring
                 string[] row = rows[r];
                 int sheetRow = r + 1;
 
-                if (IsBlank(row, 1))
+                if (IsBlank(row, _milestoneColumns.Length - 1))
                     continue;
 
                 into.Add(new HqMilestoneData
                 {
                     Level = ReadInt(row, 0, MilestonesTab, sheetRow, diagnostics),
                     TargetGold = ReadLong(row, 1, MilestonesTab, sheetRow, diagnostics),
+                    FieldScale = ReadFloat(row, 2, MilestonesTab, sheetRow, diagnostics),
                 });
                 sheetRows.Add(sheetRow);
             }
@@ -118,7 +122,7 @@ namespace BlackHole.Authoring
         private static string PlaceOf(string path, List<int> levelRows, List<int> milestoneRows)
         {
             if (TryIndex(path, "Growth.Milestones[", out int mark, out _) && mark < milestoneRows.Count)
-                return Range(MilestonesTab, 0, 1, milestoneRows[mark]);
+                return Range(MilestonesTab, 0, _milestoneColumns.Length - 1, milestoneRows[mark]);
 
             if (path.StartsWith("Growth.Milestones", StringComparison.Ordinal))
                 return MilestonesTab;

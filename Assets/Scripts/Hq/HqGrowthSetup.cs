@@ -17,6 +17,8 @@ namespace BlackHole.Unity
             public int level;
             [Tooltip("결산이 잔액을 이 값까지 채운다(차액 지급, 그 판에서 번 Gold는 버린다). 앞 이정표보다 커야 한다.")]
             public long targetGold;
+            [Tooltip("이 이정표에 닿은 뒤의 전장 배율(1 이상, 앞 이정표 이상). 카메라 크기와 적 출현 띠가 이 배율로 넓어진다. 원작 실측: 1.68, 2.27, 2.83.")]
+            public float fieldScale;
         }
 
         [Header("Level 사다리 (줄 번호 + 1 = Level, 누적 EXP)")]
@@ -34,7 +36,7 @@ namespace BlackHole.Unity
             };
 
             foreach (Milestone milestone in milestones)
-                data.Milestones.Add(new HqMilestoneData { Level = milestone.level, TargetGold = milestone.targetGold });
+                data.Milestones.Add(new HqMilestoneData { Level = milestone.level, TargetGold = milestone.targetGold, FieldScale = milestone.fieldScale });
 
             return data;
         }
@@ -46,7 +48,7 @@ namespace BlackHole.Unity
             milestones = new List<Milestone>();
 
             foreach (HqMilestoneData milestone in data.Milestones)
-                milestones.Add(new Milestone { level = milestone.Level, targetGold = milestone.TargetGold });
+                milestones.Add(new Milestone { level = milestone.Level, targetGold = milestone.TargetGold, fieldScale = milestone.FieldScale });
         }
     }
 }
