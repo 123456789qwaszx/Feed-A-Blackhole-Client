@@ -30,6 +30,7 @@ namespace BlackHole.Unity
         [SerializeField] private ExplosionLook _explosionLook;
         [SerializeField] private LightningLook _lightningLook;
         [SerializeField] private CometLook _cometLook;
+        [SerializeField] private GameObject _blackHole;
 
         [Header("UI Layers")]
         [SerializeField] private RectTransform _rootLayer;
@@ -105,7 +106,7 @@ namespace BlackHole.Unity
             _enemyView = new EnemyView(transform, _enemyLooks, _breakerLook, _cometLook);
             _breakerView = new BreakerView(transform, _breakerLook);
             _deathEffectView = new DeathEffectView(transform, _lightningLook, _explosionLook);
-            _hqView = new HqView(transform);
+            _hqView = new HqView(transform, _blackHole);
 
             // 전투 카메라를 화면비에 맞춘다(좁은 화면에서도 16:9의 가로 폭을 보여 준다). 씬에 없으면 여기서 붙인다.
             Camera battleCamera = Camera.main;
