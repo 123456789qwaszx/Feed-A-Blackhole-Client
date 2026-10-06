@@ -1151,6 +1151,9 @@ MonoBehaviour:
   _skillSetup: {fileID: 11400000, guid: 3ab44acfb37f427790e580c9f6a10538, type: 2}
   _nodeCatalog: {fileID: 11400000, guid: dc906d29ddfc4d0089200fffb6c6e8be, type: 2}
   _breakerLook: {fileID: 11400000, guid: 268024120f990294aa0012c4df22b246, type: 2}
+  _explosionLook: {fileID: 11400000, guid: 6e2d9e09239144f7a488e776ef97fac6, type: 2}
+  _lightningLook: {fileID: 11400000, guid: e181953d102745b387176d400f5ea790, type: 2}
+  _cometLook: {fileID: 11400000, guid: 3d1f6b7a8c2e4a5f9b0c1d2e3f405162, type: 2}
   _blackHole: {fileID: 344693896}
   _rootLayer: {fileID: 238476925}
   _panelLayer: {fileID: 1238912222}
@@ -1175,6 +1178,7 @@ MonoBehaviour:
   _themeId: Light
   _localeId: ko-KR
   _displayRefreshDriver: {fileID: 0}
+  _keyInput: {fileID: 0}
 --- !u!1001 &974995110
 PrefabInstance:
   m_ObjectHideFlags: 0
