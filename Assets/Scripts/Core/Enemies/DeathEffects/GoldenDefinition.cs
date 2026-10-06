@@ -16,7 +16,7 @@ namespace BlackHole.Core
         {
             Multiplier = DefinitionGuard.Positive(multiplier, nameof(multiplier));
             CritChance = Chance(critChance, nameof(critChance));
-            CritRewardScale = DefinitionGuard.Positive(critRewardScale, nameof(critRewardScale));
+            CritRewardScale = DefinitionGuard.Positive(critRewardScale, nameof(critRewardScale)); // 에셋에 임시값 1(100%)로 지정
         }
 
         private static float Chance(float value, string name)
