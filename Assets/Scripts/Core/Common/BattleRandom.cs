@@ -17,6 +17,9 @@ namespace BlackHole.Core
         public const int PickupStream = 7;
         public const int DeathEffectStream = 8;
         public const int PickupPlacementStream = 9;
+        public const int TimeStream = 10;
+        public const int RespawnStream = 11;
+        public const int GoldenCritStream = 12;
 
         private uint _state;
 
