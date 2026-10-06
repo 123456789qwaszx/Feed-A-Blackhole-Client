@@ -131,7 +131,7 @@ namespace BlackHole.Authoring
             return 0;
         }
 
-        // 로더의 경로에서 번호를 읽는다: TryIndex("Growth.Stages[3].LevelExp", "Growth.Stages[") → 3, ".LevelExp".
+        // 로더의 경로에서 번호를 읽는다: TryIndex("Growth.Milestones[3].Level", "Growth.Milestones[") → 3, ".Level".
         public static bool TryIndex(string path, string prefix, out int index, out string rest)
         {
             index = -1;

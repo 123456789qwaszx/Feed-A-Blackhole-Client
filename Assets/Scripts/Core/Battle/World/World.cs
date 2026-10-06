@@ -11,8 +11,8 @@ namespace BlackHole.Core
     // - 파괴 요청(RequestDestroy) → 13절 3. Damage / Death 자리: 그 적의 사망을 확정한다(피해·HP 계산 없음).
     // - 생성 요청(RequestSpawn)  → 13절 7. Enemy Supply 자리: 생성 여과 장치를 거쳐 한 마리씩 생성한다.
     //   한 마리마다: 생성 여과(전체 상한) → 종류(변환 사슬) → 색 등급(그 종류의 색 비율) → 특수 성질(그 종류의 성질 확률, 최대 하나)
-    //   → 크기 등급(열린 크기 등급이 같은 몫) → 위치.
-    //   색·성질·크기는 몫 방식(QuotaPicker)으로 정한다. 수치(Gold 포함)는 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기 등급)의 값이다.
+    //   → 크기(열린 크기가 같은 몫) → 위치.
+    //   색·성질·크기는 몫 방식(QuotaPicker)으로 정한다. 수치(Gold 포함)는 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기)의 값이다.
     // - 픽업(혜성)은 요청으로 나오지 않는다 → 8. Pickup 자리: 종류의 등장 주기마다 등장 확률로 하나를 일반 띠와 다른 픽업 띠 안에 만든다(전체 상한과 무관).
     // 같은 Step에서 사망이 생성보다 먼저다. 그래서 죽어서 비운 자리(전체 상한)에 같은 Step의 생성이 들어갈 수 있다.
     // 생성된 적은 다음 Step부터 움직이고 공격 대상이 된다. 처리되지 않은 요청은 판 정리가 버린다.
@@ -33,7 +33,7 @@ namespace BlackHole.Core
         // 성질 몫은 성질 확률 합이 0보다 큰 종류에만 있고, 칸은 (성질 없음, 성질 0, 성질 1, …)이다.
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _tierPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _traitPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
-        // 크기 몫은 크기 노드로 크기 등급이 둘 이상 열린 종류에만 있고, 칸은 열린 크기 등급(0 ~ SizeLevel)이다.
+        // 크기 몫은 크기가 2 이상인 종류에만 있고, 칸은 열린 크기(1 ~ Size)다. 칸 번호 + 1이 크기다.
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _sizePickers = new Dictionary<EnemyDefinition, QuotaPicker>();
         // 종류마다 어떤 종류로 나오는가를 고르는 몫(BLACKHOLE_LEVEL_PLAN 4.3). 칸이 (그대로, 변환 대상) 둘이고 변환 비율이 0보다 큰 종류에만 있다.
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _upgradePickers = new Dictionary<EnemyDefinition, QuotaPicker>();
@@ -126,11 +126,11 @@ namespace BlackHole.Core
                     _traitPickers.Add(kind, new QuotaPicker(cells, traitRandom));
                 }
 
-                int sizeLevel = composition.SizeLevel;
+                int size = composition.Size;
 
-                if (sizeLevel > 0)
+                if (size > SizeRule.Base)
                 {
-                    var sizes = new float[sizeLevel + 1];
+                    var sizes = new float[size - SizeRule.Base + 1];
 
                     for (int i = 0; i < sizes.Length; i++)
                         sizes[i] = 1;
@@ -222,7 +222,7 @@ namespace BlackHole.Core
 
         // 공급 처리: 쌓인 생성 요청을 요청 순서대로, 한 마리씩 생성 여과 장치(전체 상한)를 거쳐 배치 띠 안에 생성한다.
         // 거른 요청은 버린다 — 나중에 자리가 나도 다시 나오지 않는다. 전투 시작 공급은 Begin(0초)이 바로 부른다.
-        // 여과를 통과한 한 마리마다: 어떤 종류로 나오는가(변환 사슬) → 색 등급 → 성질 → 크기 등급 → 위치.
+        // 여과를 통과한 한 마리마다: 어떤 종류로 나오는가(변환 사슬) → 색 등급 → 성질 → 크기 → 위치.
         // 여과는 수만 보므로 종류·색·성질 때문에 걸러지는 일은 없고, 걸러진 요청은 몫을 쓰지 않는다.
         internal void ProcessSpawnRequests()
         {
@@ -236,7 +236,7 @@ namespace BlackHole.Core
                     EnemyDefinition kind = KindOf(request.Enemy);
                     int tier = _tierPickers[kind].Pick();
                     EnemyTraitDefinition trait = TraitOf(kind);
-                    int size = _sizePickers.TryGetValue(kind, out QuotaPicker sizePicker) ? sizePicker.Pick() : 0;
+                    int size = _sizePickers.TryGetValue(kind, out QuotaPicker sizePicker) ? sizePicker.Pick() + SizeRule.Base : SizeRule.Base;
                     _enemies.Spawn(kind, tier, trait, Stats.Of(kind, tier, trait, size), _placement.Pick(_placementRandom));
                 }
             }
