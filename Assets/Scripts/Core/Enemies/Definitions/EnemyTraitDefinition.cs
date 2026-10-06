@@ -8,21 +8,30 @@ namespace BlackHole.Core
     // - 한 마리에 성질은 최대 하나다(배타). 한 종류의 성질 확률 합은 100%를 넘을 수 없다.
     // - 성질이 붙은 적은 수치(색·질량·크기)를 종류에서 그대로 받는다. 수치를 바꾸는 성질은 황금(Gold 배율)뿐이다.
     // - 성질이 붙은 적은 특수 적이다: 사망 때 성질의 효과가 발동하고, 사망 효과의 피해를 받지 않는다(DeathEffects).
+    // - MaxAlive가 0보다 크면 이 성질이 붙은 적은 판에 동시에 그 수까지만 있다. 다 찼으면 성질이 뽑혀도 붙지 않는다(World, 원작 "달 최대 개수").
     public sealed class EnemyTraitDefinition
     {
         public string Id { get; }
         public DeathEffectDefinition Effect { get; }
+        // 이 성질이 붙은 적의 동시 생존 상한. 0이면 상한이 없다.
+        public int MaxAlive { get; }
 
-        public EnemyTraitDefinition(string id, DeathEffectDefinition effect)
+        public EnemyTraitDefinition(string id, DeathEffectDefinition effect, int maxAlive = 0)
         {
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("성질 ID가 비어 있다.", nameof(id));
 
+            if (maxAlive < 0)
+                throw new ArgumentOutOfRangeException(nameof(maxAlive), "0 이상이어야 한다(0 = 상한 없음).");
+
             Id = id;
             Effect = effect ?? throw new ArgumentNullException(nameof(effect), "성질에는 사망 효과가 있어야 한다.");
+            MaxAlive = maxAlive;
         }
 
-        // 이 판의 노드가 반영된 성질. 효과의 수치만 바뀌고 ID는 같다.
-        internal EnemyTraitDefinition With(DeathEffectDefinition effect) => new EnemyTraitDefinition(Id, effect);
+        // 이 판의 노드가 반영된 성질. 효과의 수치나 상한만 바뀌고 ID는 같다.
+        internal EnemyTraitDefinition With(DeathEffectDefinition effect) => new EnemyTraitDefinition(Id, effect, MaxAlive);
+
+        internal EnemyTraitDefinition WithMaxAlive(int maxAlive) => new EnemyTraitDefinition(Id, Effect, maxAlive);
     }
 }

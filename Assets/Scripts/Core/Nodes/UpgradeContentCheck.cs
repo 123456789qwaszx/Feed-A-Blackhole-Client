@@ -59,7 +59,7 @@ namespace BlackHole.Core
                 {
                     EnemyComposition composition = EnemyComposition.From(kind, table);
                     extraSupply += composition.StartSupplyBonus;
-                    growthSupply |= composition.GrowthPercent > 0;
+                    growthSupply |= composition.GrowthPercent > 0 || composition.RespawnChance > 0;
                     compositions.Add(kind, composition);
                 }
                 catch (ArgumentException error)
@@ -84,7 +84,7 @@ namespace BlackHole.Core
             if ((extraSupply > 0 || growthSupply) && enemies.EnemyPlacement == null)
             {
                 diagnostics.Add(new ContentDiagnostic(
-                    "Nodes(모두 산 경우).EnemyPlacement", "공급 수 노드가 있으면 출현 배치가 필요하다."));
+                    "Nodes(모두 산 경우).EnemyPlacement", "공급 수·재생성 노드가 있으면 출현 배치가 필요하다."));
             }
 
             // 전체 개체 수 상한(MaxAliveEnemies)은 여기서 보지 않는다. 노드를 모두 사서 시작 공급이 상한을 넘어도

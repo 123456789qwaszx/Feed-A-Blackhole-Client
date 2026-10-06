@@ -30,6 +30,12 @@ namespace BlackHole.Core
         private readonly BattleRandom _placementRandom;
         private readonly BattleRandom _pickupPlacementRandom;
         private readonly BattleRandom _pickupRandom;
+        // 파괴 때의 재생성·시간 추가, 혜성 비 판정. 용도마다 스트림이 따로다.
+        private readonly BattleRandom _respawnRandom;
+        private readonly BattleRandom _timeBonusRandom;
+        private readonly BattleRandom _rainRandom;
+        // 아직 판(GameSession)이 가져가지 않은 시간 추가 성공 수.
+        private int _timeBonuses;
         // 종류마다 색 등급과 성질을 고르는 몫. 판 조립 때 만들고 판 동안 이어진다(공급이 여러 번이어도 비율이 판 전체에 걸쳐 맞는다).
         // 성질 몫은 성질 확률 합이 0보다 큰 종류에만 있고, 칸은 (성질 없음, 성질 0, 성질 1, …)이다.
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _tierPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
@@ -86,6 +92,9 @@ namespace BlackHole.Core
             _placementRandom = new BattleRandom(seed, BattleRandom.PlacementStream);
             _pickupPlacementRandom = new BattleRandom(seed, BattleRandom.PickupPlacementStream);
             _pickupRandom = new BattleRandom(seed, BattleRandom.PickupStream);
+            _respawnRandom = new BattleRandom(seed, BattleRandom.RespawnStream);
+            _timeBonusRandom = new BattleRandom(seed, BattleRandom.TimeBonusStream);
+            _rainRandom = new BattleRandom(seed, BattleRandom.RainStream);
             _filter = new SpawnFilter(maxAliveEnemies);
             MaxAliveEnemies = maxAliveEnemies;
             DeathEffects = new DeathEffects(seed);
@@ -256,13 +265,34 @@ namespace BlackHole.Core
         }
 
         // 정해진 종류에 붙을 성질: 성질 몫이 있으면 그 확률만큼 성질 하나(배타). 없으면 null.
+        // 뽑힌 성질의 동시 생존 상한(MaxAlive)이 찼으면 붙지 않는다(원작 "달 최대 개수"). 뽑은 몫은 그대로 쓴 것으로 친다.
         private EnemyTraitDefinition TraitOf(EnemyDefinition kind)
         {
             if (!_traitPickers.TryGetValue(kind, out QuotaPicker picker))
                 return null;
 
             int picked = picker.Pick();
-            return picked > 0 ? Stats.CompositionOf(kind).Traits[picked - 1] : null;
+
+            if (picked == 0)
+                return null;
+
+            EnemyTraitDefinition trait = Stats.CompositionOf(kind).Traits[picked - 1];
+            return trait.MaxAlive > 0 && CountAlive(kind, trait) >= trait.MaxAlive ? null : trait;
+        }
+
+        // 이 종류 중 이 성질이 붙어 살아 있는 적의 수.
+        private int CountAlive(EnemyDefinition kind, EnemyTraitDefinition trait)
+        {
+            int count = 0;
+            IReadOnlyList<Enemy> alive = _enemies.Alive;
+
+            for (int i = 0; i < alive.Count; i++)
+            {
+                if (alive[i].Definition == kind && ReferenceEquals(alive[i].Trait, trait))
+                    count++;
+            }
+
+            return count;
         }
 
         // 픽업 처리: 픽업 종류마다 등장 주기가 찰 때마다 등장 확률로 하나를 픽업 전용 띠 안에 만든다. 전체 상한과 무관하다.
@@ -287,10 +317,16 @@ namespace BlackHole.Core
                     if (_pickupRandom.NextFloat() >= composition.AppearChance)
                         continue;
 
-                    int tier = _tierPickers[kind].Pick();
+                    // 혜성 비: 나오는 한 번이 혜성 비 확률로 종류의 혜성 비 수만큼이 된다. 위치는 한 마리마다 따로 뽑는다.
+                    int count = kind.PickupRainCount > 1 && Roll(composition.RainChance, _rainRandom) ? kind.PickupRainCount : 1;
                     EnemyTraitDefinition trait = composition.Traits[0];
-                    Point2 position = _pickupPlacement.Resolve(_placement).Pick(_pickupPlacementRandom);
-                    _enemies.Spawn(kind, tier, trait, Stats.Of(kind, tier, trait), position);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        int tier = _tierPickers[kind].Pick();
+                        Point2 position = _pickupPlacement.Resolve(_placement).Pick(_pickupPlacementRandom);
+                        _enemies.Spawn(kind, tier, trait, Stats.Of(kind, tier, trait), position);
+                    }
                 }
             }
         }
@@ -383,7 +419,44 @@ namespace BlackHole.Core
 
             Hq.AddExp(enemy.Stats.Exp);
             DeathEffects.Enqueue(enemy, damage.Source);
+            RollDeathBonuses(enemy);
             return true;
+        }
+
+        // 판(GameSession)이 Step 뒤에 가져가는 시간 추가 성공 수. 가져가면 0이 된다.
+        internal int TakeTimeBonuses()
+        {
+            int taken = _timeBonuses;
+            _timeBonuses = 0;
+            return taken;
+        }
+
+        // 사망이 확정된 순간(피해·파괴 모두)의 판정. 픽업은 하지 않는다.
+        // - 재생성: 같은 종류 하나를 생성 요청으로 넣는다(7. Enemy Supply 자리에서 전체 상한을 거쳐 나온다. 색·성질·크기·위치는 새로 정한다).
+        // - 시간 추가: 성공 수를 모아 두고, 판이 Step 뒤에 제한 시간을 늘린다(TakeTimeBonuses).
+        private void RollDeathBonuses(Enemy enemy)
+        {
+            EnemyDefinition kind = enemy.Definition;
+
+            if (kind.IsPickup)
+                return;
+
+            EnemyComposition composition = Stats.CompositionOf(kind);
+
+            if (_placement != null && Roll(composition.RespawnChance, _respawnRandom))
+                _spawnRequests.Add(new SupplyRequest(kind, 1));
+
+            if (Roll(composition.TimeChance, _timeBonusRandom))
+                _timeBonuses++;
+        }
+
+        // 확률 판정. 0 이하·1 이상이면 굴리지 않는다(확률을 바꾸지 않은 판의 난수 순서가 그대로다).
+        private static bool Roll(float chance, BattleRandom random)
+        {
+            if (chance <= 0)
+                return false;
+
+            return chance >= 1 || random.NextFloat() < chance;
         }
 
         // 파괴 요청의 사망 확정: Gold·EXP·사망 기록·처치 수는 피해로 죽을 때와 같다.
@@ -394,8 +467,11 @@ namespace BlackHole.Core
         {
             foreach (Enemy enemy in _destroyRequests)
             {
-                if (_enemies.Destroy(enemy))
-                    Hq.AddExp(enemy.Stats.Exp);
+                if (!_enemies.Destroy(enemy))
+                    continue;
+
+                Hq.AddExp(enemy.Stats.Exp);
+                RollDeathBonuses(enemy);
             }
 
             _destroyRequests.Clear();

@@ -84,7 +84,8 @@ namespace BlackHole.Core
                     continue;
 
                 EnemyDefinition enemy = Guard(at, into, () =>
-                    new EnemyDefinition(item.Id, item.MoveSpeed, item.Radius, item.RadiusStep, tiers, traits, item.UpgradesTo, item.PickupPeriod));
+                    new EnemyDefinition(item.Id, item.MoveSpeed, item.Radius, item.RadiusStep, tiers, traits, item.UpgradesTo, item.PickupPeriod,
+                        item.PickupRainCount));
 
                 if (enemy != null)
                     enemies.Add(enemy);
@@ -139,7 +140,7 @@ namespace BlackHole.Core
                 if (into.Count > errors)
                     continue;
 
-                EnemyTraitDefinition trait = Guard(itemAt, into, () => new EnemyTraitDefinition(item.Id, effect));
+                EnemyTraitDefinition trait = Guard(itemAt, into, () => new EnemyTraitDefinition(item.Id, effect, item.MaxAlive));
 
                 if (trait != null)
                     traits.Add(trait);

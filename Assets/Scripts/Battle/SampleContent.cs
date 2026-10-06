@@ -6,7 +6,7 @@ namespace BlackHole.Sample
     {
         public static ContentData Create() => new ContentData
         {
-            Session = new SessionData { TimeLimit = 12 },
+            Session = new SessionData { TimeLimit = 12, KillTimeBonus = 0.3f },
         };
     }
 }

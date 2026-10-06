@@ -7,9 +7,17 @@ namespace BlackHole.Core
     {
         public float Duration { get; }
 
-        public TimeLimitDefinition(float duration)
+        // 적이 파괴될 때 시간 추가가 성공하면(판 구성의 TimeChance) 제한 시간에 더하는 초. 원작 실측 0.3초.
+        public float KillTimeBonus { get; }
+
+        public TimeLimitDefinition(float duration, float killTimeBonus = 0)
         {
             Duration = DefinitionGuard.Positive(duration, nameof(duration));
+
+            if (float.IsNaN(killTimeBonus) || float.IsInfinity(killTimeBonus) || killTimeBonus < 0)
+                throw new ArgumentOutOfRangeException(nameof(killTimeBonus), "0 이상의 유한한 값이 필요하다.");
+
+            KillTimeBonus = killTimeBonus;
         }
 
         // 업그레이드 표로 이 판의 제한 시간을 계산한다. 수치 이름은 SessionUpgradeStats.TimeLimit, 기본값은 이 정의의 값이다.
@@ -24,7 +32,7 @@ namespace BlackHole.Core
             if (float.IsNaN(duration) || float.IsInfinity(duration) || duration <= 0)
                 throw new ArgumentOutOfRangeException(nameof(upgrades), $"제한 시간은 0보다 큰 유한한 값이어야 한다. 업그레이드 합: {duration}.");
 
-            return new TimeLimitDefinition(duration);
+            return new TimeLimitDefinition(duration, KillTimeBonus);
         }
     }
 }

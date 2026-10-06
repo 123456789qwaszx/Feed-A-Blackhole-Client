@@ -39,7 +39,7 @@ namespace BlackHole.Core
                 return null;
             }
 
-            return Guard("Session.TimeLimit", into, () => new TimeLimitDefinition(item.TimeLimit));
+            return Guard("Session.TimeLimit", into, () => new TimeLimitDefinition(item.TimeLimit, item.KillTimeBonus));
         }
 
         // ── 스킬 ────────────────────────────────────────────────────────────

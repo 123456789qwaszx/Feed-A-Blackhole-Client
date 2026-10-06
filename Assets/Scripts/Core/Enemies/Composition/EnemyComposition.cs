@@ -10,7 +10,8 @@ namespace BlackHole.Core
     // Level업마다의 성장 공급 %(이 판 시작 수 대비),
     // 판 시작 때 다음 종류로 바꾸는 수,
     // 특수 성질마다의 생성 확률과 노드가 반영된 성질,
-    // 픽업이면 등장 확률.
+    // 파괴될 때의 재생성·시간 추가 확률,
+    // 픽업이면 등장 확률과 혜성 비 확률.
     public readonly struct EnemyComposition
     {
         private static readonly IReadOnlyList<EnemyTraitDefinition> NoTraits = Array.AsReadOnly(Array.Empty<EnemyTraitDefinition>());
@@ -44,6 +45,15 @@ namespace BlackHole.Core
         // 픽업이면: 등장 주기마다 하나가 나올 확률(0 ~ 1). 기본 0 — 확률 노드를 사야 나온다. 픽업이 아니면 0이다.
         public float AppearChance { get; }
 
+        // 픽업이면: 나올 때 혜성 비(종류의 PickupRainCount만큼 한꺼번에)가 될 확률(0 ~ 1). 기본 0.
+        public float RainChance { get; }
+
+        // 이 종류가 파괴될 때 같은 종류를 하나 새로 요청할 확률(0 ~ 1). 기본 0. 픽업은 0이다.
+        public float RespawnChance { get; }
+
+        // 이 종류가 파괴될 때 판의 제한 시간이 늘어날 확률(0 ~ 1). 기본 0. 픽업은 0이다.
+        public float TimeChance { get; }
+
         public EnemyComposition(
             float mass,
             IReadOnlyList<float> tierRatios,
@@ -53,7 +63,10 @@ namespace BlackHole.Core
             int upgradeCount = 0,
             IReadOnlyList<EnemyTraitDefinition> traits = null,
             IReadOnlyList<float> traitChances = null,
-            float appearChance = 0)
+            float appearChance = 0,
+            float rainChance = 0,
+            float respawnChance = 0,
+            float timeChance = 0)
         {
             if (tierRatios == null || tierRatios.Count == 0)
                 throw new ArgumentException("색 비율이 하나 이상 필요하다.", nameof(tierRatios));
@@ -76,6 +89,9 @@ namespace BlackHole.Core
             Traits = traits ?? NoTraits;
             TraitChances = traitChances ?? NoChances;
             AppearChance = appearChance;
+            RainChance = rainChance;
+            RespawnChance = respawnChance;
+            TimeChance = timeChance;
         }
 
         // 성질 확률의 합.
@@ -118,6 +134,9 @@ namespace BlackHole.Core
             float growth = NotNegative(upgrades.Apply(EnemyUpgradeStats.GrowthSupply(kind.Id), 0), kind.Id, "성장 공급 %");
             int upgrade = Whole(upgrades.Apply(EnemyUpgradeStats.Upgrade(kind.Id), 0));
             float appear = Percent(upgrades.Apply(EnemyUpgradeStats.Chance(kind.Id), 0), kind.Id, "등장 확률");
+            float rain = Percent(upgrades.Apply(EnemyUpgradeStats.RainChance(kind.Id), 0), kind.Id, "혜성 비 확률");
+            float respawn = Percent(upgrades.Apply(EnemyUpgradeStats.RespawnChance(kind.Id), 0), kind.Id, "재생성 확률");
+            float time = Percent(upgrades.Apply(EnemyUpgradeStats.TimeChance(kind.Id), 0), kind.Id, "시간 추가 확률");
 
             if (float.IsNaN(mass) || float.IsInfinity(mass) || mass < 0)
                 throw new ArgumentOutOfRangeException(
@@ -145,6 +164,12 @@ namespace BlackHole.Core
             if (!kind.IsPickup && appear > 0)
                 throw new ArgumentException($"'{kind.Id}'는 픽업이 아니라 등장 확률을 둘 수 없다. 특수 성질은 성질 확률(trait.<성질>.chance)을 쓴다.", nameof(upgrades));
 
+            if (!kind.IsPickup && rain > 0)
+                throw new ArgumentException($"'{kind.Id}'는 픽업이 아니라 혜성 비 확률을 둘 수 없다.", nameof(upgrades));
+
+            if (kind.IsPickup && (respawn > 0 || time > 0))
+                throw new ArgumentException($"'{kind.Id}'는 픽업이라 파괴 때의 재생성·시간 추가 확률을 둘 수 없다.", nameof(upgrades));
+
             var traits = new EnemyTraitDefinition[kind.Traits.Count];
             var chances = new float[kind.Traits.Count];
             float chanceSum = 0;
@@ -167,24 +192,35 @@ namespace BlackHole.Core
                 throw new ArgumentException($"'{kind.Id}'의 성질 확률 합이 100%를 넘는다({chanceSum * 100:0.##}%).", nameof(upgrades));
 
             return new EnemyComposition(mass, RatiosOf(kind, mass), size, startSupply, growth, upgrade,
-                Array.AsReadOnly(traits), Array.AsReadOnly(chances), appear);
+                Array.AsReadOnly(traits), Array.AsReadOnly(chances), appear, rain, respawn, time);
         }
 
         private static IReadOnlyList<float> RatiosOf(EnemyDefinition kind, float mass) =>
             Array.AsReadOnly(MassRule.TierRatios(mass, kind.Tiers.Count));
 
-        // 노드가 성질의 수치를 바꾸는 것: 지금은 황금 배율뿐이다. 바뀌지 않으면 종류의 성질 객체를 그대로 쓴다.
+        // 노드가 성질의 수치를 바꾸는 것: 황금 배율과 동시 생존 상한. 바뀌지 않으면 종류의 성질 객체를 그대로 쓴다.
         private static EnemyTraitDefinition Upgraded(EnemyDefinition kind, EnemyTraitDefinition trait, UpgradeTable upgrades)
         {
+            EnemyTraitDefinition upgraded = trait;
+
             if (trait.Effect is GoldenDefinition golden)
             {
                 float multiplier = upgrades.Apply(EnemyUpgradeStats.TraitMultiplier(kind.Id, trait.Id), golden.Multiplier);
 
                 if (multiplier != golden.Multiplier)
-                    return trait.With(new GoldenDefinition(multiplier));
+                    upgraded = upgraded.With(new GoldenDefinition(multiplier));
             }
 
-            return trait;
+            int maxAlive = Whole(upgrades.Apply(EnemyUpgradeStats.TraitMaxAlive(kind.Id, trait.Id), trait.MaxAlive));
+
+            if (maxAlive < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(upgrades), $"'{kind.Id}'의 '{trait.Id}' 동시 생존 상한은 0 이상이어야 한다. 업그레이드 합: {maxAlive}.");
+
+            if (maxAlive != trait.MaxAlive)
+                upgraded = upgraded.WithMaxAlive(maxAlive);
+
+            return upgraded;
         }
 
         private static int Whole(float value) => (int)Math.Round(value, MidpointRounding.AwayFromZero);

@@ -17,11 +17,21 @@ namespace BlackHole.Core
         public static string Upgrade(string kindId) => $"enemy.{kindId}.upgrade";
         // 픽업(혜성)의 등장 확률: 등장 주기마다 이 확률로 하나가 나온다. %, 기본값 0 — 노드를 사야 나온다. 픽업 종류에만 뜻이 있다.
         public static string Chance(string kindId) => $"enemy.{kindId}.chance";
+        // 픽업(혜성)이 나올 때 혜성 비가 될 확률(원작 "혜성이 내릴 확률"). 혜성 비면 종류의 혜성 비 수(EnemyDefinition.PickupRainCount)만큼 한꺼번에 나온다.
+        // %, 기본값 0. 픽업 종류에만 뜻이 있다.
+        public static string RainChance(string kindId) => $"enemy.{kindId}.rain-chance";
+        // 이 종류가 파괴될 때 같은 종류를 하나 새로 요청할 확률(원작 "행성이 파괴될 때 새로운 행성을 생성할 확률"). %, 기본값 0.
+        public static string RespawnChance(string kindId) => $"enemy.{kindId}.respawn-chance";
+        // 이 종류가 파괴될 때 판의 제한 시간이 늘어날 확률(원작 "행성이 파괴될 때 시간이 추가될 확률"). 늘어나는 초는 판 설정(TimeLimitDefinition.KillTimeBonus).
+        // %, 기본값 0.
+        public static string TimeChance(string kindId) => $"enemy.{kindId}.time-chance";
         // 크기(기본 1, 상한 SizeRule.Max). 크기 1부터 이 값까지가 같은 몫으로 섞여 나온다(SizeRule). 한 노드 = 더하기 1.
         public static string Size(string kindId) => $"enemy.{kindId}.size";
         // 특수 성질의 생성 확률(원작 "전기 소행성 생성 확률", "황금 소행성 추가" 등). %, 기본값 0 — 노드를 사야 붙는다.
         public static string TraitChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.chance";
         // 황금 성질의 Gold 배율. 기본값은 그 성질의 배율이다.
         public static string TraitMultiplier(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.multiplier";
+        // 이 성질이 붙은 적이 동시에 살아 있을 수 있는 수(원작 "달 최대 개수"). 기본값은 그 성질의 값(EnemyTraitDefinition.MaxAlive)이다.
+        public static string TraitMaxAlive(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.max-alive";
     }
 }
