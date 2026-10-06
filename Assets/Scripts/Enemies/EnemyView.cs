@@ -31,13 +31,17 @@ namespace BlackHole.Unity
 
         // 달 성질 ID. 달을 가진 적에는 달 하나가 공전한다(EnemyKind의 성질 ID와 같다).
         private const string MoonTrait = "moon";
-        // 달 구체의 반지름(월드 단위). 모든 행성이 같은 크기의 달을 가진다. Breaker 달(BreakerLook.OrbRadius)보다 작다 [임시].
-        private const float MoonRadius = 0.2f;
+        // 달 구체의 반지름(전장 배율 1에서의 월드 단위). 모든 행성이 같은 크기의 달을 가진다. Breaker 달(BreakerLook.OrbRadius)보다 작다.
+        // 원작 달은 카메라와 무관하게 화면에서 약 25px이라(C0 지름 25px ÷ 54px/unit ÷ 2) 판의 전장 배율을 곱한다.
+        private const float MoonRadius = 0.236f;
         // 공전 속도 배율의 범위. 기본 속도(BreakerLook.OrbitSpeed)에 곱해 적마다 다르게 돈다.
         private const float MoonSpeedMin = 0.8f;
         private const float MoonSpeedMax = 1.2f;
         // 달은 적 스프라이트(0)와 성질 속 채움(1) 위, Breaker 링 계열(5 ~ 11) 아래에 그린다.
         private const int MoonSortingOrder = 2;
+
+        // 이 판의 전장 배율(Hq.FieldScale). 화면 크기가 고정인 달과 떠오르는 숫자에 곱한다. Synchronize가 매번 읽는다.
+        private float _fieldScale = HqGrowthDefinition.StartFieldScale;
         private const float MeshMargin = 1.1f;
         // 셰이더(BlackHole/Breaker Orbs)의 MAX_ORBS와 같다. 달만 그리므로 칸 종류는 모두 0(달)이다.
         private const int MaxOrbs = 64;
@@ -88,6 +92,9 @@ namespace BlackHole.Unity
         {
             _seen.Clear();
             IReadOnlyList<Enemy> enemies = world.Enemies;
+            _fieldScale = world.Hq.FieldScale;
+            _goldText.Scale = _fieldScale;
+            _damageText.Scale = _fieldScale;
 
             // 매 프레임 경로: IReadOnlyList를 인덱스로 돈다(인터페이스 foreach는 열거자를 할당한다).
             for (int i = 0; i < enemies.Count; i++)
@@ -256,17 +263,19 @@ namespace BlackHole.Unity
         private void CreateMoon(EnemyVisual visual, Enemy enemy)
         {
             var moon = QuadRenderers.Create($"Moon #{enemy.Id.Value}", _root, _quad, _breakerLook.OrbMaterial, MoonSortingOrder);
-            float orbitRadius = enemy.Stats.Radius + _breakerLook.OrbitOffset + MoonRadius;
-            float size = 2 * (orbitRadius + MoonRadius) * MeshMargin;
+            // 적(월드)에 붙어 돌지만 달 자체와 간격은 화면 크기가 고정이다: 전장 배율을 곱한다.
+            float moonRadius = MoonRadius * _fieldScale;
+            float orbitRadius = enemy.Stats.Radius + _breakerLook.OrbitOffset * _fieldScale + moonRadius;
+            float size = 2 * (orbitRadius + moonRadius) * MeshMargin;
             moon.transform.localScale = new Vector3(size, size, 1);
 
             moon.GetPropertyBlock(_properties);
             _properties.SetFloat(_orbitRadiusId, orbitRadius);
-            _properties.SetFloat(_orbRadiusId, MoonRadius);
+            _properties.SetFloat(_orbRadiusId, moonRadius);
             _properties.SetFloat(_orbCountId, 1);
             _properties.SetColor(_moonFillId, _breakerLook.MoonFill);
             _properties.SetColor(_moonOutlineId, _breakerLook.MoonOutline);
-            _properties.SetFloat(_outlineWidthId, _breakerLook.MoonOutlineWidth);
+            _properties.SetFloat(_outlineWidthId, _breakerLook.MoonOutlineWidth * _fieldScale);
             _properties.SetFloatArray(_orbKindsId, _moonKinds);
             moon.SetPropertyBlock(_properties);
 
