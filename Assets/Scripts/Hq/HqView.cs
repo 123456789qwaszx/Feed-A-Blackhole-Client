@@ -30,10 +30,17 @@ namespace BlackHole.Unity
         private static readonly Color FlashColor = new Color(0.9f, 0.85f, 1f, 1f);
 
         private readonly LineStrokes _strokes;
+        private readonly GameObject _blackHole;
         private LineRenderer _ring;
         private int _shownLevel = -1;
 
-        public HqView(Transform parent) => _strokes = new LineStrokes(parent, "Hq View");
+        //public HqView(Transform parent) => _strokes = new LineStrokes(parent, "Hq View");
+        public HqView(Transform parent, GameObject blackHole)
+        {
+            _strokes = new LineStrokes(parent, "Hq View");
+            _blackHole = blackHole != null ? blackHole : throw new ArgumentNullException(nameof(blackHole));
+            _blackHole.SetActive(false);
+        }
 
         public void Synchronize(World world, float delta)
         {
@@ -44,6 +51,9 @@ namespace BlackHole.Unity
             // 판이 바뀌면 Reset이 선을 지우므로, 새 판의 전장 배율로 다시 만든다.
             if (_ring == null)
                 _ring = _strokes.Line("Black Hole", RingWidth * fieldScale, RingColor);
+
+            if (!_blackHole.activeSelf)
+                _blackHole.SetActive(true);
 
             int level = world.Hq.Level;
 
@@ -68,9 +78,16 @@ namespace BlackHole.Unity
             _strokes.Reset();
             _ring = null;
             _shownLevel = -1;
+            _blackHole.SetActive(false);
         }
 
-        public void Dispose() => _strokes.Dispose();
+        //public void Dispose() => _strokes.Dispose();
+        public void Dispose()
+        {
+            _strokes.Dispose();
+            if (_blackHole != null)          // 추가: 씬 오브젝트라 파괴하지 않고 끄기만 한다.
+                _blackHole.SetActive(false);
+        }
 
         // Level의 반지름: 실측점 사이는 직선, 첫 점 앞·마지막 점 뒤는 끝 점의 값.
         private static float RadiusOf(int level)
