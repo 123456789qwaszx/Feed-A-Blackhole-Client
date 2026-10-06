@@ -27,7 +27,7 @@ MonoBehaviour:
   _clickSound: {fileID: 8300000, guid: cafb17dce055b8348bb04e4a53a33827, type: 3}
   _hoverSound: {fileID: 8300000, guid: 603d711d366e42c4e82b50b5c7ba0e43, type: 3}
   _hitSound: {fileID: 8300000, guid: 1b1978e1712a4a54ba5d755a12ceda42, type: 3}
-  _whiffSound: {fileID: 8300000, guid: 2fb90a4bf5816734ba284886ff0ab989, type: 3}
+  _whiffSound: {fileID: 8300000, guid: dfd46c1a16874174ab13b58afc4e3aa5, type: 3}
   _destroySound: {fileID: 8300000, guid: 2467596ad48dbaa4d831884f6ce8c001, type: 3}
   _levelUpSound: {fileID: 8300000, guid: fa024954b46b69240af50cc8dfbd34d7, type: 3}
   _lightningSound: {fileID: 8300000, guid: f878dcf1e1ea83a4b81a7730e8d3b7d8, type: 3}
