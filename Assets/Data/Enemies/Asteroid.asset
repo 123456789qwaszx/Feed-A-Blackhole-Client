@@ -14,146 +14,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.EnemyKind
   id: asteroid
   moveSpeed: 1.5
+  radius: 0.312
+  radiusStep: 0.35
   upgradesTo: {fileID: 11400000, guid: 3875f6a9833f4cf2893d251eb303b445, type: 2}
-  baseUpgrade: 3
-  baseUpgradeFromStage: 10
   pickupPeriod: 0
   tiers:
   - color: {r: 0.62, g: 0.32, b: 0.26, a: 1}
-    maxHealth: 10
-    size: 0.22
+    maxHealth: 3
     gold: 1
     exp: 1
   - color: {r: 0.93, g: 0.55, b: 0.2, a: 1}
-    maxHealth: 16
-    size: 0.24
-    gold: 2
-    exp: 2
+    maxHealth: 8
+    gold: 6
+    exp: 3
   - color: {r: 0.95, g: 0.85, b: 0.3, a: 1}
     maxHealth: 24
-    size: 0.26
     gold: 4
     exp: 3
   - color: {r: 0.4, g: 0.75, b: 0.4, a: 1}
     maxHealth: 36
-    size: 0.28
     gold: 8
     exp: 5
   - color: {r: 0.3, g: 0.45, b: 0.9, a: 1}
     maxHealth: 54
-    size: 0.3
     gold: 16
     exp: 7
-  - color: {r: 0.6, g: 0.35, b: 0.85, a: 1}
+  - color: {r: 0.38, g: 0.32, b: 0.82, a: 1}
     maxHealth: 80
-    size: 0.32
     gold: 32
     exp: 11
-  stageColors:
-  - fromStage: 0
-    tierRatios:
-    - 1
-    - 0
-    - 0
-    - 0
-    - 0
-    - 0
-  - fromStage: 1
-    tierRatios:
-    - 0.6
-    - 0.4
-    - 0
-    - 0
-    - 0
-    - 0
-  - fromStage: 2
-    tierRatios:
-    - 0.3
-    - 0.5
-    - 0.2
-    - 0
-    - 0
-    - 0
-  - fromStage: 3
-    tierRatios:
-    - 0
-    - 0.4
-    - 0.4
-    - 0.2
-    - 0
-    - 0
-  - fromStage: 4
-    tierRatios:
-    - 0
-    - 0
-    - 0.4
-    - 0.4
-    - 0.2
-    - 0
-  - fromStage: 5
-    tierRatios:
-    - 0
-    - 0
-    - 0
-    - 0.5
-    - 0.5
-    - 0
-  - fromStage: 6
-    tierRatios:
-    - 0
-    - 0
-    - 0
-    - 0.3
-    - 0.4
-    - 0.3
-  - fromStage: 7
-    tierRatios:
-    - 0
-    - 0
-    - 0
-    - 0
-    - 0.5
-    - 0.5
-  - fromStage: 8
-    tierRatios:
-    - 0
-    - 0
-    - 0
-    - 0
-    - 0
-    - 1
-  massLevels:
-  - healthMultiplier: 1
-    goldMultiplier: 1
-  - healthMultiplier: 1.05
-    goldMultiplier: 1.2
-  - healthMultiplier: 1.1
-    goldMultiplier: 1.44
-  - healthMultiplier: 1.16
-    goldMultiplier: 1.73
-  - healthMultiplier: 1.22
-    goldMultiplier: 2.07
-  - healthMultiplier: 1.28
-    goldMultiplier: 2.49
-  - healthMultiplier: 1.34
-    goldMultiplier: 2.99
-  - healthMultiplier: 1.41
-    goldMultiplier: 3.58
-  - healthMultiplier: 1.48
-    goldMultiplier: 4.3
-  sizeClasses:
-  - sizeMultiplier: 1
-    healthMultiplier: 1
-    goldMultiplier: 1
-    expMultiplier: 1
-  - sizeMultiplier: 1.5
-    healthMultiplier: 2
-    goldMultiplier: 2
-    expMultiplier: 2
-  - sizeMultiplier: 2
-    healthMultiplier: 3
-    goldMultiplier: 3
-    expMultiplier: 3
+  - color: {r: 0.6, g: 0.35, b: 0.85, a: 1}
+    maxHealth: 120
+    gold: 64
+    exp: 16
   traits:
   - id: golden
     color: {r: 1, g: 0.82, b: 0.2, a: 1}

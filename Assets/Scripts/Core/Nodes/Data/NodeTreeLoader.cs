@@ -3,23 +3,23 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // NodeTreeData(저작 형식) -> NodeTree(그래프 + 노드 정의).
-    // 저작 형식은
-    // 노드 하나에 그래프 칸(ID, 시작 노드, 선)과 구매 칸(가격, 업그레이드)을 함께 담음.
+    // 노드 트리 = 배치(NodeTreeData, 노드 도구) + 콘텐츠(NodeContent, 시트). 노드 ID로 짝짓는다.
+    // 배치는 칸·선·시작 노드를, 콘텐츠는 노드 ID·Rank·비용·효과를 가진다.
     //
     // 세 단계에 걸쳐 로드.
-    // 1. 노드 하나씩: ID, 가격, 업그레이드. 수치 규칙은 NodeDefinition·Upgrade 생성자를 그대로 부름.
-    // 2. 노드 사이: ID 유일, 선이 가리키는 노드가 있고 자기 자신이 아님.
-    // 3. 그래프 전체: 노드가 있으면 시작 노드가 하나 이상이고, 모든 노드가 시작 노드에서 선을 따라 닿음.
+    // 1. 배치 노드 하나씩: 콘텐츠(Nodes 시트)에 있는 노드.
+    // 2. 노드 사이: ID 유일, 선이 가리키는 노드가 배치에 있고 자기 자신이 아님.
+    // 3. 그래프 전체: 배치된 노드가 있으면 시작 노드가 하나 이상이고, 모든 배치 노드가 시작 노드에서 선을 따라 닿음.
+    // 콘텐츠에만 있는 노드(아직 배치하지 않음)는 오류가 아니다 — 트리에서 빠지고 결과의 Unplaced로 알린다.
     public static class NodeTreeLoader
     {
-        public static NodeTreeLoadResult Load(NodeTreeData data)
+        public static NodeTreeLoadResult Load(NodeTreeData data, NodeContent content)
         {
             var diagnostics = new List<ContentDiagnostic>();
 
             if (data == null)
             {
-                diagnostics.Add(new ContentDiagnostic(string.Empty, "노드 트리 데이터가 null이다."));
+                diagnostics.Add(new ContentDiagnostic(string.Empty, "노드 트리 배치 데이터가 null이다."));
                 return Fail(diagnostics);
             }
 
@@ -27,7 +27,7 @@ namespace BlackHole.Core
             var nodes = new List<NodeDefinition>(items.Count);
 
             for (int i = 0; i < items.Count; i++)
-                nodes.Add(LoadNode(items[i], At(i, items[i]?.Id), diagnostics));
+                nodes.Add(LoadNode(items[i], At(i, items[i]?.Id), content, diagnostics));
 
             if (diagnostics.Count > 0)
                 return Fail(diagnostics);
@@ -42,10 +42,20 @@ namespace BlackHole.Core
             if (diagnostics.Count > 0)
                 return Fail(diagnostics);
 
-            return new NodeTreeLoadResult(new NodeTree(graph, nodes), diagnostics);
+            var placed = new HashSet<string>(graph.Nodes, StringComparer.Ordinal);
+            var unplaced = new List<string>();
+
+            foreach (NodeDefinition node in content.Nodes)
+            {
+                if (!placed.Contains(node.Id))
+                    unplaced.Add(node.Id);
+            }
+
+            return new NodeTreeLoadResult(new NodeTree(graph, nodes, content), diagnostics, unplaced);
         }
 
-        private static NodeDefinition LoadNode(NodeData item, string at, List<ContentDiagnostic> into)
+        // 배치 노드 하나: 콘텐츠의 같은 ID 노드를 가져온다.
+        private static NodeDefinition LoadNode(NodeData item, string at, NodeContent content, List<ContentDiagnostic> into)
         {
             if (item == null)
             {
@@ -53,29 +63,13 @@ namespace BlackHole.Core
                 return null;
             }
 
-            var upgrades = new List<Upgrade>();
-            List<UpgradeData> upgradeItems = item.Upgrades ?? new List<UpgradeData>();
-
-            for (int j = 0; j < upgradeItems.Count; j++)
+            if (!content.TryGetNode(item.Id, out NodeDefinition node))
             {
-                UpgradeData upgrade = upgradeItems[j];
-
-                if (upgrade == null)
-                {
-                    into.Add(new ContentDiagnostic($"{at}.Upgrades[{j}]", "업그레이드 데이터가 null이다."));
-                    continue;
-                }
-
-                try { upgrades.Add(new Upgrade(upgrade.Stat, upgrade.Operation, upgrade.Value)); }
-                catch (ArgumentException error) { into.Add(new ContentDiagnostic($"{at}.Upgrades[{j}]", error.Message)); }
-            }
-
-            try { return new NodeDefinition(item.Id, item.Price, upgrades); }
-            catch (ArgumentException error)
-            {
-                into.Add(new ContentDiagnostic(at, error.Message));
+                into.Add(new ContentDiagnostic(at, $"노드 콘텐츠(Nodes 시트)에 없는 노드다: '{item.Id}'."));
                 return null;
             }
+
+            return node;
         }
 
         // 그래프 칸만 읽는다. 선은 방향이 없다: 한쪽에만 적어도, 양쪽에 적어도 같은 선 하나다.
@@ -157,6 +151,6 @@ namespace BlackHole.Core
             string.IsNullOrWhiteSpace(id) ? $"Nodes[{index}]" : $"Nodes[{id}]";
 
         private static NodeTreeLoadResult Fail(List<ContentDiagnostic> diagnostics) =>
-            new NodeTreeLoadResult(null, diagnostics);
+            new NodeTreeLoadResult(null, diagnostics, new List<string>());
     }
 }

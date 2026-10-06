@@ -104,7 +104,7 @@ namespace BlackHole.Unity
         private CometVisual Create(Enemy enemy)
         {
             MeshRenderer renderer = QuadRenderers.Create($"{enemy.Definition.Id} #{enemy.Id.Value}", _root, _quad, _look.Material, SortingOrder);
-            float headRadius = enemy.Stats.Size;
+            float headRadius = enemy.Stats.Radius;
             float tailLength = _look.TailLength;
             float size = 2 * (tailLength + headRadius) * MeshMargin;
             renderer.transform.localScale = new Vector3(size, size, 1);

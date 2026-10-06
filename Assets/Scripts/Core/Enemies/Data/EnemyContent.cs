@@ -6,7 +6,7 @@ namespace BlackHole.Core
     // 검증된 적 콘텐츠: 적 종류, 출현 배치, 전체 개체 수 상한, 전투 시작 공급. 읽기 전용이며 여러 판이 함께 쓴다.
     //
     // 생성자 보장(구현 = EnemyContentInvariants와 아래 검사):
-    // [1] 적 종류 ID가 유일하다. 변환 대상이 콘텐츠에 있고 픽업이 아니며, 변환 사슬이 돌지 않는다.
+    // [1] 적 종류 ID가 유일하다. 공급되는 종류는 7색이다. 변환 대상이 콘텐츠에 있고 픽업이 아니며, 변환 사슬이 돌지 않는다.
     // [2] 전투 시작 공급이 있으면 출현 배치가 있다. 공급은 적을 정의 객체로 참조하고(EnemyContentLoader가 ID를 해석하며 진단한다), 픽업을 가리키지 않는다.
     // [3] 출현 배치가 있으면 전체 개체 수 상한이 1 이상이고, 전투 시작 공급이 그 안이다.
     // [4] 픽업 종류가 있으면 픽업 출현 띠가 있고, 일반 출현 띠에서 풀었을 때 띠가 된다.
@@ -40,6 +40,7 @@ namespace BlackHole.Core
 
             var diagnostics = new List<ContentDiagnostic>();
             EnemyContentInvariants.CollectEnemies(Enemies, diagnostics, out _enemiesById);
+            EnemyContentInvariants.CheckTierCounts(Enemies, diagnostics);
             EnemyContentInvariants.CheckKindLinks(Enemies, _enemiesById, diagnostics);
 
             EnemyContentInvariants.CheckSupplyKinds(StartSupply, "StartSupply", diagnostics);
