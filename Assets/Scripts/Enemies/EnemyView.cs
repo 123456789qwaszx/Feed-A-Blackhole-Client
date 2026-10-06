@@ -82,7 +82,7 @@ namespace BlackHole.Unity
             _comets = new CometView(parent, cometLook);
             _quad = QuadRenderers.CreateMesh();
             _hitParticles = _root.gameObject.AddComponent<EnemyHitParticles>();
-            _goldText = new EnemyGoldText(_root, _looks);
+            _goldText = new EnemyGoldText(_root);
             _damageText = new EnemyDamageText(_root);
         }
 
@@ -250,7 +250,7 @@ namespace BlackHole.Unity
                 fillRenderer.sortingOrder = renderer.sortingOrder + 1;
             }
 
-            var visual = new EnemyVisual { Model = enemy, Renderer = renderer, Hit = new EnemyHitAnimation() };
+            var visual = new EnemyVisual { Model = enemy, Renderer = renderer, Hit = new EnemyHitAnimation(renderer.transform) };
 
             if (trait == MoonTrait)
                 CreateMoon(visual, enemy);
