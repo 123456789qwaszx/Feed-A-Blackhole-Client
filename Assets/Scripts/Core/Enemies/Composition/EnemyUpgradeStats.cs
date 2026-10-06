@@ -33,5 +33,23 @@ namespace BlackHole.Core
         public static string TraitMultiplier(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.multiplier";
         // 이 성질이 붙은 적이 동시에 살아 있을 수 있는 수(원작 "달 최대 개수"). 기본값은 그 성질의 값(EnemyTraitDefinition.MaxAlive)이다.
         public static string TraitMaxAlive(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.max-alive";
+
+        // 성질 사망 효과의 수치. 기본값은 그 성질 효과의 값이다(적 종류 에셋). 효과에 없는 수치는 무시된다.
+        // 피해(번개·레이저).
+        public static string TraitDamage(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.damage";
+        // 치명타 확률(번개·레이저, 0 ~ 1, 1을 넘지 않는다).
+        public static string TraitCritChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.crit-chance";
+        // 치명타 피해 배율(번개·레이저, 2 = ×2 = 시트 200%).
+        public static string TraitCritMultiplier(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.crit-multiplier";
+        // 번개 한 줄기가 옮겨 가는 최대 횟수(원작 "최대 연쇄").
+        public static string TraitMaxTargets(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.max-targets";
+        // 번개 줄기가 하나 더 나갈 확률(원작 "갈라질 확률", 0 ~ 1, 1을 넘지 않는다).
+        public static string TraitBranchChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.branch-chance";
+        // 레이저 너비.
+        public static string TraitWidth(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.width";
+        // 번개가 한 번 옮겨 가는 최대 거리 / 폭발 반지름.
+        public static string TraitRadius(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.radius";
+        // 폭발 피해 = 대상 최대 HP × 이 비율(0 ~ 1, 1을 넘지 않는다).
+        public static string TraitHealthFraction(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.health-fraction";
     }
 }

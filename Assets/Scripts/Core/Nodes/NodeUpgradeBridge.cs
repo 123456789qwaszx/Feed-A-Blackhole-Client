@@ -9,7 +9,8 @@ namespace BlackHole.Core
     // 넘기는 것은 "기본값에서 늘어난 양"(하한·상한으로 자른 값 − 기본값)이다. 기본값 자체는 전투 쪽 콘텐츠(Skills·적 종류 시트)의 값을 그대로 쓴다.
     // 단위는 옛 표의 것으로 바꾼다: 옛 표의 확률·보너스는 0.25 = 25%(× 0.01), 적 성질·픽업 확률은 25 = 25%(EnemyComposition이 ÷100),
     // 성장 공급은 25 = 시작 수의 25%(판 조립이 시작 수와 곱한다). 제한 시간·천체 변환은 그대로(초, 마리 수).
-    // 범위·속도(기본 100%)는 옛 표의 Percent(기본값 × (1 + 늘어난 비율))로, 나머지는 Add로 넘긴다.
+    // 범위·속도·너비(기본 100%)는 옛 표의 Percent(기본값 × (1 + 늘어난 비율))로, 나머지는 Add로 넘긴다.
+    // 사망 효과의 치명타 보너스는 시트 200% = 배율 ×2라 늘어난 %를 배율에 더한다(× 0.01). 기본 배율은 적 종류 에셋의 값이다.
     // 적 질량(massScale)은 시트 값이 곧 전투 질량이다(%, MassRule). 그래서 시트 기본값이 아니라 전투 기본(MassRule.Base)에서 늘어난 양을 넘긴다
     // — 원작 행성 질량은 0%에서 시작한다(0 ~ 100%는 빨강만이라 시작은 같고, 첫 노드 110%에서 주황이 나오기 시작한다).
     //
@@ -40,6 +41,8 @@ namespace BlackHole.Core
             new Route("planet.timeChance", EnemyUpgradeStats.TimeChance("planet"), UpgradeOperation.Add, 1),
             new Route("star.size", EnemyUpgradeStats.Size("star"), UpgradeOperation.Add, 1),
             Route.FromBase("star.massScale", EnemyUpgradeStats.Mass("star"), MassRule.Base),
+            new Route("star.respawnChance", EnemyUpgradeStats.RespawnChance("star"), UpgradeOperation.Add, 1),
+            new Route("star.timeChance", EnemyUpgradeStats.TimeChance("star"), UpgradeOperation.Add, 1),
             new Route("asteroid.toPlanet", EnemyUpgradeStats.Upgrade("asteroid"), UpgradeOperation.Add, 1),
             new Route("planet.toStar", EnemyUpgradeStats.Upgrade("planet"), UpgradeOperation.Add, 1),
             new Route("electricAsteroid.spawnChance", EnemyUpgradeStats.TraitChance("asteroid", "electric"), UpgradeOperation.Add, 1),
@@ -54,8 +57,19 @@ namespace BlackHole.Core
             new Route("comet.critBonus", BreakerUpgradeStats.CometCritDamageBonus, UpgradeOperation.Add, Percent),
             new Route("comet.rainChance", EnemyUpgradeStats.RainChance("comet"), UpgradeOperation.Add, 1),
             new Route("electricStar.spawnChance", EnemyUpgradeStats.TraitChance("star", "electric"), UpgradeOperation.Add, 1),
+            new Route("electricStar.damage", EnemyUpgradeStats.TraitDamage("star", "electric"), UpgradeOperation.Add, 1),
+            new Route("electricStar.critChance", EnemyUpgradeStats.TraitCritChance("star", "electric"), UpgradeOperation.Add, Percent),
+            new Route("electricStar.chain", EnemyUpgradeStats.TraitMaxTargets("star", "electric"), UpgradeOperation.Add, 1),
+            new Route("electricStar.splitChance", EnemyUpgradeStats.TraitBranchChance("star", "electric"), UpgradeOperation.Add, Percent),
+            new Route("electricStar.critBonus", EnemyUpgradeStats.TraitCritMultiplier("star", "electric"), UpgradeOperation.Add, Percent),
             new Route("laserStar.spawnChance", EnemyUpgradeStats.TraitChance("star", "laser"), UpgradeOperation.Add, 1),
+            new Route("laserStar.width", EnemyUpgradeStats.TraitWidth("star", "laser"), UpgradeOperation.Percent, Percent),
+            new Route("laserStar.critChance", EnemyUpgradeStats.TraitCritChance("star", "laser"), UpgradeOperation.Add, Percent),
+            new Route("laserStar.damage", EnemyUpgradeStats.TraitDamage("star", "laser"), UpgradeOperation.Add, 1),
+            new Route("laserStar.critBonus", EnemyUpgradeStats.TraitCritMultiplier("star", "laser"), UpgradeOperation.Add, Percent),
             new Route("supernovaStar.spawnChance", EnemyUpgradeStats.TraitChance("star", "supernova"), UpgradeOperation.Add, 1),
+            new Route("supernovaStar.range", EnemyUpgradeStats.TraitRadius("star", "supernova"), UpgradeOperation.Percent, Percent),
+            new Route("supernovaStar.hpDamage", EnemyUpgradeStats.TraitHealthFraction("star", "supernova"), UpgradeOperation.Add, Percent),
         };
 
         private static readonly HashSet<string> _routed = RoutedStats();
