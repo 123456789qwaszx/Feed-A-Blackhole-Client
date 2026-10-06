@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 적이 맞은 피해량을 그 자리 위로 띄우는 연출. 일반 피해는 흰색, 치명타는 붉은색이다.
+    // 적이 맞은 피해량을 그 자리 위로 띄우는 연출. 일반 피해는 흰색, 치명타는 연한 노랑색이다.
     internal sealed class EnemyDamageText : EnemyFloatingText
     {
         private const int MaxLabels = 16;
