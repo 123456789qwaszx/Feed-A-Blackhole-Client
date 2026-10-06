@@ -6,7 +6,8 @@ namespace BlackHole.Unity
 {
     // 블랙홀(HQ)의 화면. 매 프레임 판의 블랙홀을 읽어 원점에 원을 그린다. 게임 상태를 바꾸지 않는다.
     // 원의 크기는 판 Level이 정하고, Level이 오른 순간 커지며 바깥으로 한 번 번쩍인다. 그림일 뿐이다 — 출현 띠·공전·Breaker와 무관하다(GAME_RULES 3.1).
-    // 크기는 원작 실측(검은 중심의 C0 화면 지름)을 Level에 맞춘 것이다: Level 0 → 12px, 10 → 47px, 20 → 86px, 30 → 158px, 35 → 232px.
+    // 크기는 원작 실측(검은 중심의 C0 화면 지름)을 Level에 맞춘 것이다: Level 0 → 12px, 10 → 47px, 20 → 86px, 30 → 158px, 35 → 232px,
+    // 40 → 약 292px(그 구간 카메라 배율이 추정값이라 오차 약 ±12%).
     // 1 unit = C0 54px(카메라 크기 10)로 바꾼 반지름을 Level 사이에서 직선으로 잇고, 마지막 점 뒤는 그대로 둔다.
     // 선 굵기는 화면에서 고정이라 판의 전장 배율을 곱한다(원은 월드 크기라 카메라가 넓어지면 작아 보인다).
     internal sealed class HqView : IDisposable
@@ -19,6 +20,7 @@ namespace BlackHole.Unity
             (20, 0.796f),
             (30, 1.463f),
             (35, 2.148f),
+            (40, 2.704f),
         };
 
         private const float RingWidth = 0.08f;
