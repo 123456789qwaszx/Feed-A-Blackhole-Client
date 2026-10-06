@@ -141,6 +141,7 @@ namespace BlackHole.Core
 
         // 줄기 하나를 내보내고, 갈래 확률로 성공할 때마다 하나를 더 내보낸다(최대 MaxBranches). 줄기마다 MaxTargets만큼 연쇄한다.
         // 맞힌 적 목록은 한 발동의 모든 줄기가 함께 쓴다 — 같은 적을 두 번 맞히지 않는다.
+        // 치명타는 발동 한 번에 한 번 판정한다(원작: 전기가 일어날 때 함께 판정). 모든 줄기·적중이 같은 결과를 쓴다.
         private void Chain(ChainLightningDefinition chain, Pending pending, World world)
         {
             _struck.Clear();
@@ -149,11 +150,13 @@ namespace BlackHole.Core
             while (branches < ChainLightningDefinition.MaxBranches && chain.BranchChance > 0 && _random.NextFloat() < chain.BranchChance)
                 branches++;
 
+            bool critical = chain.CritChance > 0 && _random.NextFloat() < chain.CritChance;
+
             for (int branch = 0; branch < branches; branch++)
-                ChainBranch(chain, pending, world);
+                ChainBranch(chain, pending, world, critical);
         }
 
-        private void ChainBranch(ChainLightningDefinition chain, Pending pending, World world)
+        private void ChainBranch(ChainLightningDefinition chain, Pending pending, World world, bool critical)
         {
             Point2 origin = pending.Position;
 
@@ -183,7 +186,6 @@ namespace BlackHole.Core
                 if (nearest == null)
                     break;
 
-                bool critical = chain.CritChance > 0 && _random.NextFloat() < chain.CritChance;
                 float amount = critical ? chain.Damage * chain.CritMultiplier : chain.Damage;
 
                 _struck.Add(nearest);
