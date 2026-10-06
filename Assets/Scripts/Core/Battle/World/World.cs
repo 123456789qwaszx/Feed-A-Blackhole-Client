@@ -29,6 +29,14 @@ namespace BlackHole.Core
         private readonly BattleRandom _placementRandom;
         private readonly BattleRandom _pickupPlacementRandom;
         private readonly BattleRandom _pickupRandom;
+        private readonly BattleRandom _timeRandom;
+        private readonly BattleRandom _respawnRandom;
+        // 이번 Step에 시간 추가가 성공한 횟수. GameSession이 읽고 Step이 시작될 때 비운다.
+        private int _timeBonusCount;
+        // [임시] 시간 추가 1회당 늘어나는 초
+        private const float TimeBonusSeconds = 1f;
+        // [임시] 재생성 1회당 마리 수
+        private const int RespawnCount = 1;
         // 종류마다 색 등급과 성질을 고르는 몫. 판 조립 때 만들고 판 동안 이어진다(공급이 여러 번이어도 비율이 판 전체에 걸쳐 맞는다).
         // 성질 몫은 성질 확률 합이 0보다 큰 종류에만 있고, 칸은 (성질 없음, 성질 0, 성질 1, …)이다.
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _tierPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
@@ -84,6 +92,8 @@ namespace BlackHole.Core
             _placementRandom = new BattleRandom(seed, BattleRandom.PlacementStream);
             _pickupPlacementRandom = new BattleRandom(seed, BattleRandom.PickupPlacementStream);
             _pickupRandom = new BattleRandom(seed, BattleRandom.PickupStream);
+            _timeRandom = new BattleRandom(seed, BattleRandom.TierStream);
+            _respawnRandom = new BattleRandom(seed, BattleRandom.RespawnStream);
             _filter = new SpawnFilter(maxAliveEnemies);
             MaxAliveEnemies = maxAliveEnemies;
             DeathEffects = new DeathEffects(seed);
@@ -309,8 +319,12 @@ namespace BlackHole.Core
             }
         }
 
+        // 이번 진행에서 파괴로 시간 추가가 성공한 횟수. 시간은 GameSession이 늘린다.
+        internal float TimeBonus => _timeBonusCount * TimeBonusSeconds;
+
         internal void BeginAdvance()
         {
+            _timeBonusCount = 0;
             _enemies.BeginAdvance();
             DeathEffects.BeginAdvance();
 
@@ -381,6 +395,7 @@ namespace BlackHole.Core
 
             Hq.AddExp(enemy.Stats.Exp);
             DeathEffects.Enqueue(enemy, damage.Source);
+            RollDeathBonus(enemy);
             return true;
         }
 
@@ -393,10 +408,29 @@ namespace BlackHole.Core
             foreach (Enemy enemy in _destroyRequests)
             {
                 if (_enemies.Destroy(enemy))
+                {
                     Hq.AddExp(enemy.Stats.Exp);
+                    RollDeathBonus(enemy);
+                }
             }
 
             _destroyRequests.Clear();
+        }
+
+        // 사망이 확정된 적의 파괴 보너스: 종류의 시간 추가 확률과 재생성 확률을 각각 판정한다.
+        // 재생성은 생성 요청으로 넣어 같은 Step의 7. Enemy Supply 자리에서 처리된다(전체 상한·배치 띠 적용).
+        private void RollDeathBonus(Enemy enemy)
+        {
+            // 적 한 마리의 사망이 확정된 직후 불리고, 두 가지 확률을 각각 따로 판정한다.
+            EnemyComposition composition = Stats.CompositionOf(enemy.Definition);
+
+            // 노드를 안 샀으면 확률은 0. 조건문을 건너 뜀, 랜덤값이 확률보다 낮을 때 참
+            if (composition.TimeChance > 0 && _timeRandom.NextFloat() < composition.TimeChance)
+                _timeBonusCount++;
+
+            // 노드를 안 샀으면 확률은 0. 조건문을 건너 뜀, 랜덤값이 확률보다 낮을 때 참
+            if (composition.RespawnChance > 0 && _respawnRandom.NextFloat() < composition.RespawnChance)
+                _spawnRequests.Add(new SupplyRequest(enemy.Definition, RespawnCount));
         }
     }
 }

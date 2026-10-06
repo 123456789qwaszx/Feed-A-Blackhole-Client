@@ -21,5 +21,9 @@ namespace BlackHole.Core
         public static string TraitChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.chance";
         // 황금 성질의 Gold 배율. 기본값은 그 성질의 배율이다.
         public static string TraitMultiplier(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.multiplier";
+        // 소행성이 파괴될 때 시간이 추가될 확률. %, 기본값 0 - 노드를 사야 시간이 오른다.
+        public static string TimeChance(string kindId) => $"enemy.{kindId}.timeChance";
+        // 소행성이 파괴될 때 새로운 소행성이 생성될 확률. %, 기본값 0 - 노드를 사야 재소환된다. 상한 100%.
+        public static string RespawnChance(string kindId) => $"enemy.{kindId}.respawnChance";
     }
 }
