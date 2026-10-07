@@ -47,7 +47,6 @@ namespace BlackHole.Core
                 new TimeLimitRule(content.TimeLimit.Upgraded(table)),
                 seed,
                 progress,
-                table,
                 startSupply);
         }
 

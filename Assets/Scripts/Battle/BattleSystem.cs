@@ -108,12 +108,12 @@ namespace BlackHole.Unity
             return true;
         }
 
-        // 종료 요청 -> 남은 적 정리 -> (결산이면) 집계·결산 -> 화면 정리 -> 판을 버림.
+        // 판 종료(이미 끝났으면 결과 유지) -> 남은 적 정리 -> (결산이면) 집계·결산 -> 화면 정리 -> 판을 버림.
         private async Task<BattleRawData> ShutDownAsync(bool settle)
         {
             _state = State.ShuttingDown;
 
-            Session.RequestEnd();
+            Session.End();
             Session.ClearRemainingEnemies();
 
             BattleRawData raw = null;
