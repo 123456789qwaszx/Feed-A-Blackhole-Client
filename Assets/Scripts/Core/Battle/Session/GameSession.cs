@@ -56,8 +56,6 @@ namespace BlackHole.Core
             if (_ended || delta == 0)
                 return default;
 
-            World.BeginAdvance();
-
             float step = _timeLimit.LimitStep(Elapsed, delta);
             int raised = World.Step(step);
             Elapsed += step;
@@ -98,7 +96,7 @@ namespace BlackHole.Core
         public BattleRawData CreateRawData()
         {
             Hq hq = World.Hq;
-            return new BattleRawData(_seed, Elapsed, World.Kills(), World.EarnedGold, hq.Level, hq.Exp,
+            return new BattleRawData(_seed, Elapsed, World.GetKillCounts(), World.EarnedGold, hq.Level, hq.Exp,
                 hq.Stage, hq.NextStage, hq.Milestone, _settledGold);
         }
 

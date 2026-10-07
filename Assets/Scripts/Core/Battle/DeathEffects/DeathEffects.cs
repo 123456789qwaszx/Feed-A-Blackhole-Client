@@ -54,7 +54,7 @@ namespace BlackHole.Core
             public float Remaining;
         }
 
-        // 마지막 진행 동안의 번개 이동, 폭발, 레이저 발동(일어난 순서).
+        // 이번 Step의 번개 이동, 폭발, 레이저 발동(일어난 순서). 다음 Step이 시작될 때 비운다.
         public IReadOnlyList<LightningHit> LightningHits { get; }
         public IReadOnlyList<ExplosionBlast> Explosions { get; }
         public IReadOnlyList<LaserBurst> LaserBursts { get; }
@@ -79,7 +79,7 @@ namespace BlackHole.Core
                 _pending.Add(new Pending(enemy.Trait.Effect, enemy.Position, enemy.Stats.Radius / enemy.Definition.Radius, enemy.Trait.MaxAlive));
         }
 
-        internal void BeginAdvance()
+        internal void BeginStep()
         {
             _lightningHits.Clear();
             _explosions.Clear();

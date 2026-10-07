@@ -45,7 +45,7 @@ namespace BlackHole.Core
         // 마지막 Tick이 피해를 준 적의 수. 빈 Tick이면 0이다.
         public int LastTickHitCount { get; private set; }
 
-        // 마지막 진행 동안의 Tick(일어난 순서). 다음 진행이 시작될 때 비운다.
+        // 이번 Step의 Tick(일어난 순서). 다음 Step이 시작될 때 비운다.
         public IReadOnlyList<BreakerTick> Ticks { get; }
 
         // 달 버프의 중첩(받은 순서). 중첩 수가 곧 목록의 길이다.
@@ -82,7 +82,7 @@ namespace BlackHole.Core
             CometBuffs = _comet.AsReadOnly();
         }
 
-        internal void BeginAdvance() => _ticks.Clear();
+        internal void BeginStep() => _ticks.Clear();
 
         // 한 Step 동안 주기가 여러 번 차면 그만큼 Tick한다. 같은 Step 안의 Tick은 같은 조준점과 같은 적 위치를 본다.
         internal void Advance(float delta, World world)

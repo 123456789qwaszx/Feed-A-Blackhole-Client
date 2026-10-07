@@ -2,11 +2,9 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 한 판의 적 목록과 사망 절차.
-    // - 출현: 정의·색 등급·성질·이 판의 수치·위치로 적을 만들고 번호를 줌.
-    // - 이동: 살아 있는 적이 행동에 따라 움직임.
-    // - 피해: 이 목록에 살아 있는 적만 맞는다. 맞을 때마다 피격 기록, HP가 0이 되면 사망 기록·처치 수·Gold 합계.
-    // - 정리: 판이 끝난 뒤 남은 적을 목록에서 치운다. 처치가 아니다 — 사망 기록도, 처치 수도, Gold도 없다.
+    // 한 판의 적 생명주기.
+    // 출현한 적을 보관하고 이동·피해·사망을 처리하며, 이번 Step의 피격·사망 기록과 판 누적 처치 수·사망 Gold를 기록한다.
+    // 판 정리(ClearAlive)는 처치가 아니다 — 사망 기록도, 처치 수도, Gold도 없다.
     internal sealed class EnemyRoster
     {
         private readonly List<Enemy> _alive = new();
@@ -22,12 +20,12 @@ namespace BlackHole.Core
         // 살아 있는 적.
         public IReadOnlyList<Enemy> Alive { get; }
 
-        // 마지막 진행 동안 들어간 피해와 확정된 사망(일어난 순서). 다음 진행이 시작될 때 비운다.
+        // 이번 Step의 피격과 사망(일어난 순서). 다음 Step이 시작될 때 비운다.
         public IReadOnlyList<HitRecord> Hits { get; }
         public IReadOnlyList<DeathRecord> Deaths { get; }
 
-        // 이 판에서 확정된 사망의 Gold 합계. 진행 상태에는 판이 끝난 뒤 결산(GameSession.Settle)이 더함.
-        public long EarnedGold { get; private set; }
+        // 이 판에서 확정된 사망의 Gold 합계(적 자신의 Gold). 황금 치명타 Gold는 DeathBonuses가 따로 센다.
+        public long KillGold { get; private set; }
 
         public EnemyRoster()
         {
@@ -41,7 +39,7 @@ namespace BlackHole.Core
             kind != null && _aliveByKind.TryGetValue(kind, out int count) ? count : 0;
 
         // 이 판에서 지금까지의 종류별 처치 수(처음 처치한 순서).
-        public IReadOnlyList<EnemyKillCount> Kills()
+        public IReadOnlyList<EnemyKillCount> GetKillCounts()
         {
             var kills = new EnemyKillCount[_killOrder.Count];
 
@@ -76,7 +74,7 @@ namespace BlackHole.Core
         // true는 이번 피해로 죽었다는 뜻.
         public bool DealDamage(Enemy enemy, Damage damage)
         {
-            if (!Holds(enemy))
+            if (!ContainsAlive(enemy))
                 return false;
 
             bool died = enemy.ApplyDamage(damage);
@@ -89,17 +87,15 @@ namespace BlackHole.Core
             return true;
         }
 
-        // 이 목록에 살아 있는 적인가. 피해와 파괴는 이것을 먼저 본 뒤에만 적을 바꾼다.
-        private bool Holds(Enemy enemy) => enemy.IsAlive && _alive.Contains(enemy);
+        // 이 목록에 살아 있는 적인가. 피해는 이것을 먼저 본 뒤에만 적을 바꾼다.
+        private bool ContainsAlive(Enemy enemy) => enemy.IsAlive && _alive.Contains(enemy);
 
-        // 막 죽은 적의 사망 절차:
-        // 사망 기록, Gold, 목록에서 제외, 종류별 살아 있는 수와 처치 수.
-        //
-        // Gold는 흡수 연출을 기다리지 않고 지금 이 판의 합계에 더함.
+        // 사망 확정: 사망 기록, 사망 Gold, 살아 있는 목록과 종류별 수, 처치 수를 갱신한다.
+        // Gold는 흡수 연출을 기다리지 않고 지금 더한다.
         private void RecordDeath(Enemy enemy)
         {
             _deaths.Add(new DeathRecord(_nextDeathSequence++, enemy));
-            EarnedGold = checked(EarnedGold + enemy.Stats.Gold);
+            KillGold = checked(KillGold + enemy.Stats.Gold);
 
             if (_alive.Remove(enemy))
                 _aliveByKind[enemy.Definition] = CountAlive(enemy.Definition) - 1;
@@ -115,6 +111,7 @@ namespace BlackHole.Core
             }
         }
 
+        // 판 정리: 남은 적을 목록에서 치운다(처치가 아니다). 치운 수를 돌려준다.
         public int ClearAlive()
         {
             int cleared = _alive.Count;
@@ -123,17 +120,11 @@ namespace BlackHole.Core
             return cleared;
         }
 
-        public void BeginAdvance()
+        // 이번 Step의 피격·사망 기록을 비운다(World.Step이 처음에 부른다).
+        public void BeginStep()
         {
             _hits.Clear();
             _deaths.Clear();
         }
-
-        /// <summary>
-        /// 사망 확정 뒤의 황금 소행성 보너스 치명타 Gold를 이 판 Gold 합계에 더한다.
-        /// </summary>
-        /// <param name="bonus">추가 골드</param>
-        // Checked는 long 범위를 넘으면 조횽히 틀린 값이 되지 않고 예외를 던진다.
-        public void AddEarnedGold(long bonus) => EarnedGold = checked(EarnedGold + bonus);
     }
 }

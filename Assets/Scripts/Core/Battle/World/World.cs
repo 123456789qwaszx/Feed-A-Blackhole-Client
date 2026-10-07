@@ -14,17 +14,18 @@ namespace BlackHole.Core
 
         public IReadOnlyList<Enemy> Enemies => _enemies.Alive;
 
-        // 마지막 진행 동안 들어간 피해와 확정된 사망(일어난 순서).
+        // 이번 Step의 피격과 사망(일어난 순서). 다음 Step이 시작될 때 비운다.
         public IReadOnlyList<HitRecord> Hits => _enemies.Hits;
         public IReadOnlyList<DeathRecord> Deaths => _enemies.Deaths;
 
-        // 사망 효과의 대기열과 마지막 진행 동안의 효과 기록(번개 이동, 폭발, 레이저).
+        // 사망 효과의 대기열과 이번 Step의 효과 기록(번개 이동, 폭발, 레이저).
         public DeathEffects DeathEffects { get; }
 
         // 블랙홀.
         public Hq Hq { get; }
 
-        public long EarnedGold => _enemies.EarnedGold;
+        // 이 판이 번 Gold: 사망 Gold + 황금 치명타 Gold. 진행 상태에는 판이 끝난 뒤 결산(GameSession.Settle)이 더한다.
+        public long EarnedGold => checked(_enemies.KillGold + _deathBonuses.GoldenCritGold);
 
         // 이 판의 종류별 판 구성과 (종류, 색 등급, 성질, 크기)별 수치. 판 조립 때 정해졌다.
         internal EnemyStatTable Stats { get; }
@@ -43,13 +44,13 @@ namespace BlackHole.Core
             DeathEffects = new DeathEffects(seed);
             Breaker = breaker != null ? new BreakerSkill(breaker, new BattleRandom(seed, RandomStream.Critical)) : null;
             _supply = new EnemySupply(seed, _enemies, stats, placement, periodicSpawnPlacement, growthSupply, Breaker);
-            _deathBonuses = new DeathBonuses(seed, _enemies, stats, _supply);
+            _deathBonuses = new DeathBonuses(seed, stats, _supply);
         }
 
         internal void SetAimPoint(Point2? aimPoint) => AimPoint = aimPoint;
 
         // 이 판에서 지금까지의 종류별 처치 수(처음 처치한 순서).
-        internal IReadOnlyList<EnemyKillCount> Kills() => _enemies.Kills();
+        internal IReadOnlyList<EnemyKillCount> GetKillCounts() => _enemies.GetKillCounts();
 
         // 생성 요청: 지금 바로 적을 만드는 메서드가 아니라, 나중에 생성할 요청만 큐에 넣는다
         internal void RequestSpawn(SupplyRequest request) => _supply.Request(request);
@@ -79,15 +80,13 @@ namespace BlackHole.Core
             return true;
         }
 
-        internal void BeginAdvance()
-        {
-            _enemies.BeginAdvance();
-            DeathEffects.BeginAdvance();
-            Breaker?.BeginAdvance();
-        }
-
         internal int Step(float delta)
         {
+            // 0. 이번 Step의 기록(피격·사망, 사망 효과, Breaker Tick)을 비운다.
+            _enemies.BeginStep();
+            DeathEffects.BeginStep();
+            Breaker?.BeginStep();
+
             // 1. Enemy Action
             _enemies.Move(delta);
 
