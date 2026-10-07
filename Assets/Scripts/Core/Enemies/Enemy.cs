@@ -80,14 +80,5 @@ namespace BlackHole.Core
             IsAlive = false;
             return true;
         }
-
-        internal bool Destroy()
-        {
-            if (!IsAlive)
-                return false;
-
-            IsAlive = false;
-            return true;
-        }
     }
 }

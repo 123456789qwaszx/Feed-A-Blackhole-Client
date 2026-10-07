@@ -88,7 +88,7 @@ namespace BlackHole.Core
             _settledGold = hq.ReachedMilestone ? hq.Milestone.RewardFor(_progress.Gold) : World.EarnedGold;
         }
 
-        // 끝난 판에 남은 적과 처리되지 않은 생성·파괴 요청·사망 효과를 치운다. 처치가 아니다.
+        // 끝난 판에 남은 적과 처리되지 않은 생성 요청·사망 효과를 치운다. 처치가 아니다.
         public void ClearRemainingEnemies()
         {
             World.ClearRemainingEnemies();

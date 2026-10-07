@@ -6,7 +6,6 @@ namespace BlackHole.Core
     // - 출현: 정의·색 등급·성질·이 판의 수치·위치로 적을 만들고 번호를 줌.
     // - 이동: 살아 있는 적이 행동에 따라 움직임.
     // - 피해: 이 목록에 살아 있는 적만 맞는다. 맞을 때마다 피격 기록, HP가 0이 되면 사망 기록·처치 수·Gold 합계.
-    // - 파괴: 피해·HP 계산 없이 사망을 확정한다. 이 목록에 살아 있는 적만 죽고, 그 뒤는 피해로 죽을 때와 같다.
     // - 정리: 판이 끝난 뒤 남은 적을 목록에서 치운다. 처치가 아니다 — 사망 기록도, 처치 수도, Gold도 없다.
     internal sealed class EnemyRoster
     {
@@ -84,15 +83,6 @@ namespace BlackHole.Core
             _hits.Add(new HitRecord(_nextHitSequence++, enemy, damage));
 
             if (!died)
-                return false;
-
-            RecordDeath(enemy);
-            return true;
-        }
-
-        public bool Destroy(Enemy enemy)
-        {
-            if (!Holds(enemy) || !enemy.Destroy())
                 return false;
 
             RecordDeath(enemy);

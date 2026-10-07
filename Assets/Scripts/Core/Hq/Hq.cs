@@ -37,7 +37,7 @@ namespace BlackHole.Core
         public int NextStage => ReachedMilestone ? Stage + 1 : Stage;
 
         // 지금 Level의 임계값에서 다음 임계값까지 몇 %인가(0 ~ 1). 마지막 Level이거나 이정표에 닿았으면 1이다.
-        // EXP는 사망 순간에 들고 Level은 Step의 5 자리에서 오르므로, 그 사이에는 1에서 멈춘다.
+        // EXP는 사망 순간에 들고 Level은 Step의 4 자리에서 오르므로, 그 사이에는 1에서 멈춘다.
         public float Progress => ReachedMilestone ? 1 : Growth.ProgressAt(Level, Exp);
 
         // stage: 판을 시작할 때의 성장도(진행 상태의 것).

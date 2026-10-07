@@ -40,8 +40,8 @@ namespace BlackHole.Core
             List<SupplyRequest> startSupply = LoadSupplyList(data.StartSupply, "StartSupply", enemiesById, into);
             EnemyContentInvariants.CheckSupplyKinds(startSupply, "StartSupply", into);
 
-            if (startSupply.Count > 0 && placement == null)
-                into.Add(new ContentDiagnostic("EnemyPlacement", "공급이 있으면 출현 배치가 필요하다."));
+            if (placement == null)
+                into.Add(new ContentDiagnostic("EnemyPlacement", "출현 배치가 필요하다."));
 
             EnemyContentInvariants.CheckPickupPlacement(enemies, placement, pickupPlacement, into);
 

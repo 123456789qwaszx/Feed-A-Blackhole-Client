@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 한 판의 사망 효과 대기열과 처리.
-    // 대기열: 특수 적(성질이 붙은 적)이 죽는 순간(피해: World.DealDamage, 파괴: World.ProcessDestroyRequests) 그 성질의 효과·죽은 자리를 넣음.
+    // 대기열: 특수 적(성질이 붙은 적)이 죽는 순간(World.DealDamage) 그 성질의 효과·죽은 자리를 넣음.
     // 처리: 넣은 순서(사망 순서)대로 효과를 실행하고 대기열을 비움.
     // 레이저 별은 죽는 순간 경로를 정해 예고를 시작하고, 예고 시간이 지난 Step에 쏜다(피해는 그때 준다).
     // 효과의 피해는 특수 적(성질이 붙은 적, 픽업 포함)에게 가지 않는다 — 효과가 효과를 부르지 않는다.
@@ -61,9 +61,6 @@ namespace BlackHole.Core
 
         // 지금 예고 중인 레이저(예고한 순서). 화면은 이것으로 예고선을 그린다. 처리(Resolve)마다 지금 상태로 다시 채운다.
         public IReadOnlyList<LaserTelegraph> LaserTelegraphs { get; }
-
-        // 처리되지 않은 효과(예고 중인 레이저 포함)가 남아 있는가.
-        public bool HasPending => _pending.Count > 0 || _chargingLasers.Count > 0;
 
         internal DeathEffects(int seed)
         {

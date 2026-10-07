@@ -35,6 +35,15 @@ namespace BlackHole.Core
             _state = unchecked((uint)seed ^ ((uint)stream * 0x85EBCA6Bu));
         }
 
+        // 확률 판정. 0 이하·1 이상이면 굴리지 않는다(확률을 바꾸지 않은 판의 난수 순서가 그대로다).
+        public bool Roll(float chance)
+        {
+            if (chance <= 0)
+                return false;
+
+            return chance >= 1 || NextFloat() < chance;
+        }
+
         // [0, 1) 구간의 값. 32비트 SplitMix 방식이라 플랫폼과 런타임에 관계없이 같다.
         public float NextFloat()
         {
