@@ -47,7 +47,7 @@ namespace BlackHole.Unity
         {
             _aim.Tick();
 
-            SessionStepResult result = _battle.Tick(deltaTime);
+            AdvanceResult result = _battle.Tick(deltaTime);
 
             if (result.Ended)
                 _screens.HandleBattleTimeExpired();

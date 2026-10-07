@@ -73,13 +73,13 @@ namespace BlackHole.Unity
 
         // 판을 한 Step 진행하고 전투 화면을 맞춘다. 진행 중인 판이 없으면 아무것도 하지 않는다.
         // 정지 중에는 판을 진행하지 않는다(화면은 멈춘 채 맞춘다). Ended는 이번 Step에 판이 끝났을 때만 true다.
-        public SessionStepResult Tick(float delta)
+        public AdvanceResult Tick(float delta)
         {
             if (!HasBattle)
                 return default;
 
             bool paused = _state == State.Paused;
-            SessionStepResult result = paused ? default : Session.Advance(delta);
+            AdvanceResult result = paused ? default : Session.Advance(delta);
 
             _enemyView.Synchronize(Session.World, paused, delta);
             _breakerView.Synchronize(Session.World, paused, delta);
