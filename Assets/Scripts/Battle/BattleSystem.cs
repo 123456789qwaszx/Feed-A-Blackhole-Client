@@ -6,7 +6,7 @@ using UnityEngine;
 namespace BlackHole.Unity
 {
     // 한 판의 수명과 전투 화면을 묶는다.
-    // - 시작: 판을 조립하고(SessionAssembler) 카메라를 이 판의 전장 배율에 맞춘 뒤 판을 시작.
+    // - 시작: 판을 조립하고(GameSessionFactory) 카메라를 이 판의 전장 배율에 맞춘 뒤 판을 시작.
     // - 진행: 판을 한 Step 진행하고, 적·Breaker·사망 효과·블랙홀 화면을 판의 지금 상태에 맞춤.
     // - 정지: 판의 일이 아니라 여기의 상태다. 정지 중에는 판을 진행하지 않고 화면만 멈춘 채 맞춤.
     // - 종료: 남은 적을 치우고(처치 아님) 결산한 뒤 판을 버림. 포기는 결산하지 않음.
@@ -57,7 +57,7 @@ namespace BlackHole.Unity
             if (_state != State.Idle)
                 return false;
 
-            Session = SessionAssembler.CreateBattle(_content, _progress, Environment.TickCount, upgrades);
+            Session = GameSessionFactory.Create(_content, _progress, Environment.TickCount, upgrades);
 
             if (_cameraFit != null)
                 _cameraFit.SetFieldScale(Session.World.Hq.FieldScale);

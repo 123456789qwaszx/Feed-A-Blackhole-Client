@@ -30,7 +30,7 @@ namespace BlackHole.Core
         public int StartSupplyBonus { get; }
 
         // 블랙홀이 Level업할 때마다 이 종류를 이 판 시작 수(변환 반영)의 몇 % 요청하는가(0 이상, 100 = 시작 수만큼). 노드를 사야 0보다 크다.
-        // 마리 수는 판 조립이 시작 수와 곱해 반올림한다(SessionAssembler). %로 두는 것은 소수 오차 없이 곱하기 위해서다.
+        // 마리 수는 판 조립이 시작 수와 곱해 반올림한다(GameSessionFactory). %로 두는 것은 소수 오차 없이 곱하기 위해서다.
         public float GrowthPercent { get; }
 
         // 판 시작 때 이 종류의 시작 공급 중 변환 대상 종류(EnemyDefinition.UpgradesTo)로 바꾸는 수(0 이상). 노드를 사야 0보다 크다.

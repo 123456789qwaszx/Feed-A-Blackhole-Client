@@ -3,31 +3,30 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 진행 상태(PlayerState)와 업그레이드 표로 한 판을 조립한다:
+    // 진행 상태(PlayerState)와 업그레이드 표로 한 판(GameSession)을 만든다:
     // - 산 노드가 만든 업그레이드 표가 Breaker 수치, 제한 시간, 적의 판 구성·수치를 정함.
-    //
-    // 조립한 판은 준비 단계(Preparing)다:
     // - 이 판의 판 구성과 적 수치를 확정하고, Breaker를 만듬.
-    public static class SessionAssembler
+    //
+    // 만든 판은 아직 시작 전이다(GameSession.Begin으로 시작).
+    public static class GameSessionFactory
     {
-        public static GameSession CreateBattle(
+        public static GameSession Create(
             GameContent content,
             PlayerState progress,
             int seed,
             UpgradeTable upgrades)
         {
-            UpgradeTable table = upgrades;
             EnemyContent enemies = content.Enemies;
 
             // 이 판의 블랙홀: 성장도가 시작 Level(마지막 이정표)과 목표 Level(다음 이정표)을 정한다.
-            var hq = new Hq(content.Growth, HqUpgradeStats.GrowthTimeFrom(table), progress.GrowthStage);
+            var hq = new Hq(content.Growth, HqUpgradeStats.GrowthTimeFrom(upgrades), progress.GrowthStage);
 
             // 전투 Session이 시작되기 전,
             // 적의 수치(Gold 포함)와 색·크기·성질 비율을 결정해둠.
             // 모두 업그레이드 표로만 정해진다. 성장도는 블랙홀(시작·목표 Level)에만 들어간다.
             var stats = new EnemyStatTable(
                 enemies.Enemies,
-                CompositionsOf(enemies, table));
+                CompositionsOf(enemies, upgrades));
 
             // 전투 시작 공급(변환 반영). Level업마다의 성장 공급은 이 시작 수로 정해진다.
             IReadOnlyList<SupplyRequest> startSupply = StartSupplyOf(enemies, stats);
@@ -39,12 +38,12 @@ namespace BlackHole.Core
                 enemies.EnemyPlacement?.Scaled(hq.FieldScale),
                 enemies.PeriodicSpawnPlacement?.Scaled(hq.FieldScale),
                 hq,
-                content.Breaker?.Upgraded(table),
+                content.Breaker?.Upgraded(upgrades),
                 GrowthSupplyOf(startSupply, stats));
 
             return new GameSession(
                 world,
-                new TimeLimitRule(content.TimeLimit.Upgraded(table)),
+                new TimeLimitRule(content.TimeLimit.Upgraded(upgrades)),
                 seed,
                 progress,
                 startSupply);

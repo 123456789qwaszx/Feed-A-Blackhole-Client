@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 한 판의 흐름: 시작(Begin) -> 진행(Advance) -> 종료(End) -> 결산(Settle).
-    // - 시작: 판 조립(SessionAssembler) 직후 한 번 부름.
+    // - 시작: 판 조립(GameSessionFactory) 직후 한 번 부름.
     // - 진행: 시간을 흘려 World를 한 Step씩 처리하고, 제한 시간(TimeLimitRule)을 늘리거나 종료를 판정.
     // - 종료: 이정표에 닿았거나 제한 시간이 다 됐을 때, 또는 End를 부를 때.
     // - 결산: 판이 번 Gold를 진행 상태(PlayerState)에 더하고 성장도를 올린다.
