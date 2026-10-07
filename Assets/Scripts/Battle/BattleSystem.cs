@@ -8,10 +8,11 @@ namespace BlackHole.Unity
     // 한 판의 수명과 전투 화면을 묶는다.
     // - 시작: 판을 조립하고(SessionAssembler) 카메라를 이 판의 전장 배율에 맞춘 뒤 판을 시작.
     // - 진행: 판을 한 Step 진행하고, 적·Breaker·사망 효과·블랙홀 화면을 판의 지금 상태에 맞춤.
+    // - 정지: 판의 일이 아니라 여기의 상태다. 정지 중에는 판을 진행하지 않고 화면만 멈춘 채 맞춤.
     // - 종료: 남은 적을 치우고(처치 아님) 결산한 뒤 판을 버림. 포기는 결산하지 않음.
     internal sealed class BattleSystem
     {
-        private enum State { Idle, Running, ShuttingDown }
+        private enum State { Idle, Running, Paused, ShuttingDown }
 
         private readonly GameContent _content;
         private readonly PlayerState _progress;
@@ -25,7 +26,13 @@ namespace BlackHole.Unity
         // 진행 중인 판. 판이 없으면 null.
         public GameSession Session { get; private set; }
 
-        public bool IsRunning => _state == State.Running;
+        // 판이 진행 중인가(정지·종료·정리 중이 아님). 조준 입력과 일시 정지 창, 커서가 본다.
+        public bool IsRunning => _state == State.Running && !Session.IsEnded;
+
+        public bool IsPaused => _state == State.Paused;
+
+        // 판이 있는가(진행 또는 정지). 종료·포기는 이때만 한다.
+        private bool HasBattle => _state == State.Running || _state == State.Paused;
 
         public BattleSystem(
             GameContent content,
@@ -65,34 +72,36 @@ namespace BlackHole.Unity
         }
 
         // 판을 한 Step 진행하고 전투 화면을 맞춘다. 진행 중인 판이 없으면 아무것도 하지 않는다.
-        // BattleEnded는 이번 Step에 판이 끝났을 때만 true다.
-        public BattleStepResult Tick(float delta)
+        // 정지 중에는 판을 진행하지 않는다(화면은 멈춘 채 맞춘다). Ended는 이번 Step에 판이 끝났을 때만 true다.
+        public SessionStepResult Tick(float delta)
         {
-            if (_state != State.Running)
+            if (!HasBattle)
                 return default;
 
-            bool wasRunning = Session.Phase == SessionPhase.Running;
-            int raised = Session.Advance(delta);
-            bool paused = Session.Phase == SessionPhase.Paused;
+            bool paused = _state == State.Paused;
+            SessionStepResult result = paused ? default : Session.Advance(delta);
 
             _enemyView.Synchronize(Session.World, paused, delta);
             _breakerView.Synchronize(Session.World, paused, delta);
             _deathEffectView.Synchronize(Session.World, paused, delta);
             _hqView.Synchronize(Session.World, delta);
 
-            return new BattleStepResult(wasRunning && Session.Phase == SessionPhase.Ended, raised);
+            return result;
         }
 
-        public void TogglePause()
+        // 판을 멈추거나 다시 움직인다. 판이 없거나 이미 그 상태면 그대로 둔다.
+        public void SetPaused(bool paused)
         {
-            if (_state == State.Running)
-                Session.TogglePause();
+            if (paused && _state == State.Running)
+                _state = State.Paused;
+            else if (!paused && _state == State.Paused)
+                _state = State.Running;
         }
 
         // 판을 끝내고 결산.
         public async Task<BattleRawData> TryEndAsync()
         {
-            if (_state != State.Running)
+            if (!HasBattle)
                 return null;
 
             return await ShutDownAsync(settle: true);
@@ -101,7 +110,7 @@ namespace BlackHole.Unity
         // 판을 포기. 결산하지 않음.
         public async Task<bool> TryAbandonAsync()
         {
-            if (_state != State.Running)
+            if (!HasBattle)
                 return false;
 
             await ShutDownAsync(settle: false);

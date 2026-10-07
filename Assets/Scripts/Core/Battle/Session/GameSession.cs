@@ -3,8 +3,10 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 한 판의 흐름: 준비(Preparing) -> 진행(Running),정지(Paused) -> 종료(Ended) -> 결산.
+    // 한 판의 흐름: 시작(Begin) -> 진행(Advance) -> 종료(End) -> 결산(Settle).
+    // - 시작: 판 조립(SessionAssembler) 직후 한 번 부른다.
     // - 진행: 시간을 흘려 World를 한 Step씩 처리하고, 제한 시간(TimeLimitRule)을 늘리거나 종료를 판정.
+    //   정지는 판이 모른다. 정지 중에는 BattleSystem이 Advance를 부르지 않는다.
     // - 종료: 이정표에 닿았거나 제한 시간이 다 됐을 때, 또는 End를 부를 때.
     // - 결산: 판이 번 Gold를 진행 상태(PlayerState)에 더하고 성장도를 올린다.
     public sealed class GameSession
@@ -17,12 +19,16 @@ namespace BlackHole.Core
         // 결산할 Gold. 판이 끝나는 순간 정해지고 바뀌지 않는다(End).
         private long _settledGold;
 
+        // 판이 끝났는가. 끝난 뒤에는 진행하지 않고, 결과·결산·정리만 할 수 있다.
+        private bool _ended;
+
         // 결산을 마쳤는가. 같은 판을 두 번 결산하지 않는다.
         private bool _settled;
 
         public World World { get; }
 
-        public SessionPhase Phase { get; private set; } = SessionPhase.Preparing;
+        // 판이 끝났는가(이정표·제한 시간·End). 판은 끝나도 결과를 꺼낼 때까지 남아 있다.
+        public bool IsEnded => _ended;
 
         public float Elapsed { get; private set; }
 
@@ -45,26 +51,22 @@ namespace BlackHole.Core
         // Breaker가 칠 조준점. 없으면 null(조준하지 않음).
         public void SetAimPoint(Point2? aimPoint) => World.SetAimPoint(aimPoint);
 
-        // 전투 시작 공급을 내보내고 진행을 시작한다.
+        // 전투 시작 공급을 내보낸다. 판 조립 직후 한 번 부른다.
         public void Begin()
         {
-            if (Phase != SessionPhase.Preparing)
-                throw new InvalidOperationException($"준비 단계에서만 시작할 수 있다. 지금: {Phase}.");
-
             foreach (SupplyRequest request in _startSupply)
                 World.RequestSpawn(request);
 
             World.ProcessSpawnRequests();
-            Phase = SessionPhase.Running;
         }
 
-        // 진행 중일 때만 시간이 흐른다. 한 Step을 처리한 뒤 제한 시간을 늘리고 종료를 판정한다. 오른 Level 수를 돌려준다.
-        public int Advance(float delta)
+        // 한 Step을 처리한 뒤 제한 시간을 늘리고 종료를 판정한다. 끝난 판은 진행하지 않는다.
+        public SessionStepResult Advance(float delta)
         {
             DefinitionGuard.Delta(delta);
 
-            if (Phase != SessionPhase.Running || delta == 0)
-                return 0;
+            if (_ended || delta == 0)
+                return default;
 
             World.BeginAdvance();
 
@@ -76,7 +78,7 @@ namespace BlackHole.Core
             if (World.Hq.ReachedMilestone)
             {
                 End();
-                return 0;
+                return new SessionStepResult(0, true);
             }
 
             // 시간 연장은 종료 판정보다 먼저다.
@@ -85,15 +87,7 @@ namespace BlackHole.Core
             if (_timeLimit.HasExpired(Elapsed))
                 End();
 
-            return raised;
-        }
-
-        public void TogglePause()
-        {
-            if (Phase == SessionPhase.Running)
-                Phase = SessionPhase.Paused;
-            else if (Phase == SessionPhase.Paused)
-                Phase = SessionPhase.Running;
+            return new SessionStepResult(raised, _ended);
         }
 
         // 판을 끝낸다. 이미 끝났으면(시간이 다 됐거나 이정표에 닿았으면) 결과를 그대로 둔다.
@@ -102,10 +96,10 @@ namespace BlackHole.Core
         // 전투 중에는 진행 상태가 바뀌지 않으므로 지금의 Gold가 결산 때의 Gold와 같다.
         public void End()
         {
-            if (Phase == SessionPhase.Ended)
+            if (_ended)
                 return;
 
-            Phase = SessionPhase.Ended;
+            _ended = true;
 
             Hq hq = World.Hq;
             _settledGold = hq.ReachedMilestone ? hq.Milestone.RewardFor(_progress.Gold) : World.EarnedGold;
@@ -152,8 +146,8 @@ namespace BlackHole.Core
 
         private void RequireEnded()
         {
-            if (Phase != SessionPhase.Ended)
-                throw new InvalidOperationException($"끝난 판에서만 할 수 있다. 지금: {Phase}.");
+            if (!_ended)
+                throw new InvalidOperationException("끝난 판에서만 할 수 있다.");
         }
     }
 }

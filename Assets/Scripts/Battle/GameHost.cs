@@ -47,12 +47,12 @@ namespace BlackHole.Unity
         {
             _aim.Tick();
 
-            BattleStepResult result = _battle.Tick(deltaTime);
+            SessionStepResult result = _battle.Tick(deltaTime);
 
-            if (result.BattleEnded)
+            if (result.Ended)
                 _screens.HandleBattleTimeExpired();
 
-            if (result.Raised > 0)
+            if (result.RaisedLevels > 0)
             {
                 _cameraShake.Play();
                 SoundManager.Instance.PlayLevelUp();
@@ -64,8 +64,8 @@ namespace BlackHole.Unity
 
         private void RefreshCursor()
         {
-            GameSession session = _battle.Session;
-            bool visible = session == null || session.Phase != SessionPhase.Running;
+            // 판이 진행 중일 때만 숨긴다(조준점의 Breaker 링이 커서 역할을 한다).
+            bool visible = !_battle.IsRunning;
 
             if (Cursor.visible != visible)
                 Cursor.visible = visible;
@@ -83,7 +83,7 @@ namespace BlackHole.Unity
                 screen.Show(
                     session.Remaining,
                     session.World.EarnedGold,
-                    session.Phase == SessionPhase.Paused,
+                    _battle.IsPaused,
                     session.World.Hq.Level,
                     session.World.Hq.Progress,
                     session.World.Hq.GoalLevel);

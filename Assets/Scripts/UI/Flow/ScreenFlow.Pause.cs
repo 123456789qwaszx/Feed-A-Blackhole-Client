@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using BlackHole.Core;
 using UnityEngine;
 
 namespace BlackHole.Unity
@@ -75,15 +74,7 @@ namespace BlackHole.Unity
 
         private static void HandlePauseQuitClicked() => QuitGame();
 
-        // 진행 중인 판을 멈추거나 다시 움직인다. 이미 그 상태면 그대로 둔다.
-        private void SetBattlePaused(bool paused)
-        {
-            if (!_battle.IsRunning || _battle.Session == null)
-                return;
-
-            bool isPaused = _battle.Session.Phase == SessionPhase.Paused;
-            if (isPaused != paused)
-                _battle.TogglePause();
-        }
+        // 판을 멈추거나 다시 움직인다. 판이 없거나 이미 그 상태면 그대로 둔다.
+        private void SetBattlePaused(bool paused) => _battle.SetPaused(paused);
     }
 }
