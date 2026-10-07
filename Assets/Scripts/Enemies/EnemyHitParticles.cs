@@ -13,11 +13,13 @@ namespace BlackHole.Unity
         private const float BaseSpeed = 1.5f;
         private const int FragmentTextureSize = 16;
 
-        // 사망 시 파티클
-        private const int DeathFragmentCount = 8;
+        // 사망 시 파티클. 파편 수는 EmitDeath에서 (색 등급 1~7) × 크기로 계산한다(고정값이 아니다).
+        // 버퍼는 이 곱의 이론상 최댓값(색 7단계 × 크기 최댓값 4, 행성·별 기준)에 동시 사망 여유를 곱해 둔다.
+        private const int MaxDeathFragmentsPerEnemy = 28;
+        private const int DeathConcurrencyHeadroom = 16;
         private const float DeathLifetime = 1.8f;
         private const float DeathSuctionDelay = 0.12f;
-        private const float DeathFragmentSize = 0.24f;
+        private const float DeathFragmentSize = 0.45f; // 안 보인다는 피드백으로 기존 0.24에서 키움. 에디터에서 눈으로 보고 더 조절해도 된다.
         private const float DeathBurstSpeed = 4f;
         private const float SwirlRate = 8.5f;
         private const float InwardRate = 3f;
@@ -34,7 +36,7 @@ namespace BlackHole.Unity
 
         private ParticleSystem _particles;
         private ParticleSystem _deathParticles;
-        private readonly ParticleSystem.Particle[] _deathParticleBuffer = new ParticleSystem.Particle[DeathFragmentCount * 16];
+        private readonly ParticleSystem.Particle[] _deathParticleBuffer = new ParticleSystem.Particle[MaxDeathFragmentsPerEnemy * DeathConcurrencyHeadroom];
         private Texture2D _fragmentTexture;
         private Material _fragmentMaterial;
         private readonly Dictionary<EnemyId, Color> _colors = new Dictionary<EnemyId, Color>();
@@ -180,21 +182,25 @@ namespace BlackHole.Unity
             if (!_deathParticles.isPlaying)
                 _deathParticles.Play(false);
 
+            // 파편 수 = 색 등급(1~7, enemy.Tier는 0부터라 +1) × 크기(enemy.Size, 1부터).
+            // 예: 빨강(Tier 0)·크기 2 → 1×2 = 2개, 파랑(Tier 4)·크기 3 → 5×3 = 15개.
+            int fragmentCount = (enemy.Tier + 1) * enemy.Size;
+
             // 파괴 단계: 사망 위치에서 크고 빠른 파편을 사방으로 강하게 튀긴다.
             float baseAngle = (_burstIndex++ % 16) * Mathf.PI / 8f;
             var position = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
             Color color = _colors.TryGetValue(enemy.Id, out Color enemyColor) ? enemyColor : Color.white;
 
-            for (int i = 0; i < DeathFragmentCount; i++)
+            for (int i = 0; i < fragmentCount; i++)
             {
-                float angle = baseAngle + i * Mathf.PI * 2f / DeathFragmentCount;
+                float angle = baseAngle + i * Mathf.PI * 2f / fragmentCount;
                 float speed = DeathBurstSpeed + (i % 3) * 0.8f;
                 var parameters = new ParticleSystem.EmitParams
                 {
                     position = position,
                     velocity = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * speed,
                     startLifetime = DeathLifetime,
-                    startSize = DeathFragmentSize + (i % 3) * 0.07f,
+                    startSize = DeathFragmentSize + (i % 3) * 0.13f,
                     startColor = color,
                     rotation = angle + i * 0.61f,
                 };
