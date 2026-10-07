@@ -60,15 +60,15 @@ namespace BlackHole.Core
             _periodicSpawnPlacement = periodicSpawnPlacement;
             _growthSupply = growthSupply;
             _breaker = breaker;
-            _placementRandom = new BattleRandom(seed, BattleRandom.PlacementStream);
-            _periodicSpawnPlacementRandom = new BattleRandom(seed, BattleRandom.PeriodicSpawnPlacementStream);
-            _periodicSpawnRandom = new BattleRandom(seed, BattleRandom.PeriodicSpawnStream);
-            _rainRandom = new BattleRandom(seed, BattleRandom.RainStream);
+            _placementRandom = new BattleRandom(seed, RandomStream.Placement);
+            _periodicSpawnPlacementRandom = new BattleRandom(seed, RandomStream.PeriodicSpawnPlacement);
+            _periodicSpawnRandom = new BattleRandom(seed, RandomStream.PeriodicSpawn);
+            _rainRandom = new BattleRandom(seed, RandomStream.Rain);
 
             // 종류마다 처음 몫을 콘텐츠 순서로 흩뜨린다. 같은 콘텐츠·판 구성·seed면 같은 색·성질·크기 순서가 나온다.
-            var tierRandom = new BattleRandom(seed, BattleRandom.TierStream);
-            var traitRandom = new BattleRandom(seed, BattleRandom.TraitStream);
-            var sizeRandom = new BattleRandom(seed, BattleRandom.SizeStream);
+            var tierRandom = new BattleRandom(seed, RandomStream.Tier);
+            var traitRandom = new BattleRandom(seed, RandomStream.Trait);
+            var sizeRandom = new BattleRandom(seed, RandomStream.Size);
 
             foreach (EnemyDefinition kind in stats.Kinds)
             {

@@ -23,9 +23,9 @@ namespace BlackHole.Core
             _enemies = enemies;
             _stats = stats;
             _supply = supply;
-            _goldenCritRandom = new BattleRandom(seed, BattleRandom.GoldenCritStream);
-            _respawnRandom = new BattleRandom(seed, BattleRandom.RespawnStream);
-            _timeBonusRandom = new BattleRandom(seed, BattleRandom.TimeBonusStream);
+            _goldenCritRandom = new BattleRandom(seed, RandomStream.GoldenCrit);
+            _respawnRandom = new BattleRandom(seed, RandomStream.Respawn);
+            _timeBonusRandom = new BattleRandom(seed, RandomStream.TimeBonus);
         }
 
         internal void Roll(Enemy dead)

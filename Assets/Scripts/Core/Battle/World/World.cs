@@ -2,9 +2,7 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 한 판 안에 있는 것들(적, 조준점과 Breaker, 사망 효과, 블랙홀, 이 판이 번 Gold)과 한 Step의 처리 순서.
-    // 적의 생성은 EnemySupply, 사망 순간의 보너스는 DeathBonuses가 맡고, 여기서는 Step의 정해진 자리에서 부른다.
-    // 판의 난수는 seed 하나에서 용도마다 스트림을 따로 만든다(BattleRandom). 한 용도의 비율을 바꿔도 다른 용도의 순서는 그대로다.
+    // 적, 조준점과 Breaker, 사망 효과, 블랙홀, 이 판이 번 Gold 등을 처리
     public sealed class World
     {
         private readonly EnemyRoster _enemies = new();
@@ -43,7 +41,7 @@ namespace BlackHole.Core
             Stats = stats;
             Hq = hq;
             DeathEffects = new DeathEffects(seed);
-            Breaker = breaker != null ? new BreakerSkill(breaker, new BattleRandom(seed, BattleRandom.CriticalStream)) : null;
+            Breaker = breaker != null ? new BreakerSkill(breaker, new BattleRandom(seed, RandomStream.Critical)) : null;
             _supply = new EnemySupply(seed, _enemies, stats, placement, periodicSpawnPlacement, growthSupply, Breaker);
             _deathBonuses = new DeathBonuses(seed, _enemies, stats, _supply);
         }

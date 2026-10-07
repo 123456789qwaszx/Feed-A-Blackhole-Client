@@ -64,7 +64,7 @@ namespace BlackHole.Core
 
         internal DeathEffects(int seed)
         {
-            _random = new BattleRandom(seed, BattleRandom.DeathEffectStream);
+            _random = new BattleRandom(seed, RandomStream.DeathEffect);
             LightningHits = _lightningHits.AsReadOnly();
             Explosions = _explosions.AsReadOnly();
             LaserBursts = _laserBursts.AsReadOnly();
