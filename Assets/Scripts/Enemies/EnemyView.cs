@@ -199,11 +199,6 @@ namespace BlackHole.Unity
                 SoundManager.Instance?.RequestDestroyed();
         }
 
-        // 관리하는 적 스프라이트가 없고, 지운 객체도 장면에서 모두 사라졌는가.
-        // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _visuals.Count == 0 && _root.childCount == 3
-            && _comets.IsClear && _hitParticles.IsClear && _goldText.IsClear && _damageText.IsClear;
-
         // 판이 바뀌거나 판을 정리할 때 모든 적 스프라이트를 지운다. 정리는 처치가 아니므로 연출도 없다.
         public void Reset()
         {

@@ -29,8 +29,6 @@ namespace BlackHole.Unity
 
         public LaserBeams(Transform parent) => _strokes = new LineStrokes(parent, "Laser Beams");
 
-        public bool IsClear => _strokes.IsClear;
-
         // width: 판정 너비(LaserBurstDefinition.Width). 다 굵어진 굵기와 맞는 범위가 같음.
         public void Play(Point2 start, Point2 end, float width)
         {

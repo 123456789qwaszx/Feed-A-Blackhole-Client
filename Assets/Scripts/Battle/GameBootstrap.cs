@@ -98,7 +98,7 @@ namespace BlackHole.Unity
             BootstrapUI();
             BootstrapScreenFlow();
             BootstrapHost();
-            BootstarpKeyInput();
+            BootstrapKeyInput();
         }
 
         private void BootstrapBattleViews()
@@ -182,7 +182,7 @@ namespace BlackHole.Unity
                 _enemyLooks, _enemyView, _breakerView, _deathEffectView, _hqView, _cameraShake);
         }
 
-        private void BootstarpKeyInput()
+        private void BootstrapKeyInput()
         {
             if (_keyInput == null) return;
 

@@ -47,9 +47,6 @@ namespace BlackHole.Unity
             _quad = QuadRenderers.CreateMesh();
         }
 
-        // 관리하는 혜성이 없고, 지운 객체도 장면에서 모두 사라졌는가. 지운 객체는 프레임 끝에 사라진다.
-        public bool IsClear => _visuals.Count == 0 && _root.childCount == 0;
-
         // 이 혜성의 화면을 (처음이면 만들고) 이번 프레임에 맞춘다.
         // paused: 일시정지 중이면 자전을 멈춘다. delta: 이번 호출 사이 지난 시간(즉시 스냅만 하고 싶을 때는 0).
         public void Show(Enemy enemy, bool paused, float delta)

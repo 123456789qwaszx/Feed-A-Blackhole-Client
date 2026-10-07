@@ -99,10 +99,6 @@ namespace BlackHole.Unity
                 Show(world.AimPoint, world.Breaker, paused, delta, world.Hq.FieldScale);
         }
 
-        // 링이 없고, 지운 객체도 장면에서 모두 사라졌는가.
-        // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _ring == null && _root.childCount == 0;
-
         // 판이 바뀌거나 판을 정리할 때 모든 링을 지운다.
         public void Reset()
         {

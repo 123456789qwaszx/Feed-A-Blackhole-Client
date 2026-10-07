@@ -80,9 +80,6 @@ namespace BlackHole.Unity
             _shownLevel = level;
         }
 
-        // 그리는 선이 없고, 지운 객체도 장면에서 모두 사라졌는가(Reset 뒤 한 프레임).
-        public bool IsClear => _strokes.IsClear && _shockwaves.IsClear;
-
         // 판이 바뀌거나 판을 정리할 때 지운다. 다음 판의 블랙홀은 Level 0에서 다시 그린다.
         public void Reset()
         {

@@ -119,8 +119,6 @@ namespace BlackHole.Unity
             deathRenderer.sortingOrder = 2;
         }
 
-        public bool IsClear => _particles.particleCount == 0 && _deathParticles.particleCount == 0;
-
         public void Clear()
         {
             _particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);

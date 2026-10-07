@@ -58,10 +58,6 @@ namespace BlackHole.Unity
         // 원작의 피해·골드 숫자는 카메라가 넓어져도 화면에서 같은 크기다.
         public float Scale { get; set; } = 1;
 
-        // 떠 있는 라벨이 없고, 지운 객체도 장면에서 모두 사라졌는가.
-        // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _labels.Count == 0 && _root.childCount == 0;
-
         // 쉬는 라벨을 가져와 position 자리에 text를 color로 띄운다. 자식의 구독 콜백이 호출한다.
         // emphasized면 폰트 크기를 EmphasisFontSizeBonus만큼 키운다(크기는 베이스가 들고 있는 폰트
         // 크기 상수에 관한 일이라 여기서 책임진다). 어떤 모양(볼드/기울임 등)으로 그릴지는 TMP의

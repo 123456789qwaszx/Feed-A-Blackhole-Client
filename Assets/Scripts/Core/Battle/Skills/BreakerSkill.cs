@@ -39,10 +39,6 @@ namespace BlackHole.Core
 
         public BreakerDefinition Definition { get; }
 
-        // 켜져 있는가.
-        // 지금 끄고 켜는 곳은 개발용 스킬 콘솔뿐이다(게임 규칙으로 끄는 일은 없다).
-        public bool Enabled { get; private set; } = true;
-
         // 지금까지 일어난 Tick 수. 빈 Tick도 센다.
         public int TickCount { get; private set; }
 
@@ -86,29 +82,17 @@ namespace BlackHole.Core
             CometBuffs = _comet.AsReadOnly();
         }
 
-        public void SetEnabled(bool enabled)
-        {
-            if (Enabled == enabled)
-                return;
-
-            Enabled = enabled;
-            _untilNextTick = 0;
-        }
-
         internal void BeginAdvance() => _ticks.Clear();
 
         // 한 Step 동안 주기가 여러 번 차면 그만큼 Tick한다. 같은 Step 안의 Tick은 같은 조준점과 같은 적 위치를 본다.
         internal void Advance(float delta, World world)
         {
-            if (Enabled)
-            {
-                _untilNextTick -= delta * (1 + MoonSpeedBonus);
+            _untilNextTick -= delta * (1 + MoonSpeedBonus);
 
-                while (_untilNextTick <= TimeEpsilon)
-                {
-                    Tick(world);
-                    _untilNextTick += Definition.Interval;
-                }
+            while (_untilNextTick <= TimeEpsilon)
+            {
+                Tick(world);
+                _untilNextTick += Definition.Interval;
             }
 
             AgeBuffs(delta);
