@@ -128,8 +128,12 @@ namespace BlackHole.Unity
                     while (!work.IsCompleted)
                         yield return null;
 
+                    // 일에서 난 예외는 여기서 남기고 전환을 이어 간다. 부르는 쪽은 잡지 않는다.
                     if (work.IsFaulted)
-                        Debug.LogException(work.Exception);
+                    {
+                        foreach (Exception error in work.Exception.InnerExceptions)
+                            Debug.LogException(error);
+                    }
                 }
 
                 // 머묾: 바뀐 화면이 덮인 채 한 번은 그려지게 잠깐 둔다. 그 사이 새 요청이 오면 덮인 채 이어서 한다.

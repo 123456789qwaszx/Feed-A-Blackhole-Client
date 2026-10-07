@@ -78,10 +78,6 @@ namespace BlackHole.Unity
         {
             _ui.PopAllPanels(Unbind);
             StartBattle();
-
-            // 판을 시작하지 못했으면(판 조립 오류 등, 로그는 StartBattle이 남긴다) 타이틀에 갇히지 않게 업그레이드 화면으로 간다.
-            if (!_battle.IsRunning)
-                ShowUpgrade();
         }
     }
 }
