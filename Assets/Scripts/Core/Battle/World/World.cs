@@ -9,13 +9,13 @@ namespace BlackHole.Core
     //
     // 적이 생기고 죽는 일은 요청으로 들어와 쌓이고, Step의 정해진 자리에서 요청 순서대로 처리된다.
     // - 파괴 요청(RequestDestroy) → 13절 3. Damage / Death 자리: 그 적의 사망을 확정한다(피해·HP 계산 없음).
-    // - 생성 요청(RequestSpawn)  → 13절 7. Enemy Supply 자리: 생성 여과 장치를 거쳐 한 마리씩 생성한다.
-    //   한 마리마다: 생성 여과(전체 상한) → 색 등급(그 종류의 색 비율) → 특수 성질(그 종류의 성질 확률, 최대 하나)
+    // - 생성 요청(RequestSpawn)  → 13절 7. Enemy Supply 자리: 요청한 수만큼 한 마리씩 생성한다(전체 개체 수 상한은 없다).
+    //   한 마리마다: 색 등급(그 종류의 색 비율) → 특수 성질(그 종류의 성질 확률, 최대 하나)
     //   → 크기(열린 크기가 같은 몫) → 위치.
     //   색·성질·크기는 몫 방식(QuotaPicker)으로 정한다. 수치(Gold 포함)는 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기)의 값이다.
     //   종류는 요청한 그대로다. 다음 종류로의 변환(소행성 → 행성)은 판 조립이 전투 시작 공급을 정할 때 한 번 한다(SessionAssembler).
-    // - 픽업(혜성)은 요청으로 나오지 않는다 → 8. Pickup 자리: 종류의 등장 주기마다 등장 확률로 하나를 일반 띠와 다른 픽업 띠 안에 만든다(전체 상한과 무관).
-    // 같은 Step에서 사망이 생성보다 먼저다. 그래서 죽어서 비운 자리(전체 상한)에 같은 Step의 생성이 들어갈 수 있다.
+    // - 픽업(혜성)은 요청으로 나오지 않는다 → 8. Pickup 자리: 종류의 등장 주기마다 등장 확률로 하나를 일반 띠와 다른 픽업 띠 안에 만든다.
+    // 같은 Step에서 사망이 생성보다 먼저다.
     // 생성된 적은 다음 Step부터 움직이고 공격 대상이 된다. 처리되지 않은 요청은 판 정리가 버린다.
     //
     // 판의 난수는 seed 하나에서 용도마다 스트림을 따로 만든다(BattleRandom). 한 용도의 비율을 바꿔도 다른 용도의 순서는 그대로다
@@ -23,7 +23,6 @@ namespace BlackHole.Core
     public sealed class World
     {
         private readonly EnemyRoster _enemies = new EnemyRoster();
-        private readonly SpawnFilter _filter;
         private readonly EnemyPlacementDefinition _placement;
         // 픽업(혜성)의 출현 띠: 일반 띠 바깥 반지름 기준 오프셋. 소환 때마다 그때의 일반 띠로 푼다.
         private readonly PickupPlacementDefinition _pickupPlacement;
@@ -70,8 +69,6 @@ namespace BlackHole.Core
         public IReadOnlyList<Enemy> PendingDestroys { get; }
         // 이 판의 종류별 판 구성·색 비율과 (종류, 색 등급, 성질, 크기 등급)별 수치. 판 조립 때 정해졌고 이 판 동안 바뀌지 않는다.
         public EnemyStatTable Stats { get; }
-        // 한 판에 동시에 살아 있을 수 있는 공급된 적(픽업 제외)의 전체 최대 수. 이 수에 닿으면 생성 요청을 거른다(SpawnFilter).
-        public int MaxAliveEnemies { get; }
         // 블랙홀 Level업 한 번마다 넣는 생성 요청(판 조립이 이 판의 시작 수 × 성장 공급 %로 정했다). 판 동안 바뀌지 않는다.
         public IReadOnlyList<SupplyRequest> GrowthSupply { get; }
         // 이 판의 블랙홀. 사망이 확정되는 순간 그 적의 EXP가 들고, Step의 5 자리에서 Level이 오른다.
@@ -82,7 +79,6 @@ namespace BlackHole.Core
             EnemyStatTable stats,
             EnemyPlacementDefinition placement,
             PickupPlacementDefinition pickupPlacement,
-            int maxAliveEnemies,
             Hq hq,
             IReadOnlyList<BattlePlayer> players,
             IReadOnlyList<SupplyRequest> growthSupply = null)
@@ -98,8 +94,6 @@ namespace BlackHole.Core
             _timeBonusRandom = new BattleRandom(seed, BattleRandom.TimeBonusStream);
             _rainRandom = new BattleRandom(seed, BattleRandom.RainStream);
             _goldenCritRandom = new BattleRandom(seed, BattleRandom.GoldenCritStream);
-            _filter = new SpawnFilter(maxAliveEnemies);
-            MaxAliveEnemies = maxAliveEnemies;
             DeathEffects = new DeathEffects(seed);
             _players = new List<BattlePlayer>(players);
             Players = _players.AsReadOnly();
@@ -198,7 +192,6 @@ namespace BlackHole.Core
 
         // 생성 요청: 이 종류를 몇 마리. 다음 공급 처리(Step의 Enemy Supply 자리) 때 처리된다.
         // 이 판의 종류가 아니거나, 픽업이거나, 콘텐츠에 출현 배치가 없으면 요청 때 거부한다.
-        // 전체 상한에 닿았으면 처리 때 생성 여과 장치가 거른다.
         public void RequestSpawn(SupplyRequest request)
         {
             Stats.Require(request.Enemy);
@@ -229,19 +222,14 @@ namespace BlackHole.Core
             return _enemies.ClearAlive();
         }
 
-        // 공급 처리: 쌓인 생성 요청을 요청 순서대로, 한 마리씩 생성 여과 장치(전체 상한)를 거쳐 배치 띠 안에 생성한다.
-        // 거른 요청은 버린다 — 나중에 자리가 나도 다시 나오지 않는다. 전투 시작 공급은 Begin(0초)이 바로 부른다.
-        // 여과를 통과한 한 마리마다: 색 등급 → 성질 → 크기 → 위치. 종류는 요청한 그대로다.
-        // 여과는 수만 보므로 종류·색·성질 때문에 걸러지는 일은 없고, 걸러진 요청은 몫을 쓰지 않는다.
+        // 공급 처리: 쌓인 생성 요청을 요청 순서대로, 요청한 수만큼 한 마리씩 배치 띠 안에 생성한다. 전투 시작 공급은 Begin(0초)이 바로 부른다.
+        // 한 마리마다: 색 등급 → 성질 → 크기 → 위치. 종류는 요청한 그대로다.
         internal void ProcessSpawnRequests()
         {
             foreach (SupplyRequest request in _spawnRequests)
             {
                 for (int i = 0; i < request.Count; i++)
                 {
-                    if (!_filter.Allows(SuppliedAlive))
-                        continue;
-
                     EnemyDefinition kind = request.Enemy;
                     int tier = _tierPickers[kind].Pick();
                     EnemyTraitDefinition trait = TraitOf(kind);
@@ -251,20 +239,6 @@ namespace BlackHole.Core
             }
 
             _spawnRequests.Clear();
-        }
-
-        // 공급된 적(픽업 제외)의 살아 있는 수. 전체 상한은 이 수에 건다.
-        private int SuppliedAlive
-        {
-            get
-            {
-                int count = _enemies.Alive.Count;
-
-                for (int i = 0; i < _pickupKinds.Count; i++)
-                    count -= _enemies.CountAlive(_pickupKinds[i]);
-
-                return count;
-            }
         }
 
         // 정해진 종류에 붙을 성질: 성질 몫이 있으면 그 확률만큼 성질 하나(배타). 없으면 null.
@@ -316,7 +290,7 @@ namespace BlackHole.Core
             return held;
         }
 
-        // 픽업 처리: 픽업 종류마다 등장 주기가 찰 때마다 등장 확률로 하나를 픽업 전용 띠 안에 만든다. 전체 상한과 무관하다.
+        // 픽업 처리: 픽업 종류마다 등장 주기가 찰 때마다 등장 확률로 하나를 픽업 전용 띠 안에 만든다.
         // 픽업 띠는 일반 띠의 바깥 반지름 기준 오프셋이라 소환 때마다 그때의 일반 띠로 푼다. 위치 난수도 일반 적과 따로다.
         // 일반 띠나 픽업 띠가 없으면 나오지 않는다(콘텐츠 로더가 픽업 종류가 있으면 픽업 띠를 요구한다).
         // 픽업의 성질(혜성 버프)은 언제나 붙는다. 색은 그 종류의 색 비율이다.
@@ -453,7 +427,7 @@ namespace BlackHole.Core
         }
 
         // 사망이 확정된 순간(피해·파괴 모두)의 판정. 픽업은 하지 않는다.
-        // - 재생성: 같은 종류 하나를 생성 요청으로 넣는다(7. Enemy Supply 자리에서 전체 상한을 거쳐 나온다. 색·성질·크기·위치는 새로 정한다).
+        // - 재생성: 같은 종류 하나를 생성 요청으로 넣는다(7. Enemy Supply 자리에서 나온다. 색·성질·크기·위치는 새로 정한다).
         // - 시간 추가: 성공 수를 모아 두고, 판이 Step 뒤에 제한 시간을 늘린다(TakeTimeBonuses).
         // - 황금 치명타: 황금 성질이면 치명타 확률로 (이 적의 Gold × 치명타 Gold 배율)을 판의 Gold 합계에 더 얹는다(반올림).
         private void RollDeathBonuses(Enemy enemy)
