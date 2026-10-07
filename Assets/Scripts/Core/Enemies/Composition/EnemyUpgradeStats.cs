@@ -15,9 +15,10 @@ namespace BlackHole.Core
         // 판 시작 때 이 종류의 시작 공급 중 몇 마리를 다음 종류로 바꾸는가(원작 "소행성을 행성으로 업그레이드"). 마리 수, 기본값 0.
         // 시작 공급보다 많으면 시작 공급만큼만 바뀐다. 사슬 앞쪽부터 바꾼다(소행성 → 행성을 먼저, 그다음 행성 → 별).
         public static string Upgrade(string kindId) => $"enemy.{kindId}.upgrade";
-        // 픽업(혜성)의 등장 확률: 등장 주기마다 이 확률로 하나가 나온다. %, 기본값 0 — 노드를 사야 나온다. 픽업 종류에만 뜻이 있다.
-        public static string Chance(string kindId) => $"enemy.{kindId}.chance";
-        // 픽업(혜성)이 나올 때 혜성 비가 될 확률(원작 "혜성이 내릴 확률"). 혜성 비면 종류의 혜성 비 수(EnemyDefinition.PickupRainCount)만큼 한꺼번에 나온다.
+        // 주기 출현 종류(혜성)의 등장 확률: 출현 주기마다 이 확률로 하나가 나온다. %, 기본값 0 — 노드를 사야 나온다. 주기 출현 종류에만 뜻이 있다.
+        // 수치 이름은 enemy.<종류>.chance 그대로 둔다(GUI 아이콘·매핑이 이 이름을 쓴다).
+        public static string SpawnChance(string kindId) => $"enemy.{kindId}.chance";
+        // 픽업(혜성)이 나올 때 혜성 비가 될 확률(원작 "혜성이 내릴 확률"). 혜성 비면 종류의 혜성 비 수(EnemyDefinition.RainCount)만큼 한꺼번에 나온다.
         // %, 기본값 0. 픽업 종류에만 뜻이 있다.
         public static string RainChance(string kindId) => $"enemy.{kindId}.rain-chance";
         // 이 종류가 파괴될 때 같은 종류를 하나 새로 요청할 확률(원작 "행성이 파괴될 때 새로운 행성을 생성할 확률"). %, 기본값 0.

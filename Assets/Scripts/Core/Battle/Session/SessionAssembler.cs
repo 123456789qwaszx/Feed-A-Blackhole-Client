@@ -37,7 +37,7 @@ namespace BlackHole.Core
                 seed,
                 stats,
                 enemies.EnemyPlacement?.Scaled(hq.FieldScale),
-                enemies.PickupPlacement?.Scaled(hq.FieldScale),
+                enemies.PeriodicSpawnPlacement?.Scaled(hq.FieldScale),
                 hq,
                 content.Breaker?.Upgraded(table),
                 GrowthSupplyOf(startSupply, stats));

@@ -29,7 +29,7 @@ namespace BlackHole.Core
 
             List<EnemyDefinition> enemies = LoadEnemies(data.Enemies, into);
             EnemyPlacementDefinition placement = LoadPlacement(data.EnemyPlacement, into);
-            PickupPlacementDefinition pickupPlacement = LoadPickupPlacement(data.PickupPlacement, into);
+            PeriodicSpawnPlacementDefinition periodicSpawnPlacement = LoadPeriodicSpawnPlacement(data.PeriodicSpawnPlacement, into);
 
             if (into.Count > errors)
                 return null;
@@ -43,12 +43,12 @@ namespace BlackHole.Core
             if (placement == null)
                 into.Add(new ContentDiagnostic("EnemyPlacement", "출현 배치가 필요하다."));
 
-            EnemyContentInvariants.CheckPickupPlacement(enemies, placement, pickupPlacement, into);
+            EnemyContentInvariants.CheckPeriodicSpawnPlacement(enemies, placement, periodicSpawnPlacement, into);
 
             if (into.Count > errors)
                 return null;
 
-            return new EnemyContent(enemies, placement, startSupply, pickupPlacement);
+            return new EnemyContent(enemies, placement, startSupply, periodicSpawnPlacement);
         }
 
         private static List<EnemyDefinition> LoadEnemies(List<EnemyData> items, List<ContentDiagnostic> into)
@@ -77,8 +77,8 @@ namespace BlackHole.Core
                     continue;
 
                 EnemyDefinition enemy = Guard(at, into, () =>
-                    new EnemyDefinition(item.Id, item.MoveSpeed, item.Radius, item.RadiusStep, tiers, traits, item.UpgradesTo, item.PickupPeriod,
-                        item.PickupRainCount));
+                    new EnemyDefinition(item.Id, item.MoveSpeed, item.Radius, item.RadiusStep, tiers, traits, item.UpgradesTo, item.SpawnPeriod,
+                        item.RainCount));
 
                 if (enemy != null)
                     enemies.Add(enemy);
@@ -184,13 +184,13 @@ namespace BlackHole.Core
             return Guard("EnemyPlacement", into, () => new EnemyPlacementDefinition(item.MinDistance, item.MaxDistance));
         }
 
-        // 없으면 null이다. 픽업 종류가 있을 때만 필요하다(Load에서 본다).
-        private static PickupPlacementDefinition LoadPickupPlacement(PickupPlacementData item, List<ContentDiagnostic> into)
+        // 없으면 null이다. 주기 출현 종류가 있을 때만 필요하다(Load에서 본다).
+        private static PeriodicSpawnPlacementDefinition LoadPeriodicSpawnPlacement(PeriodicSpawnPlacementData item, List<ContentDiagnostic> into)
         {
             if (item == null)
                 return null;
 
-            return Guard("PickupPlacement", into, () => new PickupPlacementDefinition(item.InnerOffset, item.OuterOffset));
+            return Guard("PeriodicSpawnPlacement", into, () => new PeriodicSpawnPlacementDefinition(item.InnerOffset, item.OuterOffset));
         }
 
         private static List<SupplyRequest> LoadSupplyList(

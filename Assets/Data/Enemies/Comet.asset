@@ -17,8 +17,8 @@ MonoBehaviour:
   radius: 0.54
   radiusStep: 0
   upgradesTo: {fileID: 0}
-  pickupPeriod: 5
-  pickupRainCount: 15
+  spawnPeriod: 5
+  rainCount: 15
   tiers:
   - color: {r: 0.6, g: 0.95, b: 1, a: 1}
     maxHealth: 1

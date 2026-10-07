@@ -17,8 +17,8 @@ namespace BlackHole.Core
         public IReadOnlyList<EnemyDefinition> Enemies { get; }
         // 출현 위치. 공급이 없으면 null일 수 있다.
         public EnemyPlacementDefinition EnemyPlacement { get; }
-        // 픽업(혜성)의 출현 띠. 일반 띠를 기준으로 한 오프셋이다. 픽업 종류가 없으면 null일 수 있다.
-        public PickupPlacementDefinition PickupPlacement { get; }
+        // 주기 출현 종류(혜성)의 출현 띠. 일반 띠를 기준으로 한 오프셋이다. 주기 출현 종류가 없으면 null일 수 있다.
+        public PeriodicSpawnPlacementDefinition PeriodicSpawnPlacement { get; }
         // 전투 시작 공급. 전투를 시작할 때 한 번 공급한다. 업그레이드가 더하는 공급 수는 판 조립이 더한다.
         public IReadOnlyList<SupplyRequest> StartSupply { get; }
 
@@ -26,11 +26,11 @@ namespace BlackHole.Core
             IReadOnlyList<EnemyDefinition> enemies,
             EnemyPlacementDefinition enemyPlacement,
             IReadOnlyList<SupplyRequest> startSupply,
-            PickupPlacementDefinition pickupPlacement = null)
+            PeriodicSpawnPlacementDefinition periodicSpawnPlacement = null)
         {
             Enemies = Copy(enemies);
             EnemyPlacement = enemyPlacement;
-            PickupPlacement = pickupPlacement;
+            PeriodicSpawnPlacement = periodicSpawnPlacement;
             StartSupply = Copy(startSupply);
 
             var diagnostics = new List<ContentDiagnostic>();
@@ -43,7 +43,7 @@ namespace BlackHole.Core
             if (StartSupply.Count > 0 && EnemyPlacement == null)
                 diagnostics.Add(new ContentDiagnostic("EnemyPlacement", "공급이 있으면 출현 배치가 필요하다."));
 
-            EnemyContentInvariants.CheckPickupPlacement(Enemies, EnemyPlacement, PickupPlacement, diagnostics);
+            EnemyContentInvariants.CheckPeriodicSpawnPlacement(Enemies, EnemyPlacement, PeriodicSpawnPlacement, diagnostics);
 
             if (diagnostics.Count > 0)
                 throw new ArgumentException(diagnostics[0].ToString());

@@ -35,7 +35,7 @@ namespace BlackHole.Core
             int seed,
             EnemyStatTable stats,
             EnemyPlacementDefinition placement,
-            PickupPlacementDefinition pickupPlacement,
+            PeriodicSpawnPlacementDefinition periodicSpawnPlacement,
             Hq hq,
             BreakerDefinition breaker,
             IReadOnlyList<SupplyRequest> growthSupply)
@@ -44,7 +44,7 @@ namespace BlackHole.Core
             Hq = hq;
             DeathEffects = new DeathEffects(seed);
             Breaker = breaker != null ? new BreakerSkill(breaker, new BattleRandom(seed, BattleRandom.CriticalStream)) : null;
-            _supply = new EnemySupply(seed, _enemies, stats, placement, pickupPlacement, growthSupply, Breaker);
+            _supply = new EnemySupply(seed, _enemies, stats, placement, periodicSpawnPlacement, growthSupply, Breaker);
             _deathBonuses = new DeathBonuses(seed, _enemies, stats, _supply);
         }
 
@@ -111,8 +111,8 @@ namespace BlackHole.Core
             // 6. Enemy Supply: 쌓인 생성 요청(성장 공급·재생성)을 처리.
             _supply.ProcessRequests();
 
-            // 7. Pickup: 픽업의 등장 판정 진행.
-            _supply.AdvancePickups(delta);
+            // 7. Periodic Spawn: 주기 출현(혜성)의 등장 판정 진행.
+            _supply.AdvancePeriodicSpawns(delta);
             return raised;
         }
     }

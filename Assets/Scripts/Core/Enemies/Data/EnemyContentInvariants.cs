@@ -23,28 +23,28 @@ namespace BlackHole.Core
             }
         }
 
-        // 픽업 종류가 있으면 픽업 출현 띠가 있어야 하고, 일반 출현 띠에서 풀었을 때 띠가 되어야 한다(바깥 반지름이 0보다 크다).
-        // 일반 띠가 없으면 픽업도 나오지 않으므로 풀어 보지 않는다. 픽업 종류가 없으면 픽업 띠는 쓰이지 않아 보지 않는다.
-        public static void CheckPickupPlacement(
+        // 주기 출현 종류가 있으면 주기 출현 띠가 있어야 하고, 일반 출현 띠에서 풀었을 때 띠가 되어야 한다(바깥 반지름이 0보다 크다).
+        // 일반 띠가 없으면 주기 출현도 나오지 않으므로 풀어 보지 않는다. 주기 출현 종류가 없으면 주기 출현 띠는 쓰이지 않아 보지 않는다.
+        public static void CheckPeriodicSpawnPlacement(
             IReadOnlyList<EnemyDefinition> enemies,
             EnemyPlacementDefinition placement,
-            PickupPlacementDefinition pickupPlacement,
+            PeriodicSpawnPlacementDefinition periodicSpawnPlacement,
             ICollection<ContentDiagnostic> into)
         {
-            bool hasPickup = false;
+            bool hasPeriodicSpawn = false;
 
             foreach (EnemyDefinition kind in enemies)
             {
-                if (kind != null && kind.IsPickup)
-                    hasPickup = true;
+                if (kind != null && kind.SpawnPeriod > 0)
+                    hasPeriodicSpawn = true;
             }
 
-            if (!hasPickup)
+            if (!hasPeriodicSpawn)
                 return;
 
-            if (pickupPlacement == null)
+            if (periodicSpawnPlacement == null)
             {
-                into.Add(new ContentDiagnostic("PickupPlacement", "픽업 종류가 있으면 픽업 출현 배치가 필요하다."));
+                into.Add(new ContentDiagnostic("PeriodicSpawnPlacement", "주기 출현 종류가 있으면 주기 출현 배치가 필요하다."));
                 return;
             }
 
@@ -53,11 +53,11 @@ namespace BlackHole.Core
 
             try
             {
-                pickupPlacement.Resolve(placement);
+                periodicSpawnPlacement.Resolve(placement);
             }
             catch (ArgumentOutOfRangeException ex)
             {
-                into.Add(new ContentDiagnostic("PickupPlacement",
+                into.Add(new ContentDiagnostic("PeriodicSpawnPlacement",
                     $"일반 출현 띠(바깥 반지름 {placement.MaxDistance})에서 풀면 띠가 되지 않는다: {ex.Message}"));
             }
         }

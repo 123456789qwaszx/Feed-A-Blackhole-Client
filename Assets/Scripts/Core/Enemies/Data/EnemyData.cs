@@ -20,9 +20,9 @@ namespace BlackHole.Core
         public List<EnemyTraitData> Traits = new List<EnemyTraitData>();
         // 변환 대상 종류의 ID(소행성 → 행성 → 별). 비어 있으면 변환하지 않는다. 비율은 노드(enemy.<종류>.upgrade)만 정한다.
         public string UpgradesTo;
-        // 픽업의 등장 판정 주기(초). 0이면 공급되는 보통 종류다. 등장 확률은 노드(enemy.<종류>.chance)가 정한다.
-        public float PickupPeriod;
-        // 픽업의 혜성 비 한 번에 나오는 수. 0이면 혜성 비가 없다.
-        public int PickupRainCount;
+        // 주기 출현의 판정 주기(초). 0이면 공급되는 보통 종류다(0보다 크면 픽업). 등장 확률은 노드(enemy.<종류>.chance)가 정한다.
+        public float SpawnPeriod;
+        // 혜성 비 한 번에 나오는 수. 0이면 혜성 비가 없다.
+        public int RainCount;
     }
 }

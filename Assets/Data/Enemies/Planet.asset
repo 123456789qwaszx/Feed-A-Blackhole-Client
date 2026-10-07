@@ -17,7 +17,7 @@ MonoBehaviour:
   radius: 1.173
   radiusStep: 0.09
   upgradesTo: {fileID: 11400000, guid: 0d5945d74a2a4975ab65cf7d32bbd8e8, type: 2}
-  pickupPeriod: 0
+  spawnPeriod: 0
   tiers:
   - color: {r: 0.62, g: 0.32, b: 0.26, a: 1}
     maxHealth: 140

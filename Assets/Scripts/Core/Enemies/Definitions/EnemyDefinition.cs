@@ -34,15 +34,16 @@ namespace BlackHole.Core
         // 판 시작 때 이 종류의 시작 공급 중 변환 수(노드)만큼이 바뀌는 다음 종류의 ID(소행성 → 행성 → 별).
         public string UpgradesTo { get; }
 
-        // 픽업의 등장 판정 주기(초). 0이면 공급되는 보통 종류다.
-        // 픽업(혜성)은 적 공급·성장 공급·변환과 무관하다: 주기마다 등장 확률(판 구성의 AppearChance)로 하나가 나온다.
-        // 브레이커로 쳐서 획득하는 것이며, 사망 효과의 피해를 받지 않는다(성질이 언제나 붙으므로). 질량·크기가 없다.
-        public float PickupPeriod { get; }
+        // 주기 출현의 판정 주기(초). 0이면 공급되는 보통 종류다.
+        // 주기 출현 종류는 적 공급·성장 공급·변환과 무관하다: 주기마다 등장 확률(판 구성의 SpawnChance)로 하나가 나온다.
+        public float SpawnPeriod { get; }
 
-        public bool IsPickup => PickupPeriod > 0;
+        // 픽업(혜성): 브레이커로 쳐서 획득하는 것이며, 사망 효과의 피해를 받지 않는다(성질이 언제나 붙으므로). 질량·크기가 없다.
+        // 지금은 주기 출현 종류만 픽업이다.
+        public bool IsPickup => SpawnPeriod > 0;
 
-        // 픽업의 혜성 비 한 번에 나오는 수(원작 "혜성이 내릴 확률"). 0이면 혜성 비가 없다 — 혜성 비 확률 노드를 사도 하나씩 나온다.
-        public int PickupRainCount { get; }
+        // 주기 출현 한 번이 혜성 비일 때 한꺼번에 나오는 수(원작 "혜성이 내릴 확률"). 0이면 혜성 비가 없다 — 혜성 비 확률 노드를 사도 하나씩 나온다.
+        public int RainCount { get; }
 
         public EnemyDefinition(
             string id,
@@ -52,8 +53,8 @@ namespace BlackHole.Core
             IReadOnlyList<EnemyTier> tiers,
             IReadOnlyList<EnemyTraitDefinition> traits = null,
             string upgradesTo = null,
-            float pickupPeriod = 0,
-            int pickupRainCount = 0)
+            float spawnPeriod = 0,
+            int rainCount = 0)
         {
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("ID가 비어 있다.", nameof(id));
@@ -61,14 +62,14 @@ namespace BlackHole.Core
             if (upgradesTo == id)
                 throw new ArgumentException("자기 자신으로 변환할 수 없다.", nameof(upgradesTo));
 
-            if (float.IsNaN(pickupPeriod) || float.IsInfinity(pickupPeriod) || pickupPeriod < 0)
-                throw new ArgumentOutOfRangeException(nameof(pickupPeriod), "0 이상의 유한한 값이 필요하다(0 = 픽업이 아님).");
+            if (float.IsNaN(spawnPeriod) || float.IsInfinity(spawnPeriod) || spawnPeriod < 0)
+                throw new ArgumentOutOfRangeException(nameof(spawnPeriod), "0 이상의 유한한 값이 필요하다(0 = 주기 출현이 아님).");
 
-            if (pickupRainCount < 0)
-                throw new ArgumentOutOfRangeException(nameof(pickupRainCount), "0 이상이어야 한다(0 = 혜성 비가 없음).");
+            if (rainCount < 0)
+                throw new ArgumentOutOfRangeException(nameof(rainCount), "0 이상이어야 한다(0 = 혜성 비가 없음).");
 
-            if (pickupRainCount > 0 && pickupPeriod <= 0)
-                throw new ArgumentException("혜성 비 수는 픽업에만 둘 수 있다.", nameof(pickupRainCount));
+            if (rainCount > 0 && spawnPeriod <= 0)
+                throw new ArgumentException("혜성 비 수는 주기 출현 종류에만 둘 수 있다.", nameof(rainCount));
 
             if (float.IsNaN(radiusStep) || float.IsInfinity(radiusStep) || radiusStep < 0)
                 throw new ArgumentOutOfRangeException(nameof(radiusStep), "0 이상의 유한한 값이 필요하다(0 = 크기가 반지름을 바꾸지 않음).");
@@ -87,7 +88,7 @@ namespace BlackHole.Core
                     throw new ArgumentException($"성질 ID '{traits[i].Id}'가 중복됐다.", nameof(traits));
             }
 
-            if (pickupPeriod > 0)
+            if (spawnPeriod > 0)
             {
                 if (traits == null || traits.Count != 1)
                     throw new ArgumentException("픽업은 성질이 정확히 하나여야 한다(언제나 붙는 효과).", nameof(traits));
@@ -103,8 +104,8 @@ namespace BlackHole.Core
             Tiers = Array.AsReadOnly(Copy(tiers));
             Traits = traits == null ? Array.AsReadOnly(Array.Empty<EnemyTraitDefinition>()) : Array.AsReadOnly(Copy(traits));
             UpgradesTo = string.IsNullOrEmpty(upgradesTo) ? null : upgradesTo;
-            PickupPeriod = pickupPeriod;
-            PickupRainCount = pickupRainCount;
+            SpawnPeriod = spawnPeriod;
+            RainCount = rainCount;
         }
 
         // 판 구성 composition에서 색 등급 tier·크기 size(1부터)·성질 trait(없으면 null)의 실행 수치.

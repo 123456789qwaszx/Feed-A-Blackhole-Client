@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BlackHole.Core;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace BlackHole.Unity
 {
@@ -19,7 +20,7 @@ namespace BlackHole.Unity
     // - 특수 성질: 황금·전기·달·레이저·슈퍼노바는 종류가 아니라 출현 때 한 마리에 붙는 성질이다(최대 하나, 배타).
     //   성질마다 사망 효과와 표식 색이 있다. 붙는 확률은 노드(enemy.<종류>.trait.<성질>.chance)가 정하고 기본 0%다.
     //   성질이 붙은 적(특수 적)은 사망 효과의 피해를 받지 않는다.
-    // - 픽업 주기: 0보다 크면 공급되지 않는 픽업(혜성)이다. 주기마다 등장 확률(노드 enemy.<종류>.chance)로 나오고, 성질 하나가 언제나 붙는다.
+    // - 출현 주기: 0보다 크면 공급되지 않는 픽업(혜성)이다. 주기마다 등장 확률(노드 enemy.<종류>.chance)로 나오고, 성질 하나가 언제나 붙는다.
     [CreateAssetMenu(fileName = "EnemyKind", menuName = "BlackHole/Enemy Kind")]
     public sealed class EnemyKind : ScriptableObject
     {
@@ -86,9 +87,9 @@ namespace BlackHole.Unity
         [Tooltip("판 시작 때 시작 공급 중 변환 수(노드 enemy.<id>.upgrade, 마리 수)만큼 바뀌는 다음 종류. 비우면 변환하지 않는다. 적 종류 목록에 있어야 한다.")]
         [SerializeField] private EnemyKind upgradesTo;
         [Tooltip("0보다 크면 픽업(혜성): 공급되지 않고 이 주기(초)마다 등장 확률(노드 enemy.<id>.chance, %)로 나온다. 성질이 정확히 하나여야 한다.")]
-        [SerializeField] private float pickupPeriod;
+        [SerializeField] private float spawnPeriod;
         [Tooltip("픽업: 혜성 비(노드 enemy.<id>.rain-chance)일 때 한꺼번에 나오는 수. 0이면 혜성 비가 없다.")]
-        [SerializeField] private int pickupRainCount;
+        [SerializeField] private int rainCount;
         [Header("색 등급 (번호가 적의 색 등급, 빨주노초파보)")]
         [SerializeField] private List<Tier> tiers = new List<Tier>();
 
@@ -126,8 +127,8 @@ namespace BlackHole.Unity
                 Radius = radius,
                 RadiusStep = radiusStep,
                 UpgradesTo = upgradesTo != null ? upgradesTo.Id : null,
-                PickupPeriod = pickupPeriod,
-                PickupRainCount = pickupRainCount,
+                SpawnPeriod = spawnPeriod,
+                RainCount = rainCount,
             };
 
             foreach (Trait trait in traits)

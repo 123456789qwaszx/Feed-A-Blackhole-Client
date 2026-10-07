@@ -14,9 +14,9 @@ namespace BlackHole.Core
         public const int CriticalStream = 4;
         // 5는 지운 출현 변환(출현마다 확률로 다음 종류)이 쓰던 번호다(비워 둠).
         public const int SizeStream = 6;
-        public const int PickupStream = 7;
+        public const int PeriodicSpawnStream = 7;
         public const int DeathEffectStream = 8;
-        public const int PickupPlacementStream = 9;
+        public const int PeriodicSpawnPlacementStream = 9;
         public const int RespawnStream = 10;
         public const int TimeBonusStream = 11;
         public const int RainStream = 12;

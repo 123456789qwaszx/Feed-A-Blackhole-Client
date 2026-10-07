@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 한 판의 적 공급: 생성 요청을 받아 공급 처리 때 한 마리씩 만들고, 픽업(혜성)을 등장 주기마다 만든다.
+    // 한 판의 적 공급: 생성 요청을 받아 공급 처리 때 한 마리씩 만들고, 주기 출현 종류(혜성)를 출현 주기마다 만든다.
     // - 한 마리마다: 색 등급(종류의 색 비율) → 특수 성질(성질 확률, 최대 하나) → 크기(열린 크기가 같은 몫) → 위치.
     //   색·성질·크기는 몫 방식(QuotaPicker)으로 정한다. 수치(Gold 포함)는 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기)의 값이다.
     // - 종류는 요청한 그대로다. 다음 종류로의 변환(소행성 → 행성)은 판 조립이 시작 공급을 정할 때 한 번 한다(SessionAssembler).
     // - 전체 개체 수는 규칙으로 막지 않는다. 최후의 안전 상한(SafetyMaxAlive)에 닿았을 때만 남은 요청을 버린다.
-    // - 픽업은 요청으로 나오지 않는다. 종류의 등장 주기마다 등장 확률로 하나를 픽업 띠 안에 만든다.
+    // - 주기 출현 종류(지금은 픽업인 혜성뿐)는 요청으로 나오지 않는다. 출현 주기마다 등장 확률로 하나를 주기 출현 띠 안에 만든다.
     internal sealed class EnemySupply
     {
         // 동시에 살아 있을 수 있는 공급된 적(픽업 제외)의 최후 안전 상한. 게임 규칙이 아니라 성능을 지키기 위한 보류다.
@@ -17,15 +17,15 @@ namespace BlackHole.Core
         private readonly EnemyRoster _enemies;
         private readonly EnemyStatTable _stats;
         private readonly EnemyPlacementDefinition _placement;
-        // 픽업 띠: 일반 띠 바깥 반지름 기준 오프셋. 소환 때마다 그때의 일반 띠로 푼다.
-        private readonly PickupPlacementDefinition _pickupPlacement;
+        // 주기 출현 띠: 일반 띠 바깥 반지름 기준 오프셋. 소환 때마다 그때의 일반 띠로 푼다.
+        private readonly PeriodicSpawnPlacementDefinition _periodicSpawnPlacement;
         // Level업 한 번마다 넣는 생성 요청(판 조립이 이 판의 시작 수 × 성장 공급 %로 정했다).
         private readonly IReadOnlyList<SupplyRequest> _growthSupply;
         // 달 성질의 상한에 Breaker에 남은 달 중첩을 함께 센다. 콘텐츠에 Breaker가 없으면 null.
         private readonly BreakerSkill _breaker;
         private readonly BattleRandom _placementRandom;
-        private readonly BattleRandom _pickupPlacementRandom;
-        private readonly BattleRandom _pickupRandom;
+        private readonly BattleRandom _periodicSpawnPlacementRandom;
+        private readonly BattleRandom _periodicSpawnRandom;
         private readonly BattleRandom _rainRandom;
         // 종류마다 색 등급·성질·크기를 고르는 몫. 판 동안 이어진다(공급이 여러 번이어도 비율이 판 전체에 걸쳐 맞는다).
         // 성질 몫은 성질 확률 합이 0보다 큰 종류에만 있고, 칸은 (성질 없음, 성질 0, 성질 1, …)이다.
@@ -33,12 +33,13 @@ namespace BlackHole.Core
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _tierPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _traitPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _sizePickers = new Dictionary<EnemyDefinition, QuotaPicker>();
-        // 픽업 종류마다 다음 등장 판정까지 지난 시간. 등장 확률이 0보다 큰 픽업만 있다.
-        private readonly List<PickupClock> _pickupClocks = new List<PickupClock>();
+        // 주기 출현 종류마다 다음 출현 판정까지 지난 시간. 등장 확률이 0보다 큰 종류만 있다.
+        private readonly List<SpawnClock> _spawnClocks = new List<SpawnClock>();
+        // 픽업 종류. 공급된 적의 수(안전 상한)에서 뺀다.
         private readonly List<EnemyDefinition> _pickupKinds = new List<EnemyDefinition>();
         private readonly List<SupplyRequest> _requests = new List<SupplyRequest>();
 
-        private sealed class PickupClock
+        private sealed class SpawnClock
         {
             public EnemyDefinition Kind;
             public float Elapsed;
@@ -49,19 +50,19 @@ namespace BlackHole.Core
             EnemyRoster enemies,
             EnemyStatTable stats,
             EnemyPlacementDefinition placement,
-            PickupPlacementDefinition pickupPlacement,
+            PeriodicSpawnPlacementDefinition periodicSpawnPlacement,
             IReadOnlyList<SupplyRequest> growthSupply,
             BreakerSkill breaker)
         {
             _enemies = enemies;
             _stats = stats;
             _placement = placement;
-            _pickupPlacement = pickupPlacement;
+            _periodicSpawnPlacement = periodicSpawnPlacement;
             _growthSupply = growthSupply;
             _breaker = breaker;
             _placementRandom = new BattleRandom(seed, BattleRandom.PlacementStream);
-            _pickupPlacementRandom = new BattleRandom(seed, BattleRandom.PickupPlacementStream);
-            _pickupRandom = new BattleRandom(seed, BattleRandom.PickupStream);
+            _periodicSpawnPlacementRandom = new BattleRandom(seed, BattleRandom.PeriodicSpawnPlacementStream);
+            _periodicSpawnRandom = new BattleRandom(seed, BattleRandom.PeriodicSpawnStream);
             _rainRandom = new BattleRandom(seed, BattleRandom.RainStream);
 
             // 종류마다 처음 몫을 콘텐츠 순서로 흩뜨린다. 같은 콘텐츠·판 구성·seed면 같은 색·성질·크기 순서가 나온다.
@@ -78,8 +79,8 @@ namespace BlackHole.Core
                 {
                     _pickupKinds.Add(kind);
 
-                    if (composition.AppearChance > 0)
-                        _pickupClocks.Add(new PickupClock { Kind = kind });
+                    if (composition.SpawnChance > 0)
+                        _spawnClocks.Add(new SpawnClock { Kind = kind });
 
                     continue;
                 }
@@ -146,30 +147,30 @@ namespace BlackHole.Core
             _requests.Clear();
         }
 
-        // 픽업 종류마다 등장 주기가 찰 때마다 등장 확률로 하나를 픽업 띠 안에 만든다. 위치 난수는 일반 적과 따로다.
+        // 주기 출현 종류마다 출현 주기가 찰 때마다 등장 확률로 하나를 주기 출현 띠 안에 만든다. 위치 난수는 일반 적과 따로다.
         // 혜성 비: 나오는 한 번이 혜성 비 확률로 종류의 혜성 비 수만큼이 된다. 픽업의 성질(혜성 버프)은 언제나 붙는다.
-        internal void AdvancePickups(float delta)
+        internal void AdvancePeriodicSpawns(float delta)
         {
-            foreach (PickupClock clock in _pickupClocks)
+            foreach (SpawnClock clock in _spawnClocks)
             {
                 clock.Elapsed += delta;
                 EnemyDefinition kind = clock.Kind;
                 EnemyComposition composition = _stats.CompositionOf(kind);
 
-                while (clock.Elapsed >= kind.PickupPeriod)
+                while (clock.Elapsed >= kind.SpawnPeriod)
                 {
-                    clock.Elapsed -= kind.PickupPeriod;
+                    clock.Elapsed -= kind.SpawnPeriod;
 
-                    if (_pickupRandom.NextFloat() >= composition.AppearChance)
+                    if (_periodicSpawnRandom.NextFloat() >= composition.SpawnChance)
                         continue;
 
-                    int count = kind.PickupRainCount > 1 && _rainRandom.Roll(composition.RainChance) ? kind.PickupRainCount : 1;
+                    int count = kind.RainCount > 1 && _rainRandom.Roll(composition.RainChance) ? kind.RainCount : 1;
                     EnemyTraitDefinition trait = composition.Traits[0];
 
                     for (int i = 0; i < count; i++)
                     {
                         int tier = _tierPickers[kind].Pick();
-                        Point2 position = _pickupPlacement.Resolve(_placement).Pick(_pickupPlacementRandom);
+                        Point2 position = _periodicSpawnPlacement.Resolve(_placement).Pick(_periodicSpawnPlacementRandom);
                         _enemies.Spawn(kind, tier, trait, SizeRule.Base, _stats.Of(kind, tier, trait), position);
                     }
                 }

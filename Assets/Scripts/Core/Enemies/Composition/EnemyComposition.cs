@@ -42,10 +42,10 @@ namespace BlackHole.Core
         // Traits[i]가 붙는 확률(0 ~ 1). 합은 1 이하다. 기본 0 — 확률 노드를 사야 붙는다. 픽업은 쓰지 않는다(성질이 언제나 붙는다).
         public IReadOnlyList<float> TraitChances { get; }
 
-        // 픽업이면: 등장 주기마다 하나가 나올 확률(0 ~ 1). 기본 0 — 확률 노드를 사야 나온다. 픽업이 아니면 0이다.
-        public float AppearChance { get; }
+        // 주기 출현 종류면: 출현 주기마다 하나가 나올 확률(0 ~ 1). 기본 0 — 확률 노드를 사야 나온다. 아니면 0이다.
+        public float SpawnChance { get; }
 
-        // 픽업이면: 나올 때 혜성 비(종류의 PickupRainCount만큼 한꺼번에)가 될 확률(0 ~ 1). 기본 0.
+        // 주기 출현 종류면: 나올 때 혜성 비(종류의 RainCount만큼 한꺼번에)가 될 확률(0 ~ 1). 기본 0.
         public float RainChance { get; }
 
         // 이 종류가 파괴될 때 같은 종류를 하나 새로 요청할 확률(0 ~ 1). 기본 0. 픽업은 0이다.
@@ -63,7 +63,7 @@ namespace BlackHole.Core
             int upgradeCount = 0,
             IReadOnlyList<EnemyTraitDefinition> traits = null,
             IReadOnlyList<float> traitChances = null,
-            float appearChance = 0,
+            float spawnChance = 0,
             float rainChance = 0,
             float respawnChance = 0,
             float timeChance = 0)
@@ -88,7 +88,7 @@ namespace BlackHole.Core
             UpgradeCount = upgradeCount;
             Traits = traits ?? NoTraits;
             TraitChances = traitChances ?? NoChances;
-            AppearChance = appearChance;
+            SpawnChance = spawnChance;
             RainChance = rainChance;
             RespawnChance = respawnChance;
             TimeChance = timeChance;
@@ -133,7 +133,7 @@ namespace BlackHole.Core
             int startSupply = Whole(upgrades.Apply(EnemyUpgradeStats.StartSupply(kind.Id), 0));
             float growth = NotNegative(upgrades.Apply(EnemyUpgradeStats.GrowthSupply(kind.Id), 0), kind.Id, "성장 공급 %");
             int upgrade = Whole(upgrades.Apply(EnemyUpgradeStats.Upgrade(kind.Id), 0));
-            float appear = Percent(upgrades.Apply(EnemyUpgradeStats.Chance(kind.Id), 0), kind.Id, "등장 확률");
+            float spawnChance = Percent(upgrades.Apply(EnemyUpgradeStats.SpawnChance(kind.Id), 0), kind.Id, "등장 확률");
             float rain = Percent(upgrades.Apply(EnemyUpgradeStats.RainChance(kind.Id), 0), kind.Id, "혜성 비 확률");
             float respawn = Percent(upgrades.Apply(EnemyUpgradeStats.RespawnChance(kind.Id), 0), kind.Id, "재생성 확률");
             float time = Percent(upgrades.Apply(EnemyUpgradeStats.TimeChance(kind.Id), 0), kind.Id, "시간 추가 확률");
@@ -161,7 +161,7 @@ namespace BlackHole.Core
             if (kind.IsPickup && (mass != MassRule.Base || size != SizeRule.Base))
                 throw new ArgumentException($"'{kind.Id}'는 픽업이라 질량·크기가 없다. 질량·크기 노드를 둘 수 없다.", nameof(upgrades));
 
-            if (!kind.IsPickup && appear > 0)
+            if (!kind.IsPickup && spawnChance > 0)
                 throw new ArgumentException($"'{kind.Id}'는 픽업이 아니라 등장 확률을 둘 수 없다. 특수 성질은 성질 확률(trait.<성질>.chance)을 쓴다.", nameof(upgrades));
 
             if (!kind.IsPickup && rain > 0)
@@ -192,7 +192,7 @@ namespace BlackHole.Core
                 throw new ArgumentException($"'{kind.Id}'의 성질 확률 합이 100%를 넘는다({chanceSum * 100:0.##}%).", nameof(upgrades));
 
             return new EnemyComposition(mass, RatiosOf(kind, mass), size, startSupply, growth, upgrade,
-                Array.AsReadOnly(traits), Array.AsReadOnly(chances), appear, rain, respawn, time);
+                Array.AsReadOnly(traits), Array.AsReadOnly(chances), spawnChance, rain, respawn, time);
         }
 
         private static IReadOnlyList<float> RatiosOf(EnemyDefinition kind, float mass) =>

@@ -11,8 +11,8 @@ namespace BlackHole.Core
         public List<EnemyData> Enemies = new List<EnemyData>();
         // 출현 위치. 공급이 하나라도 있으면 필요하다.
         public EnemyPlacementData EnemyPlacement;
-        // 픽업(혜성)의 출현 띠(일반 띠 바깥 반지름 기준 오프셋). 픽업 종류가 있으면 필요하다.
-        public PickupPlacementData PickupPlacement;
+        // 주기 출현 종류(혜성)의 출현 띠(일반 띠 바깥 반지름 기준 오프셋). 주기 출현 종류가 있으면 필요하다.
+        public PeriodicSpawnPlacementData PeriodicSpawnPlacement;
         // 전투 시작 공급. 전투를 시작할 때(0초) 한 번 공급한다.
         public List<SupplyData> StartSupply = new List<SupplyData>();
     }
