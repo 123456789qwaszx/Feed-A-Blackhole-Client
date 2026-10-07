@@ -24,7 +24,7 @@ namespace BlackHole.Core
         // 크기가 1 오를 때 늘어나는 반지름(크기 1의 반지름 대비, 0 이상). 0.35면 크기 2가 1.35배, 크기 3이 1.7배다.
         public float RadiusStep { get; }
 
-        // 색 등급 표. 번호가 적의 색 등급(Enemy.Tier)이다. 공급되는 종류는 7색(EnemyContentInvariants), 픽업은 한 줄.
+        // 색 등급 표. 번호가 적의 색 등급(Enemy.Tier)이다. 공급되는 종류는 6색(EnemyContentInvariants), 픽업은 한 줄.
         public IReadOnlyList<EnemyTier> Tiers { get; }
 
         // 이 종류에 붙을 수 있는 특수 성질(ID 유일). 출현 때 성질마다의 생성 확률(판 구성, 기본 0%)로 최대 하나가 붙는다.

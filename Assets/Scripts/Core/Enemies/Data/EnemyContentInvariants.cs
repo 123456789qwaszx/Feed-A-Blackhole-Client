@@ -9,8 +9,8 @@ namespace BlackHole.Core
     // 정의 객체로 해석되는 참조(공급의 적)는 EnemyContentLoader가 이 색인으로 해석하며 진단한다.
     internal static class EnemyContentInvariants
     {
-        // 공급되는 종류(소행성·행성·별)의 색 수: 빨주노초파남보. 질량 규칙(MassRule)은 색 수와 무관하게 동작하지만 콘텐츠는 7색으로 맞춘다.
-        public const int SuppliedTierCount = 7;
+        // 공급되는 종류(소행성·행성·별)의 색 수: 빨주노초파보. 질량 규칙(MassRule)은 색 수와 무관하게 동작하지만 콘텐츠는 6색으로 맞춘다.
+        public const int SuppliedTierCount = 6;
 
         // 공급되는 종류는 색이 SuppliedTierCount개다. 픽업은 색 수를 보지 않는다.
         public static void CheckTierCounts(IReadOnlyList<EnemyDefinition> enemies, ICollection<ContentDiagnostic> into)
@@ -19,7 +19,7 @@ namespace BlackHole.Core
             {
                 if (kind != null && !kind.IsPickup && kind.Tiers.Count != SuppliedTierCount)
                     into.Add(new ContentDiagnostic($"Enemies[{kind.Id}].Tiers",
-                        $"공급되는 종류는 색이 {SuppliedTierCount}개(빨주노초파남보)여야 한다. 지금 {kind.Tiers.Count}개."));
+                        $"공급되는 종류는 색이 {SuppliedTierCount}개(빨주노초파보)여야 한다. 지금 {kind.Tiers.Count}개."));
             }
         }
 
