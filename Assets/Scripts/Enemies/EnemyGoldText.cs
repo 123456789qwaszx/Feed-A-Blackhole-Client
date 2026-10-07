@@ -22,19 +22,15 @@ namespace BlackHole.Unity
         {
         }
 
-        public void Register(Enemy enemy) => enemy.Died += OnDied;
-        public void Unregister(Enemy enemy) => enemy.Died -= OnDied;
-
-        private void OnDied(Enemy enemy)
+        // 사망 기록 하나의 Gold를 죽은 자리에 띄운다. Gold가 없으면 띄우지 않는다.
+        public void Show(DeathRecord death)
         {
-            if (enemy.Stats.Gold <= 0)
+            if (death.Gold <= 0)
                 return;
 
             // 황금 성질로 Gold를 더 받은 사망만 고정된 금색으로 띄운다.
-            bool isGolden = enemy.Trait?.Effect is GoldenDefinition;
-            Color color = isGolden ? GoldenColor : NormalColor;
-
-            Show(new Vector3(enemy.Position.X, enemy.Position.Y, 0), $"+${enemy.Stats.Gold}", color, isGolden);
+            Color color = death.IsGolden ? GoldenColor : NormalColor;
+            Show(new Vector3(death.Position.X, death.Position.Y, 0), $"+${death.Gold}", color, death.IsGolden);
         }
     }
 }

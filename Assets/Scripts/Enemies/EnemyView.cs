@@ -11,15 +11,15 @@ namespace BlackHole.Unity
     // 특수 성질이 붙었으면 그 색의 윤곽 안에 성질의 표식 색으로 속을 한 겹 더 그린다(황금이면 노란 속, 임시 표식). 스프라이트가 없는 종류는 적 ID에 맞는 다각형으로 그린다.
     // 달 성질이 붙은 적은 Breaker 달과 같은 모양의 달 하나가 주위를 공전한다. 크기·위상·속도는 출현 때 정해진다(일시정지 중에는 멈춘다).
     // 픽업(혜성)은 CometView가 통째로 맡는다(스프라이트가 아니라 셰이더). 사망 파편·골드·피해량 텍스트도 없다 — 한 방에 부서지는 버프 아이템이라 필요 없다.
-    // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다. 파괴·흡수 연출은 연출 작업에서 사망 기록을 읽어 더한다.
+    // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다.
+    // 피격·사망 연출(흔들림·파편·피해량·Gold 텍스트·파괴음)은 Step이 끝난 뒤 판의 피격 기록(World.Hits)과 사망 기록(World.Deaths)을 읽어 낸다.
+    // 일시정지 중에는 판이 기록을 비우지 않으므로, 기록마다 번호(Sequence)로 걸러 한 번씩만 낸다.
     // 규칙 평면은 장면의 z = 0이고 x·y는 같다. HQ(원점)가 장면의 원점이다.
     internal sealed class EnemyView : IDisposable
     {
         // 적 하나의 화면 상태: 스프라이트와, 그 스프라이트에 적용되는 짧은 피격 흔들림 연출.
-        // 모두 한 쌍으로 묶어 두면 EnemyId 하나당 여러 딕셔너리를 오가며 맞출 필요가 없다. 연출 등록을 풀 때 쓰려고 적도 같이 든다.
         private sealed class EnemyVisual
         {
-            public Enemy Model;
             public SpriteRenderer Renderer;
             public EnemyHitAnimation Hit;
             // 달 성질이 붙은 적만 가진다(없으면 null). 적 스프라이트의 형제라 피격 흔들림·배율의 영향을 받지 않는다.
@@ -69,7 +69,9 @@ namespace BlackHole.Unity
         private readonly HashSet<EnemyId> _seen = new HashSet<EnemyId>();
         private readonly List<EnemyId> _gone = new List<EnemyId>();
 
-        private long _lastDeathSequence; // 마지막으로 소리를 낸 사망 기록의 번호.
+        // 마지막으로 연출을 낸 피격·사망 기록의 번호.
+        private long _lastHitSequence;
+        private long _lastDeathSequence;
 
         // breakerLook: 달의 외형(머티리얼·색·간격·기본 공전 속도)을 Breaker 달과 같게 맞추려고 받는다.
         // cometLook: 혜성(픽업)의 외형. 혜성의 화면은 CometView가 맡는다.
@@ -112,21 +114,20 @@ namespace BlackHole.Unity
                 {
                     visual = Create(enemy);
                     _visuals.Add(enemy.Id, visual);
-                    enemy.Damaged += visual.Hit.Play;
-                    _hitParticles.Register(enemy, _looks.ColorOf(enemy.Definition.Id, enemy.Tier));
-                    _goldText.Register(enemy);
-                    _damageText.Register(enemy);
                 }
 
                 visual.Renderer.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
-                visual.Hit.Advance(delta, visual.Renderer.transform);
 
                 if (visual.Moon != null)
                     AdvanceMoon(visual, enemy, paused, delta);
             }
 
-            // 사망 파편의 흡입 스월, 골드 획득 텍스트 둘 다 개별 적이 아니라 공용 연출 하나를 매 프레임
-            // 진행시키는 일이라, 위치/피격 흔들림과 같은 자리에서 한 번만 호출한다(따로 Update를 두지 않는다).
+            // 이번 Step의 피격·사망 연출. 피격 흔들림은 아직 살아 있는 적에만 낸다(죽은 적의 스프라이트는 아래에서 지운다).
+            ReadHits(world.Hits);
+            ReadDeaths(world.Deaths);
+
+            // 사망 파편의 흡입 스월, 떠오르는 텍스트 둘 다 개별 적이 아니라 공용 연출 하나를 매 프레임
+            // 진행시키는 일이라, 위치 동기화와 같은 자리에서 한 번만 호출한다(따로 Update를 두지 않는다).
             _hitParticles.Advance();
             _goldText.Age(delta);
             _damageText.Age(delta);
@@ -145,35 +146,57 @@ namespace BlackHole.Unity
             }
 
             _comets.Retain(_seen);
-            ReadDeaths(world); // 이번 프레임에 새로 확정된 사망이 있으면 파괴음을 낸다.
         }
 
-        // world.Deaths에서 아직 처리하지 않은 새 사망 기록(Sequence가 더 큰 것)이 있는지 확인하고 소리를 낸다.
-        // 일시정지 중에는 판이 기록을 비우지 않아 같은 기록이 매 프레임 남아 있으므로, 번호로 걸러 한 번만 소리를 낸다.
-        private void ReadDeaths(World world)
+        // 아직 읽지 않은 피격 기록마다: 살아 있는 적이면 흔들림, 그리고 피격 파편과 피해량 텍스트. 픽업(혜성)은 연출이 없다.
+        private void ReadHits(IReadOnlyList<HitRecord> hits)
         {
-            IReadOnlyList<DeathRecord> deaths = world.Deaths;
+            // 매 프레임 경로: IReadOnlyList를 인덱스로 돈다(인터페이스 foreach는 열거자를 할당한다).
+            for (int i = 0; i < hits.Count; i++)
+            {
+                HitRecord hit = hits[i];
 
-            // 이번 프레임에서 확인한 가장 큰 번호. 루프가 끝난 뒤 _lastDeathSequence에 반영한다.
-            long latest = _lastDeathSequence;
-            bool anynew = false;
+                if (hit.Sequence <= _lastHitSequence)
+                    continue;
 
-            // 매 프레임 경로: IReadOnlyList를 인덱스로 돈다
+                _lastHitSequence = hit.Sequence;
+
+                if (hit.IsPickup)
+                    continue;
+
+                if (_seen.Contains(hit.EnemyId) && _visuals.TryGetValue(hit.EnemyId, out EnemyVisual visual))
+                    visual.Hit.Play();
+
+                _hitParticles.EmitHit(new Vector3(hit.Position.X, hit.Position.Y, 0), _looks.ColorOf(hit.EnemyTypeId, hit.Tier));
+                _damageText.Show(hit);
+            }
+        }
+
+        // 아직 읽지 않은 사망 기록마다 사망 파편과 Gold 텍스트(픽업 제외). 새 사망이 하나라도 있으면 파괴음을 한 번 낸다(겹쳐 커지지 않게).
+        private void ReadDeaths(IReadOnlyList<DeathRecord> deaths)
+        {
+            bool anyNew = false;
+
             for (int i = 0; i < deaths.Count; i++)
             {
-                long sequence = deaths[i].Sequence;
+                DeathRecord death = deaths[i];
 
-                if (sequence <= _lastDeathSequence) continue; // 이미 소리를 낸 기록이면 건너뛴다.
+                if (death.Sequence <= _lastDeathSequence)
+                    continue;
 
-                if (sequence > latest) latest = sequence;
+                _lastDeathSequence = death.Sequence;
+                anyNew = true;
 
-                anynew = true;
+                if (death.IsPickup)
+                    continue;
 
-                // 한 프레임에 여러 마리가 죽어도 소리는 한 번만 낸다(소리가 겹쳐 커지는 것을 막는다).
-                if (anynew) SoundManager.Instance?.RequestDestroyed();
-
-                _lastDeathSequence = latest; // 다음 프레임에는 여기까지 처리한 기록을 건너뛴다.
+                _hitParticles.EmitDeath(new Vector3(death.Position.X, death.Position.Y, 0),
+                    _looks.ColorOf(death.EnemyTypeId, death.Tier), death.Tier, death.Size);
+                _goldText.Show(death);
             }
+
+            if (anyNew)
+                SoundManager.Instance?.RequestDestroyed();
         }
 
         // 관리하는 적 스프라이트가 없고, 지운 객체도 장면에서 모두 사라졌는가.
@@ -193,7 +216,8 @@ namespace BlackHole.Unity
             _goldText.Reset();
             _damageText.Reset();
 
-            // 새 판의 사망 번호는 1부터 다시 시작하므로 함께 되돌린다. 빠뜨리면 다음 판에서 소리가 나지 않는다.
+            // 새 판의 기록 번호는 1부터 다시 시작하므로 함께 되돌린다. 빠뜨리면 다음 판에서 연출이 나지 않는다.
+            _lastHitSequence = 0;
             _lastDeathSequence = 0;
         }
 
@@ -204,16 +228,10 @@ namespace BlackHole.Unity
             Object.Destroy(_quad);
         }
 
-        // 적의 연출 등록(피격 흔들림·사망 파편·골드·피해량 텍스트)을 풀고 스프라이트·달을 지운다. _visuals에서 빼는 것은 호출자가 한다.
+        // 스프라이트·달을 지운다. _visuals에서 빼는 것은 호출자가 한다.
         // 혜성은 여기에 없다 — 화면은 CometView가 지운다(Retain·Reset).
         private void Release(EnemyVisual visual)
         {
-            Enemy enemy = visual.Model;
-            enemy.Damaged -= visual.Hit.Play;
-            _hitParticles.Unregister(enemy);
-            _goldText.Unregister(enemy);
-            _damageText.Unregister(enemy);
-
             Object.Destroy(visual.Renderer.gameObject);
 
             if (visual.Moon != null)
@@ -250,7 +268,7 @@ namespace BlackHole.Unity
                 fillRenderer.sortingOrder = renderer.sortingOrder + 1;
             }
 
-            var visual = new EnemyVisual { Model = enemy, Renderer = renderer, Hit = new EnemyHitAnimation(renderer.transform) };
+            var visual = new EnemyVisual { Renderer = renderer, Hit = new EnemyHitAnimation(renderer.transform) };
 
             if (trait == MoonTrait)
                 CreateMoon(visual, enemy);

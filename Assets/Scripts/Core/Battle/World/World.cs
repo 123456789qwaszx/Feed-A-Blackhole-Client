@@ -66,7 +66,9 @@ namespace BlackHole.Core
         public Point2? AimPoint { get; private set; }
         // 살아 있는 적(픽업 포함). 죽은 적은 즉시 빠진다.
         public IReadOnlyList<Enemy> Enemies => _enemies.Alive;
-        // 마지막 진행 동안 확정된 사망. 다음 진행이 시작될 때 비운다.
+        // 마지막 진행 동안 들어간 피해와 확정된 사망(일어난 순서). 다음 진행이 시작될 때 비운다.
+        // 화면은 Step이 끝난 뒤 이것을 읽어 피격·사망 연출을 낸다. 일시정지 중에는 비우지 않으므로 Sequence로 한 번씩만 읽는다.
+        public IReadOnlyList<HitRecord> Hits => _enemies.Hits;
         public IReadOnlyList<DeathRecord> Deaths => _enemies.Deaths;
         // 사망 효과의 대기열과 마지막 진행 동안의 효과 기록(번개 이동, 폭발, 레이저).
         public DeathEffects DeathEffects { get; }

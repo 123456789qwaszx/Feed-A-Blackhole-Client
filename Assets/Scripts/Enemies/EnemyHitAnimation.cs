@@ -1,4 +1,3 @@
-using BlackHole.Core;
 using PrimeTween;
 using UnityEngine;
 
@@ -25,18 +24,11 @@ namespace BlackHole.Unity
             _target = target;
         }
 
-        // Enemy.Damaged(Action<Enemy, Damage>)에 그대로 구독·해제할 수 있도록 시그니처를 맞춘다.
-        public void Play(Enemy enemy, Damage damage)
+        public void Play()
         {
             _direction = -_direction;
             _tween.Stop();
             _tween = Tween.PunchLocalRotation(_target, new Vector3(0, 0, Angle * _direction), Duration, Frequency);
-        }
-
-        // EnemyView.Synchronize가 매 프레임 부르던 자리. 이제 PrimeTween이 스스로 갱신을 돌려서 할 일이 없다
-        // (다른 연출까지 PrimeTween으로 옮기고 나면 이 호출 자체를 EnemyView에서 정리하면 된다. 지금은 그대로 둔다).
-        public void Advance(float delta, Transform target)
-        {
         }
     }
 }

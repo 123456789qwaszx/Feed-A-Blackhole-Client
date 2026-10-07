@@ -32,9 +32,6 @@ namespace BlackHole.Core
         // 마지막으로 피해를 준 스킬·효과. 맞은 적이 없으면 null.
         public DamageSource? LastDamageSource { get; private set; }
 
-        public event Action<Enemy, Damage> Damaged;
-        public event Action<Enemy> Died;
-
         internal Enemy(
             EnemyId id,
             EnemyDefinition definition,
@@ -76,13 +73,11 @@ namespace BlackHole.Core
 
             Health = Math.Max(0, Health - damage.Amount);
             LastDamageSource = damage.Source;
-            Damaged?.Invoke(this, damage);
 
             if (Health > 0)
                 return false;
 
             IsAlive = false;
-            Died?.Invoke(this);
             return true;
         }
 
@@ -92,7 +87,6 @@ namespace BlackHole.Core
                 return false;
 
             IsAlive = false;
-            Died?.Invoke(this);
             return true;
         }
     }

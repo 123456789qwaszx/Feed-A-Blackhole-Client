@@ -5,7 +5,7 @@ namespace BlackHole.Core
     // 한 판의 적 목록과 사망 절차.
     // - 출현: 정의·색 등급·성질·이 판의 수치·위치로 적을 만들고 번호를 줌.
     // - 이동: 살아 있는 적이 행동에 따라 움직임.
-    // - 피해: 이 목록에 살아 있는 적 체크, Hp0될 시, 사망 기록, 처치수 ++, 보상 Gold량 합.
+    // - 피해: 이 목록에 살아 있는 적만 맞는다. 맞을 때마다 피격 기록, HP가 0이 되면 사망 기록·처치 수·Gold 합계.
     // - 파괴: 피해·HP 계산 없이 사망을 확정한다. 이 목록에 살아 있는 적만 죽고, 그 뒤는 피해로 죽을 때와 같다.
     // - 정리: 판이 끝난 뒤 남은 적을 목록에서 치운다. 처치가 아니다 — 사망 기록도, 처치 수도, Gold도 없다.
     internal sealed class EnemyRoster
@@ -14,14 +14,17 @@ namespace BlackHole.Core
         private readonly Dictionary<EnemyDefinition, int> _aliveByKind = new();
         private readonly Dictionary<EnemyDefinition, int> _killsByKind = new();
         private readonly List<EnemyDefinition> _killOrder = new();
+        private readonly List<HitRecord> _hits = new();
         private readonly List<DeathRecord> _deaths = new();
         private int _nextEnemyId = 1;
+        private long _nextHitSequence = 1;
         private long _nextDeathSequence = 1;
 
         // 살아 있는 적.
         public IReadOnlyList<Enemy> Alive { get; }
 
-        // 마지막 진행 동안 확정된 사망. 다음 진행이 시작될 때 비운다.
+        // 마지막 진행 동안 들어간 피해와 확정된 사망(일어난 순서). 다음 진행이 시작될 때 비운다.
+        public IReadOnlyList<HitRecord> Hits { get; }
         public IReadOnlyList<DeathRecord> Deaths { get; }
 
         // 이 판에서 확정된 사망의 Gold 합계. 진행 상태에는 판이 끝난 뒤 결산(GameSession.Settle)이 더함.
@@ -30,6 +33,7 @@ namespace BlackHole.Core
         public EnemyRoster()
         {
             Alive = _alive.AsReadOnly();
+            Hits = _hits.AsReadOnly();
             Deaths = _deaths.AsReadOnly();
         }
 
@@ -73,7 +77,13 @@ namespace BlackHole.Core
         // true는 이번 피해로 죽었다는 뜻.
         public bool DealDamage(Enemy enemy, Damage damage)
         {
-            if (!Holds(enemy) || !enemy.ApplyDamage(damage))
+            if (!Holds(enemy))
+                return false;
+
+            bool died = enemy.ApplyDamage(damage);
+            _hits.Add(new HitRecord(_nextHitSequence++, enemy, damage));
+
+            if (!died)
                 return false;
 
             RecordDeath(enemy);
@@ -123,7 +133,11 @@ namespace BlackHole.Core
             return cleared;
         }
 
-        public void BeginAdvance() => _deaths.Clear();
+        public void BeginAdvance()
+        {
+            _hits.Clear();
+            _deaths.Clear();
+        }
 
         /// <summary>
         /// 사망 확정 뒤의 황금 소행성 보너스 치명타 Gold를 이 판 Gold 합계에 더한다.

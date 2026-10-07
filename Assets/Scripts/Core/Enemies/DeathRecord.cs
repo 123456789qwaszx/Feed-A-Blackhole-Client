@@ -13,6 +13,12 @@ namespace BlackHole.Core
         // 죽은 적의 색 등급과 크기(SizeRule). 파편 수 같은 연출이 쓴다. 픽업의 크기는 SizeRule.Base다.
         public int Tier { get; }
         public int Size { get; }
+        // 픽업(혜성)이 죽었는가. 화면은 픽업의 파편·Gold 텍스트를 내지 않는다.
+        public bool IsPickup { get; }
+        // 이 사망으로 판의 합계에 든 Gold(황금 치명타 보너스 제외). Gold 텍스트가 쓴다.
+        public long Gold { get; }
+        // 황금 성질이 붙어 있었는가(Gold 배율이 이미 Gold에 들어 있다). Gold 텍스트의 색이 쓴다.
+        public bool IsGolden { get; }
         public Point2 Position { get; }
         public float Radius { get; }
 
@@ -24,6 +30,9 @@ namespace BlackHole.Core
             TraitId = enemy.Trait?.Id;
             Tier = enemy.Tier;
             Size = enemy.Size;
+            IsPickup = enemy.Definition.IsPickup;
+            Gold = enemy.Stats.Gold;
+            IsGolden = enemy.Trait?.Effect is GoldenDefinition;
             Position = enemy.Position;
             Radius = enemy.Stats.Radius;
         }
