@@ -32,6 +32,7 @@ namespace BlackHole.Unity
         private static readonly Color FlashColor = new Color(0.9f, 0.85f, 1f, 1f);
 
         private readonly LineStrokes _strokes;
+        private readonly Shockwaves _shockwaves;
         private readonly GameObject _blackHole;
         // 블랙홀 오브젝트의 처음 크기와, 그 크기에서 검은 중심 원의 반지름(월드 단위). Level에 맞춰 이 비율로 키운다.
         private readonly Vector3 _blackHoleScale;
@@ -39,9 +40,10 @@ namespace BlackHole.Unity
         private int _shownLevel = -1;
 
         //public HqView(Transform parent) => _strokes = new LineStrokes(parent, "Hq View");
-        public HqView(Transform parent, GameObject blackHole)
+        public HqView(Transform parent, GameObject blackHole, Camera camera)
         {
             _strokes = new LineStrokes(parent, "Hq View");
+            _shockwaves = new Shockwaves(camera);
             _blackHole = blackHole != null ? blackHole : throw new ArgumentNullException(nameof(blackHole));
             _blackHoleScale = _blackHole.transform.localScale;
             _blackHoleCoreRadius = CoreRadiusOf(_blackHole);
@@ -51,6 +53,7 @@ namespace BlackHole.Unity
         public void Synchronize(World world, float delta)
         {
             _strokes.Age(delta);
+            _shockwaves.Age(delta);
 
             float fieldScale = world.Hq.FieldScale;
 
@@ -66,18 +69,25 @@ namespace BlackHole.Unity
             _blackHole.transform.localScale = _blackHoleScale * (radius / _blackHoleCoreRadius);
 
             if (_shownLevel >= 0 && level > _shownLevel)
+            {
                 LineStrokes.SetCircle(_strokes.Flash("Level Up", FlashWidth * fieldScale, FlashColor, FlashSeconds), BattleSpace.Origin, radius * 1.4f);
 
+                Vector3 center = _blackHole.transform.position;
+                _shockwaves.Spawn(center, strength: 1f, seconds: 1.2f);
+                _shockwaves.Spawn(center, strength: 0.45f, seconds: 1.4f, delay: 0.14f);
+            }
+               
             _shownLevel = level;
         }
 
         // 그리는 선이 없고, 지운 객체도 장면에서 모두 사라졌는가(Reset 뒤 한 프레임).
-        public bool IsClear => _strokes.IsClear;
+        public bool IsClear => _strokes.IsClear && _shockwaves.IsClear;
 
         // 판이 바뀌거나 판을 정리할 때 지운다. 다음 판의 블랙홀은 Level 0에서 다시 그린다.
         public void Reset()
         {
             _strokes.Reset();
+            _shockwaves.Reset();
             _shownLevel = -1;
             _blackHole.SetActive(false);
         }
@@ -86,6 +96,7 @@ namespace BlackHole.Unity
         public void Dispose()
         {
             _strokes.Dispose();
+            _shockwaves.Dispose();
             if (_blackHole != null)          // 추가: 씬 오브젝트라 파괴하지 않고 끄기만 한다.
             {
                 _blackHole.transform.localScale = _blackHoleScale;
