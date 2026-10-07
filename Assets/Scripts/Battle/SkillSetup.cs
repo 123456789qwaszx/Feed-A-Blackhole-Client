@@ -27,7 +27,7 @@ namespace BlackHole.Unity
         [SerializeField] private float breakerMoonDuration = 5;
         [Tooltip("달 중첩 하나의 공격 속도 보너스(0 이상). 0.2면 +20%. 중첩끼리 더한 뒤 노드가 반영된 공격 속도에 곱한다.")]
         [SerializeField] private float breakerMoonSpeedBonus = 0.2f;
-        [Tooltip("달 중첩 하나의 공격 범위(반지름) 보너스(0 이상). 0.1이면 +10%. 중첩끼리 더한 뒤 노드가 반영된 반지름에 곱한다.")]
+        [Tooltip("달 중첩 하나의 공격 범위(반지름) 보너스(0 이상). 0.1이면 +10%. 중첩끼리 더한 뒤 노드가 반영된 반지름에 곱한다. 반지름은 2배(BreakerSkill.MoonRadiusMaxScale)를 넘지 않는다.")]
         [SerializeField] private float breakerMoonRadiusBonus = 0.1f;
 
         [Header("Breaker 혜성 버프: 확정 치명타, 치명타 피해를 올린다")]

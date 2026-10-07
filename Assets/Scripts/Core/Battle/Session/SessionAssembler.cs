@@ -48,7 +48,6 @@ namespace BlackHole.Core
                 stats,
                 enemies.EnemyPlacement?.Scaled(hq.FieldScale),
                 enemies.PickupPlacement?.Scaled(hq.FieldScale),
-                enemies.MaxAliveEnemies,
                 hq,
                 battlePlayers,
                 GrowthSupplyOf(startSupply, stats));

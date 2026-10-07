@@ -13,7 +13,7 @@ namespace BlackHole.Unity
     //
     // 종류는 계열(소행성·행성·별, 픽업인 혜성)이고 색은 종류 안에 둔다.
     // - 반지름: 크기 1의 반지름. 모든 색이 같다.
-    // - 색 등급: 같은 윤곽(스프라이트)에 색마다 색·HP·Gold·EXP가 다르다. 공급되는 종류는 7색(빨주노초파남보), 픽업은 한 줄이다.
+    // - 색 등급: 같은 윤곽(스프라이트)에 색마다 색·HP·Gold·EXP가 다르다. 공급되는 종류는 6색(빨주노초파보), 픽업은 한 줄이다.
     // - 어떤 색이 나오는지는 그 종류의 질량(노드 enemy.<종류>.mass, MassRule), 어떤 크기가 나오는지는 그 종류의 크기
     //   (노드 enemy.<종류>.size, SizeRule)가 정한다. 둘 다 종류마다 따로이고 이 에셋에는 칸이 없다.
     // - 특수 성질: 황금·전기·달·레이저·슈퍼노바는 종류가 아니라 출현 때 한 마리에 붙는 성질이다(최대 하나, 배타).
@@ -89,7 +89,7 @@ namespace BlackHole.Unity
         [SerializeField] private float pickupPeriod;
         [Tooltip("픽업: 혜성 비(노드 enemy.<id>.rain-chance)일 때 한꺼번에 나오는 수. 0이면 혜성 비가 없다.")]
         [SerializeField] private int pickupRainCount;
-        [Header("색 등급 (번호가 적의 색 등급, 빨주노초파남보)")]
+        [Header("색 등급 (번호가 적의 색 등급, 빨주노초파보)")]
         [SerializeField] private List<Tier> tiers = new List<Tier>();
 
         [Header("특수 성질 (출현 때 최대 하나가 붙는다)")]

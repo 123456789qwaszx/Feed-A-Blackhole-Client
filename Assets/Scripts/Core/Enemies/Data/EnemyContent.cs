@@ -3,13 +3,12 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 검증된 적 콘텐츠: 적 종류, 출현 배치, 전체 개체 수 상한, 전투 시작 공급. 읽기 전용이며 여러 판이 함께 쓴다.
+    // 검증된 적 콘텐츠: 적 종류, 출현 배치, 전투 시작 공급. 읽기 전용이며 여러 판이 함께 쓴다.
     //
     // 생성자 보장(구현 = EnemyContentInvariants와 아래 검사):
-    // [1] 적 종류 ID가 유일하다. 공급되는 종류는 7색이다. 변환 대상이 콘텐츠에 있고 픽업이 아니며, 변환 사슬이 돌지 않는다.
+    // [1] 적 종류 ID가 유일하다. 공급되는 종류는 6색이다. 변환 대상이 콘텐츠에 있고 픽업이 아니며, 변환 사슬이 돌지 않는다.
     // [2] 전투 시작 공급이 있으면 출현 배치가 있다. 공급은 적을 정의 객체로 참조하고(EnemyContentLoader가 ID를 해석하며 진단한다), 픽업을 가리키지 않는다.
-    // [3] 출현 배치가 있으면 전체 개체 수 상한이 1 이상이고, 전투 시작 공급이 그 안이다.
-    // [4] 픽업 종류가 있으면 픽업 출현 띠가 있고, 일반 출현 띠에서 풀었을 때 띠가 된다.
+    // [3] 픽업 종류가 있으면 픽업 출현 띠가 있고, 일반 출현 띠에서 풀었을 때 띠가 된다.
     // 오류가 있는 콘텐츠의 경로별 보고는 EnemyContentLoader가 맡는다.
     public sealed class EnemyContent
     {
@@ -20,22 +19,18 @@ namespace BlackHole.Core
         public EnemyPlacementDefinition EnemyPlacement { get; }
         // 픽업(혜성)의 출현 띠. 일반 띠를 기준으로 한 오프셋이다. 픽업 종류가 없으면 null일 수 있다.
         public PickupPlacementDefinition PickupPlacement { get; }
-        // 한 판에 동시에 살아 있을 수 있는 적의 전체 최대 수(성능 예산, SYSTEM_CATALOG S08). 넘는 생성 요청은 버린다.
-        public int MaxAliveEnemies { get; }
         // 전투 시작 공급. 전투를 시작할 때 한 번 공급한다. 업그레이드가 더하는 공급 수는 판 조립이 더한다.
         public IReadOnlyList<SupplyRequest> StartSupply { get; }
 
         public EnemyContent(
             IReadOnlyList<EnemyDefinition> enemies,
             EnemyPlacementDefinition enemyPlacement,
-            int maxAliveEnemies,
             IReadOnlyList<SupplyRequest> startSupply,
             PickupPlacementDefinition pickupPlacement = null)
         {
             Enemies = Copy(enemies);
             EnemyPlacement = enemyPlacement;
             PickupPlacement = pickupPlacement;
-            MaxAliveEnemies = maxAliveEnemies;
             StartSupply = Copy(startSupply);
 
             var diagnostics = new List<ContentDiagnostic>();
@@ -49,8 +44,6 @@ namespace BlackHole.Core
                 diagnostics.Add(new ContentDiagnostic("EnemyPlacement", "공급이 있으면 출현 배치가 필요하다."));
 
             EnemyContentInvariants.CheckPickupPlacement(Enemies, EnemyPlacement, PickupPlacement, diagnostics);
-            EnemyContentInvariants.CheckMaxAlive(EnemyPlacement, MaxAliveEnemies, diagnostics);
-            EnemyContentInvariants.CheckStartSupplyFits(StartSupply, 0, MaxAliveEnemies, diagnostics);
 
             if (diagnostics.Count > 0)
                 throw new ArgumentException(diagnostics[0].ToString());

@@ -3,7 +3,7 @@ using System;
 namespace BlackHole.Core
 {
     // 전투 조립에 필요한 검증된 공유 정의 묶음. 읽기 전용이며 여러 판이 함께 쓴다.
-    // 적 콘텐츠의 규칙(ID 유일, 종류 연결, 전체 개체 수 상한, 전투 시작 공급)은 EnemyContent가 생성 때 보장한다.
+    // 적 콘텐츠의 규칙(ID 유일, 종류 연결, 전투 시작 공급)은 EnemyContent가 생성 때 보장한다.
     // 오류가 있는 콘텐츠의 경로별 보고는 ContentLoader가 맡는다.
     public sealed class GameContent
     {

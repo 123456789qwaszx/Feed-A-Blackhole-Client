@@ -7,7 +7,7 @@ namespace BlackHole.Core
     {
         // 질량(%, 기본 100). 색 분포를 정한다(MassRule). 노드는 더하기(Add)만 쓴다 — 예: 더하기 50 = +50%.
         public static string Mass(string kindId) => $"enemy.{kindId}.mass";
-        // 전투 시작 공급 수 늘리기. 원작 도전 과제 "50개 이상으로 시작"이 이 강화를 가리킨다. 전체 개체 수 상한 안이어야 한다.
+        // 전투 시작 공급 수 늘리기. 원작 도전 과제 "50개 이상으로 시작"이 이 강화를 가리킨다.
         public static string StartSupply(string kindId) => $"enemy.{kindId}.start-supply";
         // 블랙홀이 Level업할 때마다 이 종류를 판 시작 수의 몇 % 요청하는가(원작 "블랙홀 성장 시 생성되는 소행성 수"). %, 기본값 0.
         // 시작 수는 변환까지 반영한 이 판의 전투 시작 공급 수다. 시작 수가 0인 종류는 나오지 않는다.

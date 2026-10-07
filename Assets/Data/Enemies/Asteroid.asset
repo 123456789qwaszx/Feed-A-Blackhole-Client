@@ -24,29 +24,25 @@ MonoBehaviour:
     gold: 1
     exp: 1
   - color: {r: 0.93, g: 0.55, b: 0.2, a: 1}
-    maxHealth: 8
+    maxHealth: 9
     gold: 6
     exp: 3
   - color: {r: 0.95, g: 0.85, b: 0.3, a: 1}
-    maxHealth: 24
-    gold: 4
-    exp: 3
+    maxHealth: 18
+    gold: 36
+    exp: 9
   - color: {r: 0.4, g: 0.75, b: 0.4, a: 1}
-    maxHealth: 36
-    gold: 8
-    exp: 5
+    maxHealth: 27
+    gold: 216
+    exp: 27
   - color: {r: 0.3, g: 0.45, b: 0.9, a: 1}
-    maxHealth: 54
-    gold: 16
-    exp: 7
-  - color: {r: 0.38, g: 0.32, b: 0.82, a: 1}
-    maxHealth: 80
-    gold: 32
-    exp: 11
+    maxHealth: 36
+    gold: 1296
+    exp: 81
   - color: {r: 0.6, g: 0.35, b: 0.85, a: 1}
-    maxHealth: 120
-    gold: 64
-    exp: 16
+    maxHealth: 46
+    gold: 7776
+    exp: 243
   traits:
   - id: golden
     color: {r: 1, g: 0.82, b: 0.2, a: 1}

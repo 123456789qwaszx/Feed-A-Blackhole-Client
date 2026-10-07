@@ -9,10 +9,9 @@ namespace BlackHole.Core
     // 여기서 새로 두는 규칙은 데이터 모양에 관한 것뿐이다(빠진 칸, 알 수 없는 종류 이름, 정의되지 않은 참조).
     // 수치 규칙은 정의 생성자를, 콘텐츠 전체 규칙은 EnemyContentInvariants를 그대로 호출해 경로를 붙인다.
     //
-    // 세 단계로 읽는다. 앞 단계에 오류가 있으면 뒤 단계를 보지 않는다(잘못된 정의가 거짓 참조 오류를 만들지 않게).
+    // 두 단계로 읽는다. 앞 단계에 오류가 있으면 뒤 단계를 보지 않는다(잘못된 정의가 거짓 참조 오류를 만들지 않게).
     // 1. 개별 정의: 적 종류(색 등급·특수 성질과 그 사망 효과), 출현 배치, 픽업 출현 배치.
-    // 2. 적 종류를 가리키는 것: 적 ID 유일, 공급되는 종류의 색 수, 종류 사이 연결(변환 대상), 공급(픽업 제외), 픽업 출현 배치, 전체 개체 수 상한.
-    // 3. 전체: 전투 시작 공급이 상한 안인가.
+    // 2. 적 종류를 가리키는 것: 적 ID 유일, 공급되는 종류의 색 수, 종류 사이 연결(변환 대상), 공급(픽업 제외), 픽업 출현 배치.
     public static class EnemyContentLoader
     {
         public static EnemyContent Load(EnemyContentData data, List<ContentDiagnostic> into)
@@ -45,17 +44,11 @@ namespace BlackHole.Core
                 into.Add(new ContentDiagnostic("EnemyPlacement", "공급이 있으면 출현 배치가 필요하다."));
 
             EnemyContentInvariants.CheckPickupPlacement(enemies, placement, pickupPlacement, into);
-            EnemyContentInvariants.CheckMaxAlive(placement, data.MaxAliveEnemies, into);
 
             if (into.Count > errors)
                 return null;
 
-            EnemyContentInvariants.CheckStartSupplyFits(startSupply, 0, data.MaxAliveEnemies, into);
-
-            if (into.Count > errors)
-                return null;
-
-            return new EnemyContent(enemies, placement, data.MaxAliveEnemies, startSupply, pickupPlacement);
+            return new EnemyContent(enemies, placement, startSupply, pickupPlacement);
         }
 
         private static List<EnemyDefinition> LoadEnemies(List<EnemyData> items, List<ContentDiagnostic> into)

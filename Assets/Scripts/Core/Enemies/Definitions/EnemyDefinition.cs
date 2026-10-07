@@ -24,7 +24,7 @@ namespace BlackHole.Core
         // 크기가 1 오를 때 늘어나는 반지름(크기 1의 반지름 대비, 0 이상). 0.35면 크기 2가 1.35배, 크기 3이 1.7배다.
         public float RadiusStep { get; }
 
-        // 색 등급 표. 번호가 적의 색 등급(Enemy.Tier)이다. 공급되는 종류는 7색(EnemyContentInvariants), 픽업은 한 줄.
+        // 색 등급 표. 번호가 적의 색 등급(Enemy.Tier)이다. 공급되는 종류는 6색(EnemyContentInvariants), 픽업은 한 줄.
         public IReadOnlyList<EnemyTier> Tiers { get; }
 
         // 이 종류에 붙을 수 있는 특수 성질(ID 유일). 출현 때 성질마다의 생성 확률(판 구성, 기본 0%)로 최대 하나가 붙는다.
@@ -35,7 +35,7 @@ namespace BlackHole.Core
         public string UpgradesTo { get; }
 
         // 픽업의 등장 판정 주기(초). 0이면 공급되는 보통 종류다.
-        // 픽업(혜성)은 적 공급·성장 공급·변환·전체 개체 수 상한과 무관하다: 주기마다 등장 확률(판 구성의 AppearChance)로 하나가 나온다.
+        // 픽업(혜성)은 적 공급·성장 공급·변환과 무관하다: 주기마다 등장 확률(판 구성의 AppearChance)로 하나가 나온다.
         // 브레이커로 쳐서 획득하는 것이며, 사망 효과의 피해를 받지 않는다(성질이 언제나 붙으므로). 질량·크기가 없다.
         public float PickupPeriod { get; }
 

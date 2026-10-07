@@ -20,33 +20,29 @@ MonoBehaviour:
   pickupPeriod: 0
   tiers:
   - color: {r: 0.62, g: 0.32, b: 0.26, a: 1}
-    maxHealth: 180
-    gold: 128
-    exp: 8
+    maxHealth: 140
+    gold: 285000
+    exp: 1000
   - color: {r: 0.93, g: 0.55, b: 0.2, a: 1}
-    maxHealth: 260
-    gold: 256
-    exp: 12
+    maxHealth: 420
+    gold: 1425000
+    exp: 1500
   - color: {r: 0.95, g: 0.85, b: 0.3, a: 1}
-    maxHealth: 380
-    gold: 512
-    exp: 18
+    maxHealth: 1000
+    gold: 7125000
+    exp: 2200
   - color: {r: 0.4, g: 0.75, b: 0.4, a: 1}
-    maxHealth: 560
-    gold: 1024
-    exp: 27
+    maxHealth: 1600
+    gold: 28500000
+    exp: 3300
   - color: {r: 0.3, g: 0.45, b: 0.9, a: 1}
-    maxHealth: 820
-    gold: 2048
-    exp: 40
-  - color: {r: 0.38, g: 0.32, b: 0.82, a: 1}
-    maxHealth: 1200
-    gold: 4096
-    exp: 60
+    maxHealth: 1800
+    gold: 85500000
+    exp: 5000
   - color: {r: 0.6, g: 0.35, b: 0.85, a: 1}
-    maxHealth: 1750
-    gold: 8192
-    exp: 90
+    maxHealth: 2400
+    gold: 285000000
+    exp: 11000
   traits:
   - id: moon
     color: {r: 0.85, g: 0.86, b: 0.9, a: 1}
