@@ -39,12 +39,28 @@ namespace BlackHole.Core
             BreakerDefinition breaker,
             IReadOnlyList<SupplyRequest> growthSupply)
         {
-            _enemies = new EnemyRoster(new DeathRewards(new BattleRandom(seed, RandomStream.GoldenCrit)));
+            _enemies = new EnemyRoster(
+                new DeathRewards(
+                    new BattleRandom(seed, RandomStream.GoldenCrit)));
             Stats = stats;
             Hq = hq;
             DeathEffects = new DeathEffects(seed);
-            Breaker = breaker != null ? new BreakerSkill(breaker, new BattleRandom(seed, RandomStream.Critical)) : null;
-            _supply = new EnemySupply(seed, _enemies, stats, placement, periodicSpawnPlacement, growthSupply, Breaker);
+
+            Breaker = breaker != null
+                ? new BreakerSkill(
+                    breaker,
+                    new BattleRandom(seed, RandomStream.Critical))
+                : null;
+
+            _supply = new EnemySupply(
+                seed,
+                _enemies,
+                stats,
+                placement,
+                periodicSpawnPlacement,
+                growthSupply,
+                CountActive);
+
             _deathBonuses = new DeathBonuses(seed, stats, _supply);
         }
 
@@ -113,6 +129,14 @@ namespace BlackHole.Core
             // 7. Periodic Spawn: 주기 출현(혜성)의 등장 판정 진행.
             _supply.AdvancePeriodicSpawns(delta);
             return raised;
+        }
+
+        // 이 성질이 지금 판에 있는 수: 살아 있는 그 성질 적 + 그 성질이 준 버프 중 Breaker에 남은 중첩(달).
+        // 성질의 동시 상한(EnemyTraitDefinition.MaxActive, 원작 "달 최대 개수")은 이 수에 건다(EnemySupply).
+        private int CountActive(EnemyDefinition kind, EnemyTraitDefinition trait)
+        {
+            int held = trait.Effect is MoonBuffDefinition && Breaker != null ? Breaker.MoonBuffs.Count : 0;
+            return _enemies.CountAlive(kind, trait) + held;
         }
     }
 }

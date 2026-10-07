@@ -133,7 +133,7 @@ namespace BlackHole.Core
                 if (into.Count > errors)
                     continue;
 
-                EnemyTraitDefinition trait = Guard(itemAt, into, () => new EnemyTraitDefinition(item.Id, effect, item.MaxAlive));
+                EnemyTraitDefinition trait = Guard(itemAt, into, () => new EnemyTraitDefinition(item.Id, effect, item.MaxActive));
 
                 if (trait != null)
                     traits.Add(trait);

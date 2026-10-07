@@ -21,8 +21,8 @@ namespace BlackHole.Core
         private readonly PeriodicSpawnPlacementDefinition _periodicSpawnPlacement;
         // Level업 한 번마다 넣는 생성 요청(판 조립이 이 판의 시작 수 × 성장 공급 %로 정했다).
         private readonly IReadOnlyList<SupplyRequest> _growthSupply;
-        // 달 성질의 상한에 Breaker에 남은 달 중첩을 함께 센다. 콘텐츠에 Breaker가 없으면 null.
-        private readonly BreakerSkill _breaker;
+        // 성질의 동시 상한에 거는 그 성질의 지금 수(World.CountActive: 살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩).
+        private readonly Func<EnemyDefinition, EnemyTraitDefinition, int> _countActive;
         private readonly BattleRandom _placementRandom;
         private readonly BattleRandom _periodicSpawnPlacementRandom;
         private readonly BattleRandom _periodicSpawnRandom;
@@ -52,14 +52,14 @@ namespace BlackHole.Core
             EnemyPlacementDefinition placement,
             PeriodicSpawnPlacementDefinition periodicSpawnPlacement,
             IReadOnlyList<SupplyRequest> growthSupply,
-            BreakerSkill breaker)
+            Func<EnemyDefinition, EnemyTraitDefinition, int> countActive)
         {
             _enemies = enemies;
             _stats = stats;
             _placement = placement;
             _periodicSpawnPlacement = periodicSpawnPlacement;
             _growthSupply = growthSupply;
-            _breaker = breaker;
+            _countActive = countActive;
             _placementRandom = new BattleRandom(seed, RandomStream.Placement);
             _periodicSpawnPlacementRandom = new BattleRandom(seed, RandomStream.PeriodicSpawnPlacement);
             _periodicSpawnRandom = new BattleRandom(seed, RandomStream.PeriodicSpawn);
@@ -192,8 +192,8 @@ namespace BlackHole.Core
         }
 
         // 정해진 종류에 붙을 성질: 성질 몫이 있으면 그 확률만큼 성질 하나(배타). 없으면 null.
-        // 뽑힌 성질의 동시 상한(MaxAlive)이 찼으면 붙지 않는다(원작 "달 최대 개수"). 뽑은 몫은 그대로 쓴 것으로 친다.
-        // 상한에는 살아 있는 그 성질 적과, 그 성질이 준 버프 중 아직 Breaker에 남은 중첩(달)을 함께 센다.
+        // 뽑힌 성질의 동시 상한(MaxActive)이 찼으면 붙지 않는다(원작 "달 최대 개수"). 뽑은 몫은 그대로 쓴 것으로 친다.
+        // 상한은 그 성질의 지금 수(_countActive)에 건다.
         private EnemyTraitDefinition TraitOf(EnemyDefinition kind)
         {
             if (!_traitPickers.TryGetValue(kind, out QuotaPicker picker))
@@ -205,26 +205,7 @@ namespace BlackHole.Core
                 return null;
 
             EnemyTraitDefinition trait = _stats.CompositionOf(kind).Traits[picked - 1];
-            return trait.MaxAlive > 0 && CountAlive(kind, trait) + HeldStacks(trait) >= trait.MaxAlive ? null : trait;
+            return trait.MaxActive > 0 && _countActive(kind, trait) >= trait.MaxActive ? null : trait;
         }
-
-        // 이 종류 중 이 성질이 붙어 살아 있는 적의 수.
-        private int CountAlive(EnemyDefinition kind, EnemyTraitDefinition trait)
-        {
-            int count = 0;
-            IReadOnlyList<Enemy> alive = _enemies.Alive;
-
-            for (int i = 0; i < alive.Count; i++)
-            {
-                if (alive[i].Definition == kind && ReferenceEquals(alive[i].Trait, trait))
-                    count++;
-            }
-
-            return count;
-        }
-
-        // 이 성질이 준 버프 중 아직 Breaker에 남은 중첩 수(달).
-        private int HeldStacks(EnemyTraitDefinition trait) =>
-            trait.Effect is MoonBuffDefinition && _breaker != null ? _breaker.MoonBuffs.Count : 0;
     }
 }

@@ -51,7 +51,7 @@ namespace BlackHole.Core
             new Route("moonPlanet.speedScale", BreakerUpgradeStats.MoonSpeedBonus, UpgradeOperation.Add, Percent),
             new Route("moonPlanet.rangeScale", BreakerUpgradeStats.MoonRadiusBonus, UpgradeOperation.Add, Percent),
             new Route("moonPlanet.duration", BreakerUpgradeStats.MoonDuration, UpgradeOperation.Add, 1),
-            new Route("moonPlanet.maxCount", EnemyUpgradeStats.TraitMaxAlive("planet", "moon"), UpgradeOperation.Add, 1),
+            new Route("moonPlanet.maxCount", EnemyUpgradeStats.TraitMaxActive("planet", "moon"), UpgradeOperation.Add, 1),
             new Route("comet.spawnChance", EnemyUpgradeStats.SpawnChance("comet"), UpgradeOperation.Add, 1),
             new Route("comet.duration", BreakerUpgradeStats.CometDuration, UpgradeOperation.Add, 1),
             new Route("comet.critBonus", BreakerUpgradeStats.CometCritDamageBonus, UpgradeOperation.Add, Percent),

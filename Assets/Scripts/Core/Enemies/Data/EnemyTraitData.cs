@@ -9,7 +9,7 @@ namespace BlackHole.Core
         public string Id;
         // 종류 이름이 비어 있으면 오류다 — 성질에는 효과가 있어야 한다.
         public DeathEffectData Effect;
-        // 이 성질이 붙은 적의 동시 생존 상한. 0이면 상한이 없다.
-        public int MaxAlive;
+        // 이 성질의 동시 상한(살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩). 0이면 상한이 없다.
+        public int MaxActive;
     }
 }

@@ -198,7 +198,7 @@ namespace BlackHole.Core
         private static IReadOnlyList<float> RatiosOf(EnemyDefinition kind, float mass) =>
             Array.AsReadOnly(MassRule.TierRatios(mass, kind.Tiers.Count));
 
-        // 노드가 성질의 수치를 바꾸는 것: 사망 효과의 수치(황금 배율, 번개·레이저·폭발)와 동시 생존 상한.
+        // 노드가 성질의 수치를 바꾸는 것: 사망 효과의 수치(황금 배율, 번개·레이저·폭발)와 동시 상한.
         // 바뀌지 않으면 종류의 성질 객체를 그대로 쓴다.
         private static EnemyTraitDefinition Upgraded(EnemyDefinition kind, EnemyTraitDefinition trait, UpgradeTable upgrades)
         {
@@ -208,14 +208,14 @@ namespace BlackHole.Core
             if (effect != null)
                 upgraded = upgraded.With(effect);
 
-            int maxAlive = Whole(upgrades.Apply(EnemyUpgradeStats.TraitMaxAlive(kind.Id, trait.Id), trait.MaxAlive));
+            int maxActive = Whole(upgrades.Apply(EnemyUpgradeStats.TraitMaxActive(kind.Id, trait.Id), trait.MaxActive));
 
-            if (maxAlive < 0)
+            if (maxActive < 0)
                 throw new ArgumentOutOfRangeException(
-                    nameof(upgrades), $"'{kind.Id}'의 '{trait.Id}' 동시 생존 상한은 0 이상이어야 한다. 업그레이드 합: {maxAlive}.");
+                    nameof(upgrades), $"'{kind.Id}'의 '{trait.Id}' 동시 상한은 0 이상이어야 한다. 업그레이드 합: {maxActive}.");
 
-            if (maxAlive != trait.MaxAlive)
-                upgraded = upgraded.WithMaxAlive(maxAlive);
+            if (maxActive != trait.MaxActive)
+                upgraded = upgraded.WithMaxActive(maxActive);
 
             return upgraded;
         }

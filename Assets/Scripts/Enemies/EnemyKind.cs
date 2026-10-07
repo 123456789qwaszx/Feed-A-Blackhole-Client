@@ -55,8 +55,8 @@ namespace BlackHole.Unity
             public float healthFraction;
             [Tooltip("LaserBurst: 레이저 너비.")]
             public float width;
-            [Tooltip("이 성질이 붙은 적이 동시에 살아 있을 수 있는 수. 0이면 상한 없음. 다 찼으면 뽑혀도 붙지 않는다(원작 달 최대 개수, 노드 enemy.<종류>.trait.<성질>.max-alive).")]
-            public int maxAlive;
+            [Tooltip("이 성질의 동시 상한: 살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩. 0이면 상한 없음. 다 찼으면 뽑혀도 붙지 않는다(원작 달 최대 개수, 노드 enemy.<종류>.trait.<성질>.max-active).")]
+            public int maxActive;
         }
 
         [Serializable]
@@ -136,7 +136,7 @@ namespace BlackHole.Unity
                 data.Traits.Add(new EnemyTraitData
                 {
                     Id = trait.id,
-                    MaxAlive = trait.maxAlive,
+                    MaxActive = trait.maxActive,
                     Effect = new DeathEffectData
                     {
                         Kind = trait.effect.ToString(),

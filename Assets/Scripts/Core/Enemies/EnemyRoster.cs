@@ -40,6 +40,20 @@ namespace BlackHole.Core
         public int CountAlive(EnemyDefinition kind) =>
             kind != null && _aliveByKind.TryGetValue(kind, out int count) ? count : 0;
 
+        // 지금 살아 있는 특정 종류 중 이 성질이 붙은 적 수.
+        public int CountAlive(EnemyDefinition kind, EnemyTraitDefinition trait)
+        {
+            int count = 0;
+
+            for (int i = 0; i < _alive.Count; i++)
+            {
+                if (_alive[i].Definition == kind && ReferenceEquals(_alive[i].Trait, trait))
+                    count++;
+            }
+
+            return count;
+        }
+
         // 이 판에서 지금까지의 종류별 처치 수(처음 처치한 순서).
         public IReadOnlyList<EnemyKillCount> GetKillCounts()
         {

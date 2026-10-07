@@ -56,5 +56,5 @@ MonoBehaviour:
     critMultiplier: 0
     healthFraction: 0
     width: 0
-    maxAlive: 10
+    maxActive: 10
   sprite: {fileID: 0}
