@@ -231,7 +231,11 @@ namespace BlackHole.Core
                 case GoldenDefinition golden:
                 {
                     float multiplier = Apply(EnemyUpgradeStats.TraitMultiplier, golden.Multiplier);
-                    return multiplier != golden.Multiplier ? new GoldenDefinition(multiplier) : null;
+                    float crit = Math.Min(1, Apply(EnemyUpgradeStats.TraitCritChance, golden.CritChance));
+                    float critReward = Apply(EnemyUpgradeStats.TraitCritRewardScale, golden.CritRewardScale);
+
+                    bool same = multiplier == golden.Multiplier && crit == golden.CritChance && critReward == golden.CritRewardScale;
+                    return same ? null : new GoldenDefinition(multiplier, crit, critReward);
                 }
                 case ChainLightningDefinition chain:
                 {

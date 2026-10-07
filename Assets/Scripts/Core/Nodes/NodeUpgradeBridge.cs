@@ -70,6 +70,17 @@ namespace BlackHole.Core
             new Route("supernovaStar.spawnChance", EnemyUpgradeStats.TraitChance("star", "supernova"), UpgradeOperation.Add, 1),
             new Route("supernovaStar.range", EnemyUpgradeStats.TraitRadius("star", "supernova"), UpgradeOperation.Percent, Percent),
             new Route("supernovaStar.hpDamage", EnemyUpgradeStats.TraitHealthFraction("star", "supernova"), UpgradeOperation.Add, Percent),
+            new Route("breaker.planetBonus", BreakerUpgradeStats.PlanetBonus, UpgradeOperation.Add, 1),
+            new Route("breaker.starBonus", BreakerUpgradeStats.StarBonus, UpgradeOperation.Add, 1),
+            new Route("asteroid.respawnChance", EnemyUpgradeStats.RespawnChance("asteroid"), UpgradeOperation.Add, 1),
+            new Route("asteroid.timeChance", EnemyUpgradeStats.TimeChance("asteroid"), UpgradeOperation.Add, 1),
+            new Route("electricAsteroid.damage", EnemyUpgradeStats.TraitDamage("asteroid", "electric"), UpgradeOperation.Add, 1),
+            new Route("electricAsteroid.critChance", EnemyUpgradeStats.TraitCritChance("asteroid", "electric"), UpgradeOperation.Add, Percent),
+            new Route("electricAsteroid.chain", EnemyUpgradeStats.TraitMaxTargets("asteroid", "electric"), UpgradeOperation.Add, 1),
+            new Route("electricAsteroid.splitChance", EnemyUpgradeStats.TraitBranchChance("asteroid", "electric"), UpgradeOperation.Add, Percent),
+            new Route("electricAsteroid.critBonus", EnemyUpgradeStats.TraitCritMultiplier("asteroid", "electric"), UpgradeOperation.Add, Percent),
+            new Route("goldenAsteroid.critChance", EnemyUpgradeStats.TraitCritChance("asteroid", "golden"), UpgradeOperation.Add, Percent),
+            new Route("goldenAsteroid.critRewardScale", EnemyUpgradeStats.TraitCritRewardScale("asteroid", "golden"), UpgradeOperation.Add, Percent),
         };
 
         private static readonly HashSet<string> _routed = RoutedStats();

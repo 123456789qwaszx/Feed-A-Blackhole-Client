@@ -51,5 +51,7 @@ namespace BlackHole.Core
         public static string TraitRadius(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.radius";
         // 폭발 피해 = 대상 현재 HP × 이 비율(0 ~ 1, 1을 넘지 않는다).
         public static string TraitHealthFraction(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.health-fraction";
+        // 황금 성질의 치명타 Gold 배율(1 = 기본 Gold의 100%를 더 얹음 = 시트 100%). 기본값은 그 성질의 값이다.
+        public static string TraitCritRewardScale(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.crit-reward-scale";
     }
 }

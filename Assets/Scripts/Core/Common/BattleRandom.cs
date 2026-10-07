@@ -20,6 +20,7 @@ namespace BlackHole.Core
         public const int RespawnStream = 10;
         public const int TimeBonusStream = 11;
         public const int RainStream = 12;
+        public const int GoldenCritStream = 13;
 
         private uint _state;
 

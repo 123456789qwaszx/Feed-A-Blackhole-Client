@@ -163,7 +163,7 @@ namespace BlackHole.Core
             switch (item.Kind)
             {
                 case "Golden":
-                    return Guard(at, into, () => new GoldenDefinition(item.Multiplier));
+                    return Guard(at, into, () => new GoldenDefinition(item.Multiplier, item.CritChance, item.CritRewardScale));
                 case "ChainLightning":
                     return Guard(at, into, () => new ChainLightningDefinition(
                         item.Damage, item.Radius, item.MaxTargets, item.BranchChance, item.CritChance, item.CritMultiplier));

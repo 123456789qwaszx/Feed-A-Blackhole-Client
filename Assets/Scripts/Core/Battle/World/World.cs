@@ -36,6 +36,8 @@ namespace BlackHole.Core
         private readonly BattleRandom _rainRandom;
         // 아직 판(GameSession)이 가져가지 않은 시간 추가 성공 수.
         private int _timeBonuses;
+        // 황금 성질의 치명타 Gold 판정.
+        private readonly BattleRandom _goldenCritRandom;
         // 종류마다 색 등급과 성질을 고르는 몫. 판 조립 때 만들고 판 동안 이어진다(공급이 여러 번이어도 비율이 판 전체에 걸쳐 맞는다).
         // 성질 몫은 성질 확률 합이 0보다 큰 종류에만 있고, 칸은 (성질 없음, 성질 0, 성질 1, …)이다.
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _tierPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
@@ -95,6 +97,7 @@ namespace BlackHole.Core
             _respawnRandom = new BattleRandom(seed, BattleRandom.RespawnStream);
             _timeBonusRandom = new BattleRandom(seed, BattleRandom.TimeBonusStream);
             _rainRandom = new BattleRandom(seed, BattleRandom.RainStream);
+            _goldenCritRandom = new BattleRandom(seed, BattleRandom.GoldenCritStream);
             _filter = new SpawnFilter(maxAliveEnemies);
             MaxAliveEnemies = maxAliveEnemies;
             DeathEffects = new DeathEffects(seed);
@@ -434,9 +437,18 @@ namespace BlackHole.Core
         // 사망이 확정된 순간(피해·파괴 모두)의 판정. 픽업은 하지 않는다.
         // - 재생성: 같은 종류 하나를 생성 요청으로 넣는다(7. Enemy Supply 자리에서 전체 상한을 거쳐 나온다. 색·성질·크기·위치는 새로 정한다).
         // - 시간 추가: 성공 수를 모아 두고, 판이 Step 뒤에 제한 시간을 늘린다(TakeTimeBonuses).
+        // - 황금 치명타: 황금 성질이면 치명타 확률로 (이 적의 Gold × 치명타 Gold 배율)을 판의 Gold 합계에 더 얹는다(반올림).
         private void RollDeathBonuses(Enemy enemy)
         {
             EnemyDefinition kind = enemy.Definition;
+
+            if (enemy.Trait?.Effect is GoldenDefinition golden && Roll(golden.CritChance, _goldenCritRandom))
+            {
+                long bonus = (long)Math.Round(enemy.Stats.Gold * golden.CritRewardScale, MidpointRounding.AwayFromZero);
+
+                if (bonus > 0)
+                    _enemies.AddEarnedGold(bonus);
+            }
 
             if (kind.IsPickup)
                 return;

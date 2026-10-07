@@ -123,5 +123,12 @@ namespace BlackHole.Core
         }
 
         public void BeginAdvance() => _deaths.Clear();
+
+        /// <summary>
+        /// 사망 확정 뒤의 황금 소행성 보너스 치명타 Gold를 이 판 Gold 합계에 더한다.
+        /// </summary>
+        /// <param name="bonus">추가 골드</param>
+        // Checked는 long 범위를 넘으면 조횽히 틀린 값이 되지 않고 예외를 던진다.
+        public void AddEarnedGold(long bonus) => EarnedGold = checked(EarnedGold + bonus);
     }
 }

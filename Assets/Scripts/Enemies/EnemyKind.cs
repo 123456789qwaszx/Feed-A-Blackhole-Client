@@ -36,6 +36,8 @@ namespace BlackHole.Unity
             public TraitEffectKind effect;
             [Tooltip("Golden: Gold 배율.")]
             public float multiplier;
+            [Tooltip("Golden: 치명타 Gold 배율.")]
+            public float critRewardScale;
             [Tooltip("ChainLightning·LaserBurst: 피해.")]
             public float damage;
             [Tooltip("ChainLightning: 번개가 한 번 옮겨 가는 최대 거리. Explosion: 폭발 반경.")]
@@ -44,7 +46,7 @@ namespace BlackHole.Unity
             public int maxTargets;
             [Tooltip("ChainLightning: 줄기가 하나 더 나갈 확률(0 ~ 1).")]
             public float branchChance;
-            [Tooltip("ChainLightning·LaserBurst: 치명타 확률(0 ~ 1).")]
+            [Tooltip("ChainLightning·LaserBurst·Golden: 치명타 확률(0 ~ 1).")]
             public float critChance;
             [Tooltip("ChainLightning·LaserBurst: 치명타일 때 피해 배율.")]
             public float critMultiplier;
@@ -138,6 +140,7 @@ namespace BlackHole.Unity
                     {
                         Kind = trait.effect.ToString(),
                         Multiplier = trait.multiplier,
+                        CritRewardScale = trait.critRewardScale,
                         Damage = trait.damage,
                         Radius = trait.radius,
                         MaxTargets = trait.maxTargets,
