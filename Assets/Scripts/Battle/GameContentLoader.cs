@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 게임 콘텐츠 세트(GameContentSetup) → 게임 정의(GameContent·NodeTree). Unity 에셋과 Core 사이의 경계다.
+    // 게임 콘텐츠 세트(GameContentSetup) → 게임 정의(GameContent·NodeTree)와 업그레이드 화면에 그릴 노드. Unity 에셋과 Core 사이의 경계다.
     // 빠진 연결은 여기서 한 번 보고, 규칙은 Core 로더들이 본다. 차례로 불러 단계마다 진단을 콘솔에 남긴다.
     // 오류가 하나라도 있으면 null이다(부분 통과 금지).
     public static class GameContentLoader
@@ -60,7 +60,27 @@ namespace BlackHole.Unity
             IReadOnlyList<ContentDiagnostic> fits = UpgradeContentCheck.Check(content.Content, tree.Tree);
             LogErrors("노드 트리 × 콘텐츠", fits, nodes);
 
-            return fits.Count == 0 ? new LoadedContent(content.Content, tree.Tree, layout) : null;
+            if (fits.Count > 0)
+                return null;
+
+            return new LoadedContent(content.Content, tree.Tree, NodeItemsOf(layout, tree.Tree));
+        }
+
+        // 업그레이드 화면에 그릴 노드(배치 순서). 칸은 화면 배치용이라 노드 트리가 아니라 배치 데이터에서 읽는다.
+        // 노드 트리 로드를 통과한 배치이므로 모든 노드가 ID가 유일하고 트리에 있다.
+        private static IReadOnlyList<NodeTreeView.NodeItem> NodeItemsOf(NodeTreeData layout, NodeTree tree)
+        {
+            var items = new List<NodeTreeView.NodeItem>(layout.Nodes.Count);
+
+            foreach (NodeData placed in layout.Nodes)
+            {
+                tree.TryGet(placed.Id, out NodeDefinition node);
+                NodeRankDefinition first = node.RankAt(1);
+                string stat = tree.Content.StatOf(first.Effects[0].Stat).StatId;
+                items.Add(new NodeTreeView.NodeItem(node.Id, placed.X, placed.Y, first.Cost, stat, node.MaxRank));
+            }
+
+            return items.AsReadOnly();
         }
 
         // 단계마다 로그 하나: 머리 줄 아래에 진단을 한 줄씩.

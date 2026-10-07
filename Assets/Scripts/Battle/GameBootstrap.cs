@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using BlackHole.Core;
 using UnityEngine;
@@ -168,7 +167,7 @@ namespace BlackHole.Unity
                 OrEmpty(_settlementPresentation, "Settlement"),
                 OrEmpty(_nodeTreePresentation, "NodeTree"),
                 OrEmpty(_confirmPresentation, "Confirm"),
-                _battle, _progress, _progressStore, _loaded.NodeTree, BuildNodeItems(_loaded.NodeTree, _loaded.NodeLayout), _loaded.Content.Growth,
+                _battle, _progress, _progressStore, _loaded.NodeTree, _loaded.NodeItems, _loaded.Content.Growth,
                 _settings, _transition);
         }
 
@@ -298,29 +297,6 @@ namespace BlackHole.Unity
         {
             _loaded = GameContentLoader.Load(_content);
             return _loaded != null;
-        }
-
-        // 업그레이드 화면에 그릴 노드. 격자 칸은 화면 배치용이라 규칙 트리가 아니라 같은 저작 데이터에서 읽는다.
-        // 로더가 같은 데이터로 트리를 만들었으니 트리의 모든 노드에 칸이 있다.
-        private static IReadOnlyList<NodeTreeView.NodeItem> BuildNodeItems(NodeTree tree, NodeTreeData layout)
-        {
-            var cells = new Dictionary<string, (int X, int Y)>(StringComparer.Ordinal);
-            foreach (NodeData node in layout.Nodes)
-            {
-                if (node?.Id != null && !cells.ContainsKey(node.Id))
-                    cells.Add(node.Id, (node.X, node.Y));
-            }
-
-            var nodes = new List<NodeTreeView.NodeItem>(tree.Nodes.Count);
-            foreach (NodeDefinition node in tree.Nodes)
-            {
-                (int x, int y) = cells.TryGetValue(node.Id, out (int X, int Y) cell) ? cell : (0, 0);
-                NodeRankDefinition first = node.RankAt(1);
-                string stat = tree.Content.StatOf(first.Effects[0].Stat).StatId;   // 노드 그림을 고르는 스탯(시트 이름)
-                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, first.Cost, stat, node.MaxRank));
-            }
-
-            return nodes;
         }
 
         private UIPresentationSpec OrEmpty(UIPresentationSpec presentation, string id)
