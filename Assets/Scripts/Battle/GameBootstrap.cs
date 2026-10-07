@@ -68,8 +68,8 @@ namespace BlackHole.Unity
         private DeathEffectView _deathEffectView;
         private HqView _hqView;
         private BattleSystem _battle;
-        private PlayerState _viewer;
-        private ProgressStore _progress;
+        private ProgressState _progress;
+        private ProgressStore _progressStore;
         private AimInput _aim;
         private GameSettings _settings;
         private UIManager _ui;
@@ -118,15 +118,15 @@ namespace BlackHole.Unity
         private void BootstrapBattle()
         {
             // 화면이 보는 진행 상태. 전투 사이에 이어지고, 진행 저장으로 앱을 다시 켜도 이어진다.
-            _viewer = new PlayerState();
-            _battle = new BattleSystem(_loaded.Content, _viewer, _enemyView, _breakerView, _deathEffectView, _hqView, _cameraFit);
+            _progress = new ProgressState();
+            _battle = new BattleSystem(_loaded.Content, _progress, _enemyView, _breakerView, _deathEffectView, _hqView, _cameraFit);
             // 포인터 위치를 Breaker의 조준점으로 넣는다.
             _aim = new AimInput(_battle);
         }
 
         // 진행 저장을 한 번 불러 검사한다. 진행 상태에 넣는 것은 모드 선택에서 계속을 고를 때다.
         private void BootstrapProgress() =>
-            _progress = ProgressStore.Load(Application.persistentDataPath, _loaded.NodeTree.Content, _loaded.Content.Growth);
+            _progressStore = ProgressStore.Load(Application.persistentDataPath, _loaded.NodeTree.Content, _loaded.Content.Growth);
 
         // 저장된 플레이어 설정을 읽는다(없으면 기본값).
         private void BootstrapSettings() => _settings = GameSettings.Load();
@@ -172,7 +172,7 @@ namespace BlackHole.Unity
                 OrEmpty(_settlementPresentation, "Settlement"),
                 OrEmpty(_nodeTreePresentation, "NodeTree"),
                 OrEmpty(_confirmPresentation, "Confirm"),
-                _battle, _viewer, _progress, _loaded.NodeTree, BuildNodeItems(_loaded.NodeTree, _loaded.NodeLayout), _loaded.Content.Growth,
+                _battle, _progress, _progressStore, _loaded.NodeTree, BuildNodeItems(_loaded.NodeTree, _loaded.NodeLayout), _loaded.Content.Growth,
                 _settings, _transition);
         }
 
@@ -203,7 +203,7 @@ namespace BlackHole.Unity
         private void OnApplicationPause(bool paused)
         {
             if (paused && enabled)
-                _progress.Save(_viewer);
+                _progressStore.Save(_progress);
         }
 
         private void OnDestroy()

@@ -39,12 +39,12 @@ namespace BlackHole.Unity
 
         private void HandleNodeTreeNodeClicked(string id)
         {
-            PurchaseResult result = NodePurchase.TryPurchase(_player, _tree, id);
+            PurchaseResult result = NodePurchase.TryPurchase(_progress, _tree, id);
 
             if (result == PurchaseResult.Purchased)
             {
                 SoundManager.Instance?.PlayNodeUpgrade();
-                _progress.Save(_player);
+                _progressStore.Save(_progress);
             }
 
             RefreshUpgrade();
@@ -65,10 +65,10 @@ namespace BlackHole.Unity
             if (!_tree.TryGet(id, out NodeDefinition node))
                 return string.Empty;
 
-            int rank = _player.RankOf(id);
+            int rank = _progress.RankOf(id);
             bool maxed = rank >= node.MaxRank;
             NodeRankDefinition shown = node.RankAt(maxed ? node.MaxRank : rank + 1);
-            UpgradeStatValues values = NodePurchase.StatsFor(_player, _tree);
+            UpgradeStatValues values = NodePurchase.StatsFor(_progress, _tree);
             var text = new StringBuilder();
 
             if (node.MaxRank > 1)

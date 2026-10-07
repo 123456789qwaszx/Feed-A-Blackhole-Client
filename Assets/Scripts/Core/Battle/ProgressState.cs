@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 플레이어의 진행 상태: Gold, 노드마다 산 Rank, 블랙홀의 성장도. 전투 사이에 유지되고, 진행 저장(ProgressSave)으로 앱을 다시 켜도 이어진다.
-    // 새 진행은 처음 상태(Gold 0, 성장도 0, 산 노드 없음)에서 시작한다.
-    // 산 노드는 전투 밖에서만 바뀐다(NodePurchase.TryPurchase).
-    public sealed class PlayerState
+    // 한 게임의 진행 상태.
+    // Gold, 구매한 노드 Rank, 블랙홀 성장도를 보관하며 전투 사이와 앱 재실행 뒤에도 이어진다.
+    // 노드 구매와 전투 결산 때만 바뀌고 ProgressSave로 저장·복원한다. 새 진행은 Gold 0, 성장도 0, 산 노드 없음에서 시작한다.
+    public sealed class ProgressState
     {
         private readonly List<string> _ownedNodes = new List<string>();
         private readonly Dictionary<string, int> _ranks = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -19,7 +19,7 @@ namespace BlackHole.Core
         // 판의 Level·EXP는 저장하지 않는다 — 매 판 성장도의 시작 Level(마지막 이정표의 Level)에서 시작한다(HqGrowthDefinition).
         public int GrowthStage { get; private set; } = HqGrowthDefinition.StartStage;
 
-        public PlayerState()
+        public ProgressState()
         {
             OwnedNodes = _ownedNodes.AsReadOnly();
         }

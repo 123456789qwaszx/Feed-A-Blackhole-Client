@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace BlackHole.Core
 {
-    // 진행 저장(ProgressSaveData) ↔ 진행 상태(PlayerState).
+    // 진행 저장(ProgressSaveData) ↔ 진행 상태(ProgressState).
     //
     // 불러올 때 한 번 검사한다. 저장 형식이 틀리면 깨진 저장이다:
     // 형식 버전, 음수 Gold·성장도, 빈 NodeId·중복 NodeId, 1보다 작은 Rank.
@@ -90,21 +90,21 @@ namespace BlackHole.Core
         }
 
         // 저장으로 진행 상태를 덮어쓴다. 지금 값은 모두 버린다.
-        public static void Restore(PlayerState state, SavedProgress progress) =>
-            state.Restore(progress.Gold, progress.GrowthStage, progress.Ranks);
+        public static void Restore(ProgressState progress, SavedProgress saved) =>
+            progress.Restore(saved.Gold, saved.GrowthStage, saved.Ranks);
 
-        // 새 게임: 진행 상태를 처음(새 PlayerState와 같은 상태)으로 되돌린다.
-        public static void StartNew(PlayerState state) =>
-            state.Restore(0, HqGrowthDefinition.StartStage, Array.Empty<(string NodeId, int Rank)>());
+        // 새 게임: 진행 상태를 처음(새 ProgressState와 같은 상태)으로 되돌린다.
+        public static void StartNew(ProgressState progress) =>
+            progress.Restore(0, HqGrowthDefinition.StartStage, Array.Empty<(string NodeId, int Rank)>());
 
         // 지금 진행 상태를 저장 형식으로. basis는 불러온 저장이다 — 게임에 쓰지 않은 원래 값을 되돌려 적는다. 새 게임이면 null.
-        public static ProgressSaveData Capture(PlayerState state, SavedProgress basis, DateTime savedAtUtc)
+        public static ProgressSaveData Capture(ProgressState progress, SavedProgress basis, DateTime savedAtUtc)
         {
             var data = new ProgressSaveData
             {
                 FormatVersion = ProgressSaveData.CurrentFormatVersion,
-                Gold = state.Gold,
-                GrowthStage = state.GrowthStage,
+                Gold = progress.Gold,
+                GrowthStage = progress.GrowthStage,
                 SavedAtUtc = savedAtUtc.ToString("o", CultureInfo.InvariantCulture),
             };
 
@@ -116,15 +116,15 @@ namespace BlackHole.Core
 
                 foreach (NodeRankSaveData saved in basis.Data.Nodes)
                 {
-                    data.Nodes.Add(new NodeRankSaveData { NodeId = saved.NodeId, Rank = Math.Max(saved.Rank, state.RankOf(saved.NodeId)) });
+                    data.Nodes.Add(new NodeRankSaveData { NodeId = saved.NodeId, Rank = Math.Max(saved.Rank, progress.RankOf(saved.NodeId)) });
                     written.Add(saved.NodeId);
                 }
             }
 
-            foreach (string nodeId in state.OwnedNodes)
+            foreach (string nodeId in progress.OwnedNodes)
             {
                 if (written.Add(nodeId))
-                    data.Nodes.Add(new NodeRankSaveData { NodeId = nodeId, Rank = state.RankOf(nodeId) });
+                    data.Nodes.Add(new NodeRankSaveData { NodeId = nodeId, Rank = progress.RankOf(nodeId) });
             }
 
             return data;

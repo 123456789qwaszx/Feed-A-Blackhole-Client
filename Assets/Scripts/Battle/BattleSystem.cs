@@ -15,7 +15,7 @@ namespace BlackHole.Unity
         private enum State { Idle, Running, Paused, ShuttingDown }
 
         private readonly GameContent _content;
-        private readonly PlayerState _progress;
+        private readonly ProgressState _progress;
         private readonly EnemyView _enemyView;
         private readonly BreakerView _breakerView;
         private readonly DeathEffectView _deathEffectView;
@@ -36,7 +36,7 @@ namespace BlackHole.Unity
 
         public BattleSystem(
             GameContent content,
-            PlayerState progress,
+            ProgressState progress,
             EnemyView enemyView,
             BreakerView breakerView,
             DeathEffectView deathEffectView,

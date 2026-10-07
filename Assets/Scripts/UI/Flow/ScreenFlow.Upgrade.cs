@@ -38,9 +38,9 @@ namespace BlackHole.Unity
             if (!(_ui.CurrentRoot is UpgradeScreen root))
                 return;
 
-            root.ShowGold(_player.Gold);
+            root.ShowGold(_progress.Gold);
 
-            int stage = _player.GrowthStage;
+            int stage = _progress.GrowthStage;
             root.ShowHq(stage, _growth.GoalLevelAt(stage));
 
             var states = new Dictionary<string, NodeState>(_tree.Nodes.Count, StringComparer.Ordinal);
@@ -48,10 +48,10 @@ namespace BlackHole.Unity
             var ranks = new Dictionary<string, int>(_tree.Nodes.Count, StringComparer.Ordinal);
             foreach (NodeDefinition node in _tree.Nodes)
             {
-                states.Add(node.Id, NodePurchase.StateOf(_player, _tree, node.Id));
-                ranks.Add(node.Id, _player.RankOf(node.Id));
+                states.Add(node.Id, NodePurchase.StateOf(_progress, _tree, node.Id));
+                ranks.Add(node.Id, _progress.RankOf(node.Id));
 
-                if (NodePurchase.TryGetNextCost(_player, _tree, node.Id, out long cost))
+                if (NodePurchase.TryGetNextCost(_progress, _tree, node.Id, out long cost))
                     costs.Add(node.Id, cost);
             }
 

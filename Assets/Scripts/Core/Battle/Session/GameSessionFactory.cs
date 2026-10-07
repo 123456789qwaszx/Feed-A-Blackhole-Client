@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 진행 상태(PlayerState)와 산 노드의 수치 값(UpgradeStatValues)으로 한 판(GameSession)을 만든다:
+    // 진행 상태(ProgressState)와 산 노드의 수치 값(UpgradeStatValues)으로 한 판(GameSession)을 만든다:
     // - 수치 값이 Breaker 수치, 제한 시간, 블랙홀 성장 시간, 적의 판 구성·수치를 정함.
     // - 이 판의 판 구성과 적 수치를 확정하고, Breaker를 만듬.
     //
@@ -12,7 +12,7 @@ namespace BlackHole.Core
     {
         public static GameSession Create(
             GameContent content,
-            PlayerState progress,
+            ProgressState progress,
             int seed,
             UpgradeStatValues upgrades)
         {

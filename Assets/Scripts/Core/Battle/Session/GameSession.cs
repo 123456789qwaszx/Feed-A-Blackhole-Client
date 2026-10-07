@@ -6,12 +6,12 @@ namespace BlackHole.Core
     // - 시작: 판 조립(GameSessionFactory) 직후 한 번 부름.
     // - 진행: 시간을 흘려 World를 한 Step씩 처리하고, 제한 시간(TimeLimitRule)을 늘리거나 종료를 판정.
     // - 종료: 이정표에 닿았거나 제한 시간이 다 됐을 때, 또는 End를 부를 때.
-    // - 결산: 판이 번 Gold를 진행 상태(PlayerState)에 더하고 성장도를 올린다.
+    // - 결산: 판이 번 Gold를 진행 상태(ProgressState)에 더하고 성장도를 올린다.
     public sealed class GameSession
     {
         private readonly TimeLimitRule _timeLimit;
         private readonly int _seed;
-        private readonly PlayerState _progress;
+        private readonly ProgressState _progress;
         private readonly IReadOnlyList<SupplyRequest> _startSupply;
 
         private long _settledGold; // 결산할 Gold.
@@ -28,7 +28,7 @@ namespace BlackHole.Core
             World world,
             TimeLimitRule timeLimit,
             int seed,
-            PlayerState progress,
+            ProgressState progress,
             IReadOnlyList<SupplyRequest> startSupply)
         {
             World = world;

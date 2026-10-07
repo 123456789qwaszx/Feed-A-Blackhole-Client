@@ -20,7 +20,7 @@ namespace BlackHole.Unity
                         KillsOf(raw.Kills, EnemyType.Asteroid),
                         KillsOf(raw.Kills, EnemyType.Planet),
                         KillsOf(raw.Kills, EnemyType.Star));
-                    root.ShowGold(raw.EarnedGold, raw.SettledGold, raw.ReachedMilestone, _player.Gold);
+                    root.ShowGold(raw.EarnedGold, raw.SettledGold, raw.ReachedMilestone, _progress.Gold);
                     root.ShowUpgradeCount(PurchasableNodeCount());
                 },
                 afterClosed: Unbind);
@@ -65,7 +65,7 @@ namespace BlackHole.Unity
 
             foreach (NodeDefinition node in _tree.Nodes)
             {
-                if (NodePurchase.StateOf(_player, _tree, node.Id) == NodeState.Purchasable)
+                if (NodePurchase.StateOf(_progress, _tree, node.Id) == NodeState.Purchasable)
                     count++;
             }
 

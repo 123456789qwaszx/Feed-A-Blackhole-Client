@@ -50,7 +50,7 @@ namespace BlackHole.Unity
         {
             try
             {
-                if (_battle.TryStart(NodePurchase.StatsFor(_player, _tree)))
+                if (_battle.TryStart(NodePurchase.StatsFor(_progress, _tree)))
                     ShowBattle();
             }
             catch (Exception error) { Debug.LogException(error); }
@@ -64,7 +64,7 @@ namespace BlackHole.Unity
                 if (raw != null)
                 {
                     // 결산이 진행 상태(Gold·성장도)를 바꿨다.
-                    _progress.Save(_player);
+                    _progressStore.Save(_progress);
                     ShowSettlement(raw);
                 }
             }

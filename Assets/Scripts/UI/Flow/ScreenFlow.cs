@@ -22,9 +22,9 @@ namespace BlackHole.Unity
         private readonly UIPresentationSpec _nodeTreePresentation;
         private readonly UIPresentationSpec _confirmPresentation;
         private readonly BattleSystem _battle;
-        private readonly PlayerState _player;
+        private readonly ProgressState _progress;
         // 진행 저장. 진행 상태가 바뀌면(노드 구매, 결산) 저장한다.
-        private readonly ProgressStore _progress;
+        private readonly ProgressStore _progressStore;
         // 노드 트리. 업그레이드 화면의 노드 상태·구매와, 전투를 시작할 때 산 노드를 업그레이드 표로 바꾸는 데 쓴다.
         private readonly NodeTree _tree;
         private readonly SoundManager _soundManager;
@@ -43,7 +43,7 @@ namespace BlackHole.Unity
             UIPresentationSpec settingsPresentation, UIPresentationSpec pausePresentation, UIPresentationSpec upgradePresentation,
             UIPresentationSpec battlePresentation, UIPresentationSpec settlementPresentation, UIPresentationSpec nodeTreePresentation,
             UIPresentationSpec confirmPresentation,
-            BattleSystem battle, PlayerState player, ProgressStore progress, NodeTree tree, IReadOnlyList<NodeTreeView.NodeItem> nodes, HqGrowthDefinition growth,
+            BattleSystem battle, ProgressState progress, ProgressStore progressStore, NodeTree tree, IReadOnlyList<NodeTreeView.NodeItem> nodes, HqGrowthDefinition growth,
             GameSettings settings, ScreenTransition transition)
         {
             _ui = ui;
@@ -57,8 +57,8 @@ namespace BlackHole.Unity
             _nodeTreePresentation = nodeTreePresentation;
             _confirmPresentation = confirmPresentation;
             _battle = battle;
-            _player = player;
             _progress = progress;
+            _progressStore = progressStore;
             _tree = tree;
             _nodes = nodes;
             _growth = growth;

@@ -47,33 +47,33 @@ namespace BlackHole.Unity
         }
 
         // 계속. 이번 실행에서 이미 진행 중이면 메모리의 진행 상태가 가장 새것이라 그대로 둔다.
-        public void Continue(PlayerState player)
+        public void Continue(ProgressState progress)
         {
             if (_started)
                 return;
 
-            ProgressSave.Restore(player, Saved);
+            ProgressSave.Restore(progress, Saved);
             _basis = Saved;
             _started = true;
         }
 
         // 새 게임. 진행 상태를 처음으로 되돌리고 바로 저장한다. 이전 저장은 직전 저장(.prev)으로 한 번 남는다.
-        public void StartNew(PlayerState player)
+        public void StartNew(ProgressState progress)
         {
-            ProgressSave.StartNew(player);
+            ProgressSave.StartNew(progress);
             _basis = null;
             _started = true;
-            Save(player);
+            Save(progress);
         }
 
-        public void Save(PlayerState player)
+        public void Save(ProgressState progress)
         {
             if (!_started)
                 return;
 
             try
             {
-                _file.Write(ProgressSave.Capture(player, _basis, DateTime.UtcNow));
+                _file.Write(ProgressSave.Capture(progress, _basis, DateTime.UtcNow));
             }
             catch (Exception error) when (error is IOException || error is UnauthorizedAccessException)
             {
