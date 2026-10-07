@@ -98,7 +98,7 @@ namespace BlackHole.Core
         internal void BeginAdvance() => _ticks.Clear();
 
         // 한 Step 동안 주기가 여러 번 차면 그만큼 Tick한다. 같은 Step 안의 Tick은 같은 조준점과 같은 적 위치를 본다.
-        internal void Advance(float delta, BattlePlayer owner, World world)
+        internal void Advance(float delta, World world)
         {
             if (Enabled)
             {
@@ -106,7 +106,7 @@ namespace BlackHole.Core
 
                 while (_untilNextTick <= TimeEpsilon)
                 {
-                    Tick(owner, world);
+                    Tick(world);
                     _untilNextTick += Definition.Interval;
                 }
             }
@@ -148,11 +148,11 @@ namespace BlackHole.Core
             }
         }
 
-        private void Tick(BattlePlayer owner, World world)
+        private void Tick(World world)
         {
             TickCount++;
             _targets.Clear();
-            Point2? center = owner.AimPoint;
+            Point2? center = world.AimPoint;
             float radius = CurrentRadius;
 
             if (center.HasValue)
@@ -172,7 +172,7 @@ namespace BlackHole.Core
             foreach (Enemy target in _targets)
             {
                 float amount = (Definition.Damage + BonusAgainst(target)) * multiplier;
-                var damage = new Damage(amount, owner.Id, critical);
+                var damage = new Damage(amount, DamageSource.Breaker, critical);
 
                 world.DealDamage(target, damage);
             }

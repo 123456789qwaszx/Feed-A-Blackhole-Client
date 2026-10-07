@@ -48,8 +48,8 @@ namespace BlackHole.Core
             _startSupply = startSupply;
         }
 
-        public void SetAimPoint(PlayerId player, Point2? aimPoint) =>
-            World.PlayerOf(player).SetAimPoint(aimPoint);
+        // Breaker가 칠 조준점. 없으면 null(조준하지 않음).
+        public void SetAimPoint(Point2? aimPoint) => World.SetAimPoint(aimPoint);
 
         public void Begin()
         {
@@ -138,7 +138,7 @@ namespace BlackHole.Core
         }
 
         // 결산:
-        // - 끝난 판의 Gold(SettledGold)를 진행 상태(방장의 것)에 더하고,
+        // - 끝난 판의 Gold(SettledGold)를 진행 상태에 더하고,
         // - 이 판이 이정표에 닿았으면 성장도를 1 올린다(Hq.NextStage).
         public void Settle()
         {

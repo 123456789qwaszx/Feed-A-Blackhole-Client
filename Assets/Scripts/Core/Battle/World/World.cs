@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 한 판 안에 존재하는 것들과 한 단계의 처리 순서.
-    // 지금 판 안에 있는 것은 적, 참가자(조준점·스킬), 사망 효과 대기열, 블랙홀(EXP·Level), 이 판이 번 Gold다.
+    // 지금 판 안에 있는 것은 적, 조준점과 Breaker, 사망 효과 대기열, 블랙홀(EXP·Level), 이 판이 번 Gold다.
     // 각 시스템은 Step의 정해진 자리(GAME_RULES 13절)에 들어간다.
     //
     // 적이 생기고 죽는 일은 요청으로 들어와 쌓이고, Step의 정해진 자리에서 요청 순서대로 처리된다.
@@ -20,7 +20,7 @@ namespace BlackHole.Core
     // 생성된 적은 다음 Step부터 움직이고 공격 대상이 된다. 처리되지 않은 요청은 판 정리가 버린다.
     //
     // 판의 난수는 seed 하나에서 용도마다 스트림을 따로 만든다(BattleRandom). 한 용도의 비율을 바꿔도 다른 용도의 순서는 그대로다
-    // (예: 성질 확률을 바꿔도 색과 위치의 순서는 같다). 참가자마다의 스킬 난수는 BattlePlayer가 받는다.
+    // (예: 성질 확률을 바꿔도 색과 위치의 순서는 같다). Breaker의 치명타 난수도 같은 seed의 자기 스트림이다.
     public sealed class World
     {
         // 동시에 살아 있을 수 있는 공급된 적(픽업 제외)의 최후 안전 상한. 게임 규칙이 아니라 성능을 지키기 위한 보류다.
@@ -53,7 +53,6 @@ namespace BlackHole.Core
         private readonly List<EnemyDefinition> _pickupKinds = new List<EnemyDefinition>();
         private readonly List<SupplyRequest> _spawnRequests = new List<SupplyRequest>();
         private readonly List<Enemy> _destroyRequests = new List<Enemy>();
-        private readonly List<BattlePlayer> _players;
 
         private sealed class PickupClock
         {
@@ -61,8 +60,10 @@ namespace BlackHole.Core
             public float Elapsed;
         }
 
-        // 판 안의 참가자(판 조립 때 받은 순서). 이 순서로 공격한다.
-        public IReadOnlyList<BattlePlayer> Players { get; }
+        // 이 판의 Breaker. 콘텐츠에 Breaker가 없으면 null.
+        public BreakerSkill Breaker { get; }
+        // Breaker가 치는 조준점(규칙 평면). 누가 채우는지는 모른다 — 지금은 조준 입력(AimInput)이 포인터 위치로 채운다. 없으면 null.
+        public Point2? AimPoint { get; private set; }
         // 살아 있는 적(픽업 포함). 죽은 적은 즉시 빠진다.
         public IReadOnlyList<Enemy> Enemies => _enemies.Alive;
         // 마지막 진행 동안 확정된 사망. 다음 진행이 시작될 때 비운다.
@@ -85,7 +86,7 @@ namespace BlackHole.Core
             EnemyPlacementDefinition placement,
             PickupPlacementDefinition pickupPlacement,
             Hq hq,
-            IReadOnlyList<BattlePlayer> players,
+            BreakerDefinition breaker,
             IReadOnlyList<SupplyRequest> growthSupply = null)
         {
             Stats = stats ?? throw new ArgumentNullException(nameof(stats));
@@ -100,8 +101,7 @@ namespace BlackHole.Core
             _rainRandom = new BattleRandom(seed, BattleRandom.RainStream);
             _goldenCritRandom = new BattleRandom(seed, BattleRandom.GoldenCritStream);
             DeathEffects = new DeathEffects(seed);
-            _players = new List<BattlePlayer>(players);
-            Players = _players.AsReadOnly();
+            Breaker = breaker != null ? new BreakerSkill(breaker, new BattleRandom(seed, BattleRandom.CriticalStream)) : null;
             PendingSpawns = _spawnRequests.AsReadOnly();
             PendingDestroys = _destroyRequests.AsReadOnly();
             GrowthSupply = GrowthSupplyOf(growthSupply, stats);
@@ -153,17 +153,7 @@ namespace BlackHole.Core
             }
         }
 
-        // 이 판의 참가자. 참가자가 아니면 예외다.
-        public BattlePlayer PlayerOf(PlayerId id)
-        {
-            foreach (BattlePlayer player in _players)
-            {
-                if (player.Id.Equals(id))
-                    return player;
-            }
-
-            throw new ArgumentException($"이 판의 참가자가 아니다: {id}.", nameof(id));
-        }
+        internal void SetAimPoint(Point2? aimPoint) => AimPoint = aimPoint;
 
         // 지금 살아 있는 이 종류의 적 수.
         public int CountAlive(EnemyDefinition kind) => _enemies.CountAlive(kind);
@@ -212,7 +202,7 @@ namespace BlackHole.Core
 
         // 파괴 요청: 이 적의 사망을 확정하라. 다음 사망 처리(Step의 Damage / Death 자리) 때 처리된다.
         // 처리 때 이미 죽었거나 판에 없는 적의 요청은 아무것도 하지 않는다(같은 적의 두 번째 요청도 그렇다).
-        // [보류] 파괴로 죽은 특수 적의 성질 효과는 발동하지 않는다(ProcessDestroyRequests 참고).
+        // 파괴로 죽은 특수 적도 피해로 죽을 때처럼 성질 효과가 발동한다(ProcessDestroyRequests).
         public void RequestDestroy(Enemy enemy)
         {
             _destroyRequests.Add(enemy ?? throw new ArgumentNullException(nameof(enemy)));
@@ -293,22 +283,9 @@ namespace BlackHole.Core
             return count;
         }
 
-        // 이 성질이 준 버프 중 아직 Breaker에 남은 중첩 수(달). 버프는 모든 참가자가 함께 받으므로 가장 많이 가진 참가자의 수를 쓴다.
-        private int HeldStacks(EnemyTraitDefinition trait)
-        {
-            if (!(trait.Effect is MoonBuffDefinition))
-                return 0;
-
-            int held = 0;
-
-            foreach (BattlePlayer player in _players)
-            {
-                if (player.Breaker != null)
-                    held = Math.Max(held, player.Breaker.MoonBuffs.Count);
-            }
-
-            return held;
-        }
+        // 이 성질이 준 버프 중 아직 Breaker에 남은 중첩 수(달).
+        private int HeldStacks(EnemyTraitDefinition trait) =>
+            trait.Effect is MoonBuffDefinition && Breaker != null ? Breaker.MoonBuffs.Count : 0;
 
         // 픽업 처리: 픽업 종류마다 등장 주기가 찰 때마다 등장 확률로 하나를 픽업 전용 띠 안에 만든다.
         // 픽업 띠는 일반 띠의 바깥 반지름 기준 오프셋이라 소환 때마다 그때의 일반 띠로 푼다. 위치 난수도 일반 적과 따로다.
@@ -351,13 +328,12 @@ namespace BlackHole.Core
             _enemies.BeginAdvance();
             DeathEffects.BeginAdvance();
 
-            foreach (BattlePlayer player in _players)
-                player.BeginAdvance();
+            Breaker?.BeginAdvance();
         }
 
         // 한 단계. 순서가 중요한 처리는 여기에 문장 순서대로 쓴다(GAME_RULES 13절의 번호).
         // 1. Enemy Action: 살아 있는 적이 행동에 따라 움직인다.
-        // 2. Passive Attack: 참가자 순서로 스킬이 공격한다. 피해로 죽은 적은 그 순간 사망이 확정된다(DealDamage).
+        // 2. Passive Attack: Breaker가 조준점을 친다. 피해로 죽은 적은 그 순간 사망이 확정된다(DealDamage).
         // 3. Damage / Death: 쌓인 파괴 요청의 사망을 확정한다.
         // 4. Death Effect: 예고가 끝난 레이저 별 레이저를 쏜 뒤, 이번 Step에 피해로 죽은 특수 적의 성질 효과를 사망 순서대로 처리한다.
         //    효과로 죽은 적도 같은 Step의 사망이다. 레이저 별은 여기서 예고를 시작하고, 예고 시간이 지난 Step에 쏜다.
@@ -372,8 +348,7 @@ namespace BlackHole.Core
         {
             _enemies.Move(delta);
 
-            foreach (BattlePlayer player in _players)
-                player.Attack(delta, this);
+            Breaker?.Advance(delta, this);
 
             ProcessDestroyRequests();
             DeathEffects.Resolve(this, delta);
@@ -433,7 +408,7 @@ namespace BlackHole.Core
                 return false;
 
             Hq.AddExp(enemy.Stats.Exp);
-            DeathEffects.Enqueue(enemy, damage.Source);
+            DeathEffects.Enqueue(enemy);
             RollDeathBonuses(enemy);
             return true;
         }
@@ -483,10 +458,8 @@ namespace BlackHole.Core
             return chance >= 1 || random.NextFloat() < chance;
         }
 
-        // 파괴 요청의 사망 확정: Gold·EXP·사망 기록·처치 수는 피해로 죽을 때와 같다.
-        // [보류] 사망 효과 대기열에는 넣지 않는다 — 파괴에는 피해의 출처(PlayerId)가 없어 효과 피해의 출처를 정할 수 없기 때문이다.
-        // 그래서 지금은 파괴로 죽은 특수 적의 성질 효과(번개·폭발·버프 등)가 발동하지 않는다. "특수 효과는 사망 시 공통 발동" 규칙과 어긋난다.
-        // 지금은 RequestDestroy를 부르는 곳이 없어 영향이 없다. 파괴 요청을 쓰게 되면 출처를 정하고 DeathEffects.Enqueue를 여기서 부른다.
+        // 파괴 요청의 사망 확정: Gold·EXP·사망 기록·처치 수와 성질 효과는 피해로 죽을 때와 같다("특수 효과는 사망 시 공통 발동").
+        // 지금은 RequestDestroy를 부르는 곳이 없다.
         private void ProcessDestroyRequests()
         {
             foreach (Enemy enemy in _destroyRequests)
@@ -495,6 +468,7 @@ namespace BlackHole.Core
                     continue;
 
                 Hq.AddExp(enemy.Stats.Exp);
+                DeathEffects.Enqueue(enemy);
                 RollDeathBonuses(enemy);
             }
 

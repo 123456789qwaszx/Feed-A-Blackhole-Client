@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 한 판의 사망 효과 대기열과 처리.
-    // 대기열: 특수 적(성질이 붙은 적)이 피해로 죽는 순간(World.DealDamage) 그 성질의 효과·죽은 자리·마지막 피해의 출처를 넣음.
+    // 대기열: 특수 적(성질이 붙은 적)이 죽는 순간(피해: World.DealDamage, 파괴: World.ProcessDestroyRequests) 그 성질의 효과·죽은 자리를 넣음.
     // 처리: 넣은 순서(사망 순서)대로 효과를 실행하고 대기열을 비움.
     // 레이저 별은 죽는 순간 경로를 정해 예고를 시작하고, 예고 시간이 지난 Step에 쏜다(피해는 그때 준다).
     // 효과의 피해는 특수 적(성질이 붙은 적, 픽업 포함)에게 가지 않는다 — 효과가 효과를 부르지 않는다.
@@ -31,29 +31,26 @@ namespace BlackHole.Core
         {
             public DeathEffectDefinition Effect { get; }
             public Point2 Position { get; }
-            public PlayerId Source { get; }
             // 죽은 적의 크기 배율(반지름 ÷ 크기 1의 반지름, SizeRule). 폭발 반지름이 이만큼 커진다.
             public float SizeScale { get; }
             // 죽은 적 성질의 동시 상한(EnemyTraitDefinition.MaxAlive). 달 중첩의 상한으로 쓴다. 0이면 상한이 없다.
             public int MaxStacks { get; }
 
-            public Pending(DeathEffectDefinition effect, Point2 position, PlayerId source, float sizeScale, int maxStacks)
+            public Pending(DeathEffectDefinition effect, Point2 position, float sizeScale, int maxStacks)
             {
                 Effect = effect;
                 Position = position;
-                Source = source;
                 SizeScale = sizeScale;
                 MaxStacks = maxStacks;
             }
         }
 
-        // 예고 중인 레이저. 경로·정의·출처는 예고를 시작할 때 정해진다.
+        // 예고 중인 레이저. 경로·정의는 예고를 시작할 때 정해진다.
         private sealed class ChargingLaser
         {
             public Point2 Start;
             public Point2 End;
             public LaserBurstDefinition Definition;
-            public PlayerId Source;
             public float Remaining;
         }
 
@@ -77,12 +74,12 @@ namespace BlackHole.Core
             LaserTelegraphs = _laserTelegraphs.AsReadOnly();
         }
 
-        // 막 죽은 적(피해로 처음 죽음)이 특수 적이면 그 성질의 효과를 대기열에 추가.
-        // [보류] 파괴 요청으로 죽은 적은 여기로 오지 않는다(World.ProcessDestroyRequests 참고).
-        internal void Enqueue(Enemy enemy, PlayerId source)
+        // 막 죽은 적(피해·파괴로 처음 죽음)이 특수 적이면 그 성질의 효과를 대기열에 추가.
+        // 효과의 피해 출처는 효과 자신이다(번개·폭발·레이저) — 누가 그 특수 적을 죽였는지와 무관하다.
+        internal void Enqueue(Enemy enemy)
         {
             if (enemy.Trait != null)
-                _pending.Add(new Pending(enemy.Trait.Effect, enemy.Position, source, enemy.Stats.Radius / enemy.Definition.Radius, enemy.Trait.MaxAlive));
+                _pending.Add(new Pending(enemy.Trait.Effect, enemy.Position, enemy.Stats.Radius / enemy.Definition.Radius, enemy.Trait.MaxAlive));
         }
 
         internal void BeginAdvance()
@@ -122,12 +119,10 @@ namespace BlackHole.Core
                         Charge(laser, pending);
                         break;
                     case MoonBuffDefinition:
-                        foreach (BattlePlayer player in world.Players)
-                            player.Breaker?.GrantMoon(pending.MaxStacks);
+                        world.Breaker?.GrantMoon(pending.MaxStacks);
                         break;
                     case CometBuffDefinition:
-                        foreach (BattlePlayer player in world.Players)
-                            player.Breaker?.GrantComet();
+                        world.Breaker?.GrantComet();
                         break;
                     case GoldenDefinition:
                         // 황금의 Gold 배율은 출현 때 그 적의 수치에 들어 있고, 사망 확정 순간 판의 합계에 이미 들었다.
@@ -194,7 +189,7 @@ namespace BlackHole.Core
                 _struck.Add(nearest);
                 _lightningHits.Add(new LightningHit(_nextSequence++, origin, nearest.Position, critical));
                 origin = nearest.Position;
-                world.DealDamage(nearest, new Damage(amount, pending.Source, critical));
+                world.DealDamage(nearest, new Damage(amount, DamageSource.ChainLightning, critical));
             }
         }
 
@@ -212,7 +207,7 @@ namespace BlackHole.Core
             }
 
             foreach (Enemy target in _targets)
-                world.DealDamage(target, new Damage(explosion.DamageTo(target), pending.Source));
+                world.DealDamage(target, new Damage(explosion.DamageTo(target), DamageSource.Explosion));
 
             _explosions.Add(new ExplosionBlast(_nextSequence++, pending.Position, radius, _targets.Count));
         }
@@ -231,7 +226,6 @@ namespace BlackHole.Core
                 Start = new Point2(center.X - LaserReach * directionX, center.Y - LaserReach * directionY),
                 End = new Point2(center.X + LaserReach * directionX, center.Y + LaserReach * directionY),
                 Definition = laser,
-                Source = pending.Source,
                 Remaining = LaserTelegraphSeconds,
             });
         }
@@ -285,7 +279,7 @@ namespace BlackHole.Core
 
             var damage = new Damage(critical
                 ? laser.Damage * laser.CritMultiplier
-                : laser.Damage, charging.Source, critical);
+                : laser.Damage, DamageSource.LaserBurst, critical);
 
             foreach (Enemy target in _targets)
                 world.DealDamage(target, damage);

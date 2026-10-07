@@ -279,7 +279,7 @@ namespace BlackHole.EditorTools
         // 미리보기에서 산 Rank를 산 순서대로 다시 산다. 이제는 살 수 없는 Rank(숨었거나 없어진 노드)는 빠진다.
         private void ReplayPreview()
         {
-            _previewState = new PlayerState(new PlayerId(1));
+            _previewState = new PlayerState();
             _previewState.EarnGold(PreviewGold);
 
             if (!_preview || _load?.Tree == null)

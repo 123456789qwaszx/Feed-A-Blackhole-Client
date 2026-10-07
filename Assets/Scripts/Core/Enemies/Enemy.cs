@@ -29,7 +29,8 @@ namespace BlackHole.Core
 
         public Point2 Position { get; private set; }
 
-        public PlayerId? LastDamageSource { get; private set; }
+        // 마지막으로 피해를 준 스킬·효과. 맞은 적이 없으면 null.
+        public DamageSource? LastDamageSource { get; private set; }
 
         public event Action<Enemy, Damage> Damaged;
         public event Action<Enemy> Died;

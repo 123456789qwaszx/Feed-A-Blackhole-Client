@@ -15,9 +15,6 @@ namespace BlackHole.Unity
     // 누락된 연결은 조립 전에 오류로 알린다. Presentation을 비워 두면 아무것도 바꾸지 않는 빈 Presentation을 쓴다.
     public sealed class GameBootstrap : MonoBehaviour
     {
-        // 방장(로컬 Player). 진행 상태의 주인이고, 지금 판 안의 참가자도 방장 한 명이다.
-        private static readonly PlayerId Host = new PlayerId(1);
-
         [Header("Content")]
         [SerializeField] private EnemyCatalog _enemyCatalog;
         [SerializeField] private EnemySupplySetup _enemySupply;
@@ -120,11 +117,11 @@ namespace BlackHole.Unity
 
         private void BootstrapBattle()
         {
-            // 화면이 보는 진행 상태: 방장의 것. 전투 사이에 이어지고, 진행 저장으로 앱을 다시 켜도 이어진다.
-            _viewer = new PlayerState(Host);
+            // 화면이 보는 진행 상태. 전투 사이에 이어지고, 진행 저장으로 앱을 다시 켜도 이어진다.
+            _viewer = new PlayerState();
             _battle = new BattleSystem(_loaded.Content, _viewer, _enemyView, _breakerView, _deathEffectView, _hqView, _cameraFit);
-            // 마우스가 조준하는 참가자: 방장.
-            _aim = new AimInput(_battle, _viewer.Id);
+            // 포인터 위치를 Breaker의 조준점으로 넣는다.
+            _aim = new AimInput(_battle);
         }
 
         // 진행 저장을 한 번 불러 검사한다. 진행 상태에 넣는 것은 모드 선택에서 계속을 고를 때다.

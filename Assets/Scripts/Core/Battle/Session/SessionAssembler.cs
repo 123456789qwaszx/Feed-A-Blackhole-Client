@@ -3,31 +3,21 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 진행 상태는 방장의 것 하나다:
-    // - 방장이 노드를 사고(Gold·산 노드), 그 결과가 판 전체에 반영됨.
-    // 스탯과 처치 버프는 판 안의 모든 참가자가 함께 받음.
+    // 진행 상태(PlayerState)와 업그레이드 표로 한 판을 조립한다:
+    // - 산 노드가 만든 업그레이드 표가 Breaker 수치, 제한 시간, 적의 판 구성·수치를 정함.
     //
     // 조립한 판은 준비 단계(Preparing)다:
-    // - 이 판의 판 구성과 적 수치를 확정하고, 판 안의 참가자(조준점·스킬)를 만듬.
+    // - 이 판의 판 구성과 적 수치를 확정하고, Breaker를 만듬.
     public static class SessionAssembler
     {
-        public const int DefaultSeed = 0;
-
-        public static GameSession CreateBattle(GameContent content, PlayerState progress) =>
-            CreateBattle(content, progress, DefaultSeed);
-
-        public static GameSession CreateBattle(GameContent content, PlayerState progress, int seed, UpgradeTable upgrades = null)
+        public static GameSession CreateBattle(
+            GameContent content,
+            PlayerState progress,
+            int seed,
+            UpgradeTable upgrades)
         {
-            UpgradeTable table = upgrades ?? new UpgradeTable(Array.Empty<Upgrade>());
+            UpgradeTable table = upgrades;
             EnemyContent enemies = content.Enemies;
-
-            var battlePlayers = new List<BattlePlayer>
-            {
-                new BattlePlayer(
-                    progress.Id,
-                    content.Breaker?.Upgraded(table),
-                    seed),
-            };
 
             // 이 판의 블랙홀: 성장도가 시작 Level(마지막 이정표)과 목표 Level(다음 이정표)을 정한다.
             var hq = new Hq(content.Growth, HqUpgradeStats.GrowthTimeFrom(table), progress.GrowthStage);
@@ -49,7 +39,7 @@ namespace BlackHole.Core
                 enemies.EnemyPlacement?.Scaled(hq.FieldScale),
                 enemies.PickupPlacement?.Scaled(hq.FieldScale),
                 hq,
-                battlePlayers,
+                content.Breaker?.Upgraded(table),
                 GrowthSupplyOf(startSupply, stats));
 
             return new GameSession(
