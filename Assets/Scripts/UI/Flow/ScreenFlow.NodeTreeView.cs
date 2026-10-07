@@ -41,7 +41,11 @@ namespace BlackHole.Unity
         {
             PurchaseResult result = NodePurchase.TryPurchase(_player, _tree, id);
 
-            if (result == PurchaseResult.Purchased) SoundManager.Instance?.PlayNodeUpgrade();
+            if (result == PurchaseResult.Purchased)
+            {
+                SoundManager.Instance?.PlayNodeUpgrade();
+                _progress.Save(_player);
+            }
 
             RefreshUpgrade();
         }

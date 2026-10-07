@@ -6,12 +6,12 @@ using UnityEngine;
 namespace BlackHole.Unity
 {
     // 씬의 직렬화 설정으로 게임을 조립하는 Unity 진입점.
-    // - Awake: 콘텐츠 로드(GameContentLoader), 적 화면·Breaker 화면·사망 효과 화면·블랙홀 화면, 진행 상태, 전투 시스템, 조준 입력,
+    // - Awake: 콘텐츠 로드(GameContentLoader), 적 화면·Breaker 화면·사망 효과 화면·블랙홀 화면, 진행 상태와 진행 저장, 전투 시스템, 조준 입력,
     //   UI(UIManager와 타이틀·업그레이드·전투·결산 화면), 화면 흐름, GameHost 조립.
     // - Start/Update: 조립한 GameHost에 Unity 수명을 전달한다.
     //
     // 화면은 씬의 UI Canvas에 놓인 화면 프리팹(TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen)을 Root Layer와 Views로,
-    // 패널 프리팹(ModeSelectPanel·SettingsPanel·PausePanel)을 Panel Layer와 Views로 받는다.
+    // 패널 프리팹(ModeSelectPanel·SettingsPanel·PausePanel·ConfirmPanel)을 Panel Layer와 Views로 받는다.
     // 누락된 연결은 조립 전에 오류로 알린다. Presentation을 비워 두면 아무것도 바꾸지 않는 빈 Presentation을 쓴다.
     public sealed class GameBootstrap : MonoBehaviour
     {
@@ -51,6 +51,7 @@ namespace BlackHole.Unity
         [SerializeField] private UIPresentationSpec _battlePresentation;
         [SerializeField] private UIPresentationSpec _settlementPresentation;
         [SerializeField] private UIPresentationSpec _nodeTreePresentation;
+        [SerializeField] private UIPresentationSpec _confirmPresentation;
 
         [Header("UI Context")]
         [SerializeField] private string _themeId = "Light";
@@ -71,6 +72,7 @@ namespace BlackHole.Unity
         private HqView _hqView;
         private BattleSystem _battle;
         private PlayerState _viewer;
+        private ProgressStore _progress;
         private AimInput _aim;
         private GameSettings _settings;
         private UIManager _ui;
@@ -94,6 +96,7 @@ namespace BlackHole.Unity
 
             BootstrapBattleViews();
             BootstrapBattle();
+            BootstrapProgress();
             BootstrapSettings();
             BootstrapUI();
             BootstrapScreenFlow();
@@ -117,12 +120,16 @@ namespace BlackHole.Unity
 
         private void BootstrapBattle()
         {
-            // 화면이 보는 진행 상태: 방장의 것. 전투 사이에 이어진다(저장은 없다).
+            // 화면이 보는 진행 상태: 방장의 것. 전투 사이에 이어지고, 진행 저장으로 앱을 다시 켜도 이어진다.
             _viewer = new PlayerState(Host);
             _battle = new BattleSystem(_loaded.Content, _viewer, _enemyView, _breakerView, _deathEffectView, _hqView, _cameraFit);
             // 마우스가 조준하는 참가자: 방장.
             _aim = new AimInput(_battle, _viewer.Id);
         }
+
+        // 진행 저장을 한 번 불러 검사한다. 진행 상태에 넣는 것은 모드 선택에서 계속을 고를 때다.
+        private void BootstrapProgress() =>
+            _progress = ProgressStore.Load(Application.persistentDataPath, _loaded.NodeTree.Content, _loaded.Content.Growth);
 
         // 저장된 플레이어 설정을 읽는다(없으면 기본값).
         private void BootstrapSettings() => _settings = GameSettings.Load();
@@ -167,7 +174,8 @@ namespace BlackHole.Unity
                 OrEmpty(_battlePresentation, "Battle"),
                 OrEmpty(_settlementPresentation, "Settlement"),
                 OrEmpty(_nodeTreePresentation, "NodeTree"),
-                _battle, _viewer, _loaded.NodeTree, BuildNodeItems(_loaded.NodeTree, _loaded.NodeLayout), _loaded.Content.Growth,
+                OrEmpty(_confirmPresentation, "Confirm"),
+                _battle, _viewer, _progress, _loaded.NodeTree, BuildNodeItems(_loaded.NodeTree, _loaded.NodeLayout), _loaded.Content.Growth,
                 _settings, _transition);
         }
 
@@ -193,6 +201,13 @@ namespace BlackHole.Unity
         }
 
         private void Update() => _host?.Tick(Time.deltaTime);
+
+        // 모바일은 앱 종료 이벤트가 불리지 않는 경우가 많아, 앱이 내려갈 때 저장해 둔다. 조립에 실패했으면 저장할 것이 없다.
+        private void OnApplicationPause(bool paused)
+        {
+            if (paused && enabled)
+                _progress.Save(_viewer);
+        }
 
         private void OnDestroy()
         {
@@ -259,6 +274,7 @@ namespace BlackHole.Unity
                 bool hasBattle = false;
                 bool hasSettlement = false;
                 bool hasNodeTree = false;
+                bool hasConfirm = false;
 
                 foreach (UIBase view in _views)
                 {
@@ -270,15 +286,16 @@ namespace BlackHole.Unity
                     hasBattle |= view is BattleScreen;
                     hasSettlement |= view is SettlementScreen;
                     hasNodeTree |= view is NodeTreeView;
+                    hasConfirm |= view is ConfirmPanel;
                 }
 
-                if (hasTitle && hasModeSelect && hasSettings && hasPause && hasUpgrade && hasBattle && hasSettlement && hasNodeTree)
+                if (hasTitle && hasModeSelect && hasSettings && hasPause && hasUpgrade && hasBattle && hasSettlement && hasNodeTree && hasConfirm)
                     return true;
             }
 
             Debug.LogError(
                 "[UI] GameBootstrap에 Root Layer, Panel Layer와 TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen, " +
-                "업그레이드 화면 안의 트리 보기 페이지(NodeTreeView), Panel Layer 아래의 모드 선택 패널(ModeSelectPanel)·설정 패널(SettingsPanel)·일시 정지 패널(PausePanel)을 Registered Views로 연결해야 한다.",
+                "업그레이드 화면 안의 트리 보기 페이지(NodeTreeView), Panel Layer 아래의 모드 선택 패널(ModeSelectPanel)·설정 패널(SettingsPanel)·일시 정지 패널(PausePanel)·확인 창(ConfirmPanel)을 Registered Views로 연결해야 한다.",
                 this);
             return false;
         }

@@ -28,8 +28,8 @@ public sealed partial class UIManager
         Transform panelLayer,
         UIResolver resolver,
         UIPresentationApplier presentationApplier,
-        int panelKeepAliveDepth = 1,
-        float coveredPanelAlpha = 0f)
+        int panelKeepAliveDepth = 2,
+        float coveredPanelAlpha = 0.95f)
     {
         _rootLayer = rootLayer;
         _panelLayer = panelLayer;

@@ -84,7 +84,8 @@ namespace BlackHole.Core
                     continue;
 
                 EnemyDefinition enemy = Guard(at, into, () =>
-                    new EnemyDefinition(item.Id, item.MoveSpeed, item.Radius, item.RadiusStep, tiers, traits, item.UpgradesTo, item.PickupPeriod));
+                    new EnemyDefinition(item.Id, item.MoveSpeed, item.Radius, item.RadiusStep, tiers, traits, item.UpgradesTo, item.PickupPeriod,
+                        item.PickupRainCount));
 
                 if (enemy != null)
                     enemies.Add(enemy);
@@ -139,7 +140,7 @@ namespace BlackHole.Core
                 if (into.Count > errors)
                     continue;
 
-                EnemyTraitDefinition trait = Guard(itemAt, into, () => new EnemyTraitDefinition(item.Id, effect));
+                EnemyTraitDefinition trait = Guard(itemAt, into, () => new EnemyTraitDefinition(item.Id, effect, item.MaxAlive));
 
                 if (trait != null)
                     traits.Add(trait);
@@ -162,7 +163,7 @@ namespace BlackHole.Core
             switch (item.Kind)
             {
                 case "Golden":
-                    return Guard(at, into, () => new GoldenDefinition(item.Multiplier));
+                    return Guard(at, into, () => new GoldenDefinition(item.Multiplier, item.CritChance, item.CritRewardScale));
                 case "ChainLightning":
                     return Guard(at, into, () => new ChainLightningDefinition(
                         item.Damage, item.Radius, item.MaxTargets, item.BranchChance, item.CritChance, item.CritMultiplier));

@@ -36,6 +36,8 @@ namespace BlackHole.Unity
             public TraitEffectKind effect;
             [Tooltip("Golden: Gold 배율.")]
             public float multiplier;
+            [Tooltip("Golden: 치명타 Gold 배율.")]
+            public float critRewardScale;
             [Tooltip("ChainLightning·LaserBurst: 피해.")]
             public float damage;
             [Tooltip("ChainLightning: 번개가 한 번 옮겨 가는 최대 거리. Explosion: 폭발 반경.")]
@@ -44,14 +46,16 @@ namespace BlackHole.Unity
             public int maxTargets;
             [Tooltip("ChainLightning: 줄기가 하나 더 나갈 확률(0 ~ 1).")]
             public float branchChance;
-            [Tooltip("ChainLightning·LaserBurst: 치명타 확률(0 ~ 1).")]
+            [Tooltip("ChainLightning·LaserBurst·Golden: 치명타 확률(0 ~ 1).")]
             public float critChance;
             [Tooltip("ChainLightning·LaserBurst: 치명타일 때 피해 배율.")]
             public float critMultiplier;
-            [Tooltip("Explosion: 대상 최대 HP에 대한 피해 비율(0 ~ 1).")]
+            [Tooltip("Explosion: 맞는 순간 대상의 현재 HP에 대한 피해 비율(0 ~ 1). 올림, 최소 1.")]
             public float healthFraction;
             [Tooltip("LaserBurst: 레이저 너비.")]
             public float width;
+            [Tooltip("이 성질이 붙은 적이 동시에 살아 있을 수 있는 수. 0이면 상한 없음. 다 찼으면 뽑혀도 붙지 않는다(원작 달 최대 개수, 노드 enemy.<종류>.trait.<성질>.max-alive).")]
+            public int maxAlive;
         }
 
         [Serializable]
@@ -79,10 +83,12 @@ namespace BlackHole.Unity
         [SerializeField] private float radiusStep = 0.5f;
 
         [Header("종류 사이")]
-        [Tooltip("이 종류의 생성 중 변환 비율(노드 enemy.<id>.upgrade, %)만큼 나오는 다음 종류. 비우면 변환하지 않는다. 적 종류 목록에 있어야 한다.")]
+        [Tooltip("판 시작 때 시작 공급 중 변환 수(노드 enemy.<id>.upgrade, 마리 수)만큼 바뀌는 다음 종류. 비우면 변환하지 않는다. 적 종류 목록에 있어야 한다.")]
         [SerializeField] private EnemyKind upgradesTo;
         [Tooltip("0보다 크면 픽업(혜성): 공급되지 않고 이 주기(초)마다 등장 확률(노드 enemy.<id>.chance, %)로 나온다. 성질이 정확히 하나여야 한다.")]
         [SerializeField] private float pickupPeriod;
+        [Tooltip("픽업: 혜성 비(노드 enemy.<id>.rain-chance)일 때 한꺼번에 나오는 수. 0이면 혜성 비가 없다.")]
+        [SerializeField] private int pickupRainCount;
         [Header("색 등급 (번호가 적의 색 등급, 빨주노초파남보)")]
         [SerializeField] private List<Tier> tiers = new List<Tier>();
 
@@ -121,6 +127,7 @@ namespace BlackHole.Unity
                 RadiusStep = radiusStep,
                 UpgradesTo = upgradesTo != null ? upgradesTo.Id : null,
                 PickupPeriod = pickupPeriod,
+                PickupRainCount = pickupRainCount,
             };
 
             foreach (Trait trait in traits)
@@ -128,10 +135,12 @@ namespace BlackHole.Unity
                 data.Traits.Add(new EnemyTraitData
                 {
                     Id = trait.id,
+                    MaxAlive = trait.maxAlive,
                     Effect = new DeathEffectData
                     {
                         Kind = trait.effect.ToString(),
                         Multiplier = trait.multiplier,
+                        CritRewardScale = trait.critRewardScale,
                         Damage = trait.damage,
                         Radius = trait.radius,
                         MaxTargets = trait.maxTargets,

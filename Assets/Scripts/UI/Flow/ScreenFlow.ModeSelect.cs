@@ -6,13 +6,15 @@ namespace BlackHole.Unity
     {
         private const string NormalModeId = "normal";
 
-        private static readonly ModeSelectPanel.ModeItem[] Modes =
+        // 모드 카드. 계속 버튼은 이어 할 진행이 있을 때만 켠다(진행 저장).
+        private ModeSelectPanel.ModeItem[] Modes() => new[]
         {
             new ModeSelectPanel.ModeItem(
                 NormalModeId,
                 "Normal Mode",
                 "The main mode. Break asteroids, planets and stars and feed their matter to the black hole.",
-                new Color(0.62f, 0.33f, 0.35f)),
+                new Color(0.62f, 0.33f, 0.35f),
+                canContinue: _progress.CanContinue),
         };
 
         // 지금 루트(타이틀) 위에 모드 선택 창을 쌓는다. 이미 쌓여 있으면 그 창까지 되돌아간다.
@@ -23,7 +25,7 @@ namespace BlackHole.Unity
                 afterPresented: panel =>
                 {
                     BindView(panel, ApplyBindings);
-                    panel.Build(Modes, NormalModeId);
+                    panel.Build(Modes(), NormalModeId);
                 },
                 afterClosed: Unbind);
         }
@@ -43,8 +45,28 @@ namespace BlackHole.Unity
                 p => p.BackClicked -= HandleModeSelectBackClicked);
         }
 
-        private void HandleModeSelectNewGameClicked(string modeId) => EnterMode();
-        private void HandleModeSelectContinueClicked(string modeId) => EnterMode();
+        // 새 게임: 이어 할 진행이 있으면 지운다는 것을 확인받는다.
+        private void HandleModeSelectNewGameClicked(string modeId)
+        {
+            if (_progress.CanContinue)
+                OpenConfirm("NEW GAME", "Start over from the beginning?\nYour saved progress will be lost.", "START", "CANCEL", StartNewGame);
+            else
+                StartNewGame();
+        }
+
+        // 계속: 저장으로 진행 상태를 되살린다(이번 실행에서 이미 진행 중이면 그대로).
+        private void HandleModeSelectContinueClicked(string modeId)
+        {
+            _progress.Continue(_player);
+            EnterMode();
+        }
+
+        // 진행 상태를 처음으로 되돌리고 바로 저장한 뒤 들어간다.
+        private void StartNewGame()
+        {
+            _progress.StartNew(_player);
+            EnterMode();
+        }
 
         private void HandleModeSelectBackClicked() => _ui.PopPanel(Unbind);
 

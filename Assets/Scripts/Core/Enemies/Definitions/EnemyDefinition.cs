@@ -31,7 +31,7 @@ namespace BlackHole.Core
         // 픽업은 성질이 정확히 하나이고 언제나 붙는다(혜성 = 혜성 버프).
         public IReadOnlyList<EnemyTraitDefinition> Traits { get; }
 
-        // 이 종류의 생성 요청 중 변환 비율(노드)만큼이 나오는 다음 종류의 ID(소행성 → 행성 → 별).
+        // 판 시작 때 이 종류의 시작 공급 중 변환 수(노드)만큼이 바뀌는 다음 종류의 ID(소행성 → 행성 → 별).
         public string UpgradesTo { get; }
 
         // 픽업의 등장 판정 주기(초). 0이면 공급되는 보통 종류다.
@@ -41,6 +41,9 @@ namespace BlackHole.Core
 
         public bool IsPickup => PickupPeriod > 0;
 
+        // 픽업의 혜성 비 한 번에 나오는 수(원작 "혜성이 내릴 확률"). 0이면 혜성 비가 없다 — 혜성 비 확률 노드를 사도 하나씩 나온다.
+        public int PickupRainCount { get; }
+
         public EnemyDefinition(
             string id,
             float moveSpeed,
@@ -49,7 +52,8 @@ namespace BlackHole.Core
             IReadOnlyList<EnemyTier> tiers,
             IReadOnlyList<EnemyTraitDefinition> traits = null,
             string upgradesTo = null,
-            float pickupPeriod = 0)
+            float pickupPeriod = 0,
+            int pickupRainCount = 0)
         {
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("ID가 비어 있다.", nameof(id));
@@ -59,6 +63,12 @@ namespace BlackHole.Core
 
             if (float.IsNaN(pickupPeriod) || float.IsInfinity(pickupPeriod) || pickupPeriod < 0)
                 throw new ArgumentOutOfRangeException(nameof(pickupPeriod), "0 이상의 유한한 값이 필요하다(0 = 픽업이 아님).");
+
+            if (pickupRainCount < 0)
+                throw new ArgumentOutOfRangeException(nameof(pickupRainCount), "0 이상이어야 한다(0 = 혜성 비가 없음).");
+
+            if (pickupRainCount > 0 && pickupPeriod <= 0)
+                throw new ArgumentException("혜성 비 수는 픽업에만 둘 수 있다.", nameof(pickupRainCount));
 
             if (float.IsNaN(radiusStep) || float.IsInfinity(radiusStep) || radiusStep < 0)
                 throw new ArgumentOutOfRangeException(nameof(radiusStep), "0 이상의 유한한 값이 필요하다(0 = 크기가 반지름을 바꾸지 않음).");
@@ -94,6 +104,7 @@ namespace BlackHole.Core
             Traits = traits == null ? Array.AsReadOnly(Array.Empty<EnemyTraitDefinition>()) : Array.AsReadOnly(Copy(traits));
             UpgradesTo = string.IsNullOrEmpty(upgradesTo) ? null : upgradesTo;
             PickupPeriod = pickupPeriod;
+            PickupRainCount = pickupRainCount;
         }
 
         // 판 구성 composition에서 색 등급 tier·크기 size(1부터)·성질 trait(없으면 null)의 실행 수치.

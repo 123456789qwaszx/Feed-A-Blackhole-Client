@@ -188,9 +188,9 @@ public class SoundManager : MonoBehaviour
     /// <summary>
     /// 레이저 효과 사운드 재생
     /// </summary>
-    public void PlayRazer()
+    public void PlayLazer()
     {
-        Play(_soundSetup.Razer);
+        Play(_soundSetup.Lazer);
     }
 
     /// <summary>
