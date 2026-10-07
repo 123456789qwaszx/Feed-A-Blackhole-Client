@@ -52,19 +52,19 @@ MonoBehaviour:
     color: {r: 0.45, g: 0.75, b: 1, a: 1}
     effect: 1
     multiplier: 0
-    damage: 600
+    damage: 1800
     radius: 3
-    maxTargets: 4
+    maxTargets: 5
     branchChance: 0
     critChance: 0
-    critMultiplier: 1
+    critMultiplier: 2
     healthFraction: 0
     width: 0
   - id: laser
     color: {r: 1, g: 0.3, b: 0.3, a: 1}
     effect: 3
     multiplier: 0
-    damage: 1000
+    damage: 2000
     radius: 0
     maxTargets: 0
     branchChance: 0

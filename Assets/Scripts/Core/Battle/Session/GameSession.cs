@@ -85,8 +85,10 @@ namespace BlackHole.Core
                 return 0;
             }
 
-            // 6. Growth의 시간 연장: 오른 Level마다 + 소행성 파괴로 인한 시간 추가로 이 판의 제한 시간을 늘린다. 종료 판정보다 먼저다.
-            TimeLimit.Extend(raised * World.Hq.GrowthTime + World.TimeBonus);
+            // 시간 연장(종료 판정보다 먼저):
+            // - 6. Growth: 오른 Level마다 블랙홀의 성장 시간,
+            // - 파괴 때 시간 추가가 성공한 수마다 판 설정의 추가 시간(World가 사망 순간에 판정해 모아 둔다).
+            TimeLimit.Extend(raised * World.Hq.GrowthTime + World.TakeTimeBonuses() * TimeLimit.Definition.KillTimeBonus);
 
             if (TimeLimit.HasExpired(Elapsed))
                 End();

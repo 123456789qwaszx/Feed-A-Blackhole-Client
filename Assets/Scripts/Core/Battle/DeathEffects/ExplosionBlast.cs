@@ -5,6 +5,7 @@ namespace BlackHole.Core
     {
         public long Sequence { get; }
         public Point2 Center { get; }
+        // 실제로 터진 반지름(죽은 별의 크기 배율 반영).
         public float Radius { get; }
         // 피해를 준 적의 수.
         public int HitCount { get; }

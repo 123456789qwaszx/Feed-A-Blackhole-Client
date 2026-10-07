@@ -23,7 +23,7 @@ namespace BlackHole.Core
         // ChainLightning, LaserBurst, Golden(치명타 확률 0 ~ 1, 치명타일 때 피해 배율)
         public float CritChance;
         public float CritMultiplier;
-        // Explosion(대상 최대 HP에 대한 피해 비율, 0 ~ 1)
+        // Explosion(대상 현재 HP에 대한 피해 비율, 0 ~ 1)
         public float HealthFraction;
         // LaserBurst(레이저 너비)
         public float Width;

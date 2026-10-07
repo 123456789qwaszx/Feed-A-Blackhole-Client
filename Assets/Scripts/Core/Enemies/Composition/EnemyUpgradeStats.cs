@@ -9,31 +9,49 @@ namespace BlackHole.Core
         public static string Mass(string kindId) => $"enemy.{kindId}.mass";
         // 전투 시작 공급 수 늘리기. 원작 도전 과제 "50개 이상으로 시작"이 이 강화를 가리킨다. 전체 개체 수 상한 안이어야 한다.
         public static string StartSupply(string kindId) => $"enemy.{kindId}.start-supply";
-        // 블랙홀이 Level업할 때마다 이 종류를 더 요청하는 수(원작 "성장 때 소행성 더"). 기본값 0.
+        // 블랙홀이 Level업할 때마다 이 종류를 판 시작 수의 몇 % 요청하는가(원작 "블랙홀 성장 시 생성되는 소행성 수"). %, 기본값 0.
+        // 시작 수는 변환까지 반영한 이 판의 전투 시작 공급 수다. 시작 수가 0인 종류는 나오지 않는다.
         public static string GrowthSupply(string kindId) => $"enemy.{kindId}.growth-supply";
-        // 다음 종류로의 변환(원작 "소행성 → 행성 업그레이드", "행성 → 별 업그레이드"). %, 기본값 0.
+        // 판 시작 때 이 종류의 시작 공급 중 몇 마리를 다음 종류로 바꾸는가(원작 "소행성을 행성으로 업그레이드"). 마리 수, 기본값 0.
+        // 시작 공급보다 많으면 시작 공급만큼만 바뀐다. 사슬 앞쪽부터 바꾼다(소행성 → 행성을 먼저, 그다음 행성 → 별).
         public static string Upgrade(string kindId) => $"enemy.{kindId}.upgrade";
         // 픽업(혜성)의 등장 확률: 등장 주기마다 이 확률로 하나가 나온다. %, 기본값 0 — 노드를 사야 나온다. 픽업 종류에만 뜻이 있다.
         public static string Chance(string kindId) => $"enemy.{kindId}.chance";
+        // 픽업(혜성)이 나올 때 혜성 비가 될 확률(원작 "혜성이 내릴 확률"). 혜성 비면 종류의 혜성 비 수(EnemyDefinition.PickupRainCount)만큼 한꺼번에 나온다.
+        // %, 기본값 0. 픽업 종류에만 뜻이 있다.
+        public static string RainChance(string kindId) => $"enemy.{kindId}.rain-chance";
+        // 이 종류가 파괴될 때 같은 종류를 하나 새로 요청할 확률(원작 "행성이 파괴될 때 새로운 행성을 생성할 확률"). %, 기본값 0.
+        public static string RespawnChance(string kindId) => $"enemy.{kindId}.respawn-chance";
+        // 이 종류가 파괴될 때 판의 제한 시간이 늘어날 확률(원작 "행성이 파괴될 때 시간이 추가될 확률"). 늘어나는 초는 판 설정(TimeLimitDefinition.KillTimeBonus).
+        // %, 기본값 0.
+        public static string TimeChance(string kindId) => $"enemy.{kindId}.time-chance";
         // 크기(기본 1, 상한 SizeRule.Max). 크기 1부터 이 값까지가 같은 몫으로 섞여 나온다(SizeRule). 한 노드 = 더하기 1.
         public static string Size(string kindId) => $"enemy.{kindId}.size";
         // 특수 성질의 생성 확률(원작 "전기 소행성 생성 확률", "황금 소행성 추가" 등). %, 기본값 0 — 노드를 사야 붙는다.
         public static string TraitChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.chance";
         // 황금 성질의 Gold 배율. 기본값은 그 성질의 배율이다.
         public static string TraitMultiplier(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.multiplier";
-        // 황금 성질의 치명타 Gold 배율. 기본값은 그 성질의 배율이다.
-        public static string TraitCritRewardScale(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.critRewardScale";
-        // 소행성이 파괴될 때 시간이 추가될 확률. %, 기본값 0 - 노드를 사야 시간이 오른다.
-        public static string TimeChance(string kindId) => $"enemy.{kindId}.timeChance";
-        // 소행성이 파괴될 때 새로운 소행성이 생성될 확률. %, 기본값 0 - 노드를 사야 재소환된다. 상한 100%.
-        public static string RespawnChance(string kindId) => $"enemy.{kindId}.respawnChance";
+        // 이 성질의 동시 상한: 살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩(원작 "달 최대 개수"). 기본값은 그 성질의 값(EnemyTraitDefinition.MaxAlive)이다.
+        public static string TraitMaxAlive(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.max-alive";
+
+        // 성질 사망 효과의 수치. 기본값은 그 성질 효과의 값이다(적 종류 에셋). 효과에 없는 수치는 무시된다.
+        // 피해(번개·레이저).
         public static string TraitDamage(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.damage";
-        public static string TraitChain(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.chain";
-        // 전기 소행성이 갈라질 확률. %, 기본값 0 - 노드를 사야 전기 갈라짐이 발생한다.
-        public static string TraitSplitChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.splitChance";
-        // 특수 성질의 행성의 치명타 확률. %, 기본값 0 - 노드를 사야 치명타가 발생한다.
-        public static string TraitCritChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.critChance";
-        // 전기 소행성의 치명타 배율 . %, 기본값 0 - 노드를 사야 치명타 배율이 증가한다.
-        public static string TraitCritBonus(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.critBonus";
+        // 치명타 확률(번개·레이저, 0 ~ 1, 1을 넘지 않는다).
+        public static string TraitCritChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.crit-chance";
+        // 치명타 피해 배율(번개·레이저, 2 = ×2 = 시트 200%).
+        public static string TraitCritMultiplier(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.crit-multiplier";
+        // 번개 한 줄기가 옮겨 가는 최대 횟수(원작 "최대 연쇄").
+        public static string TraitMaxTargets(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.max-targets";
+        // 번개 줄기가 하나 더 나갈 확률(원작 "갈라질 확률", 0 ~ 1, 1을 넘지 않는다).
+        public static string TraitBranchChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.branch-chance";
+        // 레이저 너비.
+        public static string TraitWidth(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.width";
+        // 번개가 한 번 옮겨 가는 최대 거리 / 폭발 반지름.
+        public static string TraitRadius(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.radius";
+        // 폭발 피해 = 대상 현재 HP × 이 비율(0 ~ 1, 1을 넘지 않는다).
+        public static string TraitHealthFraction(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.health-fraction";
+        // 황금 성질의 치명타 Gold 배율(1 = 기본 Gold의 100%를 더 얹음 = 시트 100%). 기본값은 그 성질의 값이다.
+        public static string TraitCritRewardScale(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.crit-reward-scale";
     }
 }
