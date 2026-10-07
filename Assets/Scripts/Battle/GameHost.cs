@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 조립된 게임의 실행 수명. GameBootstrap이 Awake에서 만들고 Start/Update/OnDestroy에서 호출한다.
-    // 매 프레임: 조준 입력 → 전투 진행 → 판이 끝난 프레임에 화면 흐름에 알림 → 전투 HUD 갱신 → 마우스 커서.
-    // 마우스 커서: 판이 진행 중일 때만 숨긴다(조준점의 Breaker 링이 커서 역할을 한다). 일시정지·결산·타이틀에서는 보인다.
     internal sealed class GameHost : IDisposable
     {
         private readonly UIManager _ui;
@@ -20,9 +17,17 @@ namespace BlackHole.Unity
         private readonly HqView _hqView;
         private readonly CameraShake _cameraShake;
 
-        public GameHost(UIManager ui, BattleSystem battle, AimInput aim, ScreenFlow screens,
-            EnemyLooks enemyLooks, EnemyView enemyView, BreakerView breakerView,
-            DeathEffectView deathEffectView, HqView hqView, CameraShake cameraShake)
+        public GameHost(
+            UIManager ui,
+            BattleSystem battle,
+            AimInput aim,
+            ScreenFlow screens,
+            EnemyLooks enemyLooks,
+            EnemyView enemyView,
+            BreakerView breakerView,
+            DeathEffectView deathEffectView,
+            HqView hqView,
+            CameraShake cameraShake)
         {
             _ui = ui;
             _battle = battle;
@@ -37,14 +42,6 @@ namespace BlackHole.Unity
         }
 
         public void Start() => _screens.GoToTitle();
-
-        // public void Tick(float deltaTime)
-        // {
-        //     _aim.Tick();
-        //     if (_battle.Tick(deltaTime))
-        //         _screens.HandleBattleTimeExpired();
-        //     RefreshBattleHud();
-        // }
 
         public void Tick(float deltaTime)
         {
@@ -83,8 +80,13 @@ namespace BlackHole.Unity
             if (session == null)
                 screen.ShowIdle();
             else
-                screen.Show(session.Remaining, session.World.EarnedGold, session.Phase == SessionPhase.Paused,
-                    session.World.Hq.Level, session.World.Hq.Progress, session.World.Hq.GoalLevel);
+                screen.Show(
+                    session.Remaining,
+                    session.World.EarnedGold,
+                    session.Phase == SessionPhase.Paused,
+                    session.World.Hq.Level,
+                    session.World.Hq.Progress,
+                    session.World.Hq.GoalLevel);
         }
 
         public void Dispose()
