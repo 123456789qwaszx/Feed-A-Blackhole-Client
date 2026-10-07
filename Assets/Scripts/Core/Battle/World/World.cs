@@ -9,7 +9,8 @@ namespace BlackHole.Core
     //
     // 적이 생기고 죽는 일은 요청으로 들어와 쌓이고, Step의 정해진 자리에서 요청 순서대로 처리된다.
     // - 파괴 요청(RequestDestroy) → 13절 3. Damage / Death 자리: 그 적의 사망을 확정한다(피해·HP 계산 없음).
-    // - 생성 요청(RequestSpawn)  → 13절 7. Enemy Supply 자리: 요청한 수만큼 한 마리씩 생성한다(전체 개체 수 상한은 없다).
+    // - 생성 요청(RequestSpawn)  → 13절 7. Enemy Supply 자리: 요청한 수만큼 한 마리씩 생성한다.
+    //   전체 개체 수는 게임 규칙으로 막지 않는다. 최후의 안전 상한(SafetyMaxAlive)에 닿았을 때만 남은 요청을 버린다.
     //   한 마리마다: 색 등급(그 종류의 색 비율) → 특수 성질(그 종류의 성질 확률, 최대 하나)
     //   → 크기(열린 크기가 같은 몫) → 위치.
     //   색·성질·크기는 몫 방식(QuotaPicker)으로 정한다. 수치(Gold 포함)는 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기)의 값이다.
@@ -22,6 +23,10 @@ namespace BlackHole.Core
     // (예: 성질 확률을 바꿔도 색과 위치의 순서는 같다). 참가자마다의 스킬 난수는 BattlePlayer가 받는다.
     public sealed class World
     {
+        // 동시에 살아 있을 수 있는 공급된 적(픽업 제외)의 최후 안전 상한. 게임 규칙이 아니라 성능을 지키기 위한 보류다.
+        // 평소 플레이에서는 닿지 않는 수로 둔다. 닿으면 그 공급 처리의 남은 요청을 버린다(나중에 자리가 나도 다시 나오지 않는다).
+        public const int SafetyMaxAlive = 1000;
+
         private readonly EnemyRoster _enemies = new EnemyRoster();
         private readonly EnemyPlacementDefinition _placement;
         // 픽업(혜성)의 출현 띠: 일반 띠 바깥 반지름 기준 오프셋. 소환 때마다 그때의 일반 띠로 푼다.
@@ -224,11 +229,15 @@ namespace BlackHole.Core
 
         // 공급 처리: 쌓인 생성 요청을 요청 순서대로, 요청한 수만큼 한 마리씩 배치 띠 안에 생성한다. 전투 시작 공급은 Begin(0초)이 바로 부른다.
         // 한 마리마다: 색 등급 → 성질 → 크기 → 위치. 종류는 요청한 그대로다.
+        // 공급된 적이 안전 상한(SafetyMaxAlive)에 닿으면 남은 요청은 버린다. 버린 요청은 색·성질·크기 몫을 쓰지 않는다.
         internal void ProcessSpawnRequests()
         {
+            // 공급 처리 중에는 죽는 적이 없으므로, 남은 자리는 처음에 한 번 세고 생성할 때마다 줄인다.
+            int room = SafetyMaxAlive - SuppliedAlive();
+
             foreach (SupplyRequest request in _spawnRequests)
             {
-                for (int i = 0; i < request.Count; i++)
+                for (int i = 0; i < request.Count && room > 0; i++, room--)
                 {
                     EnemyDefinition kind = request.Enemy;
                     int tier = _tierPickers[kind].Pick();
@@ -239,6 +248,17 @@ namespace BlackHole.Core
             }
 
             _spawnRequests.Clear();
+        }
+
+        // 공급된 적(픽업 제외)의 살아 있는 수. 안전 상한은 이 수에 건다.
+        private int SuppliedAlive()
+        {
+            int count = _enemies.Alive.Count;
+
+            for (int i = 0; i < _pickupKinds.Count; i++)
+                count -= _enemies.CountAlive(_pickupKinds[i]);
+
+            return count;
         }
 
         // 정해진 종류에 붙을 성질: 성질 몫이 있으면 그 확률만큼 성질 하나(배타). 없으면 null.

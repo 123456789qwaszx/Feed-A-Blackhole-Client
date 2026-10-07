@@ -7,7 +7,7 @@ namespace BlackHole.Unity
 {
     // 적 공급·배치 설정 에셋: HQ를 둘러싼 출현 띠, 픽업(혜성)의 출현 띠(일반 띠 바깥 반지름 기준 오프셋), 전투 시작 공급(SYSTEM_CATALOG S08).
     // 공급은 종류 에셋을 직접 가리킨다 — ID 문자열을 치지 않는다. 가리키는 종류는 적 종류 목록(EnemyCatalog)에 있어야 한다.
-    // 전체 개체 수 상한은 없다: 공급 요청은 모두 나온다.
+    // 전체 개체 수 상한은 데이터로 두지 않는다: 공급 요청은 모두 나온다(코드에 최후의 안전 상한 World.SafetyMaxAlive만 있다).
     // 값은 이 에셋을 Inspector에서 직접 고친다.
     [CreateAssetMenu(fileName = "EnemySupplySetup", menuName = "BlackHole/Enemy Supply Setup")]
     public sealed class EnemySupplySetup : ScriptableObject

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace BlackHole.Core
@@ -9,6 +10,7 @@ namespace BlackHole.Core
     // - 달: 공격 속도와 공격 범위를 함께 올린다.
     //   중첩 수는 그 달을 준 성질의 동시 상한(EnemyTraitDefinition.MaxAlive, 원작 "달 최대 개수")까지다. 다 찼으면 새 중첩을 더하지 않는다.
     //   공격 속도 = 노드가 반영된 공격 속도 × (1 + 달 속도 보너스 합), 반지름 = 노드가 반영된 반지름 × (1 + 달 범위 보너스 합).
+    //   반지름 배율은 MoonRadiusMaxScale(2배)에서 멈춘다 — 원작도 달 몇 개로 지름이 2배가 되면 더 먹어도 커지지 않는다. 중첩 수·공격 속도는 그대로 오른다.
     // - 혜성: 중첩이 하나라도 있으면 모든 Tick이 치명타다.
     //   치명타 피해 보너스 = 노드가 반영된 치명타 피해 보너스 × (1 + 혜성 보너스 합). 치명타 피해 = 피해 × (1 + 치명타 피해 보너스).
     // 버프 시간은 공격한 뒤에 준다 — 중첩이 끝나는 Step의 Tick까지는 그 중첩이 효과를 낸다.
@@ -16,6 +18,9 @@ namespace BlackHole.Core
     {
         // 진행 시간을 더한 값의 끝자리 오차. 이만큼 모자라도 Tick 시각에 닿은 것으로 본다.
         private const float TimeEpsilon = 1e-5f;
+
+        // 달 버프로 커지는 반지름의 최대 배율. (1 + 달 범위 보너스 합)이 이보다 커도 이 배율까지만 쓴다(원작: 지름 2배).
+        public const float MoonRadiusMaxScale = 2f;
 
         // 보너스 피해를 받는 적 종류(EnemyDefinition.Id — Enemies/Planet.asset, Star.asset의 id).
         private const string PlanetKind = "planet";
@@ -65,7 +70,8 @@ namespace BlackHole.Core
         public bool IsGuaranteedCritical => _comet.Count > 0;
 
         // 지금 Tick이 쓰는 공격 원의 반지름(달 버프 포함). 판정과 화면의 범위 표시가 이 값을 쓴다.
-        public float CurrentRadius => Definition.Radius * (1 + MoonRadiusBonus);
+        // 달 버프 배율은 MoonRadiusMaxScale까지다.
+        public float CurrentRadius => Definition.Radius * Math.Min(1 + MoonRadiusBonus, MoonRadiusMaxScale);
 
         // 지금 치명타 Tick에 적용되는 치명타 피해 보너스(혜성 버프 포함). 치명타 피해 = 피해 × (1 + 이 값).
         public float CurrentCritDamage => Definition.CritDamage * (1 + CometCritDamageBonus);
