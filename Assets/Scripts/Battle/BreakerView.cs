@@ -95,8 +95,7 @@ namespace BlackHole.Unity
 
         public void Synchronize(World world, bool paused, float delta)
         {
-            if (world.Breaker != null)
-                Show(world.AimPoint, world.Breaker, paused, delta, world.Hq.FieldScale);
+            Show(world.AimPoint, world.Breaker, paused, delta, world.Hq.FieldScale);
         }
 
         // 판이 바뀌거나 판을 정리할 때 모든 링을 지운다.

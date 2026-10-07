@@ -44,11 +44,13 @@ namespace BlackHole.Core
 
         // ── 스킬 ────────────────────────────────────────────────────────────
 
-        // 없으면 판에 Breaker가 없다.
         private static BreakerDefinition LoadBreaker(BreakerData item, List<ContentDiagnostic> into)
         {
             if (item == null)
+            {
+                into.Add(new ContentDiagnostic("Breaker", "데이터가 없다."));
                 return null;
+            }
 
             return Guard("Breaker", into, () =>
                 new BreakerDefinition(item.Damage, item.Interval, item.Radius, item.CritChance, item.CritDamage,

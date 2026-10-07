@@ -3,7 +3,7 @@ using System;
 namespace BlackHole.Core
 {
     // Breaker의 공유 정의: 기본 수치. 조준점을 중심으로 한 원에 닿는 적(적의 크기 포함) 전부를 주기마다 친다(GAME_RULES 6절).
-    // 콘텐츠에 Breaker가 없으면 판에 Breaker가 없다. 실행 상태는 판의 BreakerSkill(World.Breaker)이 가진다.
+    // 실행 상태는 판의 BreakerSkill(World.Breaker)이 가진다.
     // 치명타는 Breaker의 수치다(원작의 Breaker 강화 축, 노드 수치 breaker.critChance). 모든 스킬의 공통 수치가 아니다(SKILL_SYSTEM_PLAN D2).
     // 처치 버프(달·혜성)의 지속 시간과 중첩당 수치도 Breaker의 수치다. 적은 어떤 버프를 주는지만 정하고 수치를 갖지 않는다.
     public sealed class BreakerDefinition

@@ -35,10 +35,10 @@ namespace BlackHole.Core
             var world = new World(
                 seed,
                 stats,
-                enemies.EnemyPlacement?.Scaled(hq.FieldScale),
-                enemies.PeriodicSpawnPlacement?.Scaled(hq.FieldScale),
+                enemies.EnemyPlacement.Scaled(hq.FieldScale),
+                enemies.PeriodicSpawnPlacement.Scaled(hq.FieldScale),
                 hq,
-                content.Breaker?.Upgraded(upgrades),
+                content.Breaker.Upgraded(upgrades),
                 GrowthSupplyOf(startSupply, stats));
 
             return new GameSession(

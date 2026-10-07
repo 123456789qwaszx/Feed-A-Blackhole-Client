@@ -17,18 +17,14 @@ namespace BlackHole.Core
 
             var diagnostics = new List<ContentDiagnostic>();
             UpgradeStatValues upgrades = NodePurchase.StatsFor(nodes, node => node.MaxRank);
-            long extraSupply = 0;
 
-            if (content.Breaker != null)
+            try
             {
-                try
-                {
-                    content.Breaker.Upgraded(upgrades);
-                }
-                catch (ArgumentException error)
-                {
-                    diagnostics.Add(new ContentDiagnostic("Nodes(모두 산 경우).Breaker", error.Message));
-                }
+                content.Breaker.Upgraded(upgrades);
+            }
+            catch (ArgumentException error)
+            {
+                diagnostics.Add(new ContentDiagnostic("Nodes(모두 산 경우).Breaker", error.Message));
             }
 
             try
@@ -50,17 +46,13 @@ namespace BlackHole.Core
             }
 
             EnemyContent enemies = content.Enemies;
-            bool growthSupply = false;
             var compositions = new Dictionary<EnemyDefinition, EnemyComposition>();
 
             foreach (EnemyDefinition kind in enemies.Enemies)
             {
                 try
                 {
-                    EnemyComposition composition = EnemyComposition.From(kind, upgrades);
-                    extraSupply += composition.StartSupplyBonus;
-                    growthSupply |= composition.GrowthPercent > 0 || composition.RespawnChance > 0;
-                    compositions.Add(kind, composition);
+                    compositions.Add(kind, EnemyComposition.From(kind, upgrades));
                 }
                 catch (ArgumentException error)
                 {
@@ -79,12 +71,6 @@ namespace BlackHole.Core
                 {
                     diagnostics.Add(new ContentDiagnostic("Nodes(모두 산 경우).Enemies", error.Message));
                 }
-            }
-
-            if ((extraSupply > 0 || growthSupply) && enemies.EnemyPlacement == null)
-            {
-                diagnostics.Add(new ContentDiagnostic(
-                    "Nodes(모두 산 경우).EnemyPlacement", "공급 수·재생성 노드가 있으면 출현 배치가 필요하다."));
             }
 
             return diagnostics.AsReadOnly();

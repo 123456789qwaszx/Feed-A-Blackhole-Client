@@ -46,11 +46,7 @@ namespace BlackHole.Core
             Hq = hq;
             DeathEffects = new DeathEffects(seed);
 
-            Breaker = breaker != null
-                ? new BreakerSkill(
-                    breaker,
-                    new BattleRandom(seed, RandomStream.Critical))
-                : null;
+            Breaker = new BreakerSkill(breaker, new BattleRandom(seed, RandomStream.Critical));
 
             _supply = new EnemySupply(
                 seed,
@@ -103,13 +99,13 @@ namespace BlackHole.Core
             // 0. 이번 Step의 기록(피격·사망, 사망 효과, Breaker Tick)을 비운다.
             _enemies.BeginStep();
             DeathEffects.BeginStep();
-            Breaker?.BeginStep();
+            Breaker.BeginStep();
 
             // 1. Enemy Action
             _enemies.Move(delta);
 
             // 2. Passive Attack: (DealDamage).
-            Breaker?.Advance(delta, this);
+            Breaker.Advance(delta, this);
 
             // 3. Death Effect: 이번 Step에 죽은 특수 적의 성질 효과를 사망 순서대로 처리.
             DeathEffects.Resolve(this, delta);
@@ -135,7 +131,7 @@ namespace BlackHole.Core
         // 성질의 동시 상한(EnemyTraitDefinition.MaxActive, 원작 "달 최대 개수")은 이 수에 건다(EnemySupply).
         private int CountActive(EnemyDefinition kind, EnemyTraitDefinition trait)
         {
-            int held = trait.Effect.Type == DeathEffectType.MoonBuff && Breaker != null ? Breaker.MoonBuffs.Count : 0;
+            int held = trait.Effect.Type == DeathEffectType.MoonBuff ? Breaker.MoonBuffs.Count : 0;
             return _enemies.CountAlive(kind, trait) + held;
         }
     }

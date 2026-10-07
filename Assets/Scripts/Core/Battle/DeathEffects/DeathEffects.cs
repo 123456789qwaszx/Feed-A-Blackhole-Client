@@ -113,10 +113,10 @@ namespace BlackHole.Core
                         Charge(laser, pending);
                         break;
                     case MoonBuffDefinition:
-                        world.Breaker?.GrantMoon();
+                        world.Breaker.GrantMoon();
                         break;
                     case CometBuffDefinition:
-                        world.Breaker?.GrantComet();
+                        world.Breaker.GrantComet();
                         break;
                     case GoldenDefinition:
                         // 황금의 Gold 배율은 출현 때 그 적의 수치에 들어 있고, 사망 확정 순간 판의 합계에 이미 들었다.

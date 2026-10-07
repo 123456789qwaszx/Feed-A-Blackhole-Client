@@ -10,8 +10,8 @@ namespace BlackHole.Core
     // 수치 규칙은 정의 생성자를, 콘텐츠 전체 규칙은 EnemyContentInvariants를 그대로 호출해 경로를 붙인다.
     //
     // 두 단계로 읽는다. 앞 단계에 오류가 있으면 뒤 단계를 보지 않는다(잘못된 정의가 거짓 참조 오류를 만들지 않게).
-    // 1. 개별 정의: 적 종류(색 등급·특수 성질과 그 사망 효과), 출현 배치, 픽업 출현 배치.
-    // 2. 적 종류를 가리키는 것: 적 종류 유일, 공급되는 종류의 색 수, 종류 사이 연결(변환 대상), 공급(픽업 제외), 픽업 출현 배치.
+    // 1. 개별 정의: 적 종류(색 등급·특수 성질과 그 사망 효과), 출현 배치, 주기 출현 배치. 출현 배치 둘은 필수다.
+    // 2. 정의끼리의 규칙: 적 종류 유일, 공급되는 종류의 색 수, 종류 사이 연결(변환 대상), 공급(픽업 제외), 주기 출현 띠가 일반 띠에서 풀리는가.
     public static class EnemyContentLoader
     {
         public static EnemyContent Load(EnemyContentData data, List<ContentDiagnostic> into)
@@ -39,11 +39,7 @@ namespace BlackHole.Core
             EnemyContentInvariants.CheckKindLinks(enemies, enemiesByType, into);
             List<SupplyRequest> startSupply = LoadSupplyList(data.StartSupply, "StartSupply", enemiesByType, into);
             EnemyContentInvariants.CheckSupplyKinds(startSupply, "StartSupply", into);
-
-            if (placement == null)
-                into.Add(new ContentDiagnostic("EnemyPlacement", "출현 배치가 필요하다."));
-
-            EnemyContentInvariants.CheckPeriodicSpawnPlacement(enemies, placement, periodicSpawnPlacement, into);
+            EnemyContentInvariants.CheckPeriodicSpawnPlacement(placement, periodicSpawnPlacement, into);
 
             if (into.Count > errors)
                 return null;
@@ -172,20 +168,24 @@ namespace BlackHole.Core
             }
         }
 
-        // 없으면 null이다. 공급이 있을 때만 필요하다(Load에서 본다).
         private static EnemyPlacementDefinition LoadPlacement(EnemyPlacementData item, List<ContentDiagnostic> into)
         {
             if (item == null)
+            {
+                into.Add(new ContentDiagnostic("EnemyPlacement", "데이터가 없다."));
                 return null;
+            }
 
             return Guard("EnemyPlacement", into, () => new EnemyPlacementDefinition(item.MinDistance, item.MaxDistance));
         }
 
-        // 없으면 null이다. 주기 출현 종류가 있을 때만 필요하다(Load에서 본다).
         private static PeriodicSpawnPlacementDefinition LoadPeriodicSpawnPlacement(PeriodicSpawnPlacementData item, List<ContentDiagnostic> into)
         {
             if (item == null)
+            {
+                into.Add(new ContentDiagnostic("PeriodicSpawnPlacement", "데이터가 없다."));
                 return null;
+            }
 
             return Guard("PeriodicSpawnPlacement", into, () => new PeriodicSpawnPlacementDefinition(item.InnerOffset, item.OuterOffset));
         }

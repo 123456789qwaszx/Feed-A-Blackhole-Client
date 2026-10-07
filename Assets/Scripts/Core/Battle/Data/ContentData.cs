@@ -14,13 +14,13 @@ namespace BlackHole.Core
     {
         public SessionData Session;
 
-        // 스킬은 종류마다 칸이 따로 있다. 비어 있으면 판에 그 스킬이 없다.
+        // Breaker 수치. 필수다.
         public BreakerData Breaker;
 
         // 적 종류, 출현 배치, 전투 시작 공급.
         public EnemyContentData Enemies = new();
 
-        // 블랙홀 성장: 성장도마다의 판 Level 표와 이정표.
+        // 블랙홀 성장: 성장도마다의 판 Level 표와 이정표. 필수다.
         public HqGrowthData Growth;
     }
 }
