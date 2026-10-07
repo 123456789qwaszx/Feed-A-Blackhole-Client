@@ -10,6 +10,9 @@ namespace BlackHole.Core
         // 색 등급(종류의 색 등급 표 번호).
         public int Tier { get; }
 
+        // 크기(SizeRule.Base부터). 출현 때 그 종류의 열린 크기 중 하나로 정해진다. Stats는 이미 이 크기가 반영된 값이다. 픽업은 SizeRule.Base다.
+        public int Size { get; }
+
         // 붙은 특수 성질(황금·전기·달 …). 없으면 null. 출현 때 정해지고, 한 마리에 최대 하나다.
         // 이 판 구성의 성질 객체다(노드가 반영된 수치 — EnemyComposition.Traits).
         public EnemyTraitDefinition Trait { get; }
@@ -36,12 +39,17 @@ namespace BlackHole.Core
             EnemyDefinition definition,
             int tier,
             EnemyTraitDefinition trait,
+            int size,
             EnemyStats stats,
             Point2 position)
         {
+            if (size < SizeRule.Base || size > SizeRule.Max)
+                throw new ArgumentOutOfRangeException(nameof(size), $"크기는 {SizeRule.Base}부터 {SizeRule.Max}까지다. 받은 값: {size}.");
+
             Id = id;
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
             Tier = tier;
+            Size = size;
             Trait = trait;
             Stats = stats;
             Health = stats.MaxHealth;

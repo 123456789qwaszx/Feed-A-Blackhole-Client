@@ -246,7 +246,7 @@ namespace BlackHole.Core
                     int tier = _tierPickers[kind].Pick();
                     EnemyTraitDefinition trait = TraitOf(kind);
                     int size = _sizePickers.TryGetValue(kind, out QuotaPicker sizePicker) ? sizePicker.Pick() + SizeRule.Base : SizeRule.Base;
-                    _enemies.Spawn(kind, tier, trait, Stats.Of(kind, tier, trait, size), _placement.Pick(_placementRandom));
+                    _enemies.Spawn(kind, tier, trait, size, Stats.Of(kind, tier, trait, size), _placement.Pick(_placementRandom));
                 }
             }
 
@@ -346,7 +346,7 @@ namespace BlackHole.Core
                     {
                         int tier = _tierPickers[kind].Pick();
                         Point2 position = _pickupPlacement.Resolve(_placement).Pick(_pickupPlacementRandom);
-                        _enemies.Spawn(kind, tier, trait, Stats.Of(kind, tier, trait), position);
+                        _enemies.Spawn(kind, tier, trait, SizeRule.Base, Stats.Of(kind, tier, trait), position);
                     }
                 }
             }
