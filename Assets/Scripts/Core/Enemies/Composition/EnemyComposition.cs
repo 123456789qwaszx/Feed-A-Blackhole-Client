@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 전투 시작 시, 업그레이드 표로만 결정되는 적 한 종류의 구성 값:
+    // 전투 시작 시, 산 노드의 수치 값으로만 결정되는 적 한 종류의 구성 값:
     // 질량과 그로 정해지는 색 비율,
     // 크기,
     // 더할 시작 공급 수,
@@ -125,18 +125,23 @@ namespace BlackHole.Core
             new(MassRule.Base, RatiosOf(kind, MassRule.Base),
                 traits: kind.Traits, traitChances: new float[kind.Traits.Count]);
 
-        // 업그레이드 표로 이 종류의 판 구성을 계산한다.
-        public static EnemyComposition From(EnemyDefinition kind, UpgradeTable upgrades)
+        // 산 노드의 수치 값으로 이 종류의 판 구성을 계산한다. 종류마다 닿는 수치는 EnemyUpgradeStats가 정한다.
+        // 질량은 수치 값 그대로, 나머지는 기본값(크기 1, 확률·공급 0)에 늘어난 양을 더한다.
+        public static EnemyComposition From(EnemyDefinition kind, UpgradeStatValues upgrades)
         {
-            float mass = upgrades.Apply(EnemyUpgradeStats.Mass(kind.Type), MassRule.Base);
-            int size = Whole(upgrades.Apply(EnemyUpgradeStats.Size(kind.Type), SizeRule.Base));
-            int startSupply = Whole(upgrades.Apply(EnemyUpgradeStats.StartSupply(kind.Type), 0));
-            float growth = NotNegative(upgrades.Apply(EnemyUpgradeStats.GrowthSupply(kind.Type), 0), kind.Type, "성장 공급 %");
-            int upgrade = Whole(upgrades.Apply(EnemyUpgradeStats.Upgrade(kind.Type), 0));
-            float spawnChance = Percent(upgrades.Apply(EnemyUpgradeStats.SpawnChance(kind.Type), 0), kind.Type, "등장 확률");
-            float rain = Percent(upgrades.Apply(EnemyUpgradeStats.RainChance(kind.Type), 0), kind.Type, "혜성 비 확률");
-            float respawn = Percent(upgrades.Apply(EnemyUpgradeStats.RespawnChance(kind.Type), 0), kind.Type, "재생성 확률");
-            float time = Percent(upgrades.Apply(EnemyUpgradeStats.TimeChance(kind.Type), 0), kind.Type, "시간 추가 확률");
+            EnemyType type = kind.Type;
+            float Gain(UpgradeStat? stat) => stat.HasValue ? upgrades.GainOf(stat.Value) : 0;
+
+            UpgradeStat? massStat = EnemyUpgradeStats.Mass(type);
+            float mass = massStat.HasValue ? upgrades.ValueOf(massStat.Value) : MassRule.Base;
+            int size = Whole(SizeRule.Base + Gain(EnemyUpgradeStats.Size(type)));
+            int startSupply = Whole(Gain(EnemyUpgradeStats.StartSupply(type)));
+            float growth = NotNegative(Gain(EnemyUpgradeStats.GrowthSupply(type)), type, "성장 공급 %");
+            int upgrade = Whole(Gain(EnemyUpgradeStats.Upgrade(type)));
+            float spawnChance = Percent(Gain(EnemyUpgradeStats.SpawnChance(type)), type, "등장 확률");
+            float rain = Percent(Gain(EnemyUpgradeStats.RainChance(type)), type, "혜성 비 확률");
+            float respawn = Percent(Gain(EnemyUpgradeStats.RespawnChance(type)), type, "재생성 확률");
+            float time = Percent(Gain(EnemyUpgradeStats.TimeChance(type)), type, "시간 추가 확률");
 
             if (float.IsNaN(mass) || float.IsInfinity(mass) || mass < 0)
                 throw new ArgumentOutOfRangeException(
@@ -183,7 +188,7 @@ namespace BlackHole.Core
                 if (kind.IsPickup)
                     continue;
 
-                chances[i] = Percent(upgrades.Apply(EnemyUpgradeStats.TraitChance(kind.Type, trait.Type), 0), kind.Type, $"'{trait.Type}' 성질 확률");
+                chances[i] = Percent(Gain(EnemyUpgradeStats.TraitChance(type, trait.Type)), type, $"'{trait.Type}' 성질 확률");
                 chanceSum += chances[i];
             }
 
@@ -200,7 +205,7 @@ namespace BlackHole.Core
 
         // 노드가 성질의 수치를 바꾸는 것: 사망 효과의 수치(황금 배율, 번개·레이저·폭발)와 동시 상한.
         // 바뀌지 않으면 종류의 성질 객체를 그대로 쓴다.
-        private static EnemyTraitDefinition Upgraded(EnemyDefinition kind, EnemyTraitDefinition trait, UpgradeTable upgrades)
+        private static EnemyTraitDefinition Upgraded(EnemyDefinition kind, EnemyTraitDefinition trait, UpgradeStatValues upgrades)
         {
             EnemyTraitDefinition upgraded = trait;
             DeathEffectDefinition effect = UpgradedEffect(kind, trait, upgrades);
@@ -208,7 +213,8 @@ namespace BlackHole.Core
             if (effect != null)
                 upgraded = upgraded.With(effect);
 
-            int maxActive = Whole(upgrades.Apply(EnemyUpgradeStats.TraitMaxActive(kind.Type, trait.Type), trait.MaxActive));
+            UpgradeStat? maxActiveStat = EnemyUpgradeStats.TraitMaxActive(kind.Type, trait.Type);
+            int maxActive = Whole(trait.MaxActive + (maxActiveStat.HasValue ? upgrades.GainOf(maxActiveStat.Value) : 0));
 
             if (maxActive < 0)
                 throw new ArgumentOutOfRangeException(
@@ -221,30 +227,39 @@ namespace BlackHole.Core
         }
 
         // 노드가 반영된 사망 효과. 수치가 하나도 바뀌지 않았으면 null이다.
+        // 피해·횟수는 늘어난 양을, 확률·배율은 늘어난 %p ÷ 100을 더하고, 너비·폭발 반지름은 (1 + 늘어난 %p ÷ 100)배 한다.
         // 확률·비율은 1을 넘지 않게 자른다. 그 밖의 한계 밖 값(0 이하의 피해·너비·반지름 등)은 효과 정의의 예외다 — UpgradeContentCheck가 로드 때 찾는다.
-        private static DeathEffectDefinition UpgradedEffect(EnemyDefinition kind, EnemyTraitDefinition trait, UpgradeTable upgrades)
+        private static DeathEffectDefinition UpgradedEffect(EnemyDefinition kind, EnemyTraitDefinition trait, UpgradeStatValues upgrades)
         {
-            float Apply(Func<EnemyType, EnemyTraitType, string> stat, float baseValue) => upgrades.Apply(stat(kind.Type, trait.Type), baseValue);
+            float Gain(Func<EnemyType, EnemyTraitType, UpgradeStat?> statOf)
+            {
+                UpgradeStat? stat = statOf(kind.Type, trait.Type);
+                return stat.HasValue ? upgrades.GainOf(stat.Value) : 0;
+            }
+
+            float Add(Func<EnemyType, EnemyTraitType, UpgradeStat?> statOf, float baseValue) => baseValue + Gain(statOf);
+            float AddPercent(Func<EnemyType, EnemyTraitType, UpgradeStat?> statOf, float baseValue) => baseValue + Gain(statOf) / 100;
+            float Scale(Func<EnemyType, EnemyTraitType, UpgradeStat?> statOf, float baseValue) => baseValue * (1 + Gain(statOf) / 100);
 
             switch (trait.Effect)
             {
                 case GoldenDefinition golden:
                 {
-                    float multiplier = Apply(EnemyUpgradeStats.TraitMultiplier, golden.Multiplier);
-                    float crit = Math.Min(1, Apply(EnemyUpgradeStats.TraitCritChance, golden.CritChance));
-                    float critReward = Apply(EnemyUpgradeStats.TraitCritRewardScale, golden.CritRewardScale);
+                    float multiplier = AddPercent(EnemyUpgradeStats.TraitMultiplier, golden.Multiplier);
+                    float crit = Math.Min(1, AddPercent(EnemyUpgradeStats.TraitCritChance, golden.CritChance));
+                    float critReward = AddPercent(EnemyUpgradeStats.TraitCritRewardScale, golden.CritRewardScale);
 
                     bool same = multiplier == golden.Multiplier && crit == golden.CritChance && critReward == golden.CritRewardScale;
                     return same ? null : new GoldenDefinition(multiplier, crit, critReward);
                 }
                 case ChainLightningDefinition chain:
                 {
-                    float damage = Apply(EnemyUpgradeStats.TraitDamage, chain.Damage);
-                    float radius = Apply(EnemyUpgradeStats.TraitRadius, chain.Radius);
-                    int maxTargets = Whole(Apply(EnemyUpgradeStats.TraitMaxTargets, chain.MaxTargets));
-                    float branch = Math.Min(1, Apply(EnemyUpgradeStats.TraitBranchChance, chain.BranchChance));
-                    float crit = Math.Min(1, Apply(EnemyUpgradeStats.TraitCritChance, chain.CritChance));
-                    float critMultiplier = Apply(EnemyUpgradeStats.TraitCritMultiplier, chain.CritMultiplier);
+                    float damage = Add(EnemyUpgradeStats.TraitDamage, chain.Damage);
+                    float radius = Scale(EnemyUpgradeStats.TraitRadius, chain.Radius);
+                    int maxTargets = Whole(Add(EnemyUpgradeStats.TraitMaxTargets, chain.MaxTargets));
+                    float branch = Math.Min(1, AddPercent(EnemyUpgradeStats.TraitBranchChance, chain.BranchChance));
+                    float crit = Math.Min(1, AddPercent(EnemyUpgradeStats.TraitCritChance, chain.CritChance));
+                    float critMultiplier = AddPercent(EnemyUpgradeStats.TraitCritMultiplier, chain.CritMultiplier);
 
                     bool same = damage == chain.Damage && radius == chain.Radius && maxTargets == chain.MaxTargets
                                 && branch == chain.BranchChance && crit == chain.CritChance && critMultiplier == chain.CritMultiplier;
@@ -252,18 +267,18 @@ namespace BlackHole.Core
                 }
                 case LaserBurstDefinition laser:
                 {
-                    float damage = Apply(EnemyUpgradeStats.TraitDamage, laser.Damage);
-                    float width = Apply(EnemyUpgradeStats.TraitWidth, laser.Width);
-                    float crit = Math.Min(1, Apply(EnemyUpgradeStats.TraitCritChance, laser.CritChance));
-                    float critMultiplier = Apply(EnemyUpgradeStats.TraitCritMultiplier, laser.CritMultiplier);
+                    float damage = Add(EnemyUpgradeStats.TraitDamage, laser.Damage);
+                    float width = Scale(EnemyUpgradeStats.TraitWidth, laser.Width);
+                    float crit = Math.Min(1, AddPercent(EnemyUpgradeStats.TraitCritChance, laser.CritChance));
+                    float critMultiplier = AddPercent(EnemyUpgradeStats.TraitCritMultiplier, laser.CritMultiplier);
 
                     bool same = damage == laser.Damage && width == laser.Width && crit == laser.CritChance && critMultiplier == laser.CritMultiplier;
                     return same ? null : new LaserBurstDefinition(damage, width, crit, critMultiplier);
                 }
                 case ExplosionDefinition explosion:
                 {
-                    float fraction = Math.Min(1, Apply(EnemyUpgradeStats.TraitHealthFraction, explosion.HealthFraction));
-                    float radius = Apply(EnemyUpgradeStats.TraitRadius, explosion.Radius);
+                    float fraction = Math.Min(1, AddPercent(EnemyUpgradeStats.TraitHealthFraction, explosion.HealthFraction));
+                    float radius = Scale(EnemyUpgradeStats.TraitRadius, explosion.Radius);
 
                     bool same = fraction == explosion.HealthFraction && radius == explosion.Radius;
                     return same ? null : new ExplosionDefinition(fraction, radius);

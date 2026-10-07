@@ -50,7 +50,7 @@ namespace BlackHole.Unity
         {
             try
             {
-                if (_battle.TryStart(NodePurchase.UpgradesFor(_player, _tree)))
+                if (_battle.TryStart(NodePurchase.StatsFor(_player, _tree)))
                     ShowBattle();
             }
             catch (Exception error) { Debug.LogException(error); }

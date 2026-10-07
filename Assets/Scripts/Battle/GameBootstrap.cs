@@ -328,7 +328,7 @@ namespace BlackHole.Unity
             {
                 (int x, int y) = cells.TryGetValue(node.Id, out (int X, int Y) cell) ? cell : (0, 0);
                 NodeRankDefinition first = node.RankAt(1);
-                string stat = first.Effects[0].StatId;   // 노드 그림을 고르는 스탯
+                string stat = tree.Content.StatOf(first.Effects[0].Stat).StatId;   // 노드 그림을 고르는 스탯(시트 이름)
                 nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, first.Cost, stat, node.MaxRank));
             }
 

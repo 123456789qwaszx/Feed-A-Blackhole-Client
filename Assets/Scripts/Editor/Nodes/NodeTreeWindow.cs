@@ -622,8 +622,8 @@ namespace BlackHole.EditorTools
 
                 foreach (NodeEffect effect in rank.Effects)
                 {
-                    UpgradeStatUnit unit = _content.Content.TryGetStat(effect.StatId, out UpgradeStatDefinition stat) ? stat.Unit : UpgradeStatUnit.Flat;
-                    effects.Add($"{effect.StatId} {NodeTreeAuthoring.Notation(unit, effect.Value)}");
+                    UpgradeStatDefinition stat = _content.Content.StatOf(effect.Stat);
+                    effects.Add($"{stat.StatId} {NodeTreeAuthoring.Notation(stat.Unit, effect.Value)}");
                 }
 
                 _panel.Add(new Label($"Rank {rank.Rank} · {rank.Cost.ToString("N0", CultureInfo.InvariantCulture)} · {string.Join(", ", effects)}"));
@@ -794,13 +794,12 @@ namespace BlackHole.EditorTools
 
             foreach (UpgradeStatDefinition stat in values.Stats)
             {
-                if (values.SumOf(stat.StatId) == 0)
+                if (values.SumOf(stat.Stat) == 0)
                     continue;
 
                 any = true;
                 string unit = stat.Unit == UpgradeStatUnit.Percent ? "%" : string.Empty;
-                string routed = NodeUpgradeBridge.IsRouted(stat.StatId) ? string.Empty : "  (전투에 아직 안 이어짐)";
-                _panel.Add(new Label($"{stat.StatId}: {Number(stat.DefaultValue)}{unit} → {Number(values.ValueOf(stat.StatId))}{unit}{routed}"));
+                _panel.Add(new Label($"{stat.StatId}: {Number(stat.DefaultValue)}{unit} → {Number(values.ValueOf(stat.Stat))}{unit}"));
             }
 
             if (!any)

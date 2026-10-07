@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 노드를 모두 산 경우(배치된 모든 노드를 마지막 Rank까지)에도 판을 조립할 수 있는가.
-    // 전투 쪽이 받는 옛 업그레이드 표(NodeUpgradeBridge)로 판 조립의 규칙을 미리 돌려 본다.
+    // 모두 산 수치 값으로 판 조립의 규칙을 미리 돌려 본다.
     public static class UpgradeContentCheck
     {
         public static IReadOnlyList<ContentDiagnostic> Check(GameContent content, NodeTree nodes)
@@ -16,14 +16,14 @@ namespace BlackHole.Core
                 throw new ArgumentNullException(nameof(nodes));
 
             var diagnostics = new List<ContentDiagnostic>();
-            UpgradeTable table = NodeUpgradeBridge.ToUpgradeTable(NodePurchase.StatsFor(nodes, node => node.MaxRank));
+            UpgradeStatValues upgrades = NodePurchase.StatsFor(nodes, node => node.MaxRank);
             long extraSupply = 0;
 
             if (content.Breaker != null)
             {
                 try
                 {
-                    content.Breaker.Upgraded(table);
+                    content.Breaker.Upgraded(upgrades);
                 }
                 catch (ArgumentException error)
                 {
@@ -33,7 +33,7 @@ namespace BlackHole.Core
 
             try
             {
-                HqUpgradeStats.GrowthTimeFrom(table);
+                HqUpgradeStats.GrowthTimeFrom(upgrades);
             }
             catch (ArgumentException error)
             {
@@ -42,7 +42,7 @@ namespace BlackHole.Core
 
             try
             {
-                content.TimeLimit.Upgraded(table);
+                content.TimeLimit.Upgraded(upgrades);
             }
             catch (ArgumentException error)
             {
@@ -57,7 +57,7 @@ namespace BlackHole.Core
             {
                 try
                 {
-                    EnemyComposition composition = EnemyComposition.From(kind, table);
+                    EnemyComposition composition = EnemyComposition.From(kind, upgrades);
                     extraSupply += composition.StartSupplyBonus;
                     growthSupply |= composition.GrowthPercent > 0 || composition.RespawnChance > 0;
                     compositions.Add(kind, composition);

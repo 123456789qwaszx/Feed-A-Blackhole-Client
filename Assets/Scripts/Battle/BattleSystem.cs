@@ -52,7 +52,7 @@ namespace BlackHole.Unity
             _cameraFit = cameraFit;
         }
 
-        public bool TryStart(UpgradeTable upgrades)
+        public bool TryStart(UpgradeStatValues upgrades)
         {
             if (_state != State.Idle)
                 return false;

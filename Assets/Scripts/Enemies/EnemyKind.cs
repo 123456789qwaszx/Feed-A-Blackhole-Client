@@ -14,12 +14,12 @@ namespace BlackHole.Unity
     // 종류는 계열(소행성·행성·별, 픽업인 혜성)이고 색은 종류 안에 둔다.
     // - 반지름: 크기 1의 반지름. 모든 색이 같다.
     // - 색 등급: 같은 윤곽(스프라이트)에 색마다 색·HP·Gold·EXP가 다르다. 공급되는 종류는 6색(빨주노초파보), 픽업은 한 줄이다.
-    // - 어떤 색이 나오는지는 그 종류의 질량(노드 enemy.<종류>.mass, MassRule), 어떤 크기가 나오는지는 그 종류의 크기
-    //   (노드 enemy.<종류>.size, SizeRule)가 정한다. 둘 다 종류마다 따로이고 이 에셋에는 칸이 없다.
+    // - 어떤 색이 나오는지는 그 종류의 질량(노드 asteroid.massScale 등, MassRule), 어떤 크기가 나오는지는 그 종류의 크기
+    //   (노드 asteroid.size 등, SizeRule)가 정한다. 둘 다 종류마다 따로이고 이 에셋에는 칸이 없다.
     // - 특수 성질: 황금·전기·달·레이저·슈퍼노바는 종류가 아니라 출현 때 한 마리에 붙는 성질이다(최대 하나, 배타).
-    //   성질 종류(EnemyTraitType)가 사망 효과를 정하고, 성질마다 효과 수치와 표식 색이 있다. 붙는 확률은 노드(enemy.<종류>.trait.<성질>.chance)가 정하고 기본 0%다.
+    //   성질 종류(EnemyTraitType)가 사망 효과를 정하고, 성질마다 효과 수치와 표식 색이 있다. 붙는 확률은 노드(electricAsteroid.spawnChance 등)가 정하고 기본 0%다.
     //   성질이 붙은 적(특수 적)은 사망 효과의 피해를 받지 않는다.
-    // - 출현 주기: 0보다 크면 공급되지 않는 픽업(혜성)이다. 주기마다 등장 확률(노드 enemy.<종류>.chance)로 나오고, 성질 하나가 언제나 붙는다.
+    // - 출현 주기: 0보다 크면 공급되지 않는 픽업(혜성)이다. 주기마다 등장 확률(노드 comet.spawnChance)로 나오고, 성질 하나가 언제나 붙는다.
     [CreateAssetMenu(fileName = "EnemyKind", menuName = "BlackHole/Enemy Kind")]
     public sealed class EnemyKind : ScriptableObject
     {
@@ -50,7 +50,7 @@ namespace BlackHole.Unity
             public float healthFraction;
             [Tooltip("Laser: 레이저 너비.")]
             public float width;
-            [Tooltip("이 성질의 동시 상한: 살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩. 0이면 상한 없음. 다 찼으면 뽑혀도 붙지 않는다(원작 달 최대 개수, 노드 enemy.<종류>.trait.<성질>.max-active).")]
+            [Tooltip("이 성질의 동시 상한: 살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩. 0이면 상한 없음. 다 찼으면 뽑혀도 붙지 않는다(원작 달 최대 개수, 노드 moonPlanet.maxCount).")]
             public int maxActive;
         }
 
@@ -79,11 +79,11 @@ namespace BlackHole.Unity
         [SerializeField] private float radiusStep = 0.5f;
 
         [Header("종류 사이")]
-        [Tooltip("판 시작 때 시작 공급 중 변환 수(노드 enemy.<id>.upgrade, 마리 수)만큼 바뀌는 다음 종류. 비우면 변환하지 않는다. 적 종류 목록에 있어야 한다.")]
+        [Tooltip("판 시작 때 시작 공급 중 변환 수(노드 asteroid.toPlanet·planet.toStar, 마리 수)만큼 바뀌는 다음 종류. 비우면 변환하지 않는다. 적 종류 목록에 있어야 한다.")]
         [SerializeField] private EnemyKind upgradesTo;
-        [Tooltip("0보다 크면 픽업(혜성): 공급되지 않고 이 주기(초)마다 등장 확률(노드 enemy.<id>.chance, %)로 나온다. 성질이 정확히 하나여야 한다.")]
+        [Tooltip("0보다 크면 픽업(혜성): 공급되지 않고 이 주기(초)마다 등장 확률(노드 comet.spawnChance, %)로 나온다. 성질이 정확히 하나여야 한다.")]
         [SerializeField] private float spawnPeriod;
-        [Tooltip("픽업: 혜성 비(노드 enemy.<id>.rain-chance)일 때 한꺼번에 나오는 수. 0이면 혜성 비가 없다.")]
+        [Tooltip("픽업: 혜성 비(노드 comet.rainChance)일 때 한꺼번에 나오는 수. 0이면 혜성 비가 없다.")]
         [SerializeField] private int rainCount;
         [Header("색 등급 (번호가 적의 색 등급, 빨주노초파보)")]
         [SerializeField] private List<Tier> tiers = new List<Tier>();

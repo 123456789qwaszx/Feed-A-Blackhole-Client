@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 진행 상태(PlayerState)와 업그레이드 표로 한 판(GameSession)을 만든다:
-    // - 산 노드가 만든 업그레이드 표가 Breaker 수치, 제한 시간, 적의 판 구성·수치를 정함.
+    // 진행 상태(PlayerState)와 산 노드의 수치 값(UpgradeStatValues)으로 한 판(GameSession)을 만든다:
+    // - 수치 값이 Breaker 수치, 제한 시간, 블랙홀 성장 시간, 적의 판 구성·수치를 정함.
     // - 이 판의 판 구성과 적 수치를 확정하고, Breaker를 만듬.
     //
     // 만든 판은 아직 시작 전이다(GameSession.Begin으로 시작).
@@ -14,7 +14,7 @@ namespace BlackHole.Core
             GameContent content,
             PlayerState progress,
             int seed,
-            UpgradeTable upgrades)
+            UpgradeStatValues upgrades)
         {
             EnemyContent enemies = content.Enemies;
 
@@ -23,7 +23,7 @@ namespace BlackHole.Core
 
             // 전투 Session이 시작되기 전,
             // 적의 수치(Gold 포함)와 색·크기·성질 비율을 결정해둠.
-            // 모두 업그레이드 표로만 정해진다. 성장도는 블랙홀(시작·목표 Level)에만 들어간다.
+            // 모두 수치 값으로만 정해진다. 성장도는 블랙홀(시작·목표 Level)에만 들어간다.
             var stats = new EnemyStatTable(
                 enemies.Enemies,
                 CompositionsOf(enemies, upgrades));
@@ -52,7 +52,7 @@ namespace BlackHole.Core
         // 적 종류마다의 판 구성.
         private static Dictionary<EnemyDefinition, EnemyComposition> CompositionsOf(
             EnemyContent enemies,
-            UpgradeTable upgrades)
+            UpgradeStatValues upgrades)
         {
             var compositions = new Dictionary<EnemyDefinition, EnemyComposition>();
 

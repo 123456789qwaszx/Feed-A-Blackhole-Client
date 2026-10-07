@@ -17,6 +17,8 @@ namespace BlackHole.Core
 
     public sealed class UpgradeStatDefinition
     {
+        public UpgradeStat Stat { get; }
+        // 시트에 적힌 이름(breaker.critChance). 표시와 노드 그림 키가 쓴다.
         public string StatId { get; }
         public UpgradeStatValueType ValueType { get; }
         public UpgradeStatUnit Unit { get; }
@@ -28,6 +30,7 @@ namespace BlackHole.Core
         public bool Enabled { get; }
 
         public UpgradeStatDefinition(
+            UpgradeStat stat,
             string statId,
             UpgradeStatValueType valueType,
             UpgradeStatUnit unit,
@@ -36,6 +39,7 @@ namespace BlackHole.Core
             float max,
             bool enabled)
         {
+            Stat = stat;
             StatId = statId ?? throw new ArgumentNullException(nameof(statId));
             ValueType = valueType;
             Unit = unit;

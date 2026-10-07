@@ -7,7 +7,8 @@ namespace BlackHole.Core
     // 행 순서에 뜻을 두지 않는다: 수치는 StatId로, 노드는 NodeId로, Rank는 (NodeId, Rank)로 짝짓는다.
     //
     // 콘텐츠 규칙은 모두 여기서 본다. 정의(UpgradeStatDefinition·NodeDefinition·NodeRankDefinition·NodeEffect)는 구조만 지킨다.
-    // 1. 수치: StatId 유일, ValueType·Unit 이름, Aggregation은 Add뿐, Min ≤ Max, DefaultValue는 Min·Max 안, Int 수치는 정수.
+    // 1. 수치: StatId 유일, 코드의 수치(UpgradeStat)와 이름이 맞음, 모든 UpgradeStat이 있음, ValueType·Unit 이름, Aggregation은 Add뿐,
+    //    Min ≤ Max, DefaultValue는 Min·Max 안, Int 수치는 정수.
     // 2. 노드: NodeId 유일, Rank 수 1 이상.
     // 3. 비용: Nodes 시트에 있는 노드, Rank는 1 ~ Rank 수, (노드, Rank)마다 하나, 0보다 큼.
     // 4. 효과: 노드·Rank는 비용과 같은 기준, UpgradeStats 시트에 있는 StatId, 단위가 수치의 단위와 같음, Int 수치면 정수.
@@ -52,6 +53,8 @@ namespace BlackHole.Core
         {
             var stats = new List<UpgradeStatDefinition>(rows.Count);
             var firstAt = new Dictionary<string, string>(StringComparer.Ordinal);
+            // 시트에 행이 있는 수치. 행이 틀렸어도 넣는다 — 그 수치에 "시트에 없다"가 겹쳐 나오지 않게.
+            var listed = new HashSet<UpgradeStat>();
 
             foreach (UpgradeStatRowData row in rows)
             {
@@ -73,6 +76,11 @@ namespace BlackHole.Core
                 firstAt.Add(id, at);
                 statIds.Add(id);
                 int before = into.Count;
+
+                if (!TryName(Pascal(id), out UpgradeStat code))
+                    into.Add(new ContentDiagnostic(at, $"코드에 없는 수치다: '{id}'(UpgradeStat.{Pascal(id)}). 수치는 전투 코드가 읽어야 효과가 있다."));
+                else if (!listed.Add(code))
+                    into.Add(new ContentDiagnostic(at, $"StatId '{id}'가 다른 행과 같은 수치(UpgradeStat.{code})를 가리킨다."));
 
                 if (!TryName(row.ValueType, out UpgradeStatValueType valueType))
                     into.Add(new ContentDiagnostic(at, $"ValueType은 Float·Int 가운데 하나다. 받은 값: '{row.ValueType}'."));
@@ -98,12 +106,32 @@ namespace BlackHole.Core
                 if (into.Count > before)
                     continue;
 
-                var stat = new UpgradeStatDefinition(id, valueType, unit, row.DefaultValue, min, max, row.Enabled);
+                var stat = new UpgradeStatDefinition(code, id, valueType, unit, row.DefaultValue, min, max, row.Enabled);
                 stats.Add(stat);
                 statsById.Add(id, stat);
             }
 
+            foreach (UpgradeStat stat in (UpgradeStat[])Enum.GetValues(typeof(UpgradeStat)))
+            {
+                if (!listed.Contains(stat))
+                    into.Add(new ContentDiagnostic(NodeContentCsv.StatsTab, $"수치 UpgradeStat.{stat}가 시트에 없다."));
+            }
+
             return stats;
+        }
+
+        // 시트 이름 → UpgradeStat 이름: 점으로 나뉜 부분마다 첫 글자를 대문자로 붙인다(breaker.critChance → BreakerCritChance).
+        private static string Pascal(string statId)
+        {
+            string[] parts = statId.Split('.');
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (parts[i].Length > 0)
+                    parts[i] = char.ToUpperInvariant(parts[i][0]) + parts[i].Substring(1);
+            }
+
+            return string.Concat(parts);
         }
 
         // 2. 노드. Rank 수가 틀린 노드도 ID는 nodeIds에 넣는다 — 그 노드의 비용·효과 행마다 "없는 NodeId"가 겹쳐 나오지 않게.
@@ -206,7 +234,9 @@ namespace BlackHole.Core
                 if (!effects.TryGetValue((id, row.Rank), out List<NodeEffect> list))
                     effects.Add((id, row.Rank), list = new List<NodeEffect>());
 
-                list.Add(new NodeEffect(row.StatId, row.Value));
+                // 수치 정의가 틀렸으면 1단계가 이미 알렸고 결과가 없다.
+                if (stat != null)
+                    list.Add(new NodeEffect(stat.Stat, row.Value));
             }
 
             return effects;
@@ -314,7 +344,7 @@ namespace BlackHole.Core
 
         private static int CompareEffects(NodeEffect a, NodeEffect b)
         {
-            int byStat = string.CompareOrdinal(a.StatId, b.StatId);
+            int byStat = a.Stat.CompareTo(b.Stat);
             return byStat != 0 ? byStat : a.Value.CompareTo(b.Value);
         }
 

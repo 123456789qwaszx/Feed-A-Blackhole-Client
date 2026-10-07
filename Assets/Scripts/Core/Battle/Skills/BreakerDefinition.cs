@@ -4,7 +4,7 @@ namespace BlackHole.Core
 {
     // Breaker의 공유 정의: 기본 수치. 조준점을 중심으로 한 원에 닿는 적(적의 크기 포함) 전부를 주기마다 친다(GAME_RULES 6절).
     // 콘텐츠에 Breaker가 없으면 판에 Breaker가 없다. 실행 상태는 판의 BreakerSkill(World.Breaker)이 가진다.
-    // 치명타는 Breaker의 수치다(원작의 Breaker 강화 축, 노드 수치 breaker.crit-chance). 모든 스킬의 공통 수치가 아니다(SKILL_SYSTEM_PLAN D2).
+    // 치명타는 Breaker의 수치다(원작의 Breaker 강화 축, 노드 수치 breaker.critChance). 모든 스킬의 공통 수치가 아니다(SKILL_SYSTEM_PLAN D2).
     // 처치 버프(달·혜성)의 지속 시간과 중첩당 수치도 Breaker의 수치다. 적은 어떤 버프를 주는지만 정하고 수치를 갖지 않는다.
     public sealed class BreakerDefinition
     {
@@ -59,35 +59,32 @@ namespace BlackHole.Core
             return value;
         }
 
-        // 업그레이드 표로 이 판의 Breaker 수치를 계산한다. 판 조립이 한 번 부르고, 판 동안 바뀌지 않는다.
-        // 수치 이름은 BreakerUpgradeStats다. 각 수치의 기본값은 이 정의의 값이고, 공격 속도의 기본값은 1이다.
-        // 표의 합성 규칙을 적용한 뒤 Breaker의 한계를 건다:
-        // - 주기 = 기본 주기 ÷ 공격 속도 [임시]. 공격 속도 +25%(비율 0.25)면 주기가 1/1.25배다.
+        // 산 노드의 수치 값으로 이 판의 Breaker 수치를 계산한다. 판 조립이 한 번 부르고, 판 동안 바뀌지 않는다.
+        // 각 수치는 이 정의의 값에 노드로 늘어난 양(UpgradeStatValues.GainOf)을 더한다:
+        // - 피해·버프 시간·행성/별 보너스 피해는 늘어난 양을, 치명타 확률·치명타 보너스·버프 보너스(시트 %)는 늘어난 %p ÷ 100을 더한다.
+        // - 범위·공격 속도(시트 기본 100%)는 (1 + 늘어난 %p ÷ 100)배다. 공격 속도의 기본값은 1이고, 주기 = 기본 주기 ÷ 공격 속도 [임시].
         // - 치명타 확률은 1을 넘지 않는다.
         // 한계 밖(0 이하의 피해·공격 속도·반지름·버프 시간, 음수 치명타 확률·치명타 피해 보너스·버프 보너스)은 예외다 — 노드 저작 오류이며 UpgradeContentCheck가 로드 때 찾는다.
-        public BreakerDefinition Upgraded(UpgradeTable upgrades)
+        public BreakerDefinition Upgraded(UpgradeStatValues upgrades)
         {
-            if (upgrades == null)
-                throw new ArgumentNullException(nameof(upgrades));
-
-            float speed = upgrades.Apply(BreakerUpgradeStats.Speed, 1);
+            float speed = 1 + upgrades.GainOf(UpgradeStat.BreakerSpeed) / 100;
 
             if (float.IsNaN(speed) || float.IsInfinity(speed) || speed <= 0)
-                throw new ArgumentOutOfRangeException(nameof(upgrades), $"Breaker 공격 속도는 0보다 커야 한다. 업그레이드 합: {speed}.");
+                throw new ArgumentOutOfRangeException(nameof(upgrades), $"Breaker 공격 속도는 0보다 커야 한다. 노드 반영 값: {speed}.");
 
             return new BreakerDefinition(
-                upgrades.Apply(BreakerUpgradeStats.Damage, Damage),
+                Damage + upgrades.GainOf(UpgradeStat.BreakerDamage),
                 Interval / speed,
-                upgrades.Apply(BreakerUpgradeStats.Radius, Radius),
-                Math.Min(1, upgrades.Apply(BreakerUpgradeStats.CritChance, CritChance)),
-                upgrades.Apply(BreakerUpgradeStats.CritDamage, CritDamage),
-                upgrades.Apply(BreakerUpgradeStats.MoonDuration, MoonDuration),
-                upgrades.Apply(BreakerUpgradeStats.MoonSpeedBonus, MoonSpeedBonus),
-                upgrades.Apply(BreakerUpgradeStats.MoonRadiusBonus, MoonRadiusBonus),
-                upgrades.Apply(BreakerUpgradeStats.CometDuration, CometDuration),
-                upgrades.Apply(BreakerUpgradeStats.CometCritDamageBonus, CometCritDamageBonus),
-                upgrades.Apply(BreakerUpgradeStats.PlanetBonus, PlanetBonus),
-                upgrades.Apply(BreakerUpgradeStats.StarBonus, StarBonus));
+                Radius * (1 + upgrades.GainOf(UpgradeStat.BreakerRadius) / 100),
+                Math.Min(1, CritChance + upgrades.GainOf(UpgradeStat.BreakerCritChance) / 100),
+                CritDamage + upgrades.GainOf(UpgradeStat.BreakerCritBonus) / 100,
+                MoonDuration + upgrades.GainOf(UpgradeStat.MoonPlanetDuration),
+                MoonSpeedBonus + upgrades.GainOf(UpgradeStat.MoonPlanetSpeedScale) / 100,
+                MoonRadiusBonus + upgrades.GainOf(UpgradeStat.MoonPlanetRangeScale) / 100,
+                CometDuration + upgrades.GainOf(UpgradeStat.CometDuration),
+                CometCritDamageBonus + upgrades.GainOf(UpgradeStat.CometCritBonus) / 100,
+                PlanetBonus + upgrades.GainOf(UpgradeStat.BreakerPlanetBonus),
+                StarBonus + upgrades.GainOf(UpgradeStat.BreakerStarBonus));
         }
     }
 }
