@@ -8,12 +8,13 @@ namespace BlackHole.Core
     // - 한 마리에 성질은 최대 하나다(배타). 한 종류의 성질 확률 합은 100%를 넘을 수 없다.
     // - 성질이 붙은 적은 수치(색·질량·크기)를 종류에서 그대로 받는다. 수치를 바꾸는 성질은 황금(Gold 배율)뿐이다.
     // - 성질이 붙은 적은 특수 적이다: 사망 때 성질의 효과가 발동하고, 사망 효과의 피해를 받지 않는다(DeathEffects).
-    // - MaxAlive가 0보다 크면 이 성질이 붙은 적은 판에 동시에 그 수까지만 있다. 다 찼으면 성질이 뽑혀도 붙지 않는다(World, 원작 "달 최대 개수").
+    // - MaxAlive가 0보다 크면 이 성질은 판에 동시에 그 수까지만 있다(원작 "달 최대 개수"). 달처럼 버프를 주는 성질은 화면의 적과
+    //   Breaker에 남은 그 버프 중첩을 합쳐 센다. 다 찼으면 성질이 뽑혀도 붙지 않고(World), 버프 중첩도 그 수를 넘지 않는다(BreakerSkill).
     public sealed class EnemyTraitDefinition
     {
         public string Id { get; }
         public DeathEffectDefinition Effect { get; }
-        // 이 성질이 붙은 적의 동시 생존 상한. 0이면 상한이 없다.
+        // 이 성질의 동시 상한(살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩). 0이면 상한이 없다.
         public int MaxAlive { get; }
 
         public EnemyTraitDefinition(string id, DeathEffectDefinition effect, int maxAlive = 0)

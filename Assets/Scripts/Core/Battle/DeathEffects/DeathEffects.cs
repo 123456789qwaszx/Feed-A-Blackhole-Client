@@ -34,13 +34,16 @@ namespace BlackHole.Core
             public PlayerId Source { get; }
             // 죽은 적의 크기 배율(반지름 ÷ 크기 1의 반지름, SizeRule). 폭발 반지름이 이만큼 커진다.
             public float SizeScale { get; }
+            // 죽은 적 성질의 동시 상한(EnemyTraitDefinition.MaxAlive). 달 중첩의 상한으로 쓴다. 0이면 상한이 없다.
+            public int MaxStacks { get; }
 
-            public Pending(DeathEffectDefinition effect, Point2 position, PlayerId source, float sizeScale)
+            public Pending(DeathEffectDefinition effect, Point2 position, PlayerId source, float sizeScale, int maxStacks)
             {
                 Effect = effect;
                 Position = position;
                 Source = source;
                 SizeScale = sizeScale;
+                MaxStacks = maxStacks;
             }
         }
 
@@ -79,7 +82,7 @@ namespace BlackHole.Core
         internal void Enqueue(Enemy enemy, PlayerId source)
         {
             if (enemy.Trait != null)
-                _pending.Add(new Pending(enemy.Trait.Effect, enemy.Position, source, enemy.Stats.Radius / enemy.Definition.Radius));
+                _pending.Add(new Pending(enemy.Trait.Effect, enemy.Position, source, enemy.Stats.Radius / enemy.Definition.Radius, enemy.Trait.MaxAlive));
         }
 
         internal void BeginAdvance()
@@ -120,7 +123,7 @@ namespace BlackHole.Core
                         break;
                     case MoonBuffDefinition:
                         foreach (BattlePlayer player in world.Players)
-                            player.Breaker?.GrantMoon();
+                            player.Breaker?.GrantMoon(pending.MaxStacks);
                         break;
                     case CometBuffDefinition:
                         foreach (BattlePlayer player in world.Players)

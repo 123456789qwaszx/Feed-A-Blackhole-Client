@@ -268,7 +268,8 @@ namespace BlackHole.Core
         }
 
         // 정해진 종류에 붙을 성질: 성질 몫이 있으면 그 확률만큼 성질 하나(배타). 없으면 null.
-        // 뽑힌 성질의 동시 생존 상한(MaxAlive)이 찼으면 붙지 않는다(원작 "달 최대 개수"). 뽑은 몫은 그대로 쓴 것으로 친다.
+        // 뽑힌 성질의 동시 상한(MaxAlive)이 찼으면 붙지 않는다(원작 "달 최대 개수"). 뽑은 몫은 그대로 쓴 것으로 친다.
+        // 상한에는 화면에 살아 있는 그 성질 적과, 그 성질이 준 버프 중 아직 Breaker에 남은 중첩(달)을 함께 센다.
         private EnemyTraitDefinition TraitOf(EnemyDefinition kind)
         {
             if (!_traitPickers.TryGetValue(kind, out QuotaPicker picker))
@@ -280,7 +281,7 @@ namespace BlackHole.Core
                 return null;
 
             EnemyTraitDefinition trait = Stats.CompositionOf(kind).Traits[picked - 1];
-            return trait.MaxAlive > 0 && CountAlive(kind, trait) >= trait.MaxAlive ? null : trait;
+            return trait.MaxAlive > 0 && CountAlive(kind, trait) + HeldStacks(trait) >= trait.MaxAlive ? null : trait;
         }
 
         // 이 종류 중 이 성질이 붙어 살아 있는 적의 수.
@@ -296,6 +297,23 @@ namespace BlackHole.Core
             }
 
             return count;
+        }
+
+        // 이 성질이 준 버프 중 아직 Breaker에 남은 중첩 수(달). 버프는 모든 참가자가 함께 받으므로 가장 많이 가진 참가자의 수를 쓴다.
+        private int HeldStacks(EnemyTraitDefinition trait)
+        {
+            if (!(trait.Effect is MoonBuffDefinition))
+                return 0;
+
+            int held = 0;
+
+            foreach (BattlePlayer player in _players)
+            {
+                if (player.Breaker != null)
+                    held = Math.Max(held, player.Breaker.MoonBuffs.Count);
+            }
+
+            return held;
         }
 
         // 픽업 처리: 픽업 종류마다 등장 주기가 찰 때마다 등장 확률로 하나를 픽업 전용 띠 안에 만든다. 전체 상한과 무관하다.

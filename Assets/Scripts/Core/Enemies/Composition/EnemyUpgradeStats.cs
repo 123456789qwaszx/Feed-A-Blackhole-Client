@@ -31,7 +31,7 @@ namespace BlackHole.Core
         public static string TraitChance(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.chance";
         // 황금 성질의 Gold 배율. 기본값은 그 성질의 배율이다.
         public static string TraitMultiplier(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.multiplier";
-        // 이 성질이 붙은 적이 동시에 살아 있을 수 있는 수(원작 "달 최대 개수"). 기본값은 그 성질의 값(EnemyTraitDefinition.MaxAlive)이다.
+        // 이 성질의 동시 상한: 살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩(원작 "달 최대 개수"). 기본값은 그 성질의 값(EnemyTraitDefinition.MaxAlive)이다.
         public static string TraitMaxAlive(string kindId, string traitId) => $"enemy.{kindId}.trait.{traitId}.max-alive";
 
         // 성질 사망 효과의 수치. 기본값은 그 성질 효과의 값이다(적 종류 에셋). 효과에 없는 수치는 무시된다.
