@@ -29,8 +29,6 @@ namespace BlackHole.Unity
             public float MoonSpeed;
         }
 
-        // 달 성질 ID. 달을 가진 적에는 달 하나가 공전한다(EnemyKind의 성질 ID와 같다).
-        private const string MoonTrait = "moon";
         // 달 구체의 반지름(전장 배율 1에서의 월드 단위). 모든 행성이 같은 크기의 달을 가진다. Breaker 달(BreakerLook.OrbRadius)보다 작다.
         // 원작 달은 카메라와 무관하게 화면에서 약 25px이라(C0 지름 25px ÷ 54px/unit ÷ 2) 판의 전장 배율을 곱한다.
         private const float MoonRadius = 0.236f;
@@ -167,7 +165,7 @@ namespace BlackHole.Unity
                 if (_seen.Contains(hit.EnemyId) && _visuals.TryGetValue(hit.EnemyId, out EnemyVisual visual))
                     visual.Hit.Play();
 
-                _hitParticles.EmitHit(new Vector3(hit.Position.X, hit.Position.Y, 0), _looks.ColorOf(hit.EnemyTypeId, hit.Tier));
+                _hitParticles.EmitHit(new Vector3(hit.Position.X, hit.Position.Y, 0), _looks.ColorOf(hit.EnemyType, hit.Tier));
                 _damageText.Show(hit);
             }
         }
@@ -191,7 +189,7 @@ namespace BlackHole.Unity
                     continue;
 
                 _hitParticles.EmitDeath(new Vector3(death.Position.X, death.Position.Y, 0),
-                    _looks.ColorOf(death.EnemyTypeId, death.Tier), death.Tier, death.Size);
+                    _looks.ColorOf(death.EnemyType, death.Tier), death.Tier, death.Size);
                 _goldText.Show(death);
             }
 
@@ -235,8 +233,8 @@ namespace BlackHole.Unity
 
         private EnemyVisual Create(Enemy enemy)
         {
-            string kind = enemy.Definition.Id;
-            string trait = enemy.Trait?.Id;
+            EnemyType kind = enemy.Definition.Type;
+            EnemyTraitType? trait = enemy.Trait?.Type;
             var view = new GameObject(trait != null ? $"{kind} #{enemy.Id.Value} ({trait})" : $"{kind} #{enemy.Id.Value}");
             view.transform.SetParent(_root, false);
 
@@ -253,7 +251,7 @@ namespace BlackHole.Unity
 
             if (marker.a > 0)
             {
-                var fill = new GameObject(trait);
+                var fill = new GameObject(trait.ToString());
                 fill.transform.SetParent(view.transform, false);
                 fill.transform.localScale = Vector3.one * EnemyLooks.TraitFillScale;
 
@@ -265,7 +263,7 @@ namespace BlackHole.Unity
 
             var visual = new EnemyVisual { Renderer = renderer, Hit = new EnemyHitAnimation(renderer.transform) };
 
-            if (trait == MoonTrait)
+            if (trait == EnemyTraitType.Moon)
                 CreateMoon(visual, enemy);
 
             return visual;

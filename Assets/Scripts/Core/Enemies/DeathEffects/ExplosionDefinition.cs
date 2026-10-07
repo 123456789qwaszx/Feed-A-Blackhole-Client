@@ -8,6 +8,8 @@ namespace BlackHole.Core
     // 기본값은 20%다(GDD 슈퍼노바 별). 100%면 맞은 일반 적은 모두 죽는다.
     public sealed class ExplosionDefinition : DeathEffectDefinition
     {
+        public override DeathEffectType Type => DeathEffectType.Explosion;
+
         public float HealthFraction { get; }
         public float Radius { get; }
 

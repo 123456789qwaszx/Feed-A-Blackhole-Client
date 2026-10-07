@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 namespace BlackHole.Unity
 {
     // 적 공급·배치 설정 에셋: HQ를 둘러싼 출현 띠, 주기 출현 종류(혜성)의 출현 띠(일반 띠 바깥 반지름 기준 오프셋), 전투 시작 공급(SYSTEM_CATALOG S08).
-    // 공급은 종류 에셋을 직접 가리킨다 — ID 문자열을 치지 않는다. 가리키는 종류는 적 종류 목록(EnemyCatalog)에 있어야 한다.
+    // 공급은 종류 에셋을 직접 가리킨다. 가리키는 종류는 적 종류 목록(EnemyCatalog)에 있어야 한다.
     // 전체 개체 수 상한은 데이터로 두지 않는다: 공급 요청은 모두 나온다(코드에 최후의 안전 상한 EnemySupply.SafetyMaxAlive만 있다).
     // 값은 이 에셋을 Inspector에서 직접 고친다.
     [CreateAssetMenu(fileName = "EnemySupplySetup", menuName = "BlackHole/Enemy Supply Setup")]
@@ -34,7 +34,7 @@ namespace BlackHole.Unity
         [SerializeField] private List<Entry> startSupply = new List<Entry>();
 
         // Core 저작 형식에 출현 배치, 전투 시작 공급을 채운다. 검증은 EnemyContentLoader가 한다.
-        // 종류 칸이 비어 있는 공급은 ID 없는 공급이 되어 로더가 경로와 함께 보고한다.
+        // 종류 칸이 비어 있는 공급은 종류 없는 공급이 되어 로더가 경로와 함께 보고한다.
         public void WriteTo(EnemyContentData data)
         {
             data.EnemyPlacement = new EnemyPlacementData { MinDistance = minDistance, MaxDistance = maxDistance };
@@ -44,7 +44,7 @@ namespace BlackHole.Unity
             {
                 data.StartSupply.Add(new SupplyData
                 {
-                    Enemy = entry.kind != null ? entry.kind.Id : null,
+                    Enemy = entry.kind != null ? entry.kind.Type : (EnemyType?)null,
                     Count = entry.count,
                 });
             }

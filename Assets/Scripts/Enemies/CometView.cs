@@ -100,7 +100,7 @@ namespace BlackHole.Unity
         // 출현 때 한 번 만든다. 사각형은 본체 중심에 놓이며 본체와 궤적 길이를 덮는다. 블랙홀 방향은 매 프레임 갱신한다(Place).
         private CometVisual Create(Enemy enemy)
         {
-            MeshRenderer renderer = QuadRenderers.Create($"{enemy.Definition.Id} #{enemy.Id.Value}", _root, _quad, _look.Material, SortingOrder);
+            MeshRenderer renderer = QuadRenderers.Create($"{enemy.Definition.Type} #{enemy.Id.Value}", _root, _quad, _look.Material, SortingOrder);
             float headRadius = enemy.Stats.Radius;
             float tailLength = _look.TailLength;
             float size = 2 * (tailLength + headRadius) * MeshMargin;

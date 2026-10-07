@@ -23,10 +23,6 @@ namespace BlackHole.Core
         // 달 버프로 커지는 반지름의 최대 배율. (1 + 달 범위 보너스 합)이 이보다 커도 이 배율까지만 쓴다(원작: 지름 2배).
         public const float MoonRadiusMaxScale = 2f;
 
-        // 보너스 피해를 받는 적 종류(EnemyDefinition.Id — Enemies/Planet.asset, Star.asset의 id).
-        private const string PlanetKind = "planet";
-        private const string StarKind = "star";
-
         private readonly BattleRandom _critical;
         private readonly List<Enemy> _targets = new();
         private readonly List<BreakerTick> _ticks = new();
@@ -161,15 +157,15 @@ namespace BlackHole.Core
         // 대상 종류에 따른 추가 피해(노드 breaker.planetBonus·breaker.starBonus). 행성·별이 아니면 0이다.
         private float BonusAgainst(Enemy target)
         {
-            string kind = target.Definition.Id;
-
-            if (kind == PlanetKind)
-                return Definition.PlanetBonus;
-
-            if (kind == StarKind)
-                return Definition.StarBonus;
-
-            return 0;
+            switch (target.Definition.Type)
+            {
+                case EnemyType.Planet:
+                    return Definition.PlanetBonus;
+                case EnemyType.Star:
+                    return Definition.StarBonus;
+                default:
+                    return 0;
+            }
         }
 
         // 확정 치명타 중이면 굴리지 않고 치명타다. 확률이 0이나 1이면 굴리지 않는다.

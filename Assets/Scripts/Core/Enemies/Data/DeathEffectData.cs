@@ -2,12 +2,10 @@ using System;
 
 namespace BlackHole.Core
 {
-    // 사망 효과 종류마다 쓰는 칸이 다르다. 종류가 쓰지 않는 칸은 읽지 않는다.
+    // 사망 효과의 수치. 효과 종류(성질 종류가 정한다)마다 쓰는 칸이 다르다. 쓰지 않는 칸은 읽지 않는다.
     [Serializable]
     public sealed class DeathEffectData
     {
-        // 종류 이름. 가능한 값은 EnemyContentLoader의 해석 목록에 있다.
-        public string Kind;
         // Golden(Gold 배율)
         public float Multiplier;
         // Golden 치명타 확률 발생 시 추가 골드 배율

@@ -8,6 +8,8 @@ namespace BlackHole.Core
     // 치명타: 사망 때 CritChance로 기본 Gold × CritRewardScale을 보너스로 더 준다(DeathRewards).
     public sealed class GoldenDefinition : DeathEffectDefinition
     {
+        public override DeathEffectType Type => DeathEffectType.Golden;
+
         public float Multiplier { get; }
         public float CritChance { get; }
         public float CritRewardScale { get; }

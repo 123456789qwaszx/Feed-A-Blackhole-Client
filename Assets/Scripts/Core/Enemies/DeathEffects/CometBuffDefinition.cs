@@ -8,5 +8,6 @@ namespace BlackHole.Core
     // 치명타 피해 보너스 = 노드가 반영된 치명타 피해 보너스 × (1 + 중첩 보너스 합). 첫 중첩부터 적용한다(BreakerSkill). 피해를 만들지 않는다.
     public sealed class CometBuffDefinition : DeathEffectDefinition
     {
+        public override DeathEffectType Type => DeathEffectType.CometBuff;
     }
 }

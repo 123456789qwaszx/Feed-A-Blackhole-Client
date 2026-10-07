@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62ca70292566404596f44063455f757e, type: 3}
   m_Name: Planet
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.EnemyKind
-  id: planet
+  type: 1
   moveSpeed: 0.8
   radius: 1.173
   radiusStep: 0.09
@@ -44,9 +44,8 @@ MonoBehaviour:
     gold: 285000000
     exp: 11000
   traits:
-  - id: moon
+  - type: 2
     color: {r: 0.85, g: 0.86, b: 0.9, a: 1}
-    effect: 4
     multiplier: 0
     damage: 0
     radius: 0

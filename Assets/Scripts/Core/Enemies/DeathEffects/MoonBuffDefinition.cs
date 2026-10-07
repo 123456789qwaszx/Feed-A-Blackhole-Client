@@ -8,5 +8,6 @@ namespace BlackHole.Core
     // 피해를 만들지 않는다.
     public sealed class MoonBuffDefinition : DeathEffectDefinition
     {
+        public override DeathEffectType Type => DeathEffectType.MoonBuff;
     }
 }

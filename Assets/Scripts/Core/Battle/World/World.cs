@@ -135,7 +135,7 @@ namespace BlackHole.Core
         // 성질의 동시 상한(EnemyTraitDefinition.MaxActive, 원작 "달 최대 개수")은 이 수에 건다(EnemySupply).
         private int CountActive(EnemyDefinition kind, EnemyTraitDefinition trait)
         {
-            int held = trait.Effect is MoonBuffDefinition && Breaker != null ? Breaker.MoonBuffs.Count : 0;
+            int held = trait.Effect.Type == DeathEffectType.MoonBuff && Breaker != null ? Breaker.MoonBuffs.Count : 0;
             return _enemies.CountAlive(kind, trait) + held;
         }
     }

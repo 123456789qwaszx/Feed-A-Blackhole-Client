@@ -13,7 +13,7 @@ namespace BlackHole.Core
     // 둘 다 판 구성(EnemyComposition)의 값이고, 종류마다 따로다(소행성 노드는 행성·별에 닿지 않는다).
     public sealed class EnemyDefinition
     {
-        public string Id { get; }
+        public EnemyType Type { get; }
 
         // 공전 속도(초당 이동 거리). 0이 아닌 값이고, 부호가 공전 방향이다: 양수는 반시계, 음수는 시계방향.
         public float MoveSpeed { get; }
@@ -27,12 +27,12 @@ namespace BlackHole.Core
         // 색 등급 표. 번호가 적의 색 등급(Enemy.Tier)이다. 공급되는 종류는 6색(EnemyContentInvariants), 픽업은 한 줄.
         public IReadOnlyList<EnemyTier> Tiers { get; }
 
-        // 이 종류에 붙을 수 있는 특수 성질(ID 유일). 출현 때 성질마다의 생성 확률(판 구성, 기본 0%)로 최대 하나가 붙는다.
+        // 이 종류에 붙을 수 있는 특수 성질(종류마다 하나). 출현 때 성질마다의 생성 확률(판 구성, 기본 0%)로 최대 하나가 붙는다.
         // 픽업은 성질이 정확히 하나이고 언제나 붙는다(혜성 = 혜성 버프).
         public IReadOnlyList<EnemyTraitDefinition> Traits { get; }
 
-        // 판 시작 때 이 종류의 시작 공급 중 변환 수(노드)만큼이 바뀌는 다음 종류의 ID(소행성 → 행성 → 별).
-        public string UpgradesTo { get; }
+        // 판 시작 때 이 종류의 시작 공급 중 변환 수(노드)만큼이 바뀌는 다음 종류(소행성 → 행성 → 별). 없으면 null.
+        public EnemyType? UpgradesTo { get; }
 
         // 주기 출현의 판정 주기(초). 0이면 공급되는 보통 종류다.
         // 주기 출현 종류는 적 공급·성장 공급·변환과 무관하다: 주기마다 등장 확률(판 구성의 SpawnChance)로 하나가 나온다.
@@ -46,20 +46,20 @@ namespace BlackHole.Core
         public int RainCount { get; }
 
         public EnemyDefinition(
-            string id,
+            EnemyType type,
             float moveSpeed,
             float radius,
             float radiusStep,
             IReadOnlyList<EnemyTier> tiers,
             IReadOnlyList<EnemyTraitDefinition> traits = null,
-            string upgradesTo = null,
+            EnemyType? upgradesTo = null,
             float spawnPeriod = 0,
             int rainCount = 0)
         {
-            if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("ID가 비어 있다.", nameof(id));
+            if (!Enum.IsDefined(typeof(EnemyType), type))
+                throw new ArgumentOutOfRangeException(nameof(type), $"알 수 없는 적 종류 {(int)type}.");
 
-            if (upgradesTo == id)
+            if (upgradesTo == type)
                 throw new ArgumentException("자기 자신으로 변환할 수 없다.", nameof(upgradesTo));
 
             if (float.IsNaN(spawnPeriod) || float.IsInfinity(spawnPeriod) || spawnPeriod < 0)
@@ -77,15 +77,15 @@ namespace BlackHole.Core
             if (tiers == null || tiers.Count == 0)
                 throw new ArgumentException("색 등급이 하나 이상 필요하다.", nameof(tiers));
 
-            var traitIds = new HashSet<string>(StringComparer.Ordinal);
+            var traitTypes = new HashSet<EnemyTraitType>();
 
             for (int i = 0; traits != null && i < traits.Count; i++)
             {
                 if (traits[i] == null)
                     throw new ArgumentException($"성질 {i}가 null이다.", nameof(traits));
 
-                if (!traitIds.Add(traits[i].Id))
-                    throw new ArgumentException($"성질 ID '{traits[i].Id}'가 중복됐다.", nameof(traits));
+                if (!traitTypes.Add(traits[i].Type))
+                    throw new ArgumentException($"성질 '{traits[i].Type}'가 중복됐다.", nameof(traits));
             }
 
             if (spawnPeriod > 0)
@@ -93,17 +93,17 @@ namespace BlackHole.Core
                 if (traits == null || traits.Count != 1)
                     throw new ArgumentException("픽업은 성질이 정확히 하나여야 한다(언제나 붙는 효과).", nameof(traits));
 
-                if (!string.IsNullOrEmpty(upgradesTo))
+                if (upgradesTo.HasValue)
                     throw new ArgumentException("픽업은 변환 대상을 가질 수 없다.", nameof(upgradesTo));
             }
 
-            Id = id;
+            Type = type;
             MoveSpeed = DefinitionGuard.NonZeroFinite(moveSpeed, nameof(moveSpeed));
             Radius = DefinitionGuard.Positive(radius, nameof(radius));
             RadiusStep = radiusStep;
             Tiers = Array.AsReadOnly(Copy(tiers));
             Traits = traits == null ? Array.AsReadOnly(Array.Empty<EnemyTraitDefinition>()) : Array.AsReadOnly(Copy(traits));
-            UpgradesTo = string.IsNullOrEmpty(upgradesTo) ? null : upgradesTo;
+            UpgradesTo = upgradesTo;
             SpawnPeriod = spawnPeriod;
             RainCount = rainCount;
         }
@@ -118,15 +118,15 @@ namespace BlackHole.Core
         public EnemyStats StatsAt(EnemyComposition composition, int tier, EnemyTraitDefinition trait = null, int size = SizeRule.Base)
         {
             if (trait != null && composition.IndexOfTrait(trait) < 0)
-                throw new ArgumentException($"'{trait.Id}'는 이 판 구성에서 '{Id}'의 성질이 아니다.", nameof(trait));
+                throw new ArgumentException($"'{trait.Type}'는 이 판 구성에서 '{Type}'의 성질이 아니다.", nameof(trait));
 
             if (tier < 0 || tier >= Tiers.Count)
                 throw new ArgumentOutOfRangeException(
-                    nameof(tier), $"'{Id}'의 색 등급은 0부터 {Tiers.Count - 1}까지다. 받은 값: {tier}.");
+                    nameof(tier), $"'{Type}'의 색 등급은 0부터 {Tiers.Count - 1}까지다. 받은 값: {tier}.");
 
             if (size < SizeRule.Base || size > composition.Size)
                 throw new ArgumentOutOfRangeException(
-                    nameof(size), $"이 판 구성에서 '{Id}'의 크기는 {SizeRule.Base}부터 {composition.Size}까지다. 받은 값: {size}.");
+                    nameof(size), $"이 판 구성에서 '{Type}'의 크기는 {SizeRule.Base}부터 {composition.Size}까지다. 받은 값: {size}.");
 
             EnemyTier row = Tiers[tier];
             float scale = SizeRule.StatMultiplier(size);

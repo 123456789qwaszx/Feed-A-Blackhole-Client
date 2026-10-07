@@ -64,7 +64,7 @@ namespace BlackHole.Core
                 }
                 catch (ArgumentException error)
                 {
-                    diagnostics.Add(new ContentDiagnostic($"Nodes(모두 산 경우).Enemies[{kind.Id}]", error.Message));
+                    diagnostics.Add(new ContentDiagnostic($"Nodes(모두 산 경우).Enemies[{kind.Type}]", error.Message));
                 }
             }
 

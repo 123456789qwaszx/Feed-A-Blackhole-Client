@@ -8,7 +8,7 @@ namespace BlackHole.Core
         // 판 안에서 피해 순서대로 늘어나는 번호. 같은 기록을 두 번 소비하지 않는 데 쓴다.
         public long Sequence { get; }
         public EnemyId EnemyId { get; }
-        public string EnemyTypeId { get; }
+        public EnemyType EnemyType { get; }
         // 맞은 적의 색 등급. 피격 파편의 색이 쓴다.
         public int Tier { get; }
         // 픽업(혜성)이 맞았는가. 화면은 픽업의 피격 연출을 하지 않는다.
@@ -22,7 +22,7 @@ namespace BlackHole.Core
         {
             Sequence = sequence;
             EnemyId = enemy.Id;
-            EnemyTypeId = enemy.Definition.Id;
+            EnemyType = enemy.Definition.Type;
             Tier = enemy.Tier;
             IsPickup = enemy.Definition.IsPickup;
             Position = enemy.Position;

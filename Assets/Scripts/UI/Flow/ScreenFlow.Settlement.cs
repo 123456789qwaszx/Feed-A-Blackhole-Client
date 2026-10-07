@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using BlackHole.Core;
 
@@ -6,11 +5,6 @@ namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
-        // 물질 행의 종류 ID. 특수 성질(황금·전기·달·슈퍼노바 …)은 종류가 아니므로 그 종류로 센다. 혜성(픽업)은 물질 행에 넣지 않는다.
-        private const string AsteroidKindId = "asteroid";
-        private const string PlanetKindId = "planet";
-        private const string StarKindId = "star";
-
         // 끝난 판의 원자료와 결산을 마친 진행 상태를 보여 준다(성장도는 이미 올라 있다).
         private void ShowSettlement(BattleRawData raw)
         {
@@ -21,10 +15,11 @@ namespace BlackHole.Unity
                     BindView(root, ApplyBindings);
                     root.ShowResult(raw.ReachedMilestone);
                     root.ShowStage(raw.Stage, raw.NextStage, _growth.MaxStage);
+                    // 물질 행: 특수 성질(황금·전기·달·슈퍼노바 …)은 종류가 아니므로 그 종류로 센다. 혜성(픽업)은 물질 행에 넣지 않는다.
                     root.ShowMatter(
-                        KillsOfFamily(raw.Kills, AsteroidKindId),
-                        KillsOfFamily(raw.Kills, PlanetKindId),
-                        KillsOfFamily(raw.Kills, StarKindId));
+                        KillsOf(raw.Kills, EnemyType.Asteroid),
+                        KillsOf(raw.Kills, EnemyType.Planet),
+                        KillsOf(raw.Kills, EnemyType.Star));
                     root.ShowGold(raw.EarnedGold, raw.SettledGold, raw.ReachedMilestone, _player.Gold);
                     root.ShowUpgradeCount(PurchasableNodeCount());
                 },
@@ -50,13 +45,13 @@ namespace BlackHole.Unity
         }
         private void HandleSettlementContinueClicked() => RequestStart();
 
-        private static int KillsOfFamily(IReadOnlyList<EnemyKillCount> kills, string family)
+        private static int KillsOf(IReadOnlyList<EnemyKillCount> kills, EnemyType type)
         {
             int count = 0;
 
             foreach (EnemyKillCount kill in kills)
             {
-                if (string.Equals(kill.Enemy.Id, family, StringComparison.Ordinal))
+                if (kill.Enemy.Type == type)
                     count += kill.Count;
             }
 

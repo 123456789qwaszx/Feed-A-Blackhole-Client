@@ -128,47 +128,47 @@ namespace BlackHole.Core
         // 업그레이드 표로 이 종류의 판 구성을 계산한다.
         public static EnemyComposition From(EnemyDefinition kind, UpgradeTable upgrades)
         {
-            float mass = upgrades.Apply(EnemyUpgradeStats.Mass(kind.Id), MassRule.Base);
-            int size = Whole(upgrades.Apply(EnemyUpgradeStats.Size(kind.Id), SizeRule.Base));
-            int startSupply = Whole(upgrades.Apply(EnemyUpgradeStats.StartSupply(kind.Id), 0));
-            float growth = NotNegative(upgrades.Apply(EnemyUpgradeStats.GrowthSupply(kind.Id), 0), kind.Id, "성장 공급 %");
-            int upgrade = Whole(upgrades.Apply(EnemyUpgradeStats.Upgrade(kind.Id), 0));
-            float spawnChance = Percent(upgrades.Apply(EnemyUpgradeStats.SpawnChance(kind.Id), 0), kind.Id, "등장 확률");
-            float rain = Percent(upgrades.Apply(EnemyUpgradeStats.RainChance(kind.Id), 0), kind.Id, "혜성 비 확률");
-            float respawn = Percent(upgrades.Apply(EnemyUpgradeStats.RespawnChance(kind.Id), 0), kind.Id, "재생성 확률");
-            float time = Percent(upgrades.Apply(EnemyUpgradeStats.TimeChance(kind.Id), 0), kind.Id, "시간 추가 확률");
+            float mass = upgrades.Apply(EnemyUpgradeStats.Mass(kind.Type), MassRule.Base);
+            int size = Whole(upgrades.Apply(EnemyUpgradeStats.Size(kind.Type), SizeRule.Base));
+            int startSupply = Whole(upgrades.Apply(EnemyUpgradeStats.StartSupply(kind.Type), 0));
+            float growth = NotNegative(upgrades.Apply(EnemyUpgradeStats.GrowthSupply(kind.Type), 0), kind.Type, "성장 공급 %");
+            int upgrade = Whole(upgrades.Apply(EnemyUpgradeStats.Upgrade(kind.Type), 0));
+            float spawnChance = Percent(upgrades.Apply(EnemyUpgradeStats.SpawnChance(kind.Type), 0), kind.Type, "등장 확률");
+            float rain = Percent(upgrades.Apply(EnemyUpgradeStats.RainChance(kind.Type), 0), kind.Type, "혜성 비 확률");
+            float respawn = Percent(upgrades.Apply(EnemyUpgradeStats.RespawnChance(kind.Type), 0), kind.Type, "재생성 확률");
+            float time = Percent(upgrades.Apply(EnemyUpgradeStats.TimeChance(kind.Type), 0), kind.Type, "시간 추가 확률");
 
             if (float.IsNaN(mass) || float.IsInfinity(mass) || mass < 0)
                 throw new ArgumentOutOfRangeException(
-                    nameof(upgrades), $"'{kind.Id}'의 질량은 0 이상의 유한한 값이어야 한다. 업그레이드 합: {mass}%.");
+                    nameof(upgrades), $"'{kind.Type}'의 질량은 0 이상의 유한한 값이어야 한다. 업그레이드 합: {mass}%.");
 
             if (size < SizeRule.Base || size > SizeRule.Max)
                 throw new ArgumentOutOfRangeException(
-                    nameof(upgrades), $"'{kind.Id}'의 크기는 {SizeRule.Base}부터 {SizeRule.Max}까지다. 업그레이드 합: {size}.");
+                    nameof(upgrades), $"'{kind.Type}'의 크기는 {SizeRule.Base}부터 {SizeRule.Max}까지다. 업그레이드 합: {size}.");
 
             if (upgrade < 0)
                 throw new ArgumentOutOfRangeException(
-                    nameof(upgrades), $"'{kind.Id}'의 변환 수는 0 이상이어야 한다. 업그레이드 합: {upgrade}.");
+                    nameof(upgrades), $"'{kind.Type}'의 변환 수는 0 이상이어야 한다. 업그레이드 합: {upgrade}.");
 
             // 변환 대상이 없는 종류는 바꿔 줄 종류가 없다. 판 조립과 로드 때의 검사(UpgradeContentCheck)가 이 예외를 본다.
-            if (upgrade > 0 && kind.UpgradesTo == null)
-                throw new ArgumentException($"'{kind.Id}'에는 변환 대상이 없어 변환 수를 둘 수 없다. 업그레이드 합: {upgrade}.", nameof(upgrades));
+            if (upgrade > 0 && !kind.UpgradesTo.HasValue)
+                throw new ArgumentException($"'{kind.Type}'에는 변환 대상이 없어 변환 수를 둘 수 없다. 업그레이드 합: {upgrade}.", nameof(upgrades));
 
             // 픽업은 공급되지 않고 주기마다 등장 확률로 나온다. 공급·질량·크기 노드와 등장 확률은 서로의 종류에만 뜻이 있다.
             if (kind.IsPickup && (startSupply > 0 || growth > 0))
-                throw new ArgumentException($"'{kind.Id}'는 픽업이라 공급되지 않는다. 공급 수 노드를 둘 수 없다.", nameof(upgrades));
+                throw new ArgumentException($"'{kind.Type}'는 픽업이라 공급되지 않는다. 공급 수 노드를 둘 수 없다.", nameof(upgrades));
 
             if (kind.IsPickup && (mass != MassRule.Base || size != SizeRule.Base))
-                throw new ArgumentException($"'{kind.Id}'는 픽업이라 질량·크기가 없다. 질량·크기 노드를 둘 수 없다.", nameof(upgrades));
+                throw new ArgumentException($"'{kind.Type}'는 픽업이라 질량·크기가 없다. 질량·크기 노드를 둘 수 없다.", nameof(upgrades));
 
             if (!kind.IsPickup && spawnChance > 0)
-                throw new ArgumentException($"'{kind.Id}'는 픽업이 아니라 등장 확률을 둘 수 없다. 특수 성질은 성질 확률(trait.<성질>.chance)을 쓴다.", nameof(upgrades));
+                throw new ArgumentException($"'{kind.Type}'는 픽업이 아니라 등장 확률을 둘 수 없다. 특수 성질은 성질 확률(trait.<성질>.chance)을 쓴다.", nameof(upgrades));
 
             if (!kind.IsPickup && rain > 0)
-                throw new ArgumentException($"'{kind.Id}'는 픽업이 아니라 혜성 비 확률을 둘 수 없다.", nameof(upgrades));
+                throw new ArgumentException($"'{kind.Type}'는 픽업이 아니라 혜성 비 확률을 둘 수 없다.", nameof(upgrades));
 
             if (kind.IsPickup && (respawn > 0 || time > 0))
-                throw new ArgumentException($"'{kind.Id}'는 픽업이라 파괴 때의 재생성·시간 추가 확률을 둘 수 없다.", nameof(upgrades));
+                throw new ArgumentException($"'{kind.Type}'는 픽업이라 파괴 때의 재생성·시간 추가 확률을 둘 수 없다.", nameof(upgrades));
 
             var traits = new EnemyTraitDefinition[kind.Traits.Count];
             var chances = new float[kind.Traits.Count];
@@ -183,13 +183,13 @@ namespace BlackHole.Core
                 if (kind.IsPickup)
                     continue;
 
-                chances[i] = Percent(upgrades.Apply(EnemyUpgradeStats.TraitChance(kind.Id, trait.Id), 0), kind.Id, $"'{trait.Id}' 성질 확률");
+                chances[i] = Percent(upgrades.Apply(EnemyUpgradeStats.TraitChance(kind.Type, trait.Type), 0), kind.Type, $"'{trait.Type}' 성질 확률");
                 chanceSum += chances[i];
             }
 
             // 성질은 한 마리에 하나다(배타). 합이 100%를 넘으면 어느 성질도 약속한 몫을 받을 수 없다.
             if (chanceSum > 1 + 1e-4f)
-                throw new ArgumentException($"'{kind.Id}'의 성질 확률 합이 100%를 넘는다({chanceSum * 100:0.##}%).", nameof(upgrades));
+                throw new ArgumentException($"'{kind.Type}'의 성질 확률 합이 100%를 넘는다({chanceSum * 100:0.##}%).", nameof(upgrades));
 
             return new EnemyComposition(mass, RatiosOf(kind, mass), size, startSupply, growth, upgrade,
                 Array.AsReadOnly(traits), Array.AsReadOnly(chances), spawnChance, rain, respawn, time);
@@ -208,11 +208,11 @@ namespace BlackHole.Core
             if (effect != null)
                 upgraded = upgraded.With(effect);
 
-            int maxActive = Whole(upgrades.Apply(EnemyUpgradeStats.TraitMaxActive(kind.Id, trait.Id), trait.MaxActive));
+            int maxActive = Whole(upgrades.Apply(EnemyUpgradeStats.TraitMaxActive(kind.Type, trait.Type), trait.MaxActive));
 
             if (maxActive < 0)
                 throw new ArgumentOutOfRangeException(
-                    nameof(upgrades), $"'{kind.Id}'의 '{trait.Id}' 동시 상한은 0 이상이어야 한다. 업그레이드 합: {maxActive}.");
+                    nameof(upgrades), $"'{kind.Type}'의 '{trait.Type}' 동시 상한은 0 이상이어야 한다. 업그레이드 합: {maxActive}.");
 
             if (maxActive != trait.MaxActive)
                 upgraded = upgraded.WithMaxActive(maxActive);
@@ -224,7 +224,7 @@ namespace BlackHole.Core
         // 확률·비율은 1을 넘지 않게 자른다. 그 밖의 한계 밖 값(0 이하의 피해·너비·반지름 등)은 효과 정의의 예외다 — UpgradeContentCheck가 로드 때 찾는다.
         private static DeathEffectDefinition UpgradedEffect(EnemyDefinition kind, EnemyTraitDefinition trait, UpgradeTable upgrades)
         {
-            float Apply(Func<string, string, string> stat, float baseValue) => upgrades.Apply(stat(kind.Id, trait.Id), baseValue);
+            float Apply(Func<EnemyType, EnemyTraitType, string> stat, float baseValue) => upgrades.Apply(stat(kind.Type, trait.Type), baseValue);
 
             switch (trait.Effect)
             {
@@ -276,23 +276,23 @@ namespace BlackHole.Core
         private static int Whole(float value) => (int)Math.Round(value, MidpointRounding.AwayFromZero);
 
         // 상한 없는 0 이상의 값(성장 공급 %는 100을 넘을 수 있다).
-        private static float NotNegative(float value, string kindId, string label)
+        private static float NotNegative(float value, EnemyType kind, string label)
         {
             if (float.IsNaN(value) || float.IsInfinity(value) || value < 0)
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(value), $"'{kindId}'의 {label}는 0 이상의 유한한 값이어야 한다. 업그레이드 합: {value}.");
+                    nameof(value), $"'{kind}'의 {label}는 0 이상의 유한한 값이어야 한다. 업그레이드 합: {value}.");
             }
 
             return value;
         }
 
-        private static float Percent(float value, string kindId, string label)
+        private static float Percent(float value, EnemyType kind, string label)
         {
             if (float.IsNaN(value) || float.IsInfinity(value) || value < 0)
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(value), $"'{kindId}'의 {label}은 0 이상의 유한한 값이어야 한다. 업그레이드 합: {value}.");
+                    nameof(value), $"'{kind}'의 {label}은 0 이상의 유한한 값이어야 한다. 업그레이드 합: {value}.");
             }
 
             return Math.Min(1, value / 100);

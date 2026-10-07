@@ -7,9 +7,9 @@ namespace BlackHole.Core
         // 판 안에서 사망 순서대로 늘어나는 번호. 같은 기록을 두 번 소비하지 않는 데 쓴다.
         public long Sequence { get; }
         public EnemyId EnemyId { get; }
-        public string EnemyTypeId { get; }
-        // 붙어 있던 특수 성질의 ID. 없으면 null.
-        public string TraitId { get; }
+        public EnemyType EnemyType { get; }
+        // 붙어 있던 특수 성질. 없으면 null.
+        public EnemyTraitType? TraitType { get; }
         // 죽은 적의 색 등급과 크기(SizeRule). 파편 수 같은 연출이 쓴다. 픽업의 크기는 SizeRule.Base다.
         public int Tier { get; }
         public int Size { get; }
@@ -18,7 +18,7 @@ namespace BlackHole.Core
         // 이 사망의 보상 내역(기본 Gold·황금 치명타 보너스). 판의 Gold 합계에 든 값과 같다. Gold 텍스트가 쓴다.
         public DeathReward Reward { get; }
         // 황금 성질이 붙어 있었는가(Gold 배율이 이미 기본 Gold에 들어 있다). Gold 텍스트의 색이 쓴다.
-        public bool IsGolden { get; }
+        public bool IsGolden => TraitType == EnemyTraitType.Golden;
         public Point2 Position { get; }
         public float Radius { get; }
 
@@ -26,13 +26,12 @@ namespace BlackHole.Core
         {
             Sequence = sequence;
             EnemyId = enemy.Id;
-            EnemyTypeId = enemy.Definition.Id;
-            TraitId = enemy.Trait?.Id;
+            EnemyType = enemy.Definition.Type;
+            TraitType = enemy.Trait?.Type;
             Tier = enemy.Tier;
             Size = enemy.Size;
             IsPickup = enemy.Definition.IsPickup;
             Reward = reward;
-            IsGolden = enemy.Trait?.Effect is GoldenDefinition;
             Position = enemy.Position;
             Radius = enemy.Stats.Radius;
         }
