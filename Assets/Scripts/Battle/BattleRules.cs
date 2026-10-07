@@ -1,0 +1,20 @@
+using BlackHole.Core;
+using UnityEngine;
+
+namespace BlackHole.Unity
+{
+    // 판 규칙 에셋: 한 판의 제한 시간과 적을 파괴할 때 늘어나는 시간. 값은 이 에셋을 Inspector에서 직접 고친다.
+    // 칸의 값은 Core의 저작 형식(SessionData)으로 옮겨져 ContentLoader가 검증한다.
+    // 모드마다 규칙이 달라지면 이 에셋을 바꿔 끼운다(GameContentSetup).
+    [CreateAssetMenu(fileName = "BattleRules", menuName = "BlackHole/Battle Rules")]
+    public sealed class BattleRules : ScriptableObject
+    {
+        [Tooltip("한 판의 제한 시간(초). 노드 timer가 늘린다.")]
+        [SerializeField] private float timeLimit = 12;
+        [Tooltip("적이 파괴될 때 시간 추가(노드 asteroid.timeChance 등)가 성공하면 제한 시간에 더하는 초. 원작 실측 0.3초.")]
+        [SerializeField] private float killTimeBonus = 0.3f;
+
+        internal void WriteTo(ContentData data) =>
+            data.Session = new SessionData { TimeLimit = timeLimit, KillTimeBonus = killTimeBonus };
+    }
+}

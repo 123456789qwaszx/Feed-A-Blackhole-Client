@@ -1262,11 +1262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8a576f4c54a40039b3e6860fe948215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.GameBootstrap
-  _enemyCatalog: {fileID: 11400000, guid: ded2d6b762d0427189db081f4023c81a, type: 2}
-  _enemySupply: {fileID: 11400000, guid: 1506d53a97654897bc5d7b4126a28333, type: 2}
-  _hqGrowth: {fileID: 11400000, guid: 2218973c18e541949f58c6719fd25c5e, type: 2}
-  _skillSetup: {fileID: 11400000, guid: 3ab44acfb37f427790e580c9f6a10538, type: 2}
-  _nodeCatalog: {fileID: 11400000, guid: dc906d29ddfc4d0089200fffb6c6e8be, type: 2}
+  _content: {fileID: 11400000, guid: 144505f3c8c54fd49cb1d73ce3c80682, type: 2}
   _breakerLook: {fileID: 11400000, guid: 268024120f990294aa0012c4df22b246, type: 2}
   _explosionLook: {fileID: 11400000, guid: 6e2d9e09239144f7a488e776ef97fac6, type: 2}
   _lightningLook: {fileID: 11400000, guid: e181953d102745b387176d400f5ea790, type: 2}

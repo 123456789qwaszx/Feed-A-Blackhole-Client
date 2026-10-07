@@ -16,11 +16,7 @@ namespace BlackHole.Unity
     public sealed class GameBootstrap : MonoBehaviour
     {
         [Header("Content")]
-        [SerializeField] private EnemyCatalog _enemyCatalog;
-        [SerializeField] private EnemySupplySetup _enemySupply;
-        [SerializeField] private HqGrowthSetup _hqGrowth;
-        [SerializeField] private SkillSetup _skillSetup;
-        [SerializeField] private NodeCatalog _nodeCatalog;
+        [SerializeField] private GameContentSetup _content;
 
         [Header("Looks")]
         [SerializeField] private BreakerLook _breakerLook;
@@ -103,7 +99,7 @@ namespace BlackHole.Unity
 
         private void BootstrapBattleViews()
         {
-            _enemyLooks = new EnemyLooks(_enemyCatalog.Kinds());
+            _enemyLooks = new EnemyLooks(_content.Enemies.Kinds());
             _enemyView = new EnemyView(transform, _enemyLooks, _breakerLook, _cometLook);
             _breakerView = new BreakerView(transform, _breakerLook);
             _deathEffectView = new DeathEffectView(transform, _lightningLook, _explosionLook);
@@ -297,18 +293,10 @@ namespace BlackHole.Unity
             return false;
         }
 
-        // 오류가 있는 콘텐츠로는 시작하지 않는다. 진단은 GameContentLoader가 남긴다.
+        // 오류가 있는 콘텐츠로는 시작하지 않는다. 빠진 연결과 진단은 GameContentLoader가 남긴다.
         private bool TryBootstrapContent()
         {
-            if (_enemyCatalog == null || _enemySupply == null || _hqGrowth == null || _skillSetup == null || _nodeCatalog == null)
-            {
-                Debug.LogError(
-                    "[콘텐츠] GameBootstrap에 적 종류 목록(EnemyCatalog), 적 공급 설정(EnemySupplySetup), 블랙홀 성장 설정(HqGrowthSetup), 스킬 설정(SkillSetup), 노드 목록(NodeCatalog)을 연결해야 한다.",
-                    this);
-                return false;
-            }
-
-            _loaded = GameContentLoader.Load(_skillSetup, _enemyCatalog, _enemySupply, _hqGrowth, _nodeCatalog);
+            _loaded = GameContentLoader.Load(_content);
             return _loaded != null;
         }
 
