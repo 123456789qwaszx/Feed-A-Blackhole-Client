@@ -14,24 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.EnemyKind
   id: comet
   moveSpeed: -5
+  radius: 0.54
+  radiusStep: 0
   upgradesTo: {fileID: 0}
-  baseUpgrade: 0
-  baseUpgradeFromStage: 0
-  pickupPeriod: 1
+  pickupPeriod: 5
+  pickupRainCount: 15
   tiers:
   - color: {r: 0.6, g: 0.95, b: 1, a: 1}
     maxHealth: 1
-    size: 0.2
     gold: 0
     exp: 0
-  stageColors:
-  - fromStage: 0
-    tierRatios:
-    - 1
-  massLevels:
-  - healthMultiplier: 1
-    goldMultiplier: 1
-  sizeClasses: []
   traits:
   - id: comet
     color: {r: 0.6, g: 0.95, b: 1, a: 1}

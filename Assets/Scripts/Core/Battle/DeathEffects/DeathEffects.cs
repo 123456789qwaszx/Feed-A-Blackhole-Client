@@ -32,12 +32,18 @@ namespace BlackHole.Core
             public DeathEffectDefinition Effect { get; }
             public Point2 Position { get; }
             public PlayerId Source { get; }
+            // 죽은 적의 크기 배율(반지름 ÷ 크기 1의 반지름, SizeRule). 폭발 반지름이 이만큼 커진다.
+            public float SizeScale { get; }
+            // 죽은 적 성질의 동시 상한(EnemyTraitDefinition.MaxAlive). 달 중첩의 상한으로 쓴다. 0이면 상한이 없다.
+            public int MaxStacks { get; }
 
-            public Pending(DeathEffectDefinition effect, Point2 position, PlayerId source)
+            public Pending(DeathEffectDefinition effect, Point2 position, PlayerId source, float sizeScale, int maxStacks)
             {
                 Effect = effect;
                 Position = position;
                 Source = source;
+                SizeScale = sizeScale;
+                MaxStacks = maxStacks;
             }
         }
 
@@ -76,7 +82,7 @@ namespace BlackHole.Core
         internal void Enqueue(Enemy enemy, PlayerId source)
         {
             if (enemy.Trait != null)
-                _pending.Add(new Pending(enemy.Trait.Effect, enemy.Position, source));
+                _pending.Add(new Pending(enemy.Trait.Effect, enemy.Position, source, enemy.Stats.Radius / enemy.Definition.Radius, enemy.Trait.MaxAlive));
         }
 
         internal void BeginAdvance()
@@ -117,7 +123,7 @@ namespace BlackHole.Core
                         break;
                     case MoonBuffDefinition:
                         foreach (BattlePlayer player in world.Players)
-                            player.Breaker?.GrantMoon();
+                            player.Breaker?.GrantMoon(pending.MaxStacks);
                         break;
                     case CometBuffDefinition:
                         foreach (BattlePlayer player in world.Players)
@@ -138,6 +144,7 @@ namespace BlackHole.Core
 
         // 줄기 하나를 내보내고, 갈래 확률로 성공할 때마다 하나를 더 내보낸다(최대 MaxBranches). 줄기마다 MaxTargets만큼 연쇄한다.
         // 맞힌 적 목록은 한 발동의 모든 줄기가 함께 쓴다 — 같은 적을 두 번 맞히지 않는다.
+        // 치명타는 발동 한 번에 한 번 판정한다(원작: 전기가 일어날 때 함께 판정). 모든 줄기·적중이 같은 결과를 쓴다.
         private void Chain(ChainLightningDefinition chain, Pending pending, World world)
         {
             _struck.Clear();
@@ -146,11 +153,13 @@ namespace BlackHole.Core
             while (branches < ChainLightningDefinition.MaxBranches && chain.BranchChance > 0 && _random.NextFloat() < chain.BranchChance)
                 branches++;
 
+            bool critical = chain.CritChance > 0 && _random.NextFloat() < chain.CritChance;
+
             for (int branch = 0; branch < branches; branch++)
-                ChainBranch(chain, pending, world);
+                ChainBranch(chain, pending, world, critical);
         }
 
-        private void ChainBranch(ChainLightningDefinition chain, Pending pending, World world)
+        private void ChainBranch(ChainLightningDefinition chain, Pending pending, World world, bool critical)
         {
             Point2 origin = pending.Position;
 
@@ -168,7 +177,7 @@ namespace BlackHole.Core
                     if (!CanBeStruck(enemy) || _struck.Contains(enemy) || !enemy.IsWithin(origin, chain.Radius))
                         continue;
 
-                    float gap = (float)Math.Sqrt(origin.DistanceSquared(enemy.Position)) - enemy.Stats.Size;
+                    float gap = (float)Math.Sqrt(origin.DistanceSquared(enemy.Position)) - enemy.Stats.Radius;
 
                     if (nearest == null || gap < nearestGap)
                     {
@@ -180,7 +189,6 @@ namespace BlackHole.Core
                 if (nearest == null)
                     break;
 
-                bool critical = chain.CritChance > 0 && _random.NextFloat() < chain.CritChance;
                 float amount = critical ? chain.Damage * chain.CritMultiplier : chain.Damage;
 
                 _struck.Add(nearest);
@@ -190,21 +198,23 @@ namespace BlackHole.Core
             }
         }
 
+        // 폭발 반지름 = 정의의 반지름(크기 1 별 기준) × 죽은 별의 크기 배율. 별이 클수록 폭발도 같은 배율로 넓다.
         private void Explode(ExplosionDefinition explosion, Pending pending, World world)
         {
             _targets.Clear();
+            float radius = explosion.Radius * pending.SizeScale;
             IReadOnlyList<Enemy> enemies = world.Enemies;
 
             for (int i = 0; i < enemies.Count; i++)
             {
-                if (CanBeStruck(enemies[i]) && enemies[i].IsWithin(pending.Position, explosion.Radius))
+                if (CanBeStruck(enemies[i]) && enemies[i].IsWithin(pending.Position, radius))
                     _targets.Add(enemies[i]);
             }
 
             foreach (Enemy target in _targets)
                 world.DealDamage(target, new Damage(explosion.DamageTo(target), pending.Source));
 
-            _explosions.Add(new ExplosionBlast(_nextSequence++, pending.Position, explosion.Radius, _targets.Count));
+            _explosions.Add(new ExplosionBlast(_nextSequence++, pending.Position, radius, _targets.Count));
         }
 
         // 레이저 별이 죽은 순간: 경로를 정하고 예고를 시작한다. 피해는 예고가 끝날 때 준다(FireChargedLasers).

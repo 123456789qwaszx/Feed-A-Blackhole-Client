@@ -6,7 +6,7 @@ namespace BlackHole.Core
     // 한 번 옮겨 가는 거리(다음 적의 원 가장자리까지)는 Radius 이하, 한 줄기가 옮겨 가는 횟수는 MaxTargets 이하.
     // 갈래: 죽은 자리에서 줄기가 하나 나가고, BranchChance로 성공할 때마다 줄기가 하나 더 나간다(최대 MaxBranches).
     // 각 줄기가 MaxTargets만큼 연쇄하고, 한 번 맞힌 적은 어느 줄기도 다시 맞히지 않는다.
-    // 치명타: 한 번 맞힐 때마다 CritChance로 피해에 CritMultiplier를 곱한다(Breaker와 별개, 전기 별은 0).
+    // 치명타: 발동 한 번에 한 번 CritChance로 판정하고, 치명타면 그 발동의 모든 적중 피해에 CritMultiplier를 곱한다(Breaker와 별개).
     // 세부(가장자리까지 가장 가까운 순, 거리가 같으면 목록 순서, 갈래를 반복 판정)는 [임시]다(SYSTEM_CATALOG S06).
     // 전기 소행성과 전기 별은 서로 다른 성질이라 각자의 수치를 가진다.
     public sealed class ChainLightningDefinition : DeathEffectDefinition

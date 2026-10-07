@@ -17,12 +17,12 @@ namespace BlackHole.Core
         // 이 판에서 번 Gold. 사망 순간마다 그 적의 Gold가 더해진 합계다. 이정표로 끝나지 않았으면 결산이 진행 상태에 더한 값(SettledGold)과 같다.
         public long EarnedGold { get; }
 
-        // 이 판이 끝났을 때 블랙홀의 Level과 이 판의 EXP. 둘 다 이 판에서만 센 값이며 결산 뒤 버린다.
+        // 이 판이 끝났을 때 블랙홀의 Level과 누적 EXP(시작 Level에 닿는 EXP부터 센다). 결산 뒤 버린다 — 다음 판은 성장도의 시작 Level에서 시작한다.
         public int ReachedLevel { get; }
 
         public long Exp { get; }
 
-        // 이 판의 성장도와 결산 뒤의 성장도(목표 Level에 닿았으면 +1).
+        // 이 판의 성장도와 결산 뒤의 성장도(이정표에 닿았으면 +1).
         public int Stage { get; }
 
         public int NextStage { get; }
@@ -34,7 +34,7 @@ namespace BlackHole.Core
 
         public bool ReachedMilestone => Milestone != null;
 
-        // 결산이 진행 상태에 더한 Gold: 이정표로 끝났으면 이정표의 보상, 아니면 번 Gold(EarnedGold).
+        // 결산이 진행 상태에 더한 Gold: 이정표로 끝났으면 목표 잔액까지의 차액(번 Gold는 버린다), 아니면 번 Gold(EarnedGold).
         public long SettledGold { get; }
 
         internal BattleRawData(

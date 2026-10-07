@@ -39,7 +39,7 @@ namespace BlackHole.Core
                 return null;
             }
 
-            return Guard("Session.TimeLimit", into, () => new TimeLimitDefinition(item.TimeLimit));
+            return Guard("Session.TimeLimit", into, () => new TimeLimitDefinition(item.TimeLimit, item.KillTimeBonus));
         }
 
         // ── 스킬 ────────────────────────────────────────────────────────────
@@ -52,7 +52,8 @@ namespace BlackHole.Core
 
             return Guard("Breaker", into, () =>
                 new BreakerDefinition(item.Damage, item.Interval, item.Radius, item.CritChance, item.CritDamage,
-                    item.MoonDuration, item.MoonSpeedBonus, item.MoonRadiusBonus, item.CometDuration, item.CometCritDamageBonus));
+                    item.MoonDuration, item.MoonSpeedBonus, item.MoonRadiusBonus, item.CometDuration, item.CometCritDamageBonus,
+                    item.PlanetBonus, item.StarBonus));
         }
 
         // ── 공통 ────────────────────────────────────────────────────────────

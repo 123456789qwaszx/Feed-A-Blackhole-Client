@@ -11,6 +11,7 @@ namespace BlackHole.Unity
 
         private void ShowUpgrade()
         {
+            SoundManager.Instance?.ResetNodeUpgradeIndex(); // 업그레이드 SFX 인덱스 초기화
             _ui.SwitchRoot<UpgradeScreen>(
                 _upgradePresentation,
                 afterPresented: root =>
@@ -40,7 +41,7 @@ namespace BlackHole.Unity
             root.ShowGold(_player.Gold);
 
             int stage = _player.GrowthStage;
-            root.ShowHq(stage, _growth.StageAt(stage).GoalLevel);
+            root.ShowHq(stage, _growth.GoalLevelAt(stage));
 
             var states = new Dictionary<string, NodeState>(_tree.Nodes.Count, StringComparer.Ordinal);
             var costs = new Dictionary<string, long>(_tree.Nodes.Count, StringComparer.Ordinal);

@@ -15,6 +15,7 @@ namespace BlackHole.Core
         private readonly PlayerState _progress;
         private readonly IReadOnlyList<SupplyRequest> _startSupply;
         private bool _settled;
+        private long _settledGold;
 
         public World World { get; }
 
@@ -84,8 +85,10 @@ namespace BlackHole.Core
                 return 0;
             }
 
-            // 6. Growth의 시간 연장: 오른 Level마다 이 판의 제한 시간을 늘린다. 종료 판정보다 먼저다.
-            TimeLimit.Extend(raised * World.Hq.GrowthTime);
+            // 시간 연장(종료 판정보다 먼저):
+            // - 6. Growth: 오른 Level마다 블랙홀의 성장 시간,
+            // - 파괴 때 시간 추가가 성공한 수마다 판 설정의 추가 시간(World가 사망 순간에 판정해 모아 둔다).
+            TimeLimit.Extend(raised * World.Hq.GrowthTime + World.TakeTimeBonuses() * TimeLimit.Definition.KillTimeBonus);
 
             if (TimeLimit.HasExpired(Elapsed))
                 End();
@@ -121,13 +124,22 @@ namespace BlackHole.Core
 
         public bool IsSettled => _settled;
 
-        // 결산시 더하는 Gold
-        public long SettledGold =>
-            World.Hq.ReachedMilestone ? World.Hq.MilestoneReward : World.EarnedGold;
+        // 결산 때 더하는 Gold. 판이 끝나는 순간 정해지고 바뀌지 않는다(End).
+        // - 이정표로 끝났으면 진행 상태의 Gold를 이정표의 목표 잔액까지 채우는 차액(이 판에서 번 Gold는 버린다),
+        // - 아니면 이 판에서 번 Gold.
+        // 차액은 진행 상태의 Gold에 달려 있어 결산 뒤에 다시 계산하면 0이 된다. 그래서 속성으로 계산하지 않고 끝날 때 고정한다.
+        public long SettledGold
+        {
+            get
+            {
+                RequireEnded();
+                return _settledGold;
+            }
+        }
 
         // 결산:
         // - 끝난 판의 Gold(SettledGold)를 진행 상태(방장의 것)에 더하고,
-        // - 이 판이 목표 Level에 닿았으면 성장도를 1 올린다(Hq.NextStage).
+        // - 이 판이 이정표에 닿았으면 성장도를 1 올린다(Hq.NextStage).
         public void Settle()
         {
             RequireEnded();
@@ -146,6 +158,10 @@ namespace BlackHole.Core
                 return;
 
             Phase = SessionPhase.Ended;
+
+            // 전투 중에는 진행 상태가 바뀌지 않으므로 지금의 Gold가 결산 때의 Gold와 같다.
+            Hq hq = World.Hq;
+            _settledGold = hq.ReachedMilestone ? hq.Milestone.RewardFor(_progress.Gold) : World.EarnedGold;
         }
 
         private void RequireEnded()

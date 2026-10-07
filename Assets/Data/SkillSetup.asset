@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1a7410896c7413ab145913e46174686, type: 3}
   m_Name: SkillSetup
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.SkillSetup
-  breakerDamage: 2
+  breakerDamage: 1
   breakerInterval: 1
-  breakerRadius: 1.5
+  breakerRadius: 0.26
   breakerCritChance: 0
   breakerCritDamage: 1
-  breakerMoonDuration: 5
-  breakerMoonSpeedBonus: 0.2
+  breakerMoonDuration: 3
+  breakerMoonSpeedBonus: 0.1
   breakerMoonRadiusBonus: 0.1
-  breakerCometDuration: 5
+  breakerCometDuration: 3
   breakerCometCritDamageBonus: 0.5

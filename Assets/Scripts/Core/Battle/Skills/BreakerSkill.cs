@@ -7,6 +7,7 @@ namespace BlackHole.Core
     // 처치 버프(달·혜성)는 받은 것마다 중첩으로 따로 보관하고 따로 끝난다. 중첩당 수치는 이 Breaker의 정의(판마다 고정)가 정하고,
     // 같은 버프의 중첩은 합연산한다(보너스 합 = 중첩 수 × 중첩당 보너스). 합은 노드가 반영된 수치에 (1 + 합)으로 곱한다.
     // - 달: 공격 속도와 공격 범위를 함께 올린다.
+    //   중첩 수는 그 달을 준 성질의 동시 상한(EnemyTraitDefinition.MaxAlive, 원작 "달 최대 개수")까지다. 다 찼으면 새 중첩을 더하지 않는다.
     //   공격 속도 = 노드가 반영된 공격 속도 × (1 + 달 속도 보너스 합), 반지름 = 노드가 반영된 반지름 × (1 + 달 범위 보너스 합).
     // - 혜성: 중첩이 하나라도 있으면 모든 Tick이 치명타다.
     //   치명타 피해 보너스 = 노드가 반영된 치명타 피해 보너스 × (1 + 혜성 보너스 합). 치명타 피해 = 피해 × (1 + 치명타 피해 보너스).
@@ -15,6 +16,10 @@ namespace BlackHole.Core
     {
         // 진행 시간을 더한 값의 끝자리 오차. 이만큼 모자라도 Tick 시각에 닿은 것으로 본다.
         private const float TimeEpsilon = 1e-5f;
+
+        // 보너스 피해를 받는 적 종류(EnemyDefinition.Id — Enemies/Planet.asset, Star.asset의 id).
+        private const string PlanetKind = "planet";
+        private const string StarKind = "star";
 
         private readonly BattleRandom _critical;
         private readonly List<Enemy> _targets = new();
@@ -104,7 +109,15 @@ namespace BlackHole.Core
         }
 
         // 새 중첩을 더한다. 이미 있는 중첩의 시간은 바꾸지 않는다. 중첩의 시간은 이 Breaker의 정의(이 판의 고정값)가 정한다.
-        internal void GrantMoon() => _moon.Add(new BreakerBuff(++_buffCount, Definition.MoonDuration));
+        // 달 중첩은 maxStacks(그 달 성질의 동시 상한, 0이면 상한 없음)까지다. 다 찼으면 더하지 않는다.
+        internal void GrantMoon(int maxStacks = 0)
+        {
+            if (maxStacks > 0 && _moon.Count >= maxStacks)
+                return;
+
+            _moon.Add(new BreakerBuff(++_buffCount, Definition.MoonDuration));
+        }
+
 
         internal void GrantComet() => _comet.Add(new BreakerBuff(++_buffCount, Definition.CometDuration));
 
@@ -148,13 +161,32 @@ namespace BlackHole.Core
             }
 
             bool critical = _targets.Count > 0 && RollCritical();
-            var damage = new Damage(critical ? Definition.Damage * (1 + CurrentCritDamage) : Definition.Damage, owner.Id, critical);
+            float multiplier = critical ? 1 + CurrentCritDamage : 1;
 
             foreach (Enemy target in _targets)
+            {
+                float amount = (Definition.Damage + BonusAgainst(target)) * multiplier;
+                var damage = new Damage(amount, owner.Id, critical);
+
                 world.DealDamage(target, damage);
+            }
 
             LastTickHitCount = _targets.Count;
             _ticks.Add(new BreakerTick(TickCount, center, radius, _targets.Count, critical));
+        }
+
+        // 대상 종류에 따른 추가 피해(노드 breaker.planetBonus·breaker.starBonus). 행성·별이 아니면 0이다.
+        private float BonusAgainst(Enemy target)
+        {
+            string kind = target.Definition.Id;
+
+            if (kind == PlanetKind)
+                return Definition.PlanetBonus;
+
+            if (kind == StarKind)
+                return Definition.StarBonus;
+
+            return 0;
         }
 
         // 확정 치명타 중이면 굴리지 않고 치명타다. 확률이 0이나 1이면 굴리지 않는다.

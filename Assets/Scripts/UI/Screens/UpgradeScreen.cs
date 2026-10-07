@@ -70,8 +70,8 @@ namespace BlackHole.Unity
                 _gold.text = "Gold " + gold.ToString("N0", CultureInfo.InvariantCulture);
         }
 
-        // 블랙홀(판 밖 진행): 성장도와 다음 판에서 성장도를 올리는 목표 Level(0이면 목표 없음).
-        // 이정표 진행도와 산 노드 수는 결산 화면이 보여 준다.
+        // 블랙홀(판 밖 진행): 성장도(도달한 이정표 수)와 다음 판의 목표 Level(다음 이정표의 Level, 0이면 마지막 이정표 뒤).
+        // 산 노드 수는 결산 화면이 보여 준다.
         public void ShowHq(int stage, int goalLevel)
         {
             if (_hq == null)
