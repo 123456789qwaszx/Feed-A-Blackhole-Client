@@ -5,6 +5,7 @@ namespace BlackHole.Unity
     internal sealed partial class ScreenFlow
     {
         private const string NormalModeId = "normal";
+        private static readonly Color NormalModeColor = new(0.62f, 0.33f, 0.35f);
 
         // 모드 카드. 계속 버튼은 이어 할 진행이 있을 때만 켠다(진행 저장).
         private ModeSelectPanel.ModeItem[] Modes() => new[]
@@ -13,7 +14,7 @@ namespace BlackHole.Unity
                 NormalModeId,
                 "Normal Mode",
                 "The main mode. Break asteroids, planets and stars and feed their matter to the black hole.",
-                new Color(0.62f, 0.33f, 0.35f),
+                NormalModeColor,
                 canContinue: _progressStore.CanContinue),
         };
 

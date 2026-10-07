@@ -42,9 +42,11 @@ namespace BlackHole.Core
 
             List<NodeDefinition> definitions = Assemble(nodes, costs, effects, effectRanks, diagnostics);
 
-            return diagnostics.Count > 0
-                ? new NodeContentLoadResult(null, diagnostics)
-                : new NodeContentLoadResult(new NodeContent(stats, definitions), diagnostics);
+            if (diagnostics.Count > 0)
+                return new NodeContentLoadResult(null, diagnostics);
+
+            NodeContent content = new(stats, definitions);
+            return new NodeContentLoadResult(content, diagnostics);
         }
 
         // 1. 수치. 틀린 수치도 ID는 statIds에 넣는다 — 그 수치를 쓰는 효과마다 "없는 StatId"가 겹쳐 나오지 않게.

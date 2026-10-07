@@ -39,14 +39,15 @@ namespace BlackHole.Core
             BreakerDefinition breaker,
             IReadOnlyList<SupplyRequest> growthSupply)
         {
-            _enemies = new EnemyRoster(
-                new DeathRewards(
-                    new BattleRandom(seed, RandomStream.GoldenCrit)));
+            BattleRandom goldenCritRandom = new(seed, RandomStream.GoldenCrit);
+            DeathRewards deathRewards = new(goldenCritRandom);
+            _enemies = new EnemyRoster(deathRewards);
             Stats = stats;
             Hq = hq;
             DeathEffects = new DeathEffects(seed);
 
-            Breaker = new BreakerSkill(breaker, new BattleRandom(seed, RandomStream.Critical));
+            BattleRandom criticalRandom = new(seed, RandomStream.Critical);
+            Breaker = new BreakerSkill(breaker, criticalRandom);
 
             _supply = new EnemySupply(
                 seed,

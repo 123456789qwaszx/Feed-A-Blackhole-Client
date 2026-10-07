@@ -67,8 +67,9 @@ namespace BlackHole.Core
 
         public Enemy Spawn(EnemyDefinition definition, int tier, EnemyTraitDefinition trait, int size, EnemyStats stats, Point2 position)
         {
+            EnemyId id = new(_nextEnemyId++);
             var enemy = new Enemy(
-                new EnemyId(_nextEnemyId++),
+                id,
                 definition,
                 tier,
                 trait,

@@ -41,9 +41,11 @@ namespace BlackHole.Core
                 content.Breaker.Upgraded(upgrades),
                 GrowthSupplyOf(startSupply, stats));
 
+            TimeLimitRule timeLimit = new(content.TimeLimit.Upgraded(upgrades));
+
             return new GameSession(
                 world,
-                new TimeLimitRule(content.TimeLimit.Upgraded(upgrades)),
+                timeLimit,
                 seed,
                 progress,
                 startSupply);

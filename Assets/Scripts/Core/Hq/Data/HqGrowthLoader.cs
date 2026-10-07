@@ -45,10 +45,12 @@ namespace BlackHole.Core
             if (into.Count > errors)
                 return null;
 
+            List<long> levelExp = item.LevelExp ?? new List<long>();
+
             // Level 사다리의 오류는 LevelExp에, 이정표가 사다리 밖·순서가 틀린 것은 Milestones에 붙인다.
             try
             {
-                return new HqGrowthDefinition(item.LevelExp ?? new List<long>(), milestones);
+                return new HqGrowthDefinition(levelExp, milestones);
             }
             catch (ArgumentException error)
             {

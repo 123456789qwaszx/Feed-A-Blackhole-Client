@@ -28,7 +28,8 @@ namespace BlackHole.Core
             if (diagnostics.Count > 0)
                 return Fail(diagnostics);
 
-            return new ContentLoadResult(new GameContent(timeLimit, breaker, enemies, growth), diagnostics);
+            GameContent content = new(timeLimit, breaker, enemies, growth);
+            return new ContentLoadResult(content, diagnostics);
         }
 
         private static TimeLimitDefinition LoadSession(SessionData item, List<ContentDiagnostic> into)

@@ -51,7 +51,8 @@ namespace BlackHole.Core
                     unplaced.Add(node.Id);
             }
 
-            return new NodeTreeLoadResult(new NodeTree(graph, nodes, content), diagnostics, unplaced);
+            NodeTree tree = new(graph, nodes, content);
+            return new NodeTreeLoadResult(tree, diagnostics, unplaced);
         }
 
         // 배치 노드 하나: 콘텐츠의 같은 ID 노드를 가져온다.
@@ -150,7 +151,10 @@ namespace BlackHole.Core
         private static string At(int index, string id) =>
             string.IsNullOrWhiteSpace(id) ? $"Nodes[{index}]" : $"Nodes[{id}]";
 
-        private static NodeTreeLoadResult Fail(List<ContentDiagnostic> diagnostics) =>
-            new NodeTreeLoadResult(null, diagnostics, new List<string>());
+        private static NodeTreeLoadResult Fail(List<ContentDiagnostic> diagnostics)
+        {
+            List<string> unplaced = new();
+            return new NodeTreeLoadResult(null, diagnostics, unplaced);
+        }
     }
 }
