@@ -5,7 +5,7 @@ namespace BlackHole.Core
     // 적, 조준점과 Breaker, 사망 효과, 블랙홀, 이 판이 번 Gold 등을 처리
     public sealed class World
     {
-        private readonly EnemyRoster _enemies = new();
+        private readonly EnemyRoster _enemies;
         private readonly EnemySupply _supply;
         private readonly DeathBonuses _deathBonuses;
 
@@ -24,8 +24,8 @@ namespace BlackHole.Core
         // 블랙홀.
         public Hq Hq { get; }
 
-        // 이 판이 번 Gold: 사망 Gold + 황금 치명타 Gold. 진행 상태에는 판이 끝난 뒤 결산(GameSession.Settle)이 더한다.
-        public long EarnedGold => checked(_enemies.KillGold + _deathBonuses.GoldenCritGold);
+        // 이 판이 번 Gold(처치 보상 합계). 진행 상태에는 판이 끝난 뒤 결산(GameSession.Settle)이 더한다.
+        public long EarnedGold => _enemies.KillGold;
 
         // 이 판의 종류별 판 구성과 (종류, 색 등급, 성질, 크기)별 수치. 판 조립 때 정해졌다.
         internal EnemyStatTable Stats { get; }
@@ -39,6 +39,7 @@ namespace BlackHole.Core
             BreakerDefinition breaker,
             IReadOnlyList<SupplyRequest> growthSupply)
         {
+            _enemies = new EnemyRoster(new DeathRewards(new BattleRandom(seed, RandomStream.GoldenCrit)));
             Stats = stats;
             Hq = hq;
             DeathEffects = new DeathEffects(seed);
@@ -60,7 +61,8 @@ namespace BlackHole.Core
         // 판(GameSession)이 Step 뒤에 가져가는 시간 추가 성공 수. 가져가면 0이 된다.
         internal int TakeTimeBonuses() => _deathBonuses.TakeTimeBonuses();
 
-        // 판이 끝난 뒤 남은 적과 처리되지 않은 생성 요청·사망 효과를 치운다. 처치가 아니다(사망 기록·처치 수·Gold 없음).
+        // 판이 끝난 뒤 남은 적과 처리되지 않은 생성 요청·사망 효과를 치운다.
+        // 처치가 아니다(사망 기록·처치 수·Gold 없음).
         internal void ClearRemainingEnemies()
         {
             _supply.Clear();

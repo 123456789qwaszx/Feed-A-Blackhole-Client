@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 한 판의 적 생명주기.
-    // 출현한 적을 보관하고 이동·피해·사망을 처리하며, 이번 Step의 피격·사망 기록과 판 누적 처치 수·사망 Gold를 기록한다.
+    // 출현한 적을 보관하고 이동·피해·사망을 처리하며, 이번 Step의 피격·사망 기록과 판 누적 처치 수·처치 Gold를 기록한다.
     // 판 정리(ClearAlive)는 처치가 아니다 — 사망 기록도, 처치 수도, Gold도 없다.
     internal sealed class EnemyRoster
     {
@@ -13,6 +13,7 @@ namespace BlackHole.Core
         private readonly List<EnemyDefinition> _killOrder = new();
         private readonly List<HitRecord> _hits = new();
         private readonly List<DeathRecord> _deaths = new();
+        private readonly DeathRewards _rewards;
         private int _nextEnemyId = 1;
         private long _nextHitSequence = 1;
         private long _nextDeathSequence = 1;
@@ -24,11 +25,12 @@ namespace BlackHole.Core
         public IReadOnlyList<HitRecord> Hits { get; }
         public IReadOnlyList<DeathRecord> Deaths { get; }
 
-        // 이 판에서 확정된 사망의 Gold 합계(적 자신의 Gold). 황금 치명타 Gold는 DeathBonuses가 따로 센다.
+        // 이 판에서 확정된 처치 보상의 Gold 합계(황금 치명타 보너스 포함).
         public long KillGold { get; private set; }
 
-        public EnemyRoster()
+        public EnemyRoster(DeathRewards rewards)
         {
+            _rewards = rewards;
             Alive = _alive.AsReadOnly();
             Hits = _hits.AsReadOnly();
             Deaths = _deaths.AsReadOnly();
@@ -90,12 +92,13 @@ namespace BlackHole.Core
         // 이 목록에 살아 있는 적인가. 피해는 이것을 먼저 본 뒤에만 적을 바꾼다.
         private bool ContainsAlive(Enemy enemy) => enemy.IsAlive && _alive.Contains(enemy);
 
-        // 사망 확정: 사망 기록, 사망 Gold, 살아 있는 목록과 종류별 수, 처치 수를 갱신한다.
+        // 사망 확정: 보상을 한 번 정하고(DeathRewards), 사망 기록·Gold·살아 있는 목록과 종류별 수·처치 수를 갱신한다.
         // Gold는 흡수 연출을 기다리지 않고 지금 더한다.
         private void RecordDeath(Enemy enemy)
         {
-            _deaths.Add(new DeathRecord(_nextDeathSequence++, enemy));
-            KillGold = checked(KillGold + enemy.Stats.Gold);
+            DeathReward reward = _rewards.Resolve(enemy);
+            _deaths.Add(new DeathRecord(_nextDeathSequence++, enemy, reward));
+            KillGold = checked(KillGold + reward.TotalGold);
 
             if (_alive.Remove(enemy))
                 _aliveByKind[enemy.Definition] = CountAlive(enemy.Definition) - 1;

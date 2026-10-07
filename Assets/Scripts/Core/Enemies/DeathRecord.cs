@@ -15,14 +15,14 @@ namespace BlackHole.Core
         public int Size { get; }
         // 픽업(혜성)이 죽었는가. 화면은 픽업의 파편·Gold 텍스트를 내지 않는다.
         public bool IsPickup { get; }
-        // 이 사망으로 판의 합계에 든 Gold(황금 치명타 보너스 제외). Gold 텍스트가 쓴다.
-        public long Gold { get; }
-        // 황금 성질이 붙어 있었는가(Gold 배율이 이미 Gold에 들어 있다). Gold 텍스트의 색이 쓴다.
+        // 이 사망의 보상 내역(기본 Gold·황금 치명타 보너스). 판의 Gold 합계에 든 값과 같다. Gold 텍스트가 쓴다.
+        public DeathReward Reward { get; }
+        // 황금 성질이 붙어 있었는가(Gold 배율이 이미 기본 Gold에 들어 있다). Gold 텍스트의 색이 쓴다.
         public bool IsGolden { get; }
         public Point2 Position { get; }
         public float Radius { get; }
 
-        internal DeathRecord(long sequence, Enemy enemy)
+        internal DeathRecord(long sequence, Enemy enemy, DeathReward reward)
         {
             Sequence = sequence;
             EnemyId = enemy.Id;
@@ -31,7 +31,7 @@ namespace BlackHole.Core
             Tier = enemy.Tier;
             Size = enemy.Size;
             IsPickup = enemy.Definition.IsPickup;
-            Gold = enemy.Stats.Gold;
+            Reward = reward;
             IsGolden = enemy.Trait?.Effect is GoldenDefinition;
             Position = enemy.Position;
             Radius = enemy.Stats.Radius;
