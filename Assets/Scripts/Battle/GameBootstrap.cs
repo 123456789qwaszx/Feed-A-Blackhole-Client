@@ -30,10 +30,6 @@ namespace BlackHole.Unity
         [Header("Presentations")]
         [SerializeField] private ScreenPresentations _presentations;
 
-        [Header("UI Context")]
-        [SerializeField] private string _themeId = "Light";
-        [SerializeField] private string _localeId = "ko-KR";
-
         [Header("Runtime")]
         [SerializeField] private UIDisplayRefreshDriver _displayRefreshDriver;
 
@@ -52,6 +48,9 @@ namespace BlackHole.Unity
             typeof(PausePanel),
             typeof(ConfirmPanel),
         };
+
+        private const UITheme Theme = UITheme.Light;
+        private const UILocale Locale = UILocale.Korean;
 
         private LoadedContent _loaded;
         private EnemyLooks _enemyLooks;
@@ -134,11 +133,15 @@ namespace BlackHole.Unity
 
         private void BootstrapUI()
         {
+            UIContext uiContext = new(Theme.ToId(), Locale.ToId());
+            UIResolver uiResolver = new(uiContext);
+            UIPresentationApplier presentationApplier = new();
+
             _ui = new UIManager(
                 _rootLayer,
                 _panelLayer,
-                new UIResolver(new UIContext(_themeId, _localeId)),
-                new UIPresentationApplier());
+                uiResolver,
+                presentationApplier);
 
             foreach (UIBase view in _views)
             {
@@ -155,9 +158,11 @@ namespace BlackHole.Unity
             _displayRefreshDriver.Initialize(_ui);
 
             Canvas canvas = _rootLayer.GetComponentInParent<Canvas>();
-            _transition = ScreenTransition.Create(canvas != null
+            Transform transitionParent = canvas != null
                 ? canvas.rootCanvas.transform
-                : _rootLayer.parent, _screenTransitionLook);
+                : _rootLayer.parent;
+
+            _transition = ScreenTransition.Create(transitionParent, _screenTransitionLook);
         }
 
         private void BootstrapScreenFlow()
