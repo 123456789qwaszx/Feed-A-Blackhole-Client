@@ -9,7 +9,7 @@ namespace BlackHole.Unity
         private void ShowSettlement(BattleRawData raw)
         {
             _ui.SwitchRoot<SettlementScreen>(
-                _settlementPresentation,
+                _presentations.Settlement,
                 afterPresented: root =>
                 {
                     BindView(root, ApplyBindings);

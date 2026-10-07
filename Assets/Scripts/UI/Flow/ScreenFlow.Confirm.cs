@@ -13,7 +13,7 @@ namespace BlackHole.Unity
             _confirmed = confirmed;
 
             _ui.PushPanel<ConfirmPanel>(
-                _confirmPresentation,
+                _presentations.Confirm,
                 afterPresented: panel =>
                 {
                     BindView(panel, ApplyBindings);

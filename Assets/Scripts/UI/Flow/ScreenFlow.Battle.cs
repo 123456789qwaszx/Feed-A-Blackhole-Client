@@ -8,7 +8,7 @@ namespace BlackHole.Unity
         private void ShowBattle()
         {
             _ui.SwitchRoot<BattleScreen>(
-                _battlePresentation,
+                _presentations.Battle,
                 afterPresented: root =>
                 {
                     BindView(root, ApplyBindings);

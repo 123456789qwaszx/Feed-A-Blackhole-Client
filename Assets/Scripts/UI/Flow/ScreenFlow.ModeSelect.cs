@@ -21,7 +21,7 @@ namespace BlackHole.Unity
         private void OpenModeSelect()
         {
             _ui.PushPanel<ModeSelectPanel>(
-                _modeSelectPresentation,
+                _presentations.ModeSelect,
                 afterPresented: panel =>
                 {
                     BindView(panel, ApplyBindings);

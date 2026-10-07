@@ -12,7 +12,7 @@ namespace BlackHole.Unity
             SetBattlePaused(true);
 
             _ui.PushPanel<PausePanel>(
-                _pausePresentation,
+                _presentations.Pause,
                 afterPresented: panel => BindView(panel, ApplyBindings),
                 afterClosed: Unbind);
 

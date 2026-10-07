@@ -13,7 +13,7 @@ namespace BlackHole.Unity
         {
             _ui.SwitchPage<NodeTreeView>(
                 host,
-                _nodeTreePresentation,
+                _presentations.NodeTree,
                 afterPresented: page =>
                 {
                     BindView(page, ApplyBindings);
