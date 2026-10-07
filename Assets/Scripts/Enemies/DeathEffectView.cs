@@ -46,6 +46,7 @@ namespace BlackHole.Unity
                 hop = chainEnd.HasValue && chainEnd.Value.Equals(hits[i].From) ? hop + 1 : 0;
                 chainEnd = hits[i].To;
                 _lightning.Play(hits[i].From, hits[i].To, hop);
+                SoundManager.Instance?.PlayLightning();
             }
 
             IReadOnlyList<ExplosionBlast> explosions = world.DeathEffects.Explosions;
@@ -57,6 +58,7 @@ namespace BlackHole.Unity
 
                 drawn = Math.Max(drawn, explosions[i].Sequence);
                 _explosions.Play(explosions[i].Center, explosions[i].Radius);
+                SoundManager.Instance.PlaySuperNova();
             }
 
             IReadOnlyList<LaserBurst> lasers = world.DeathEffects.LaserBursts;
@@ -68,6 +70,7 @@ namespace BlackHole.Unity
 
                 drawn = Math.Max(drawn, lasers[i].Sequence);
                 _lasers.Play(lasers[i].Start, lasers[i].End, lasers[i].Definition.Width);
+                SoundManager.Instance?.PlayLazer();
             }
 
             _drawn = drawn;
