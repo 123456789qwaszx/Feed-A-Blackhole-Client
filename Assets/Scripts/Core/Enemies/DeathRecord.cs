@@ -10,6 +10,9 @@ namespace BlackHole.Core
         public string EnemyTypeId { get; }
         // 붙어 있던 특수 성질의 ID. 없으면 null.
         public string TraitId { get; }
+        // 죽은 적의 색 등급과 크기(SizeRule). 파편 수 같은 연출이 쓴다. 픽업의 크기는 SizeRule.Base다.
+        public int Tier { get; }
+        public int Size { get; }
         public Point2 Position { get; }
         public float Radius { get; }
 
@@ -19,6 +22,8 @@ namespace BlackHole.Core
             EnemyId = enemy.Id;
             EnemyTypeId = enemy.Definition.Id;
             TraitId = enemy.Trait?.Id;
+            Tier = enemy.Tier;
+            Size = enemy.Size;
             Position = enemy.Position;
             Radius = enemy.Stats.Radius;
         }

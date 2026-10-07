@@ -48,13 +48,14 @@ namespace BlackHole.Core
             return System.Array.AsReadOnly(kills);
         }
 
-        public Enemy Spawn(EnemyDefinition definition, int tier, EnemyTraitDefinition trait, EnemyStats stats, Point2 position)
+        public Enemy Spawn(EnemyDefinition definition, int tier, EnemyTraitDefinition trait, int size, EnemyStats stats, Point2 position)
         {
             var enemy = new Enemy(
                 new EnemyId(_nextEnemyId++),
                 definition,
                 tier,
                 trait,
+                size,
                 stats,
                 position);
 
