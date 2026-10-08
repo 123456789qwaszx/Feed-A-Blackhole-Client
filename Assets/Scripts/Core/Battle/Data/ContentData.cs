@@ -12,7 +12,7 @@ namespace BlackHole.Core
     [Serializable]
     public sealed class ContentData
     {
-        public SessionData Session;
+        public BattleRulesData BattleRules;
 
         // Breaker 수치. 필수다.
         public BreakerData Breaker;

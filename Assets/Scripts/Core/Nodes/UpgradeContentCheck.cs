@@ -42,7 +42,7 @@ namespace BlackHole.Core
             }
             catch (ArgumentException error)
             {
-                diagnostics.Add(new ContentDiagnostic("Nodes(모두 산 경우).Session", error.Message));
+                diagnostics.Add(new ContentDiagnostic("Nodes(모두 산 경우).BattleRules", error.Message));
             }
 
             EnemyContent enemies = content.Enemies;

@@ -3,41 +3,44 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 한 판의 적 공급: 생성 요청을 받아 공급 처리 때 한 마리씩 만들고, 주기 출현 종류(혜성)를 출현 주기마다 만든다.
-    // - 한 마리마다: 색 등급(종류의 색 비율) → 특수 성질(성질 확률, 최대 하나) → 크기(열린 크기가 같은 몫) → 위치.
-    //   색·성질·크기는 몫 방식(QuotaPicker)으로 정한다. 수치(Gold 포함)는 판의 적 수치 표에서 (종류, 색 등급, 성질, 크기)의 값이다.
-    // - 종류는 요청한 그대로다. 다음 종류로의 변환(소행성 → 행성)은 판 조립이 시작 공급을 정할 때 한 번 한다(GameSessionFactory).
-    // - 전체 개체 수는 규칙으로 막지 않는다. 최후의 안전 상한(SafetyMaxAlive)에 닿았을 때만 남은 요청을 버린다.
-    // - 주기 출현 종류(지금은 픽업인 혜성뿐)는 요청으로 나오지 않는다. 출현 주기마다 등장 확률로 하나를 주기 출현 띠 안에 만든다.
+    // 한 판의 적 공급을 담당한다.
+    // 생성 요청에 따라 일반 적을 만들고, 혜성 같은 주기 출현 적을 별도 주기로 생성한다.
+    // 적 종류의 변환과 시작, 성장 공급량은 판 조립 때 이미 정해져 들어온다.
     internal sealed class EnemySupply
     {
-        // 동시에 살아 있을 수 있는 공급된 적(픽업 제외)의 최후 안전 상한. 게임 규칙이 아니라 성능을 지키기 위한 보류다.
+        // 일반 공급 적의 성능 보호용 상한. 게임 규칙상의 최대 개체 수는 아니다.
         private const int SafetyMaxAlive = 1000;
 
         private readonly EnemyRoster _enemies;
         private readonly EnemyStatTable _stats;
         private readonly EnemyPlacementDefinition _placement;
-        // 주기 출현 띠: 일반 띠 바깥 반지름 기준 오프셋. 소환 때마다 그때의 일반 띠로 푼다.
         private readonly PeriodicSpawnPlacementDefinition _periodicSpawnPlacement;
-        // Level업 한 번마다 넣는 생성 요청(판 조립이 이 판의 시작 수 × 성장 공급 %로 정했다).
+
+        // Level업 한 번마다 요청할 적 종류와 수.
         private readonly IReadOnlyList<SupplyRequest> _growthSupply;
-        // 성질의 동시 상한에 거는 그 성질의 지금 수(World.CountActive: 살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩).
+
+        // 이 성질의 현재 활성 수.
+        // 살아 있는 적과 Breaker에 남아 있는 해당 버프 중첩을 함께 센다.
         private readonly Func<EnemyDefinition, EnemyTraitDefinition, int> _countActive;
+
         private readonly BattleRandom _placementRandom;
         private readonly BattleRandom _periodicSpawnPlacementRandom;
         private readonly BattleRandom _periodicSpawnRandom;
         private readonly BattleRandom _rainRandom;
-        // 종류마다 색 등급·성질·크기를 고르는 몫. 판 동안 이어진다(공급이 여러 번이어도 비율이 판 전체에 걸쳐 맞는다).
-        // 성질 몫은 성질 확률 합이 0보다 큰 종류에만 있고, 칸은 (성질 없음, 성질 0, 성질 1, …)이다.
-        // 크기 몫은 크기가 2 이상인 종류에만 있고, 칸 번호 + 1이 크기다.
-        private readonly Dictionary<EnemyDefinition, QuotaPicker> _tierPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
-        private readonly Dictionary<EnemyDefinition, QuotaPicker> _traitPickers = new Dictionary<EnemyDefinition, QuotaPicker>();
-        private readonly Dictionary<EnemyDefinition, QuotaPicker> _sizePickers = new Dictionary<EnemyDefinition, QuotaPicker>();
-        // 주기 출현 종류마다 다음 출현 판정까지 지난 시간. 등장 확률이 0보다 큰 종류만 있다.
-        private readonly List<SpawnClock> _spawnClocks = new List<SpawnClock>();
-        // 픽업 종류. 공급된 적의 수(안전 상한)에서 뺀다.
-        private readonly List<EnemyDefinition> _pickupKinds = new List<EnemyDefinition>();
-        private readonly List<SupplyRequest> _requests = new List<SupplyRequest>();
+
+        // 종류별 색 등급·성질·크기 비율을 판 전체에 걸쳐 맞추는 몫 선택기.
+        private readonly Dictionary<EnemyDefinition, QuotaPicker> _tierPickers = new();
+        private readonly Dictionary<EnemyDefinition, QuotaPicker> _traitPickers = new();
+        private readonly Dictionary<EnemyDefinition, QuotaPicker> _sizePickers = new();
+
+        // 주기 출현 종류마다 다음 출현 판정까지 누적된 시간.
+        private readonly List<SpawnClock> _spawnClocks = new();
+
+        // 일반 공급 적의 안전 상한 계산에서 제외할 픽업 종류.
+        private readonly List<EnemyDefinition> _pickupKinds = new();
+
+        // 다음 공급 처리 때 생성할 요청.
+        private readonly List<SupplyRequest> _requests = new();
 
         private sealed class SpawnClock
         {
@@ -65,7 +68,6 @@ namespace BlackHole.Core
             _periodicSpawnRandom = new BattleRandom(seed, RandomStream.PeriodicSpawn);
             _rainRandom = new BattleRandom(seed, RandomStream.Rain);
 
-            // 종류마다 처음 몫을 콘텐츠 순서로 흩뜨린다. 같은 콘텐츠·판 구성·seed면 같은 색·성질·크기 순서가 나온다.
             var tierRandom = new BattleRandom(seed, RandomStream.Tier);
             var traitRandom = new BattleRandom(seed, RandomStream.Trait);
             var sizeRandom = new BattleRandom(seed, RandomStream.Size);
@@ -112,7 +114,7 @@ namespace BlackHole.Core
             }
         }
 
-        // 생성 요청: 이 종류를 몇 마리. 다음 공급 처리(ProcessRequests) 때 나온다.
+        // 생성 요청: 이 종류를 몇 마리. 다음 공급 처리(ProcessRequests) 때 사용.
         internal void Request(SupplyRequest request) => _requests.Add(request);
 
         // Level업 한 번마다 성장 공급을 요청한다(판 조립이 정한 요청 그대로, 시작 공급 순서).

@@ -1,6 +1,6 @@
 namespace BlackHole.Core
 {
-    // 콘텐츠 오류 하나. Path가 핵심이다 — "Session.TimeLimit"처럼 고칠 자리를 바로 가리킨다.
+    // 콘텐츠 오류 하나. Path가 핵심이다 — "BattleRules.TimeLimit"처럼 고칠 자리를 바로 가리킨다.
     public sealed class ContentDiagnostic
     {
         public string Path { get; }

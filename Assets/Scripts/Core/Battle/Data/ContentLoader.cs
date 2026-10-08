@@ -20,7 +20,7 @@ namespace BlackHole.Core
                 return Fail(diagnostics);
             }
 
-            TimeLimitDefinition timeLimit = LoadSession(data.Session, diagnostics);
+            TimeLimitDefinition timeLimit = LoadBattleRules(data.BattleRules, diagnostics);
             BreakerDefinition breaker = LoadBreaker(data.Breaker, diagnostics);
             HqGrowthDefinition growth = HqGrowthLoader.Load(data.Growth, diagnostics);
             EnemyContent enemies = EnemyContentLoader.Load(data.Enemies, diagnostics);
@@ -32,15 +32,15 @@ namespace BlackHole.Core
             return new ContentLoadResult(content, diagnostics);
         }
 
-        private static TimeLimitDefinition LoadSession(SessionData item, List<ContentDiagnostic> into)
+        private static TimeLimitDefinition LoadBattleRules(BattleRulesData item, List<ContentDiagnostic> into)
         {
             if (item == null)
             {
-                into.Add(new ContentDiagnostic("Session", "데이터가 없다."));
+                into.Add(new ContentDiagnostic("BattleRules", "데이터가 없다."));
                 return null;
             }
 
-            return Guard("Session.TimeLimit", into, () => new TimeLimitDefinition(item.TimeLimit, item.KillTimeBonus));
+            return Guard("BattleRules.TimeLimit", into, () => new TimeLimitDefinition(item.TimeLimit, item.KillTimeBonus));
         }
 
         // ── 스킬 ────────────────────────────────────────────────────────────

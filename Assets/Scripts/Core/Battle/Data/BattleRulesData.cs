@@ -2,8 +2,9 @@ using System;
 
 namespace BlackHole.Core
 {
+    // 판 규칙(BattleRules 에셋)의 저작 형식. ContentLoader가 TimeLimitDefinition으로 검증한다.
     [Serializable]
-    public sealed class SessionData
+    public sealed class BattleRulesData
     {
         // 시간제 종료(현재 후보). 초 단위.
         public float TimeLimit;
