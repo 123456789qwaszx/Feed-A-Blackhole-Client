@@ -570,7 +570,7 @@ namespace BlackHole.Unity
         private static string Whole(int count) => count.ToString(CultureInfo.InvariantCulture);
 
         private static string Money(long gold) =>
-            "$" + gold.ToString("N0", CultureInfo.InvariantCulture);
+            "$" + OverThousand.GoldThousand(gold);/*gold.ToString("N0", CultureInfo.InvariantCulture);*/
 
         // MonoBehavior
         private void Update()

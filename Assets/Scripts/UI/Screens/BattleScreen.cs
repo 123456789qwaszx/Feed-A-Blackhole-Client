@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using BlackHole.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -119,7 +120,8 @@ namespace BlackHole.Unity
             if (earnedGold != _shownEarned && _earned != null)
             {
                 _shownEarned = earnedGold;
-                _earned.text = "+" + earnedGold.ToString("N0", CultureInfo.InvariantCulture) + " Gold";
+                //_earned.text = "+" + earnedGold.ToString("N0", CultureInfo.InvariantCulture) + " Gold";
+                _earned.text = "+" + OverThousand.GoldThousand(earnedGold) + " Gold";
             }
 
             int percent = Mathf.FloorToInt(progress * 100);
@@ -178,6 +180,6 @@ namespace BlackHole.Unity
             }
 
             SetLevelFill(_fillValue - Mathf.Floor(_fillValue));
-        }   
+        }
     }
 }
