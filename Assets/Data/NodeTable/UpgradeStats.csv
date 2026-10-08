@@ -9,8 +9,8 @@ breaker.radius,Float,Percent,100,Add,0,,TRUE,,브레이커 범위,%,100,13,[2]�
 breaker.speed,Float,Percent,100,Add,0,,TRUE,,브레이커 속도,%,100,12,[2]동일한것,21,OK
 breaker.critChance,Float,Percent,0,Add,0,100,TRUE,,브레이커 치명타 확률,%,0,5,[2]동일한것,5,OK
 breaker.critBonus,Float,Percent,200,Add,0,,TRUE,,브레이커 치명타 보너스,%,200,5,[3]노드만 추가,14,OK
-breaker.planetBonus,Float,Flat,0,Add,0,,TRUE,,행성에 대한 브레이커의 보너스 피해,값,0,4,[5]구현필요,4,OK
-breaker.starBonus,Float,Flat,0,Add,0,,TRUE,,별에 대한 브레이커의 보너스 대미지,값,0,2,[5]구현필요,2,OK
+breaker.planetBonusDamage,Float,Flat,0,Add,0,,TRUE,,행성에 대한 브레이커의 보너스 피해,값,0,4,[5]구현필요,4,OK
+breaker.starBonusDamage,Float,Flat,0,Add,0,,TRUE,,별에 대한 브레이커의 보너스 대미지,값,0,2,[5]구현필요,2,OK
 asteroid.count,Int,Flat,20,Add,0,,TRUE,,소행성 수,값,20,5,[2]동일한것,5,OK
 asteroid.size,Int,Flat,1,Add,0,,TRUE,,소행성 크기,값,1,2,[3]노드만 추가,2,OK
 asteroid.massScale,Float,Percent,100,Add,0,,TRUE,,소행성 질량,%,100,10,[5]구현필요,10,OK

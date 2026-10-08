@@ -75,8 +75,8 @@ namespace BlackHole.Core
                 MoonRadiusBonus + upgrades.GainOf(UpgradeStat.MoonPlanetRangeScale) / 100,
                 CometDuration + upgrades.GainOf(UpgradeStat.CometDuration),
                 CometCritDamageBonus + upgrades.GainOf(UpgradeStat.CometCritBonus) / 100,
-                PlanetBonusDamage + upgrades.GainOf(UpgradeStat.BreakerPlanetBonus),
-                StarBonusDamage + upgrades.GainOf(UpgradeStat.BreakerStarBonus));
+                PlanetBonusDamage + upgrades.GainOf(UpgradeStat.BreakerPlanetBonusDamage),
+                StarBonusDamage + upgrades.GainOf(UpgradeStat.BreakerStarBonusDamage));
         }
     }
 }
