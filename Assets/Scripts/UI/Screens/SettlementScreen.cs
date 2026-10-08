@@ -34,6 +34,10 @@ namespace BlackHole.Unity
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
             // 오른쪽 통계 칸(스킬별 피해·수집). 칸에 손을 올리면 툴팁으로 이름을 보인다.
+            // 칸은 두 그룹(격자)에 들어 있고 그룹 사이에 구분선이 있다. 값이 0인 칸·빈 그룹·구분선은 숨긴다.
+            SkillStats,
+            CountStats,
+            StatsDivider,
             ElectricStarDamage_Button,
             ElectricStarDamage_Text,
             LaserDamage_Button,
@@ -137,6 +141,9 @@ namespace BlackHole.Unity
         private TMP_Text _tooltipText;
         private RectTransform _tooltipOwner;
 
+        private GameObject _skillStats;
+        private GameObject _countStats;
+        private GameObject _statsDivider;
         private StatCell _electricStarDamage;
         private StatCell _laserDamage;
         private StatCell _supernovaDamage;
@@ -268,20 +275,23 @@ namespace BlackHole.Unity
             BindEvent(_continueButton, PressContinueButton, ETouchEvent.PointerDown);
             BindEvent(_continueButton, ReleaseContinueButton, ETouchEvent.PointerUp);
 
-            _electricStarDamage = BindStat(Refs.ElectricStarDamage_Button, Refs.ElectricStarDamage_Text, "전기 별 대미지");
-            _laserDamage = BindStat(Refs.LaserDamage_Button, Refs.LaserDamage_Text, "레이저 대미지");
-            _supernovaDamage = BindStat(Refs.SupernovaDamage_Button, Refs.SupernovaDamage_Text, "슈퍼노바 대미지");
-            _goldenAsteroidGold = BindStat(Refs.GoldenAsteroidGold_Button, Refs.GoldenAsteroidGold_Text, "황금 소행성에서 얻는 돈");
-            _electricAsteroidDamage = BindStat(Refs.ElectricAsteroidDamage_Button, Refs.ElectricAsteroidDamage_Text, "전기 소행성 대미지");
-            _breakerDamage = BindStat(Refs.BreakerDamage_Button, Refs.BreakerDamage_Text, "브레이커 대미지");
-            _breakerCritDamage = BindStat(Refs.BreakerCritDamage_Button, Refs.BreakerCritDamage_Text, "브레이커 치명타 대미지");
-            _breakerClicks = BindStat(Refs.BreakerClicks_Button, Refs.BreakerClicks_Text, "브레이커 클릭 수");
-            _destroyedStars = BindStat(Refs.DestroyedStars_Button, Refs.DestroyedStars_Text, "파괴된 별");
-            _destroyedPlanets = BindStat(Refs.DestroyedPlanets_Button, Refs.DestroyedPlanets_Text, "파괴된 행성");
-            _collectedMoons = BindStat(Refs.CollectedMoons_Button, Refs.CollectedMoons_Text, "수집한 달");
-            _collectedComets = BindStat(Refs.CollectedComets_Button, Refs.CollectedComets_Text, "수집한 혜성");
-            _destroyedAsteroids = BindStat(Refs.DestroyedAsteroids_Button, Refs.DestroyedAsteroids_Text, "파괴된 소행성");
-            _addedTime = BindStat(Refs.AddedTime_Button, Refs.AddedTime_Text, "추가된 시간");
+            _skillStats = ObjectOf(View.Rect(Refs.SkillStats));
+            _countStats = ObjectOf(View.Rect(Refs.CountStats));
+            _statsDivider = ObjectOf(View.Rect(Refs.StatsDivider));
+            _electricStarDamage = BindStat(Refs.ElectricStarDamage_Button, Refs.ElectricStarDamage_Text, "Electric Star Damage");
+            _laserDamage = BindStat(Refs.LaserDamage_Button, Refs.LaserDamage_Text, "Laser Damage");
+            _supernovaDamage = BindStat(Refs.SupernovaDamage_Button, Refs.SupernovaDamage_Text, "Supernova Damage");
+            _goldenAsteroidGold = BindStat(Refs.GoldenAsteroidGold_Button, Refs.GoldenAsteroidGold_Text, "Money from Golden Asteroids");
+            _electricAsteroidDamage = BindStat(Refs.ElectricAsteroidDamage_Button, Refs.ElectricAsteroidDamage_Text, "Electric Asteroid Damage");
+            _breakerDamage = BindStat(Refs.BreakerDamage_Button, Refs.BreakerDamage_Text, "Breaker Damage");
+            _breakerCritDamage = BindStat(Refs.BreakerCritDamage_Button, Refs.BreakerCritDamage_Text, "Breaker Critical Damage");
+            _breakerClicks = BindStat(Refs.BreakerClicks_Button, Refs.BreakerClicks_Text, "Breaker Clicks");
+            _destroyedStars = BindStat(Refs.DestroyedStars_Button, Refs.DestroyedStars_Text, "Stars Destroyed");
+            _destroyedPlanets = BindStat(Refs.DestroyedPlanets_Button, Refs.DestroyedPlanets_Text, "Planets Destroyed");
+            _collectedMoons = BindStat(Refs.CollectedMoons_Button, Refs.CollectedMoons_Text, "Moons Collected");
+            _collectedComets = BindStat(Refs.CollectedComets_Button, Refs.CollectedComets_Text, "Comets Collected");
+            _destroyedAsteroids = BindStat(Refs.DestroyedAsteroids_Button, Refs.DestroyedAsteroids_Text, "Asteroids Destroyed");
+            _addedTime = BindStat(Refs.AddedTime_Button, Refs.AddedTime_Text, "Time Added");
         }
 
         // 화면이 닫힐 때 툴팁도 닫는다. 다시 열 때 남아 있지 않게 한다.
@@ -452,29 +462,56 @@ namespace BlackHole.Unity
         }
 
         // 오른쪽 통계 칸: 스킬별 피해·수집 통계(판 기록)와 종류별 처치 수(물질 행과 같은 값). 증가 연출 없이 바로 보인다.
+        // 값이 0인 칸은 숨기고, 남은 칸은 그룹의 격자(GridLayoutGroup)가 앞에서부터 채운다. 빈 그룹과 구분선도 숨긴다.
         public void ShowStats(BattleStats stats, int asteroids, int planets, int stars)
         {
-            ShowStat(_electricStarDamage, NumberText.Compact(stats.ElectricStarDamage));
-            ShowStat(_laserDamage, NumberText.Compact(stats.LaserDamage));
-            ShowStat(_supernovaDamage, NumberText.Compact(stats.SupernovaDamage));
-            ShowStat(_goldenAsteroidGold, "$" + NumberText.Compact(stats.GoldenAsteroidGold));
-            ShowStat(_electricAsteroidDamage, NumberText.Compact(stats.ElectricAsteroidDamage));
-            ShowStat(_breakerDamage, NumberText.Compact(stats.BreakerDamage));
-            ShowStat(_breakerCritDamage, NumberText.Compact(stats.BreakerCriticalDamage));
-            ShowStat(_breakerClicks, Whole(stats.BreakerTicks));
-            ShowStat(_destroyedStars, Whole(stars));
-            ShowStat(_destroyedPlanets, Whole(planets));
-            ShowStat(_collectedMoons, Whole(stats.CollectedMoons));
-            ShowStat(_collectedComets, Whole(stats.CollectedComets));
-            ShowStat(_destroyedAsteroids, Whole(asteroids));
-            ShowStat(_addedTime, stats.AddedSeconds.ToString("0.#", CultureInfo.InvariantCulture));
+            // 추가된 시간은 보이는 자릿수(0.1초)로 0을 가린다.
+            double addedSeconds = Math.Round(stats.AddedSeconds, 1);
+
+            bool skills = false;
+            skills |= ShowStat(_electricStarDamage, stats.ElectricStarDamage, NumberText.Compact(stats.ElectricStarDamage));
+            skills |= ShowStat(_laserDamage, stats.LaserDamage, NumberText.Compact(stats.LaserDamage));
+            skills |= ShowStat(_supernovaDamage, stats.SupernovaDamage, NumberText.Compact(stats.SupernovaDamage));
+            skills |= ShowStat(_goldenAsteroidGold, stats.GoldenAsteroidGold, "$" + NumberText.Compact(stats.GoldenAsteroidGold));
+            skills |= ShowStat(_electricAsteroidDamage, stats.ElectricAsteroidDamage, NumberText.Compact(stats.ElectricAsteroidDamage));
+            skills |= ShowStat(_breakerDamage, stats.BreakerDamage, NumberText.Compact(stats.BreakerDamage));
+            skills |= ShowStat(_breakerCritDamage, stats.BreakerCriticalDamage, NumberText.Compact(stats.BreakerCriticalDamage));
+            skills |= ShowStat(_breakerClicks, stats.BreakerTicks, Whole(stats.BreakerTicks));
+
+            bool counts = false;
+            counts |= ShowStat(_destroyedStars, stars, Whole(stars));
+            counts |= ShowStat(_destroyedPlanets, planets, Whole(planets));
+            counts |= ShowStat(_collectedMoons, stats.CollectedMoons, Whole(stats.CollectedMoons));
+            counts |= ShowStat(_collectedComets, stats.CollectedComets, Whole(stats.CollectedComets));
+            counts |= ShowStat(_destroyedAsteroids, asteroids, Whole(asteroids));
+            counts |= ShowStat(_addedTime, addedSeconds, addedSeconds.ToString("0.#", CultureInfo.InvariantCulture));
+
+            SetActive(_skillStats, skills);
+            SetActive(_countStats, counts);
+            SetActive(_statsDivider, skills && counts);
         }
 
-        private static void ShowStat(StatCell cell, string value)
+        // 값이 0이면 칸을 숨긴다. 보이면 true.
+        private static bool ShowStat(StatCell cell, double value, string text)
         {
+            bool visible = value > 0;
+
+            if (cell.Button != null)
+                cell.Button.gameObject.SetActive(visible);
+
             if (cell.Value != null)
-                cell.Value.text = value;
+                cell.Value.text = text;
+
+            return visible;
         }
+
+        private static void SetActive(GameObject target, bool active)
+        {
+            if (target != null)
+                target.SetActive(active);
+        }
+
+        private static GameObject ObjectOf(RectTransform rect) => rect != null ? rect.gameObject : null;
 
         // 지금 Gold로 살 수 있는 노드 수. 없으면 수를 붙이지 않는다.
         public void ShowUpgradeCount(int purchasable)
