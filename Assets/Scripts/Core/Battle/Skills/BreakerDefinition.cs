@@ -27,12 +27,12 @@ namespace BlackHole.Core
         public float CometCritDamageBonus { get; }
 
         // 행성, 별 보너스 피해
-        public float PlanetBonus { get; }
-        public float StarBonus { get; }
+        public float PlanetBonusDamage { get; }
+        public float StarBonusDamage { get; }
 
         public BreakerDefinition(float damage, float interval, float radius, float critChance, float critDamage,
             float moonDuration, float moonSpeedBonus, float moonRadiusBonus, float cometDuration, float cometCritDamageBonus,
-            float planetBonus, float starBonus)
+            float planetBonusDamage, float starBonusDamage)
         {
             Damage = DefinitionGuard.Positive(damage, nameof(damage));
             Interval = DefinitionGuard.Positive(interval, nameof(interval));
@@ -48,8 +48,8 @@ namespace BlackHole.Core
             MoonRadiusBonus = NotNegative(moonRadiusBonus, nameof(moonRadiusBonus));
             CometDuration = DefinitionGuard.Positive(cometDuration, nameof(cometDuration));
             CometCritDamageBonus = NotNegative(cometCritDamageBonus, nameof(cometCritDamageBonus));
-            PlanetBonus = NotNegative(planetBonus, nameof(planetBonus));
-            StarBonus = NotNegative(starBonus, nameof(starBonus));
+            PlanetBonusDamage = NotNegative(planetBonusDamage, nameof(planetBonusDamage));
+            StarBonusDamage = NotNegative(starBonusDamage, nameof(starBonusDamage));
         }
 
         private static float NotNegative(float value, string name)
@@ -83,8 +83,8 @@ namespace BlackHole.Core
                 MoonRadiusBonus + upgrades.GainOf(UpgradeStat.MoonPlanetRangeScale) / 100,
                 CometDuration + upgrades.GainOf(UpgradeStat.CometDuration),
                 CometCritDamageBonus + upgrades.GainOf(UpgradeStat.CometCritBonus) / 100,
-                PlanetBonus + upgrades.GainOf(UpgradeStat.BreakerPlanetBonus),
-                StarBonus + upgrades.GainOf(UpgradeStat.BreakerStarBonus));
+                PlanetBonusDamage + upgrades.GainOf(UpgradeStat.BreakerPlanetBonus),
+                StarBonusDamage + upgrades.GainOf(UpgradeStat.BreakerStarBonus));
         }
     }
 }

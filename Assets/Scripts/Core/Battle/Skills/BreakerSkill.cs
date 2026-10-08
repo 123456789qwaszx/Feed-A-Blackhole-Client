@@ -160,9 +160,9 @@ namespace BlackHole.Core
             switch (target.Definition.Type)
             {
                 case EnemyType.Planet:
-                    return Definition.PlanetBonus;
+                    return Definition.PlanetBonusDamage;
                 case EnemyType.Star:
-                    return Definition.StarBonus;
+                    return Definition.StarBonusDamage;
                 default:
                     return 0;
             }
