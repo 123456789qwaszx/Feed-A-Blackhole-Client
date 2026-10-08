@@ -2,11 +2,14 @@
 using UnityEditor;
 using UnityEngine;
 
-// Only changes PNG files inside a folder named BlackHoleGUI/PNG.
+// BlackHoleGUI/PNG 안의 PNG를 처음 들여올 때(.meta가 없을 때)만 스프라이트 설정을 넣는다.
+// 이미 .meta가 있는 PNG를 다시 임포트할 때 설정을 건드리면 Unity가 .meta를 다시 쓰면서
+// 그 PC에 깔린 빌드 모듈의 플랫폼 항목(WebGL 등)을 덧붙인다 — 팀원마다 .meta 변경이 생기는 원인이었다.
 public sealed class BlackHoleGUIImporter : AssetPostprocessor
 {
     private void OnPreprocessTexture()
     {
+        if (!assetImporter.importSettingsMissing) return;
         if (!assetPath.Contains("/BlackHoleGUI/PNG/") || !assetPath.EndsWith(".png")) return;
         var texture = (TextureImporter)assetImporter;
         texture.textureType = TextureImporterType.Sprite;
@@ -30,14 +33,6 @@ public sealed class BlackHoleGUIImporter : AssetPostprocessor
         // Settlement 막대·행 배경. 경계 16px.
         if (assetPath.Contains("/Settlement/Components/")) border = 16;
         texture.spriteBorder = new Vector4(border, border, border, border);
-    }
-
-    [MenuItem("Tools/Black Hole GUI/Reimport PNG Sprites")]
-    public static void Reimport()
-    {
-        foreach (string path in AssetDatabase.GetAllAssetPaths())
-            if (path.Contains("/BlackHoleGUI/PNG/") && path.EndsWith(".png"))
-                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
     }
 }
 #endif
