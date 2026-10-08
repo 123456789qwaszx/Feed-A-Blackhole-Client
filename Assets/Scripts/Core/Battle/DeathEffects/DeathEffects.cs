@@ -30,13 +30,16 @@ namespace BlackHole.Core
         private readonly struct Pending
         {
             public DeathEffectDefinition Effect { get; }
+            // 죽은 특수 적의 종류. 효과의 피해에 실어 통계가 전기 소행성과 전기 별을 나눈다(Damage.SourceEnemyType).
+            public EnemyType EnemyType { get; }
             public Point2 Position { get; }
             // 죽은 적의 크기 배율(반지름 ÷ 크기 1의 반지름, SizeRule). 폭발 반지름이 이만큼 커진다.
             public float SizeScale { get; }
 
-            public Pending(DeathEffectDefinition effect, Point2 position, float sizeScale)
+            public Pending(DeathEffectDefinition effect, EnemyType enemyType, Point2 position, float sizeScale)
             {
                 Effect = effect;
+                EnemyType = enemyType;
                 Position = position;
                 SizeScale = sizeScale;
             }
@@ -48,6 +51,7 @@ namespace BlackHole.Core
             public Point2 Start;
             public Point2 End;
             public LaserBurstDefinition Definition;
+            public EnemyType SourceEnemyType;
             public float Remaining;
         }
 
@@ -73,7 +77,7 @@ namespace BlackHole.Core
         internal void Enqueue(Enemy enemy)
         {
             if (enemy.Trait != null)
-                _pending.Add(new Pending(enemy.Trait.Effect, enemy.Position, enemy.Stats.Radius / enemy.Definition.Radius));
+                _pending.Add(new Pending(enemy.Trait.Effect, enemy.Definition.Type, enemy.Position, enemy.Stats.Radius / enemy.Definition.Radius));
         }
 
         internal void BeginStep()
@@ -179,11 +183,12 @@ namespace BlackHole.Core
                     break;
 
                 float amount = critical ? chain.Damage * chain.CritMultiplier : chain.Damage;
+                Damage damage = new(amount, DamageSource.ChainLightning, critical, pending.EnemyType);
 
                 _struck.Add(nearest);
                 _lightningHits.Add(new LightningHit(_nextSequence++, origin, nearest.Position, critical));
                 origin = nearest.Position;
-                world.DealDamage(nearest, new Damage(amount, DamageSource.ChainLightning, critical));
+                world.DealDamage(nearest, damage);
             }
         }
 
@@ -201,7 +206,10 @@ namespace BlackHole.Core
             }
 
             foreach (Enemy target in _targets)
-                world.DealDamage(target, new Damage(explosion.DamageTo(target), DamageSource.Explosion));
+            {
+                Damage damage = new(explosion.DamageTo(target), DamageSource.Explosion, false, pending.EnemyType);
+                world.DealDamage(target, damage);
+            }
 
             _explosions.Add(new ExplosionBlast(_nextSequence++, pending.Position, radius, _targets.Count));
         }
@@ -220,6 +228,7 @@ namespace BlackHole.Core
                 Start = new Point2(center.X - LaserReach * directionX, center.Y - LaserReach * directionY),
                 End = new Point2(center.X + LaserReach * directionX, center.Y + LaserReach * directionY),
                 Definition = laser,
+                SourceEnemyType = pending.EnemyType,
                 Remaining = LaserTelegraphSeconds,
             });
         }
@@ -271,9 +280,8 @@ namespace BlackHole.Core
             bool critical = laser.CritChance > 0
                             && _random.NextFloat() < laser.CritChance;
 
-            var damage = new Damage(critical
-                ? laser.Damage * laser.CritMultiplier
-                : laser.Damage, DamageSource.LaserBurst, critical);
+            float amount = critical ? laser.Damage * laser.CritMultiplier : laser.Damage;
+            Damage damage = new(amount, DamageSource.LaserBurst, critical, charging.SourceEnemyType);
 
             foreach (Enemy target in _targets)
                 world.DealDamage(target, damage);

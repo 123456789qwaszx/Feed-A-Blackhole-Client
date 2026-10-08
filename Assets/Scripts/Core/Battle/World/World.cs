@@ -8,6 +8,7 @@ namespace BlackHole.Core
         private readonly EnemyRoster _enemies;
         private readonly EnemySupply _supply;
         private readonly DeathBonuses _deathBonuses;
+        private readonly BattleStatsCounter _statsCounter = new();
 
         public BreakerSkill Breaker { get; }
         public Point2? AimPoint { get; private set; }
@@ -66,6 +67,9 @@ namespace BlackHole.Core
         // 이 판에서 지금까지의 종류별 처치 수(처음 처치한 순서).
         internal IReadOnlyList<EnemyKillCount> GetKillCounts() => _enemies.GetKillCounts();
 
+        // 이 판에서 지금까지의 스킬별 피해와 수집 통계. 더해진 시간은 제한 시간을 가진 판(GameSession)이 넘긴다.
+        internal BattleStats CreateStats(float addedSeconds) => _statsCounter.Snapshot(Breaker.TickCount, addedSeconds);
+
         // 생성 요청: 지금 바로 적을 만드는 메서드가 아니라, 나중에 생성할 요청만 큐에 넣는다
         internal void RequestSpawn(SupplyRequest request) => _supply.Request(request);
 
@@ -110,6 +114,9 @@ namespace BlackHole.Core
 
             // 3. Death Effect: 이번 Step에 죽은 특수 적의 성질 효과를 사망 순서대로 처리.
             DeathEffects.Resolve(this, delta);
+
+            // 이번 Step의 피격·사망을 판 통계에 더한다. 이 뒤로 이번 Step에는 피해가 없다.
+            _statsCounter.Count(_enemies.Hits, _enemies.Deaths);
 
             // 4. HQ EXP / Level: 쌓인 EXP로 블랙홀의 Level 계산.
             int raised = Hq.RaiseLevels();

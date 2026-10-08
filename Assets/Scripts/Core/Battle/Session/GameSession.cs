@@ -96,8 +96,20 @@ namespace BlackHole.Core
         public BattleRawData CreateRawData()
         {
             Hq hq = World.Hq;
-            return new BattleRawData(_seed, Elapsed, World.GetKillCounts(), World.EarnedGold, hq.Level, hq.Exp,
-                hq.Stage, hq.NextStage, hq.Milestone, _settledGold);
+            BattleStats stats = World.CreateStats(_timeLimit.ExtendedSeconds);
+
+            return new BattleRawData(
+                _seed,
+                Elapsed,
+                World.GetKillCounts(),
+                World.EarnedGold,
+                hq.Level,
+                hq.Exp,
+                hq.Stage,
+                hq.NextStage,
+                hq.Milestone,
+                _settledGold,
+                stats);
         }
 
         // 결산: 끝난 판의 Gold를 진행 상태에 더하고, 이 판이 이정표에 닿았으면 성장도를 1 올린다(Hq.NextStage).

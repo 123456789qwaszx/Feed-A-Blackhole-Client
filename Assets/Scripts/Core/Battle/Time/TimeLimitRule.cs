@@ -11,6 +11,9 @@ namespace BlackHole.Core
         // 이 판의 제한 시간(초).
         public float Limit { get; private set; }
 
+        // 이 판에서 제한 시간에 더한 초(Extend의 합).
+        public float ExtendedSeconds { get; private set; }
+
         internal TimeLimitRule(TimeLimitDefinition definition)
         {
             Definition = definition;
@@ -32,6 +35,7 @@ namespace BlackHole.Core
                 throw new ArgumentOutOfRangeException(nameof(seconds), "0 이상의 유한한 값이 필요하다.");
 
             Limit += seconds;
+            ExtendedSeconds += seconds;
         }
     }
 }
