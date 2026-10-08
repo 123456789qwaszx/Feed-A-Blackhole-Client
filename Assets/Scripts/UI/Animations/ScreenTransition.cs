@@ -37,9 +37,6 @@ namespace BlackHole.Unity
         // 0이면 다 열림, 1이면 다 덮임. 시간에 따라 곧게 움직이고, 보이는 반지름은 곡선(Close)으로 바꾼다.
         private float _progress = 1;
 
-        // 전환 중인가(덮는 중, 일하는 중, 여는 중).
-        public bool IsBusy => _routine != null;
-
         // canvas: 덮개를 둘 캔버스(맨 위 캔버스). 덮개는 그 캔버스의 마지막 자식이라 모든 화면·패널 위에 그려진다.
         public static ScreenTransition Create(Transform canvas, ScreenTransitionLook look)
         {

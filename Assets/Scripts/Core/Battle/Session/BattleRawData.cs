@@ -27,8 +27,6 @@ namespace BlackHole.Core
 
         public int NextStage { get; }
 
-        public bool RaisedStage => NextStage > Stage;
-
         // 이 판에서 닿은 이정표. 없으면 null이다. 있으면 판은 그 Step에서 끝났다.
         public HqMilestone Milestone { get; }
 

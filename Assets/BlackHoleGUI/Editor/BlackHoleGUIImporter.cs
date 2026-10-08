@@ -27,7 +27,7 @@ public sealed class BlackHoleGUIImporter : AssetPostprocessor
         int border = 0;
         if (assetPath.Contains("/Buttons/rect_") || assetPath.EndsWith("/tooltip.png") || assetPath.Contains("/slider_track.png") || assetPath.Contains("/slider_fill.png")) border = 24;
         if (assetPath.EndsWith("/panel.png")) border = 28;
-        // Settlement 막대·행 배경. 경계는 Settlement_manifest.json의 border_px(16).
+        // Settlement 막대·행 배경. 경계 16px.
         if (assetPath.Contains("/Settlement/Components/")) border = 16;
         texture.spriteBorder = new Vector4(border, border, border, border);
     }

@@ -24,8 +24,6 @@ namespace BlackHole.Core
 
         public int Level { get; private set; }
 
-        public bool IsMaxLevel => Level >= Growth.MaxLevel;
-
         public long? NextLevelExp => Growth.ExpToReach(Level + 1); // 다음 Level까지 필요한 누적 EXP 양.
 
         // 이 판이 닿은 이정표. 없으면 null이다. 있으면 판은 그 Step에서 끝났다.
