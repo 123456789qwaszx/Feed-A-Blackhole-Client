@@ -35,6 +35,9 @@ namespace BlackHole.Core
         // 결산이 진행 상태에 더한 Gold: 이정표로 끝났으면 목표 잔액까지의 차액(번 Gold는 버린다), 아니면 번 Gold(EarnedGold).
         public long SettledGold { get; }
 
+        // 스킬별 피해와 수집 통계.
+        public BattleStats Stats { get; }
+
         internal BattleRawData(
             int seed,
             float playedSeconds,
@@ -45,7 +48,8 @@ namespace BlackHole.Core
             int stage,
             int nextStage,
             HqMilestone milestone,
-            long settledGold)
+            long settledGold,
+            BattleStats stats)
         {
             Seed = seed;
             PlayedSeconds = playedSeconds;
@@ -57,6 +61,7 @@ namespace BlackHole.Core
             NextStage = nextStage;
             Milestone = milestone;
             SettledGold = settledGold;
+            Stats = stats;
 
             foreach (EnemyKillCount kill in kills)
                 TotalKills += kill.Count;
