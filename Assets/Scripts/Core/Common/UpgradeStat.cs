@@ -15,8 +15,8 @@ namespace BlackHole.Core
         BreakerSpeed, // breaker.speed · 브레이커 속도
         BreakerCritChance, // breaker.critChance · 브레이커 치명타 확률
         BreakerCritBonus, // breaker.critBonus · 브레이커 치명타 보너스
-        BreakerPlanetBonus, // breaker.planetBonus · 행성에 대한 브레이커의 보너스 피해
-        BreakerStarBonus, // breaker.starBonus · 별에 대한 브레이커의 보너스 대미지
+        BreakerPlanetBonusDamage, // breaker.planetBonusDamage · 행성에 대한 브레이커의 보너스 피해
+        BreakerStarBonusDamage, // breaker.starBonusDamage · 별에 대한 브레이커의 보너스 대미지
         AsteroidCount, // asteroid.count · 소행성 수
         AsteroidSize, // asteroid.size · 소행성 크기
         AsteroidMassScale, // asteroid.massScale · 소행성 질량
