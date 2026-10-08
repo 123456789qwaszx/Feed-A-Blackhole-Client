@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using BlackHole.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -67,7 +68,10 @@ namespace BlackHole.Unity
         public void ShowGold(long gold)
         {
             if (_gold != null)
-                _gold.text = "Gold " + gold.ToString("N0", CultureInfo.InvariantCulture);
+            {
+                // _gold.text = "Gold " + gold.ToString("N0", CultureInfo.InvariantCulture);
+                _gold.text = "Gold " + OverThousand.GoldThousand(gold);
+            }
         }
 
         // 블랙홀(판 밖 진행): 성장도(도달한 이정표 수)와 다음 판의 목표 Level(다음 이정표의 Level, 0이면 마지막 이정표 뒤).
