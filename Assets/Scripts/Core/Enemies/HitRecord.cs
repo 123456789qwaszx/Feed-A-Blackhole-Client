@@ -17,6 +17,8 @@ namespace BlackHole.Core
         public float Amount { get; }
         public bool IsCritical { get; }
         public DamageSource Source { get; }
+        // 사망 효과의 피해면 그 효과를 낸 특수 적의 종류(Damage.SourceEnemyType). Breaker의 피해면 null.
+        public EnemyType? SourceEnemyType { get; }
 
         internal HitRecord(long sequence, Enemy enemy, Damage damage)
         {
@@ -29,6 +31,7 @@ namespace BlackHole.Core
             Amount = damage.Amount;
             IsCritical = damage.IsCritical;
             Source = damage.Source;
+            SourceEnemyType = damage.SourceEnemyType;
         }
     }
 }
