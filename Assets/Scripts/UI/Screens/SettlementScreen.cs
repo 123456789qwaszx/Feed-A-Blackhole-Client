@@ -578,16 +578,11 @@ namespace BlackHole.Unity
         {
             string[] suffixes = { "", "K", "M", "B", "T", "Qa", "Qi" };
 
-            // 1000 미만
-            if (gold > -1000 && gold < 1000)
-                return gold.ToString();
-
-            bool isNegative = gold < 0;
-
-            // long.MinValue 보정
+            // long.MinValue 보정 (Math.Abs에서 오버플로 방지)
             if (gold == long.MinValue)
                 gold = long.MinValue + 1;
 
+            bool isNegative = gold < 0;
             long absGold = Math.Abs(gold);
 
             // 자릿수로 단위 계산
@@ -595,12 +590,15 @@ namespace BlackHole.Unity
 
             int group = (digits.Length - 1) / 3;
 
+            // 1M 이하이면 그대로 반환 (그렇게 긴 자릿수는 아니라)
+            if (group < 2)
+                return gold.ToString("N0", CultureInfo.InvariantCulture);
+
             // suffix 범위를 넘어가는 경우
             if (group >= suffixes.Length)
                 group = suffixes.Length - 1;
 
             int integerLength = digits.Length - group * 3;
-
             string integerPart = digits.Substring(0, integerLength);
 
             // 소수점 첫째 자리
