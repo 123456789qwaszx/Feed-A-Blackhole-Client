@@ -68,16 +68,16 @@ namespace BlackHole.Unity
 
         // 업그레이드 화면에 그릴 노드(배치 순서). 칸은 화면 배치용이라 노드 트리가 아니라 배치 데이터에서 읽는다.
         // 노드 트리 로드를 통과한 배치이므로 모든 노드가 ID가 유일하고 트리에 있다.
-        private static IReadOnlyList<NodeTreeView.NodeItem> NodeItemsOf(NodeTreeData layout, NodeTree tree)
+        private static IReadOnlyList<NodeItem> NodeItemsOf(NodeTreeData layout, NodeTree tree)
         {
-            var items = new List<NodeTreeView.NodeItem>(layout.Nodes.Count);
+            var items = new List<NodeItem>(layout.Nodes.Count);
 
             foreach (NodeData placed in layout.Nodes)
             {
                 tree.TryGet(placed.Id, out NodeDefinition node);
                 NodeRankDefinition first = node.RankAt(1);
                 string stat = tree.Content.StatOf(first.Effects[0].Stat).StatId;
-                items.Add(new NodeTreeView.NodeItem(node.Id, placed.X, placed.Y, first.Cost, stat, node.MaxRank));
+                items.Add(new NodeItem(node.Id, placed.X, placed.Y, first.Cost, stat, node.MaxRank));
             }
 
             return items.AsReadOnly();

@@ -12,7 +12,7 @@ namespace BlackHole.Unity
         private readonly ProgressState _progress;
         private readonly ProgressStore _progressStore;
         private readonly NodeTree _tree;
-        private readonly IReadOnlyList<NodeTreeView.NodeItem> _nodes;// 업그레이드 화면에 그릴 노드(칸, 가격).
+        private readonly IReadOnlyList<NodeItem> _nodes;// 업그레이드 화면에 그릴 노드(칸, 가격).
         private readonly HqGrowthDefinition _growth;// 블랙홀 성장(성장도별 Level 표, 이정표).
         private readonly GameSettings _settings;// 플레이어 설정.
         private readonly ScreenTransition _transition;
@@ -26,7 +26,7 @@ namespace BlackHole.Unity
             ProgressState progress,
             ProgressStore progressStore,
             NodeTree tree,
-            IReadOnlyList<NodeTreeView.NodeItem> nodes,
+            IReadOnlyList<NodeItem> nodes,
             HqGrowthDefinition growth,
             GameSettings settings,
             ScreenTransition transition,

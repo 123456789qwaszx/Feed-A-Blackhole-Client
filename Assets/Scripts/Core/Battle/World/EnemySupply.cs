@@ -117,7 +117,7 @@ namespace BlackHole.Core
         // 생성 요청: 이 종류를 몇 마리. 다음 공급 처리(ProcessRequests) 때 사용.
         internal void Request(SupplyRequest request) => _requests.Add(request);
 
-        // Level업 한 번마다 성장 공급을 요청한다(판 조립이 정한 요청 그대로, 시작 공급 순서).
+        // Level업 한 번마다 성장 공급을 요청).
         internal void RequestGrowth(int levels)
         {
             for (int i = 0; i < levels; i++)
@@ -127,11 +127,9 @@ namespace BlackHole.Core
             }
         }
 
-        // 쌓인 생성 요청을 요청 순서대로, 요청한 수만큼 한 마리씩 출현 띠 안에 만든다.
-        // 공급된 적이 안전 상한에 닿으면 남은 요청은 버린다. 버린 요청은 색·성질·크기 몫을 쓰지 않는다.
+        // 쌓인 생성 요청을 요청 순서대로, 요청한 수만큼 한 마리씩 출현 띠 안에 만듬.
         internal void ProcessRequests()
         {
-            // 공급 처리 중에는 죽는 적이 없으므로, 남은 자리는 처음에 한 번 세고 생성할 때마다 줄인다.
             int room = SafetyMaxAlive - SuppliedAlive();
 
             foreach (SupplyRequest request in _requests)
@@ -141,16 +139,24 @@ namespace BlackHole.Core
                     EnemyDefinition kind = request.Enemy;
                     int tier = _tierPickers[kind].Pick();
                     EnemyTraitDefinition trait = TraitOf(kind);
-                    int size = _sizePickers.TryGetValue(kind, out QuotaPicker sizePicker) ? sizePicker.Pick() + SizeRule.Base : SizeRule.Base;
-                    _enemies.Spawn(kind, tier, trait, size, _stats.Of(kind, tier, trait, size), _placement.Pick(_placementRandom));
+                    int size = _sizePickers.TryGetValue(kind, out QuotaPicker sizePicker)
+                        ? sizePicker.Pick() + SizeRule.Base
+                        : SizeRule.Base;
+
+                    _enemies.Spawn(
+                        kind,
+                        tier,
+                        trait,
+                        size,
+                        _stats.Of(kind, tier, trait, size),
+                        _placement.Pick(_placementRandom));
                 }
             }
 
             _requests.Clear();
         }
 
-        // 주기 출현 종류마다 출현 주기가 찰 때마다 등장 확률로 하나를 주기 출현 띠 안에 만든다. 위치 난수는 일반 적과 따로다.
-        // 혜성 비: 나오는 한 번이 혜성 비 확률로 종류의 혜성 비 수만큼이 된다. 픽업의 성질(혜성 버프)은 언제나 붙는다.
+        // 주기 출현 종류마다 출현 주기가 찰 때마다 등장 확률로 하나를 주기 출현 띠 안에 만듬.
         internal void AdvancePeriodicSpawns(float delta)
         {
             foreach (SpawnClock clock in _spawnClocks)
@@ -173,16 +179,21 @@ namespace BlackHole.Core
                     {
                         int tier = _tierPickers[kind].Pick();
                         Point2 position = _periodicSpawnPlacement.Resolve(_placement).Pick(_periodicSpawnPlacementRandom);
-                        _enemies.Spawn(kind, tier, trait, SizeRule.Base, _stats.Of(kind, tier, trait), position);
+
+                        _enemies.Spawn(
+                            kind,
+                            tier,
+                            trait,
+                            SizeRule.Base,
+                            _stats.Of(kind, tier, trait),
+                            position);
                     }
                 }
             }
         }
 
-        // 판 정리: 처리되지 않은 생성 요청을 버린다.
         internal void Clear() => _requests.Clear();
 
-        // 공급된 적(픽업 제외)의 살아 있는 수. 안전 상한은 이 수에 건다.
         private int SuppliedAlive()
         {
             int count = _enemies.Alive.Count;
@@ -193,9 +204,9 @@ namespace BlackHole.Core
             return count;
         }
 
-        // 정해진 종류에 붙을 성질: 성질 몫이 있으면 그 확률만큼 성질 하나(배타). 없으면 null.
-        // 뽑힌 성질의 동시 상한(MaxActive)이 찼으면 붙지 않는다(원작 "달 최대 개수"). 뽑은 몫은 그대로 쓴 것으로 친다.
-        // 상한은 그 성질의 지금 수(_countActive)에 건다.
+        // 정해진 종류에 붙을 성질: 성질 몫이 있으면 그 확률만큼 성질 하나.
+        // 뽑힌 성질의 동시 상한(MaxActive)이 찼으면 붙지 않음.
+        // 상한은 그 성질의 지금 수(_countActive).
         private EnemyTraitDefinition TraitOf(EnemyDefinition kind)
         {
             if (!_traitPickers.TryGetValue(kind, out QuotaPicker picker))
@@ -207,7 +218,10 @@ namespace BlackHole.Core
                 return null;
 
             EnemyTraitDefinition trait = _stats.CompositionOf(kind).Traits[picked - 1];
-            return trait.MaxActive > 0 && _countActive(kind, trait) >= trait.MaxActive ? null : trait;
+
+            return trait.MaxActive > 0 && _countActive(kind, trait) >= trait.MaxActive
+                ? null
+                : trait;
         }
     }
 }
