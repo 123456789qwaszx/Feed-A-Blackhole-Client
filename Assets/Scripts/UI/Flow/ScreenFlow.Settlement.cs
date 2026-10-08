@@ -12,15 +12,17 @@ namespace BlackHole.Unity
                 _presentations.Settlement,
                 afterPresented: root =>
                 {
+                    // 특수 성질(황금·전기·달·슈퍼노바 …)은 종류가 아니므로 그 종류로 센다. 혜성(픽업)은 물질 행에 넣지 않는다.
+                    int asteroids = KillsOf(raw.Kills, EnemyType.Asteroid);
+                    int planets = KillsOf(raw.Kills, EnemyType.Planet);
+                    int stars = KillsOf(raw.Kills, EnemyType.Star);
+
                     BindView(root, ApplyBindings);
                     root.ShowResult(raw.ReachedMilestone);
                     root.ShowStage(raw.Stage, raw.NextStage, _growth.MaxStage);
-                    // 물질 행: 특수 성질(황금·전기·달·슈퍼노바 …)은 종류가 아니므로 그 종류로 센다. 혜성(픽업)은 물질 행에 넣지 않는다.
-                    root.ShowMatter(
-                        KillsOf(raw.Kills, EnemyType.Asteroid),
-                        KillsOf(raw.Kills, EnemyType.Planet),
-                        KillsOf(raw.Kills, EnemyType.Star));
+                    root.ShowMatter(asteroids, planets, stars);
                     root.ShowGold(raw.EarnedGold, raw.SettledGold, raw.ReachedMilestone, _progress.Gold);
+                    root.ShowStats(raw.Stats, asteroids, planets, stars);
                     root.ShowUpgradeCount(PurchasableNodeCount());
                 },
                 afterClosed: Unbind);

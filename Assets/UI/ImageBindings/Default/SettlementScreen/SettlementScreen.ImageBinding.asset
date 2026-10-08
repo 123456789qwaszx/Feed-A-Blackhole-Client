@@ -66,3 +66,115 @@ MonoBehaviour:
     baseSprite: {fileID: 21300000, guid: bc5ffc9d1623acb7a5c175792218bfba, type: 3}
     sprite: {fileID: 21300000, guid: bc5ffc9d1623acb7a5c175792218bfba, type: 3}
     stale: 0
+  - refId: ElectricStarDamage_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: ElectricStarDamageIcon_Image
+    baseSprite: {fileID: 21300000, guid: 376afac6831d92bc8b4977c191a59712, type: 3}
+    sprite: {fileID: 21300000, guid: 376afac6831d92bc8b4977c191a59712, type: 3}
+    stale: 0
+  - refId: LaserDamage_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: LaserDamageIcon_Image
+    baseSprite: {fileID: 21300000, guid: 528d9831a1130ec7853f11bd05430cd2, type: 3}
+    sprite: {fileID: 21300000, guid: 528d9831a1130ec7853f11bd05430cd2, type: 3}
+    stale: 0
+  - refId: SupernovaDamage_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: SupernovaDamageIcon_Image
+    baseSprite: {fileID: 21300000, guid: 3c9c974d2fb810abe140fdeb3f01d288, type: 3}
+    sprite: {fileID: 21300000, guid: 3c9c974d2fb810abe140fdeb3f01d288, type: 3}
+    stale: 0
+  - refId: GoldenAsteroidGold_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: GoldenAsteroidGoldIcon_Image
+    baseSprite: {fileID: 21300000, guid: 4e8d5172cd72f3b122c36669ab588eea, type: 3}
+    sprite: {fileID: 21300000, guid: 4e8d5172cd72f3b122c36669ab588eea, type: 3}
+    stale: 0
+  - refId: ElectricAsteroidDamage_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: ElectricAsteroidDamageIcon_Image
+    baseSprite: {fileID: 21300000, guid: ec60a211e6853a592b83065aa0b87111, type: 3}
+    sprite: {fileID: 21300000, guid: ec60a211e6853a592b83065aa0b87111, type: 3}
+    stale: 0
+  - refId: BreakerDamage_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: BreakerDamageIcon_Image
+    baseSprite: {fileID: 21300000, guid: 58b50f123b12ebe61383f841f8974f9e, type: 3}
+    sprite: {fileID: 21300000, guid: 58b50f123b12ebe61383f841f8974f9e, type: 3}
+    stale: 0
+  - refId: BreakerCritDamage_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: BreakerCritDamageIcon_Image
+    baseSprite: {fileID: 21300000, guid: d5324d3693f7d569e396c46e7f230db9, type: 3}
+    sprite: {fileID: 21300000, guid: d5324d3693f7d569e396c46e7f230db9, type: 3}
+    stale: 0
+  - refId: BreakerClicks_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: BreakerClicksIcon_Image
+    baseSprite: {fileID: 21300000, guid: 4b6b35cde5abdeeff95a47739b51a3c1, type: 3}
+    sprite: {fileID: 21300000, guid: 4b6b35cde5abdeeff95a47739b51a3c1, type: 3}
+    stale: 0
+  - refId: DestroyedStars_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: DestroyedStarsIcon_Image
+    baseSprite: {fileID: 21300000, guid: d2f0a9a655e7ecf7ca381c0453c4ff9f, type: 3}
+    sprite: {fileID: 21300000, guid: d2f0a9a655e7ecf7ca381c0453c4ff9f, type: 3}
+    stale: 0
+  - refId: DestroyedPlanets_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: DestroyedPlanetsIcon_Image
+    baseSprite: {fileID: 21300000, guid: e53342319cd8f93e66a28919eef695aa, type: 3}
+    sprite: {fileID: 21300000, guid: e53342319cd8f93e66a28919eef695aa, type: 3}
+    stale: 0
+  - refId: CollectedMoons_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: CollectedMoonsIcon_Image
+    baseSprite: {fileID: 21300000, guid: fea193dd6069b79ff183ff8f8c7014fb, type: 3}
+    sprite: {fileID: 21300000, guid: fea193dd6069b79ff183ff8f8c7014fb, type: 3}
+    stale: 0
+  - refId: CollectedComets_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: CollectedCometsIcon_Image
+    baseSprite: {fileID: 21300000, guid: 56cfad083f9af1dc2a49ecfe6117220a, type: 3}
+    sprite: {fileID: 21300000, guid: 56cfad083f9af1dc2a49ecfe6117220a, type: 3}
+    stale: 0
+  - refId: DestroyedAsteroids_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: DestroyedAsteroidsIcon_Image
+    baseSprite: {fileID: 21300000, guid: f168db2dc8d7c0b58d6f63840c836c54, type: 3}
+    sprite: {fileID: 21300000, guid: f168db2dc8d7c0b58d6f63840c836c54, type: 3}
+    stale: 0
+  - refId: AddedTime_Image
+    baseSprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    sprite: {fileID: 21300000, guid: 5212c279e634d9c2fe33c20a08ac279f, type: 3}
+    stale: 0
+  - refId: AddedTimeIcon_Image
+    baseSprite: {fileID: 21300000, guid: 16d2f13b3d15764fa9ae9146a2548e5d, type: 3}
+    sprite: {fileID: 21300000, guid: 16d2f13b3d15764fa9ae9146a2548e5d, type: 3}
+    stale: 0

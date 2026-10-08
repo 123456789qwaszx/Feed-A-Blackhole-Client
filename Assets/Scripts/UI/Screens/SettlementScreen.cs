@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using BlackHole.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -32,6 +33,35 @@ namespace BlackHole.Unity
             Tooltip_Text,
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
+            // 오른쪽 통계 칸(스킬별 피해·수집). 칸에 손을 올리면 툴팁으로 이름을 보인다.
+            ElectricStarDamage_Button,
+            ElectricStarDamage_Text,
+            LaserDamage_Button,
+            LaserDamage_Text,
+            SupernovaDamage_Button,
+            SupernovaDamage_Text,
+            GoldenAsteroidGold_Button,
+            GoldenAsteroidGold_Text,
+            ElectricAsteroidDamage_Button,
+            ElectricAsteroidDamage_Text,
+            BreakerDamage_Button,
+            BreakerDamage_Text,
+            BreakerCritDamage_Button,
+            BreakerCritDamage_Text,
+            BreakerClicks_Button,
+            BreakerClicks_Text,
+            DestroyedStars_Button,
+            DestroyedStars_Text,
+            DestroyedPlanets_Button,
+            DestroyedPlanets_Text,
+            CollectedMoons_Button,
+            CollectedMoons_Text,
+            CollectedComets_Button,
+            CollectedComets_Text,
+            DestroyedAsteroids_Button,
+            DestroyedAsteroids_Text,
+            AddedTime_Button,
+            AddedTime_Text,
 
             // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
             Background_Image,
@@ -46,6 +76,34 @@ namespace BlackHole.Unity
             UpgradeBtn_Image,
             ContinueBtn_Image,
             ContinueBtn_Text,
+            ElectricStarDamage_Image,
+            ElectricStarDamageIcon_Image,
+            LaserDamage_Image,
+            LaserDamageIcon_Image,
+            SupernovaDamage_Image,
+            SupernovaDamageIcon_Image,
+            GoldenAsteroidGold_Image,
+            GoldenAsteroidGoldIcon_Image,
+            ElectricAsteroidDamage_Image,
+            ElectricAsteroidDamageIcon_Image,
+            BreakerDamage_Image,
+            BreakerDamageIcon_Image,
+            BreakerCritDamage_Image,
+            BreakerCritDamageIcon_Image,
+            BreakerClicks_Image,
+            BreakerClicksIcon_Image,
+            DestroyedStars_Image,
+            DestroyedStarsIcon_Image,
+            DestroyedPlanets_Image,
+            DestroyedPlanetsIcon_Image,
+            CollectedMoons_Image,
+            CollectedMoonsIcon_Image,
+            CollectedComets_Image,
+            CollectedCometsIcon_Image,
+            DestroyedAsteroids_Image,
+            DestroyedAsteroidsIcon_Image,
+            AddedTime_Image,
+            AddedTimeIcon_Image,
         }
 
         // 툴팁과 행 사이의 틈.
@@ -78,6 +136,38 @@ namespace BlackHole.Unity
         private RectTransform _tooltip;
         private TMP_Text _tooltipText;
         private RectTransform _tooltipOwner;
+
+        private StatCell _electricStarDamage;
+        private StatCell _laserDamage;
+        private StatCell _supernovaDamage;
+        private StatCell _goldenAsteroidGold;
+        private StatCell _electricAsteroidDamage;
+        private StatCell _breakerDamage;
+        private StatCell _breakerCritDamage;
+        private StatCell _breakerClicks;
+        private StatCell _destroyedStars;
+        private StatCell _destroyedPlanets;
+        private StatCell _collectedMoons;
+        private StatCell _collectedComets;
+        private StatCell _destroyedAsteroids;
+        private StatCell _addedTime;
+
+        // 오른쪽 통계 칸 하나: 칸 버튼(툴팁·연출), 값 글자, 툴팁 이름.
+        private sealed class StatCell
+        {
+            public Button Button { get; }
+            public ButtonAnimation Animation { get; }
+            public TMP_Text Value { get; }
+            public string Label { get; }
+
+            public StatCell(Button button, TMP_Text value, string label)
+            {
+                Button = button;
+                Animation = ButtonAnimation.Of(button);
+                Value = value;
+                Label = label;
+            }
+        }
 
         public event Action UpgradeClicked;
         public event Action ContinueClicked;
@@ -177,6 +267,21 @@ namespace BlackHole.Unity
             BindEvent(_continueButton, LeaveContinueButton, ETouchEvent.PointerExit);
             BindEvent(_continueButton, PressContinueButton, ETouchEvent.PointerDown);
             BindEvent(_continueButton, ReleaseContinueButton, ETouchEvent.PointerUp);
+
+            _electricStarDamage = BindStat(Refs.ElectricStarDamage_Button, Refs.ElectricStarDamage_Text, "전기 별 대미지");
+            _laserDamage = BindStat(Refs.LaserDamage_Button, Refs.LaserDamage_Text, "레이저 대미지");
+            _supernovaDamage = BindStat(Refs.SupernovaDamage_Button, Refs.SupernovaDamage_Text, "슈퍼노바 대미지");
+            _goldenAsteroidGold = BindStat(Refs.GoldenAsteroidGold_Button, Refs.GoldenAsteroidGold_Text, "황금 소행성에서 얻는 돈");
+            _electricAsteroidDamage = BindStat(Refs.ElectricAsteroidDamage_Button, Refs.ElectricAsteroidDamage_Text, "전기 소행성 대미지");
+            _breakerDamage = BindStat(Refs.BreakerDamage_Button, Refs.BreakerDamage_Text, "브레이커 대미지");
+            _breakerCritDamage = BindStat(Refs.BreakerCritDamage_Button, Refs.BreakerCritDamage_Text, "브레이커 치명타 대미지");
+            _breakerClicks = BindStat(Refs.BreakerClicks_Button, Refs.BreakerClicks_Text, "브레이커 클릭 수");
+            _destroyedStars = BindStat(Refs.DestroyedStars_Button, Refs.DestroyedStars_Text, "파괴된 별");
+            _destroyedPlanets = BindStat(Refs.DestroyedPlanets_Button, Refs.DestroyedPlanets_Text, "파괴된 행성");
+            _collectedMoons = BindStat(Refs.CollectedMoons_Button, Refs.CollectedMoons_Text, "수집한 달");
+            _collectedComets = BindStat(Refs.CollectedComets_Button, Refs.CollectedComets_Text, "수집한 혜성");
+            _destroyedAsteroids = BindStat(Refs.DestroyedAsteroids_Button, Refs.DestroyedAsteroids_Text, "파괴된 소행성");
+            _addedTime = BindStat(Refs.AddedTime_Button, Refs.AddedTime_Text, "추가된 시간");
         }
 
         // 화면이 닫힐 때 툴팁도 닫는다. 다시 열 때 남아 있지 않게 한다.
@@ -226,6 +331,30 @@ namespace BlackHole.Unity
 
         private void PressStarRow(PointerEventData _) => _starAnimation.Press();
         private void ReleaseStarRow(PointerEventData _) => _starAnimation.Release();
+
+        private StatCell BindStat(Refs button, Refs value, string label)
+        {
+            StatCell cell = new(View.Button(button), View.Text(value), label);
+
+            BindEvent(cell.Button, _ => HoverStat(cell), ETouchEvent.PointerEnter);
+            BindEvent(cell.Button, _ => LeaveStat(cell), ETouchEvent.PointerExit);
+            BindEvent(cell.Button, _ => cell.Animation.Press(), ETouchEvent.PointerDown);
+            BindEvent(cell.Button, _ => cell.Animation.Release(), ETouchEvent.PointerUp);
+
+            return cell;
+        }
+
+        private void HoverStat(StatCell cell)
+        {
+            cell.Animation.Hover();
+            ShowTooltip(cell.Button, cell.Label);
+        }
+
+        private void LeaveStat(StatCell cell)
+        {
+            cell.Animation.Leave();
+            HideTooltip(cell.Button);
+        }
 
         private void ClickUpgradeButton(PointerEventData _) => UpgradeClicked?.Invoke();
         private void HoverUpgradeButton(PointerEventData _) => _upgradeAnimation.Hover();
@@ -322,6 +451,31 @@ namespace BlackHole.Unity
                 _totalGold.text = Money(_totalBegin);
         }
 
+        // 오른쪽 통계 칸: 스킬별 피해·수집 통계(판 기록)와 종류별 처치 수(물질 행과 같은 값). 증가 연출 없이 바로 보인다.
+        public void ShowStats(BattleStats stats, int asteroids, int planets, int stars)
+        {
+            ShowStat(_electricStarDamage, NumberText.Compact(stats.ElectricStarDamage));
+            ShowStat(_laserDamage, NumberText.Compact(stats.LaserDamage));
+            ShowStat(_supernovaDamage, NumberText.Compact(stats.SupernovaDamage));
+            ShowStat(_goldenAsteroidGold, "$" + NumberText.Compact(stats.GoldenAsteroidGold));
+            ShowStat(_electricAsteroidDamage, NumberText.Compact(stats.ElectricAsteroidDamage));
+            ShowStat(_breakerDamage, NumberText.Compact(stats.BreakerDamage));
+            ShowStat(_breakerCritDamage, NumberText.Compact(stats.BreakerCriticalDamage));
+            ShowStat(_breakerClicks, Whole(stats.BreakerTicks));
+            ShowStat(_destroyedStars, Whole(stars));
+            ShowStat(_destroyedPlanets, Whole(planets));
+            ShowStat(_collectedMoons, Whole(stats.CollectedMoons));
+            ShowStat(_collectedComets, Whole(stats.CollectedComets));
+            ShowStat(_destroyedAsteroids, Whole(asteroids));
+            ShowStat(_addedTime, stats.AddedSeconds.ToString("0.#", CultureInfo.InvariantCulture));
+        }
+
+        private static void ShowStat(StatCell cell, string value)
+        {
+            if (cell.Value != null)
+                cell.Value.text = value;
+        }
+
         // 지금 Gold로 살 수 있는 노드 수. 없으면 수를 붙이지 않는다.
         public void ShowUpgradeCount(int purchasable)
         {
@@ -375,6 +529,8 @@ namespace BlackHole.Unity
 
         private static string Count(int count) =>
             "x" + count.ToString("N0", CultureInfo.InvariantCulture);
+
+        private static string Whole(int count) => count.ToString(CultureInfo.InvariantCulture);
 
         private static string Money(long gold) =>
             "$" + gold.ToString("N0", CultureInfo.InvariantCulture);
