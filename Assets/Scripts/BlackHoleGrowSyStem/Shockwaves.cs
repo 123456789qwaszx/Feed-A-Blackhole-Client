@@ -68,8 +68,6 @@ namespace BlackHole.Unity
             Apply();
         }
 
-        public bool IsClear => _waves.Count == 0;
-
         public void Reset()
         {
             _waves.Clear();

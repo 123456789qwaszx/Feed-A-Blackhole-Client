@@ -7,7 +7,7 @@ namespace BlackHole.Unity
         private void OpenSettings()
         {
             _ui.PushPanel<SettingsPanel>(
-                _settingsPresentation,
+                _presentations.Settings,
                 afterPresented: panel =>
                 {
                     BindView(panel, ApplyBindings);

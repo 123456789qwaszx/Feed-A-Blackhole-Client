@@ -2,56 +2,43 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class KeyInput : MonoBehaviour
+namespace BlackHole.Unity
 {
-    private InputSystem_Actions _actions;
-
-    public event Action ContinuePressed;
-    public event Action UpgradePressed;
-    public event Action PausePressed;
-
-    private void Awake()
+    // 키보드 단축키(Input System의 UI 액션)를 화면 흐름의 이벤트로 넘긴다. GameBootstrap이 ScreenFlow에 연결한다.
+    // - Shift: 업그레이드, Space: 계속, Esc: 일시정지
+    public class KeyInput : MonoBehaviour
     {
-        _actions = new InputSystem_Actions();
-    }
+        private InputSystem_Actions _actions;
 
-    private void Update()
-    {
-        //Vector2 move = _actions.UI.Navigate.ReadValue<Vector2>();
-        //Debug.Log("방향키 입력");
-    }
+        public event Action ContinuePressed;
+        public event Action UpgradePressed;
+        public event Action PausePressed;
 
-    private void OnEnable()
-    {
-        _actions.UI.Enable();
-        _actions.UI.Upgrade.performed += OnUpgrade;
-        _actions.UI.Continue.performed += OnContinue;
-        _actions.UI.Pause.performed += OnPause;
-    }
+        private void Awake()
+        {
+            _actions = new InputSystem_Actions();
+        }
 
-    private void OnDisable()
-    {
-        _actions.UI.Upgrade.performed -= OnUpgrade;
-        _actions.UI.Continue.performed -= OnContinue;
-        _actions.UI.Pause.performed -= OnPause;
-        _actions.UI.Disable();
-    }
+        private void OnEnable()
+        {
+            _actions.UI.Enable();
+            _actions.UI.Upgrade.performed += OnUpgrade;
+            _actions.UI.Continue.performed += OnContinue;
+            _actions.UI.Pause.performed += OnPause;
+        }
 
-    // Shift 키
-    private void OnUpgrade(InputAction.CallbackContext context)
-    {
-        if (UpgradePressed != null) UpgradePressed();
-    }
+        private void OnDisable()
+        {
+            _actions.UI.Upgrade.performed -= OnUpgrade;
+            _actions.UI.Continue.performed -= OnContinue;
+            _actions.UI.Pause.performed -= OnPause;
+            _actions.UI.Disable();
+        }
 
-    // SpaceBar 키
-    private void OnContinue(InputAction.CallbackContext context)
-    {
-        if (ContinuePressed != null) ContinuePressed();
-    }
+        private void OnUpgrade(InputAction.CallbackContext context) => UpgradePressed?.Invoke();
 
-    // Esc 키
-    private void OnPause(InputAction.CallbackContext context)
-    {
-        if (PausePressed != null) PausePressed();
+        private void OnContinue(InputAction.CallbackContext context) => ContinuePressed?.Invoke();
+
+        private void OnPause(InputAction.CallbackContext context) => PausePressed?.Invoke();
     }
 }

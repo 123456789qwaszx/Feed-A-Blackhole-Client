@@ -8,7 +8,8 @@ namespace BlackHole.Core
     // 처치 버프(달·혜성)는 받은 것마다 중첩으로 따로 보관하고 따로 끝난다. 중첩당 수치는 이 Breaker의 정의(판마다 고정)가 정하고,
     // 같은 버프의 중첩은 합연산한다(보너스 합 = 중첩 수 × 중첩당 보너스). 합은 노드가 반영된 수치에 (1 + 합)으로 곱한다.
     // - 달: 공격 속도와 공격 범위를 함께 올린다.
-    //   중첩 수는 그 달을 준 성질의 동시 상한(EnemyTraitDefinition.MaxAlive, 원작 "달 최대 개수")까지다. 다 찼으면 새 중첩을 더하지 않는다.
+    //   중첩 수는 따로 막지 않는다. 달 성질의 동시 상한(EnemyTraitDefinition.MaxActive, 원작 "달 최대 개수")이 화면의 달과 남은 중첩을
+    //   합쳐 세어 달 출현을 막으므로(World.CountActive) 중첩도 그 수를 넘지 않는다.
     //   공격 속도 = 노드가 반영된 공격 속도 × (1 + 달 속도 보너스 합), 반지름 = 노드가 반영된 반지름 × (1 + 달 범위 보너스 합).
     //   반지름 배율은 MoonRadiusMaxScale(2배)에서 멈춘다 — 원작도 달 몇 개로 지름이 2배가 되면 더 먹어도 커지지 않는다. 중첩 수·공격 속도는 그대로 오른다.
     // - 혜성: 중첩이 하나라도 있으면 모든 Tick이 치명타다.
@@ -21,10 +22,6 @@ namespace BlackHole.Core
 
         // 달 버프로 커지는 반지름의 최대 배율. (1 + 달 범위 보너스 합)이 이보다 커도 이 배율까지만 쓴다(원작: 지름 2배).
         public const float MoonRadiusMaxScale = 2f;
-
-        // 보너스 피해를 받는 적 종류(EnemyDefinition.Id — Enemies/Planet.asset, Star.asset의 id).
-        private const string PlanetKind = "planet";
-        private const string StarKind = "star";
 
         private readonly BattleRandom _critical;
         private readonly List<Enemy> _targets = new();
@@ -39,17 +36,13 @@ namespace BlackHole.Core
 
         public BreakerDefinition Definition { get; }
 
-        // 켜져 있는가.
-        // 지금 끄고 켜는 곳은 개발용 스킬 콘솔뿐이다(게임 규칙으로 끄는 일은 없다).
-        public bool Enabled { get; private set; } = true;
-
         // 지금까지 일어난 Tick 수. 빈 Tick도 센다.
         public int TickCount { get; private set; }
 
         // 마지막 Tick이 피해를 준 적의 수. 빈 Tick이면 0이다.
         public int LastTickHitCount { get; private set; }
 
-        // 마지막 진행 동안의 Tick(일어난 순서). 다음 진행이 시작될 때 비운다.
+        // 이번 Step의 Tick(일어난 순서). 다음 Step이 시작될 때 비운다.
         public IReadOnlyList<BreakerTick> Ticks { get; }
 
         // 달 버프의 중첩(받은 순서). 중첩 수가 곧 목록의 길이다.
@@ -86,44 +79,24 @@ namespace BlackHole.Core
             CometBuffs = _comet.AsReadOnly();
         }
 
-        public void SetEnabled(bool enabled)
-        {
-            if (Enabled == enabled)
-                return;
-
-            Enabled = enabled;
-            _untilNextTick = 0;
-        }
-
-        internal void BeginAdvance() => _ticks.Clear();
+        internal void BeginStep() => _ticks.Clear();
 
         // 한 Step 동안 주기가 여러 번 차면 그만큼 Tick한다. 같은 Step 안의 Tick은 같은 조준점과 같은 적 위치를 본다.
-        internal void Advance(float delta, BattlePlayer owner, World world)
+        internal void Advance(float delta, World world)
         {
-            if (Enabled)
-            {
-                _untilNextTick -= delta * (1 + MoonSpeedBonus);
+            _untilNextTick -= delta * (1 + MoonSpeedBonus);
 
-                while (_untilNextTick <= TimeEpsilon)
-                {
-                    Tick(owner, world);
-                    _untilNextTick += Definition.Interval;
-                }
+            while (_untilNextTick <= TimeEpsilon)
+            {
+                Tick(world);
+                _untilNextTick += Definition.Interval;
             }
 
             AgeBuffs(delta);
         }
 
         // 새 중첩을 더한다. 이미 있는 중첩의 시간은 바꾸지 않는다. 중첩의 시간은 이 Breaker의 정의(이 판의 고정값)가 정한다.
-        // 달 중첩은 maxStacks(그 달 성질의 동시 상한, 0이면 상한 없음)까지다. 다 찼으면 더하지 않는다.
-        internal void GrantMoon(int maxStacks = 0)
-        {
-            if (maxStacks > 0 && _moon.Count >= maxStacks)
-                return;
-
-            _moon.Add(new BreakerBuff(++_buffCount, Definition.MoonDuration));
-        }
-
+        internal void GrantMoon() => _moon.Add(new BreakerBuff(++_buffCount, Definition.MoonDuration));
 
         internal void GrantComet() => _comet.Add(new BreakerBuff(++_buffCount, Definition.CometDuration));
 
@@ -148,11 +121,11 @@ namespace BlackHole.Core
             }
         }
 
-        private void Tick(BattlePlayer owner, World world)
+        private void Tick(World world)
         {
             TickCount++;
             _targets.Clear();
-            Point2? center = owner.AimPoint;
+            Point2? center = world.AimPoint;
             float radius = CurrentRadius;
 
             if (center.HasValue)
@@ -172,7 +145,7 @@ namespace BlackHole.Core
             foreach (Enemy target in _targets)
             {
                 float amount = (Definition.Damage + BonusAgainst(target)) * multiplier;
-                var damage = new Damage(amount, owner.Id, critical);
+                var damage = new Damage(amount, DamageSource.Breaker, critical);
 
                 world.DealDamage(target, damage);
             }
@@ -184,15 +157,15 @@ namespace BlackHole.Core
         // 대상 종류에 따른 추가 피해(노드 breaker.planetBonus·breaker.starBonus). 행성·별이 아니면 0이다.
         private float BonusAgainst(Enemy target)
         {
-            string kind = target.Definition.Id;
-
-            if (kind == PlanetKind)
-                return Definition.PlanetBonus;
-
-            if (kind == StarKind)
-                return Definition.StarBonus;
-
-            return 0;
+            switch (target.Definition.Type)
+            {
+                case EnemyType.Planet:
+                    return Definition.PlanetBonusDamage;
+                case EnemyType.Star:
+                    return Definition.StarBonusDamage;
+                default:
+                    return 0;
+            }
         }
 
         // 확정 치명타 중이면 굴리지 않고 치명타다. 확률이 0이나 1이면 굴리지 않는다.

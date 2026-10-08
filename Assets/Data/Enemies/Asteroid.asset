@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62ca70292566404596f44063455f757e, type: 3}
   m_Name: Asteroid
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.EnemyKind
-  id: asteroid
+  type: 0
   moveSpeed: 1.5
   radius: 0.312
   radiusStep: 0.35
   upgradesTo: {fileID: 11400000, guid: 3875f6a9833f4cf2893d251eb303b445, type: 2}
-  pickupPeriod: 0
+  spawnPeriod: 0
   tiers:
   - color: {r: 0.62, g: 0.32, b: 0.26, a: 1}
     maxHealth: 3
@@ -44,9 +44,8 @@ MonoBehaviour:
     gold: 7776
     exp: 243
   traits:
-  - id: golden
+  - type: 0
     color: {r: 1, g: 0.82, b: 0.2, a: 1}
-    effect: 0
     multiplier: 50
     critRewardScale: 1
     damage: 0
@@ -57,9 +56,8 @@ MonoBehaviour:
     critMultiplier: 0
     healthFraction: 0
     width: 0
-  - id: electric
+  - type: 1
     color: {r: 0.45, g: 0.75, b: 1, a: 1}
-    effect: 1
     multiplier: 0
     critRewardScale: 0
     damage: 40

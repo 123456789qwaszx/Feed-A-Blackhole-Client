@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 적 스탯:
-    // - 종류 별 구성(질량과 색 비율·크기·성질 확률·성질 수치). 모두 업그레이드 표로만 정해진다(블랙홀 성장도와 무관).
+    // - 종류 별 구성(질량과 색 비율·크기·성질 확률·성질 수치). 모두 산 노드의 수치 값으로만 정해진다(블랙홀 성장도와 무관).
     // - (종류, 성질, 크기, 색 등급)마다의 실행 수치.
     //
     // 전투 Session이 시작되기 전, 미리 값을 한 번 정하여 사용.
@@ -30,13 +30,13 @@ namespace BlackHole.Core
                     : EnemyComposition.Base(kind);
 
                 if (composition.Traits.Count != kind.Traits.Count)
-                    throw new ArgumentException($"'{kind.Id}'의 판 구성 성질 수가 종류의 성질 수와 다르다.", nameof(compositions));
+                    throw new ArgumentException($"'{kind.Type}'의 판 구성 성질 수가 종류의 성질 수와 다르다.", nameof(compositions));
 
                 if (composition.TierRatios.Count != kind.Tiers.Count)
-                    throw new ArgumentException($"'{kind.Id}'의 판 구성 색 비율 수가 종류의 색 등급 수와 다르다.", nameof(compositions));
+                    throw new ArgumentException($"'{kind.Type}'의 판 구성 색 비율 수가 종류의 색 등급 수와 다르다.", nameof(compositions));
 
                 if (composition.TraitChanceSum > 1 + 1e-4f)
-                    throw new ArgumentException($"'{kind.Id}'의 성질 확률 합이 100%를 넘는다({composition.TraitChanceSum * 100:0.##}%).", nameof(compositions));
+                    throw new ArgumentException($"'{kind.Type}'의 성질 확률 합이 100%를 넘는다({composition.TraitChanceSum * 100:0.##}%).", nameof(compositions));
 
                 // [성질 칸][크기 − 1][색 등급]. 성질 칸 0은 성질 없음, i + 1은 판 구성의 성질 i다.
                 // 크기는 이 판에 열린 것(1 ~ Size)만 있다.
@@ -65,7 +65,7 @@ namespace BlackHole.Core
                 foreach (EnemyDefinition kind in compositions.Keys)
                 {
                     if (kind == null || !_rows.ContainsKey(kind))
-                        throw new ArgumentException($"이 판의 적 종류가 아니다: '{kind?.Id}'.", nameof(compositions));
+                        throw new ArgumentException($"이 판의 적 종류가 아니다: '{kind?.Type}'.", nameof(compositions));
                 }
             }
 
@@ -82,18 +82,18 @@ namespace BlackHole.Core
 
         private void LinkKinds(EnemyDefinition[] kinds)
         {
-            var byId = new Dictionary<string, EnemyDefinition>(StringComparer.Ordinal);
+            var byType = new Dictionary<EnemyType, EnemyDefinition>();
 
             foreach (EnemyDefinition kind in kinds)
-                byId[kind.Id] = kind;
+                byType[kind.Type] = kind;
 
             foreach (EnemyDefinition kind in kinds)
             {
-                if (kind.UpgradesTo == null)
+                if (!kind.UpgradesTo.HasValue)
                     continue;
 
-                if (!byId.TryGetValue(kind.UpgradesTo, out EnemyDefinition target))
-                    throw new ArgumentException($"'{kind.Id}'가 가리키는 종류 '{kind.UpgradesTo}'가 이 판에 없다.");
+                if (!byType.TryGetValue(kind.UpgradesTo.Value, out EnemyDefinition target))
+                    throw new ArgumentException($"'{kind.Type}'가 가리키는 종류 '{kind.UpgradesTo.Value}'가 이 판에 없다.");
 
                 _upgradeTargets.Add(kind, target);
             }
@@ -116,7 +116,7 @@ namespace BlackHole.Core
                 int index = row.Composition.IndexOfTrait(trait);
 
                 if (index < 0)
-                    throw new ArgumentException($"'{trait.Id}'는 이 판에서 '{kind.Id}'의 성질이 아니다.", nameof(trait));
+                    throw new ArgumentException($"'{trait.Type}'는 이 판에서 '{kind.Type}'의 성질이 아니다.", nameof(trait));
 
                 slot = index + 1;
             }
@@ -126,10 +126,10 @@ namespace BlackHole.Core
 
             if (sizeIndex < 0 || sizeIndex >= stats.Length)
                 throw new ArgumentOutOfRangeException(
-                    nameof(size), $"이 판에서 '{kind.Id}'의 크기는 {SizeRule.Base}부터 {stats.Length}까지다. 받은 값: {size}.");
+                    nameof(size), $"이 판에서 '{kind.Type}'의 크기는 {SizeRule.Base}부터 {stats.Length}까지다. 받은 값: {size}.");
 
             if (tier < 0 || tier >= stats[sizeIndex].Length)
-                throw new ArgumentOutOfRangeException(nameof(tier), $"'{kind.Id}'의 색 등급은 0부터 {stats[sizeIndex].Length - 1}까지다. 받은 값: {tier}.");
+                throw new ArgumentOutOfRangeException(nameof(tier), $"'{kind.Type}'의 색 등급은 0부터 {stats[sizeIndex].Length - 1}까지다. 받은 값: {tier}.");
 
             return stats[sizeIndex][tier];
         }
@@ -140,7 +140,7 @@ namespace BlackHole.Core
         private Row RowOf(EnemyDefinition kind)
         {
             if (kind == null || !_rows.TryGetValue(kind, out Row row))
-                throw new ArgumentException($"이 판의 적 종류가 아니다: '{kind?.Id}'.", nameof(kind));
+                throw new ArgumentException($"이 판의 적 종류가 아니다: '{kind?.Type}'.", nameof(kind));
 
             return row;
         }

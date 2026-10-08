@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 진행 상태(PlayerState)의 저장 형식. 판 진행·설정·콘텐츠는 담지 않는다.
+    // 진행 상태(ProgressState)의 저장 형식. 판 진행·설정·콘텐츠는 담지 않는다.
     // 검사 전 값이다 — 불러올 때 지금 콘텐츠로 검사한다.
     [Serializable]
     public sealed class ProgressSaveData

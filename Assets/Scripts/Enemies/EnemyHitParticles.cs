@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using BlackHole.Core;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -13,8 +11,8 @@ namespace BlackHole.Unity
         private const float BaseSpeed = 1.5f;
         private const int FragmentTextureSize = 16;
 
-        // 사망 시 파티클. 파편 수는 EmitDeath에서 (색 등급 1~7) × 크기로 계산한다(고정값이 아니다).
-        // 버퍼는 이 곱의 이론상 최댓값(색 7단계 × 크기 최댓값 4, 행성·별 기준)에 동시 사망 여유를 곱해 둔다.
+        // 사망 시 파티클. 파편 수는 EmitDeath에서 (색 등급 + 1) × 크기로 계산한다(고정값이 아니다).
+        // 버퍼는 이 곱의 큰 값(28)에 동시 사망 여유를 곱해 둔다. 넘치면 파티클 시스템이 오래된 파편부터 버린다.
         private const int MaxDeathFragmentsPerEnemy = 28;
         private const int DeathConcurrencyHeadroom = 16;
         private const float DeathLifetime = 1.8f;
@@ -39,7 +37,6 @@ namespace BlackHole.Unity
         private readonly ParticleSystem.Particle[] _deathParticleBuffer = new ParticleSystem.Particle[MaxDeathFragmentsPerEnemy * DeathConcurrencyHeadroom];
         private Texture2D _fragmentTexture;
         private Material _fragmentMaterial;
-        private readonly Dictionary<EnemyId, Color> _colors = new Dictionary<EnemyId, Color>();
         private int _burstIndex;
 
         private void Awake()
@@ -122,22 +119,6 @@ namespace BlackHole.Unity
             deathRenderer.sortingOrder = 2;
         }
 
-        public void Register(Enemy enemy, Color color)
-        {
-            _colors[enemy.Id] = color;
-            enemy.Damaged += Emit;
-            enemy.Died += EmitDeath;
-        }
-
-        public void Unregister(Enemy enemy)
-        {
-            enemy.Damaged -= Emit;
-            enemy.Died -= EmitDeath;
-            _colors.Remove(enemy.Id);
-        }
-
-        public bool IsClear => _particles.particleCount == 0 && _deathParticles.particleCount == 0;
-
         public void Clear()
         {
             _particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
@@ -150,14 +131,13 @@ namespace BlackHole.Unity
             Object.Destroy(_fragmentTexture);
         }
 
-        private void Emit(Enemy enemy, Damage damage)
+        // 피격 파편: 맞은 자리에서 작은 파편 몇 개를 사방으로 튀긴다. color는 맞은 적의 색이다.
+        public void EmitHit(Vector3 position, Color color)
         {
             if (!_particles.isPlaying)
                 _particles.Play(false);
 
             float baseAngle = (_burstIndex++ % 8) * Mathf.PI / 4f;
-            var position = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
-            Color color = _colors.TryGetValue(enemy.Id, out Color enemyColor) ? enemyColor : Color.white;
 
             for (int i = 0; i < FragmentCount; i++)
             {
@@ -177,19 +157,16 @@ namespace BlackHole.Unity
             }
         }
 
-        private void EmitDeath(Enemy enemy)
+        // 사망 파편: 죽은 자리에서 크고 빠른 파편을 사방으로 튀긴 뒤, Advance가 HQ 쪽으로 빨아들인다. color는 죽은 적의 색이다.
+        public void EmitDeath(Vector3 position, Color color, int tier, int size)
         {
             if (!_deathParticles.isPlaying)
                 _deathParticles.Play(false);
 
-            // 파편 수 = 색 등급(1~7, enemy.Tier는 0부터라 +1) × 크기(enemy.Size, 1부터).
+            // 파편 수 = 색 등급(Tier는 0부터라 +1) × 크기(1부터).
             // 예: 빨강(Tier 0)·크기 2 → 1×2 = 2개, 파랑(Tier 4)·크기 3 → 5×3 = 15개.
-            int fragmentCount = (enemy.Tier + 1) * enemy.Size;
-
-            // 파괴 단계: 사망 위치에서 크고 빠른 파편을 사방으로 강하게 튀긴다.
+            int fragmentCount = (tier + 1) * size;
             float baseAngle = (_burstIndex++ % 16) * Mathf.PI / 8f;
-            var position = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
-            Color color = _colors.TryGetValue(enemy.Id, out Color enemyColor) ? enemyColor : Color.white;
 
             for (int i = 0; i < fragmentCount; i++)
             {

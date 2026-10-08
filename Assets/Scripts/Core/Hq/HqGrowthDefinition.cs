@@ -18,8 +18,6 @@ namespace BlackHole.Core
         public const int NoGoal = 0;
         public const float StartFieldScale = 1f;
 
-        public static readonly HqGrowthDefinition None = new(Array.Empty<long>());
-
         // LevelExp[i]는 Level (i + 1)에 닿는 누적 EXP(Level 0 = EXP 0에서 센다). 양수이고 앞 줄보다 크다.
         public IReadOnlyList<long> LevelExp { get; }
 

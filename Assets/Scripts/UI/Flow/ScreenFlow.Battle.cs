@@ -1,7 +1,5 @@
-using System;
 using System.Threading.Tasks;
 using BlackHole.Core;
-using UnityEngine;
 
 namespace BlackHole.Unity
 {
@@ -10,7 +8,7 @@ namespace BlackHole.Unity
         private void ShowBattle()
         {
             _ui.SwitchRoot<BattleScreen>(
-                _battlePresentation,
+                _presentations.Battle,
                 afterPresented: root =>
                 {
                     BindView(root, ApplyBindings);
@@ -36,6 +34,7 @@ namespace BlackHole.Unity
         internal void HandleBattleTimeExpired() => RequestEnd();
 
         // 화면 버튼과 시간 종료가 같은 전환 경로를 사용한다. 판은 화면이 다 덮인 뒤에 바꾼다.
+        // 덮인 뒤의 일에서 난 예외는 ScreenTransition이 로그로 남기고 전환을 이어 간다.
         // 시작: 덮인 뒤 판을 조립·시작하고 전투 화면으로 바꾼다. 덮이는 동안 판이 흐르지 않는다.
         private void RequestStart()
         {
@@ -45,30 +44,23 @@ namespace BlackHole.Unity
 
         // 끝: 덮인 뒤 판을 정리·결산하고 결산 화면으로 바꾼다. 적이 치워지는 모습이 보이지 않는다.
         private void RequestEnd() => _transition.Play(EndBattleAsync);
- 
+
         private void StartBattle()
         {
-            try
-            {
-                if (_battle.TryStart(NodePurchase.UpgradesFor(_player, _tree)))
-                    ShowBattle();
-            }
-            catch (Exception error) { Debug.LogException(error); }
+            if (_battle.TryStart(NodePurchase.StatsFor(_progress, _tree)))
+                ShowBattle();
         }
 
         private async Task EndBattleAsync()
         {
-            try
+            BattleRawData raw = await _battle.TryEndAsync();
+
+            if (raw != null)
             {
-                BattleRawData raw = await _battle.TryEndAsync();
-                if (raw != null)
-                {
-                    // 결산이 진행 상태(Gold·성장도)를 바꿨다.
-                    _progress.Save(_player);
-                    ShowSettlement(raw);
-                }
+                // 결산이 진행 상태(Gold·성장도)를 바꿨다.
+                _progressStore.Save(_progress);
+                ShowSettlement(raw);
             }
-            catch (Exception error) { Debug.LogException(error); }
         }
     }
 }

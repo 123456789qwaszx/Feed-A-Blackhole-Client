@@ -6,7 +6,7 @@ using UnityEngine.InputSystem.Controls;
 
 namespace BlackHole.Unity
 {
-    // 조준 입력: 포인터(마우스·펜·터치 중 마지막으로 쓴 것)의 화면 위치를 규칙 평면의 점으로 바꿔, 진행 중인 판의 로컬 참가자 조준점에 넣는다(SYSTEM_CATALOG S02).
+    // 조준 입력: 포인터(마우스·펜·터치 중 마지막으로 쓴 것)의 화면 위치를 규칙 평면의 점으로 바꿔, 진행 중인 판의 조준점(Breaker가 치는 자리)에 넣는다(SYSTEM_CATALOG S02).
     // - 마우스·펜: 포인터가 있는 곳을 늘 조준한다.
     // - 터치: 손가락이 닿아 있는 동안만 조준한다. 떼면 조준점이 없다. UI(버튼 등) 위를 누른 터치는 조준하지 않는다.
     //   Device Simulator도 마우스 조작을 터치로 넘기므로 이 경로를 탄다.
@@ -15,13 +15,8 @@ namespace BlackHole.Unity
     internal sealed class AimInput
     {
         private readonly BattleSystem _battle;
-        private readonly PlayerId _player;
 
-        public AimInput(BattleSystem battle, PlayerId player)
-        {
-            _battle = battle;
-            _player = player;
-        }
+        public AimInput(BattleSystem battle) => _battle = battle;
 
         // 전투 시스템보다 먼저 부른다. 이번 프레임의 Step이 이 조준점으로 공격한다.
         public void Tick()
@@ -29,7 +24,7 @@ namespace BlackHole.Unity
             if (!_battle.IsRunning)
                 return;
 
-            _battle.Session.SetAimPoint(_player, Read());
+            _battle.Session.SetAimPoint(Read());
         }
 
         // 포인터나 카메라가 없으면 조준점도 없다.

@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace BlackHole.Unity
 {
-    // Breaker의 화면. 매 프레임 판의 참가자를 읽어 참가자마다 점선 링 하나를 조준점에 그린다.
+    // Breaker의 화면. 매 프레임 판의 Breaker를 읽어 점선 링 하나를 조준점에 그린다.
     // 게임 상태를 바꾸지 않고, 피해를 다시 계산하지 않는다. 외형은 BreakerLook이 가진다.
     // - 링의 기본 반지름은 판정 반지름이다(GAME_RULES 6절). 달 버프로 판정 반지름이 바뀌면 매 프레임 따라간다(BreakerSkill.CurrentRadius).
     //   조준점이 없거나 일시정지 중이면 숨긴다.
@@ -59,9 +59,10 @@ namespace BlackHole.Unity
         private readonly MaterialPropertyBlock _properties = new();
         // 칸마다 구체 종류(MoonKind·CometKind). 매 프레임 채워 셰이더에 넘긴다(길이는 늘 MaxOrbs).
         private readonly float[] _orbKinds = new float[MaxOrbs];
-        private readonly Dictionary<PlayerId, Ring> _rings = new();
+        // 판에 Breaker가 처음 보일 때 만들고, Reset이 지운다.
+        private Ring _ring;
 
-        // 참가자 하나의 링과 버프 구체. Root는 조준점에 놓이고 크기를 바꾸지 않는다 — 링과 구체의 사각형은 각자 크기를 맞춘다.
+        // Breaker의 링과 버프 구체. Root는 조준점에 놓이고 크기를 바꾸지 않는다 — 링과 구체의 사각형은 각자 크기를 맞춘다.
         private sealed class Ring
         {
             public Transform Root;
@@ -94,30 +95,16 @@ namespace BlackHole.Unity
 
         public void Synchronize(World world, bool paused, float delta)
         {
-            IReadOnlyList<BattlePlayer> players = world.Players;
-            float fieldScale = world.Hq.FieldScale;
-
-            // 매 프레임 경로: IReadOnlyList를 인덱스로 돈다(인터페이스 foreach는 열거자를 할당한다).
-            for (int i = 0; i < players.Count; i++)
-            {
-                BattlePlayer player = players[i];
-
-                if (player.Breaker != null)
-                    Show(player, player.Breaker, paused, delta, fieldScale);
-            }
+            Show(world.AimPoint, world.Breaker, paused, delta, world.Hq.FieldScale);
         }
-
-        // 링이 없고, 지운 객체도 장면에서 모두 사라졌는가.
-        // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _rings.Count == 0 && _root.childCount == 0;
 
         // 판이 바뀌거나 판을 정리할 때 모든 링을 지운다.
         public void Reset()
         {
-            foreach (Ring ring in _rings.Values)
-                Object.Destroy(ring.Root.gameObject);
+            if (_ring != null)
+                Object.Destroy(_ring.Root.gameObject);
 
-            _rings.Clear();
+            _ring = null;
         }
 
         public void Dispose()
@@ -127,13 +114,10 @@ namespace BlackHole.Unity
         }
 
         // fieldScale: 판의 전장 배율. 화면 크기가 고정인 구체에만 곱한다.
-        private void Show(BattlePlayer player, BreakerSkill breaker, bool paused, float delta, float fieldScale)
+        private void Show(Point2? aimPoint, BreakerSkill breaker, bool paused, float delta, float fieldScale)
         {
-            if (!_rings.TryGetValue(player.Id, out Ring ring))
-            {
-                ring = Create(player.Id);
-                _rings.Add(player.Id, ring);
-            }
+            _ring ??= Create();
+            Ring ring = _ring;
 
             if (!paused)
             {
@@ -146,7 +130,7 @@ namespace BlackHole.Unity
             ReadBuffs(ring, breaker);
 
             // 링·구체·혜성 배경 원의 표시 여부는 여기서만 정한다. 구체와 배경 원은 링이 보일 때만 보인다.
-            bool visible = !paused && player.AimPoint.HasValue;
+            bool visible = !paused && aimPoint.HasValue;
             int orbCount = visible ? FillOrbKinds(breaker) : 0;
             bool aura = visible && breaker.IsGuaranteedCritical;
             ring.Renderer.enabled = visible;
@@ -156,7 +140,7 @@ namespace BlackHole.Unity
             if (!visible)
                 return;
 
-            Point2 aim = player.AimPoint.Value;
+            Point2 aim = aimPoint.Value;
             ring.Root.localPosition = new Vector3(aim.X, aim.Y, 0);
             Apply(ring, breaker.CurrentRadius, out float shownRadius, out float shownThickness);
 
@@ -308,9 +292,9 @@ namespace BlackHole.Unity
         }
 
         // 사각형 크기는 그릴 때마다 Apply·ApplyOrbs·ApplyAura가 맞춘다.
-        private Ring Create(PlayerId player)
+        private Ring Create()
         {
-            Transform root = new GameObject($"Breaker ({player})").transform;
+            Transform root = new GameObject("Breaker").transform;
             root.SetParent(_root, false);
 
             return new Ring

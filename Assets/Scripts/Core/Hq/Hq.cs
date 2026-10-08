@@ -24,8 +24,6 @@ namespace BlackHole.Core
 
         public int Level { get; private set; }
 
-        public bool IsMaxLevel => Level >= Growth.MaxLevel;
-
         public long? NextLevelExp => Growth.ExpToReach(Level + 1); // 다음 Level까지 필요한 누적 EXP 양.
 
         // 이 판이 닿은 이정표. 없으면 null이다. 있으면 판은 그 Step에서 끝났다.
@@ -37,7 +35,7 @@ namespace BlackHole.Core
         public int NextStage => ReachedMilestone ? Stage + 1 : Stage;
 
         // 지금 Level의 임계값에서 다음 임계값까지 몇 %인가(0 ~ 1). 마지막 Level이거나 이정표에 닿았으면 1이다.
-        // EXP는 사망 순간에 들고 Level은 Step의 5 자리에서 오르므로, 그 사이에는 1에서 멈춘다.
+        // EXP는 사망 순간에 들고 Level은 Step의 4 자리에서 오르므로, 그 사이에는 1에서 멈춘다.
         public float Progress => ReachedMilestone ? 1 : Growth.ProgressAt(Level, Exp);
 
         // stage: 판을 시작할 때의 성장도(진행 상태의 것).

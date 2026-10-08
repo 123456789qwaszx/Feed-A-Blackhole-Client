@@ -27,7 +27,6 @@ public sealed class RectTransformPatch
 [Serializable]
 public sealed class WidgetLayoutPatch
 {
-    [FormerlySerializedAs("nameTag")]
     [Tooltip("Target ref id. Must match a Refs enum member exposed by the screen's IUIPresentationRefProvider.")]
     public string refId;
 

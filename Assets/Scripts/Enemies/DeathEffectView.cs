@@ -77,8 +77,6 @@ namespace BlackHole.Unity
             _lasers.ShowTelegraphs(world.DeathEffects.LaserTelegraphs);
         }
 
-        public bool IsClear => _lightning.IsClear && _explosions.IsClear && _lasers.IsClear;
-
         public void Reset()
         {
             _lightning.Reset();

@@ -66,7 +66,7 @@ namespace BlackHole.EditorTools
         private NodeContentLoadResult _content;
         private NodeTreeLoadResult _load;
         private List<ContentDiagnostic> _toolChecks = new List<ContentDiagnostic>();
-        private PlayerState _previewState;
+        private ProgressState _previewProgress;
 
         public NodeTreeData Tree => catalog != null ? catalog.Tree : null;
         public bool Editing => !_preview;
@@ -279,8 +279,8 @@ namespace BlackHole.EditorTools
         // 미리보기에서 산 Rank를 산 순서대로 다시 산다. 이제는 살 수 없는 Rank(숨었거나 없어진 노드)는 빠진다.
         private void ReplayPreview()
         {
-            _previewState = new PlayerState(new PlayerId(1));
-            _previewState.EarnGold(PreviewGold);
+            _previewProgress = new ProgressState();
+            _previewProgress.EarnGold(PreviewGold);
 
             if (!_preview || _load?.Tree == null)
                 return;
@@ -289,7 +289,7 @@ namespace BlackHole.EditorTools
 
             foreach (string id in _previewOwned)
             {
-                if (NodePurchase.TryPurchase(_previewState, _load.Tree, id) == PurchaseResult.Purchased)
+                if (NodePurchase.TryPurchase(_previewProgress, _load.Tree, id) == PurchaseResult.Purchased)
                     kept.Add(id);
             }
 
@@ -337,7 +337,7 @@ namespace BlackHole.EditorTools
             if (_load?.Tree == null || !_load.Tree.TryGet(node.Id, out _))
                 return HiddenFill;
 
-            switch (NodePurchase.StateOf(_previewState, _load.Tree, node.Id))
+            switch (NodePurchase.StateOf(_previewProgress, _load.Tree, node.Id))
             {
                 case NodeState.Owned: return OwnedFill;
                 case NodeState.Purchasable: return PurchasableFill;
@@ -366,7 +366,7 @@ namespace BlackHole.EditorTools
                 return node.Id;
 
             if (_preview)
-                return $"{node.Id}\n{_previewState.RankOf(node.Id)}/{definition.MaxRank}";
+                return $"{node.Id}\n{_previewProgress.RankOf(node.Id)}/{definition.MaxRank}";
 
             string cost = Compact(definition.RankAt(1).Cost);
             return definition.MaxRank > 1 ? $"{node.Id}\n{cost} ×{definition.MaxRank}" : $"{node.Id}\n{cost}";
@@ -416,7 +416,7 @@ namespace BlackHole.EditorTools
                     return;
 
                 // 누르면 다음 Rank를 산다. Ctrl+클릭이나 마지막 Rank에서 다시 누르면 그 노드를 미리보기에서만 되돌린다(게임에는 환불이 없다).
-                PurchaseResult result = NodePurchase.Check(_previewState, _load.Tree, node.Id);
+                PurchaseResult result = NodePurchase.Check(_previewProgress, _load.Tree, node.Id);
 
                 if (additive || result == PurchaseResult.MaxRankReached)
                     _previewOwned.RemoveAll(id => id == node.Id);
@@ -622,8 +622,8 @@ namespace BlackHole.EditorTools
 
                 foreach (NodeEffect effect in rank.Effects)
                 {
-                    UpgradeStatUnit unit = _content.Content.TryGetStat(effect.StatId, out UpgradeStatDefinition stat) ? stat.Unit : UpgradeStatUnit.Flat;
-                    effects.Add($"{effect.StatId} {NodeTreeAuthoring.Notation(unit, effect.Value)}");
+                    UpgradeStatDefinition stat = _content.Content.StatOf(effect.Stat);
+                    effects.Add($"{stat.StatId} {NodeTreeAuthoring.Notation(stat.Unit, effect.Value)}");
                 }
 
                 _panel.Add(new Label($"Rank {rank.Rank} · {rank.Cost.ToString("N0", CultureInfo.InvariantCulture)} · {string.Join(", ", effects)}"));
@@ -776,31 +776,30 @@ namespace BlackHole.EditorTools
 
             foreach (NodeDefinition node in _load.Tree.Nodes)
             {
-                int rank = _previewState.RankOf(node.Id);
+                int rank = _previewProgress.RankOf(node.Id);
                 ranks += rank;
 
                 if (rank > 0)
                     owned++;
             }
 
-            long spent = PreviewGold - _previewState.Gold;
+            long spent = PreviewGold - _previewProgress.Gold;
             _panel.Add(new Label($"산 노드 {owned} / {_load.Tree.Nodes.Count} · 산 Rank {ranks} · 쓴 Gold {spent.ToString("N0", CultureInfo.InvariantCulture)}"));
             _panel.Add(Note("노랑: 다음 Rank를 살 수 있음 · 초록: 마지막 Rank까지 삼 · 회색: 보이지만 못 삼 · 어두움: 숨김. " +
                 "누를 때마다 다음 Rank를 산다. Ctrl+클릭이나 마지막 Rank에서 다시 누르면 그 노드를 미리보기에서만 되돌린다(게임에는 환불이 없다)."));
 
-            UpgradeStatValues values = NodePurchase.StatsFor(_previewState, _load.Tree);
+            UpgradeStatValues values = NodePurchase.StatsFor(_previewProgress, _load.Tree);
             _panel.Add(Header("수치 (기본값 → 지금 값)"));
             bool any = false;
 
             foreach (UpgradeStatDefinition stat in values.Stats)
             {
-                if (values.SumOf(stat.StatId) == 0)
+                if (values.SumOf(stat.Stat) == 0)
                     continue;
 
                 any = true;
                 string unit = stat.Unit == UpgradeStatUnit.Percent ? "%" : string.Empty;
-                string routed = NodeUpgradeBridge.IsRouted(stat.StatId) ? string.Empty : "  (전투에 아직 안 이어짐)";
-                _panel.Add(new Label($"{stat.StatId}: {Number(stat.DefaultValue)}{unit} → {Number(values.ValueOf(stat.StatId))}{unit}{routed}"));
+                _panel.Add(new Label($"{stat.StatId}: {Number(stat.DefaultValue)}{unit} → {Number(values.ValueOf(stat.Stat))}{unit}"));
             }
 
             if (!any)

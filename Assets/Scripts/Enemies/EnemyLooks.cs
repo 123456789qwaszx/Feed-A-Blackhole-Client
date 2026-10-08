@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using BlackHole.Core;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace BlackHole.Unity
 {
-    // 적 종류의 외형 조회: 종류 ID → 스프라이트, (종류 ID, 색 등급) → 색. 외형은 적 종류 에셋(EnemyKind)이 가진다.
+    // 적 종류의 외형 조회: 종류 → 스프라이트, (종류, 색 등급) → 색. 외형은 적 종류 에셋(EnemyKind)이 가진다.
     // 스프라이트가 없는 종류와 목록에 없는 종류는 임시 다각형(흰색)이다. 적 화면과 조종 콘솔이 같은 외형을 쓴다.
     // 혜성(픽업)은 일반 적과 성격이 달라 여기서 다루지 않는다. 스프라이트가 아니라 셰이더로 그리며, 외형은 CometLook이 가진다.
     internal sealed class EnemyLooks : IDisposable
@@ -24,7 +25,7 @@ namespace BlackHole.Unity
         // 원작의 황금 소행성은 원래 색의 윤곽에 속이 노랗다(BATTLE_COMPOSITION_PLAN 2.1). 다른 성질도 같은 방식의 임시 표식이다.
         public const float TraitFillScale = 0.65f;
 
-        private readonly Dictionary<string, EnemyKind> _kinds = new Dictionary<string, EnemyKind>(StringComparer.Ordinal);
+        private readonly Dictionary<EnemyType, EnemyKind> _kinds = new Dictionary<EnemyType, EnemyKind>();
         private readonly Texture2D[] _shapeTextures = new Texture2D[ShapeVertices.Length];
         private readonly Sprite[] _shapes = new Sprite[ShapeVertices.Length];
 
@@ -38,8 +39,8 @@ namespace BlackHole.Unity
         {
             foreach (EnemyKind kind in kinds)
             {
-                if (kind != null && !string.IsNullOrEmpty(kind.Id))
-                    _kinds[kind.Id] = kind;
+                if (kind != null)
+                    _kinds[kind.Type] = kind;
             }
 
             for (int i = 0; i < ShapeVertices.Length; i++)
@@ -55,29 +56,29 @@ namespace BlackHole.Unity
             _starShape = Sprite.Create(_starTexture, new Rect(0, 0, ShapePixels, ShapePixels), new Vector2(0.5f, 0.5f), ShapePixels);
         }
 
-        public Sprite SpriteOf(string kindId, int enemyId)
+        public Sprite SpriteOf(EnemyType type, int enemyId)
         {
-            if (_kinds.TryGetValue(kindId, out EnemyKind kind) && kind.Sprite != null)
+            if (_kinds.TryGetValue(type, out EnemyKind kind) && kind.Sprite != null)
                 return kind.Sprite;
 
-            switch (kindId)
+            switch (type)
             {
-                case "planet":
+                case EnemyType.Planet:
                     return _planetShape;
-                case "star":
+                case EnemyType.Star:
                     return _starShape;
                 default:
-                    // asteroid를 비롯해 전용 도형이 없는 종류는 기존 불규칙 다각형 5종을 그대로 쓴다.
+                    // 소행성을 비롯해 전용 도형이 없는 종류는 기존 불규칙 다각형 5종을 그대로 쓴다.
                     return _shapes[(enemyId - 1) % _shapes.Length];
             }
         }
 
-        public Color ColorOf(string kindId, int tier) =>
-            _kinds.TryGetValue(kindId, out EnemyKind kind) ? kind.ColorOf(tier) : Color.white;
+        public Color ColorOf(EnemyType type, int tier) =>
+            _kinds.TryGetValue(type, out EnemyKind kind) ? kind.ColorOf(tier) : Color.white;
 
         // 성질의 표식 색. 없는 종류·성질은 투명이다(표식을 그리지 않는다).
-        public Color TraitColorOf(string kindId, string traitId) =>
-            traitId != null && _kinds.TryGetValue(kindId, out EnemyKind kind) ? kind.TraitColorOf(traitId) : Color.clear;
+        public Color TraitColorOf(EnemyType type, EnemyTraitType? trait) =>
+            trait.HasValue && _kinds.TryGetValue(type, out EnemyKind kind) ? kind.TraitColorOf(trait.Value) : Color.clear;
 
         public void Dispose()
         {

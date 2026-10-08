@@ -5,6 +5,7 @@ namespace BlackHole.Unity
     internal sealed partial class ScreenFlow
     {
         private const string NormalModeId = "normal";
+        private static readonly Color NormalModeColor = new(0.62f, 0.33f, 0.35f);
 
         // 모드 카드. 계속 버튼은 이어 할 진행이 있을 때만 켠다(진행 저장).
         private ModeSelectPanel.ModeItem[] Modes() => new[]
@@ -13,15 +14,15 @@ namespace BlackHole.Unity
                 NormalModeId,
                 "Normal Mode",
                 "The main mode. Break asteroids, planets and stars and feed their matter to the black hole.",
-                new Color(0.62f, 0.33f, 0.35f),
-                canContinue: _progress.CanContinue),
+                NormalModeColor,
+                canContinue: _progressStore.CanContinue),
         };
 
         // 지금 루트(타이틀) 위에 모드 선택 창을 쌓는다. 이미 쌓여 있으면 그 창까지 되돌아간다.
         private void OpenModeSelect()
         {
             _ui.PushPanel<ModeSelectPanel>(
-                _modeSelectPresentation,
+                _presentations.ModeSelect,
                 afterPresented: panel =>
                 {
                     BindView(panel, ApplyBindings);
@@ -48,7 +49,7 @@ namespace BlackHole.Unity
         // 새 게임: 이어 할 진행이 있으면 지운다는 것을 확인받는다.
         private void HandleModeSelectNewGameClicked(string modeId)
         {
-            if (_progress.CanContinue)
+            if (_progressStore.CanContinue)
                 OpenConfirm("NEW GAME", "Start over from the beginning?\nYour saved progress will be lost.", "START", "CANCEL", StartNewGame);
             else
                 StartNewGame();
@@ -57,14 +58,14 @@ namespace BlackHole.Unity
         // 계속: 저장으로 진행 상태를 되살린다(이번 실행에서 이미 진행 중이면 그대로).
         private void HandleModeSelectContinueClicked(string modeId)
         {
-            _progress.Continue(_player);
+            _progressStore.Continue(_progress);
             EnterMode();
         }
 
         // 진행 상태를 처음으로 되돌리고 바로 저장한 뒤 들어간다.
         private void StartNewGame()
         {
-            _progress.StartNew(_player);
+            _progressStore.StartNew(_progress);
             EnterMode();
         }
 
@@ -78,10 +79,6 @@ namespace BlackHole.Unity
         {
             _ui.PopAllPanels(Unbind);
             StartBattle();
-
-            // 판을 시작하지 못했으면(판 조립 오류 등, 로그는 StartBattle이 남긴다) 타이틀에 갇히지 않게 업그레이드 화면으로 간다.
-            if (!_battle.IsRunning)
-                ShowUpgrade();
         }
     }
 }

@@ -52,10 +52,6 @@ namespace BlackHole.Unity
             _quad = CreateQuad();
         }
 
-        // 링이 없고, 지운 객체도 장면에서 모두 사라졌는가.
-        // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _blasts.Count == 0 && _root.childCount == 0;
-
         // center: 폭발 자리. radius: 판정 반지름.
         public void Play(Point2 center, float radius)
         {

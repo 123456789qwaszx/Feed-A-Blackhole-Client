@@ -59,10 +59,6 @@ namespace BlackHole.Unity
             _quad = CreateQuad();
         }
 
-        // 줄기가 없고, 지운 객체도 장면에서 모두 사라졌는가.
-        // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _bolts.Count == 0 && _root.childCount == 0;
-
         public void Play(Point2 from, Point2 to, int hop)
         {
             Bolt bolt = Take();

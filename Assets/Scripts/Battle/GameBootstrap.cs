@@ -5,25 +5,10 @@ using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 씬의 직렬화 설정으로 게임을 조립하는 Unity 진입점.
-    // - Awake: 콘텐츠 로드(GameContentLoader), 적 화면·Breaker 화면·사망 효과 화면·블랙홀 화면, 진행 상태와 진행 저장, 전투 시스템, 조준 입력,
-    //   UI(UIManager와 타이틀·업그레이드·전투·결산 화면), 화면 흐름, GameHost 조립.
-    // - Start/Update: 조립한 GameHost에 Unity 수명을 전달한다.
-    //
-    // 화면은 씬의 UI Canvas에 놓인 화면 프리팹(TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen)을 Root Layer와 Views로,
-    // 패널 프리팹(ModeSelectPanel·SettingsPanel·PausePanel·ConfirmPanel)을 Panel Layer와 Views로 받는다.
-    // 누락된 연결은 조립 전에 오류로 알린다. Presentation을 비워 두면 아무것도 바꾸지 않는 빈 Presentation을 쓴다.
     public sealed class GameBootstrap : MonoBehaviour
     {
-        // 방장(로컬 Player). 진행 상태의 주인이고, 지금 판 안의 참가자도 방장 한 명이다.
-        private static readonly PlayerId Host = new PlayerId(1);
-
         [Header("Content")]
-        [SerializeField] private EnemyCatalog _enemyCatalog;
-        [SerializeField] private EnemySupplySetup _enemySupply;
-        [SerializeField] private HqGrowthSetup _hqGrowth;
-        [SerializeField] private SkillSetup _skillSetup;
-        [SerializeField] private NodeCatalog _nodeCatalog;
+        [SerializeField] private GameContentSetup _content;
 
         [Header("Looks")]
         [SerializeField] private BreakerLook _breakerLook;
@@ -42,105 +27,124 @@ namespace BlackHole.Unity
         [Header("Registered Views")]
         [SerializeField] private UIBase[] _views;
 
-        [Header("Presentations (비우면 빈 Presentation)")]
-        [SerializeField] private UIPresentationSpec _titlePresentation;
-        [SerializeField] private UIPresentationSpec _modeSelectPresentation;
-        [SerializeField] private UIPresentationSpec _settingsPresentation;
-        [SerializeField] private UIPresentationSpec _pausePresentation;
-        [SerializeField] private UIPresentationSpec _upgradePresentation;
-        [SerializeField] private UIPresentationSpec _battlePresentation;
-        [SerializeField] private UIPresentationSpec _settlementPresentation;
-        [SerializeField] private UIPresentationSpec _nodeTreePresentation;
-        [SerializeField] private UIPresentationSpec _confirmPresentation;
+        [Header("Presentations")]
+        [SerializeField] private ScreenPresentations _presentations;
 
-        [Header("UI Context")]
-        [SerializeField] private string _themeId = "Light";
-        [SerializeField] private string _localeId = "ko-KR";
+        private static readonly Type[] RequiredViews =
+        {
+            typeof(TitleScreen),
+            typeof(UpgradeScreen),
+            typeof(BattleScreen),
+            typeof(SettlementScreen),
+            typeof(NodeTreeView),
+            typeof(ModeSelectPanel),
+            typeof(SettingsPanel),
+            typeof(PausePanel),
+            typeof(ConfirmPanel),
+        };
 
-        [Header("Runtime")]
-        [SerializeField] private UIDisplayRefreshDriver _displayRefreshDriver;
+        private const UITheme Theme = UITheme.Light;
+        private const UILocale Locale = UILocale.Korean;
 
-        [Header("Input")]
-        [SerializeField] private KeyInput _keyInput;
-
-        private readonly List<UIPresentationSpec> _emptyPresentations = new List<UIPresentationSpec>();
-        private LoadedContent _loaded;
-        private EnemyLooks _enemyLooks;
-        private EnemyView _enemyView;
-        private BreakerView _breakerView;
-        private DeathEffectView _deathEffectView;
-        private HqView _hqView;
-        private BattleSystem _battle;
-        private PlayerState _viewer;
-        private ProgressStore _progress;
-        private AimInput _aim;
+        private ProgressState _progress;
+        private ProgressStore _progressStore;
         private GameSettings _settings;
-        private UIManager _ui;
-        private ScreenTransition _transition;
-        private ScreenFlow _screens;
         private GameHost _host;
-        private CameraShake _cameraShake;
-        private BattleCameraFit _cameraFit;
 
         private void Awake()
         {
-            if (!TryBootstrapContent()
-                || !HasConfiguredLooks()
-                || !HasConfiguredUI())
+            LoadedContent loaded = GameContentLoader.Load(_content);
+
+            if (loaded == null || !HasConfiguredLooks() || !HasConfiguredUI())
             {
                 enabled = false;
                 return;
             }
 
-            _cameraShake = Camera.main.GetComponent<CameraShake>();
-
-            BootstrapBattleViews();
-            BootstrapBattle();
-            BootstrapProgress();
-            BootstrapSettings();
-            BootstrapUI();
-            BootstrapScreenFlow();
-            BootstrapHost();
-            BootstarpKeyInput();
-        }
-
-        private void BootstrapBattleViews()
-        {
-            _enemyLooks = new EnemyLooks(_enemyCatalog.Kinds());
-            _enemyView = new EnemyView(transform, _enemyLooks, _breakerLook, _cometLook);
-            _breakerView = new BreakerView(transform, _breakerLook);
-            _deathEffectView = new DeathEffectView(transform, _lightningLook, _explosionLook);
-            _hqView = new HqView(transform, _blackHole, Camera.main);
-
-            // 전투 카메라를 화면비와 판의 전장 배율에 맞춘다(좁은 화면에서도 16:9의 가로 폭을 보여 준다). 씬에 없으면 여기서 붙인다.
             Camera battleCamera = Camera.main;
-            if (battleCamera != null && !battleCamera.TryGetComponent(out _cameraFit))
-                _cameraFit = battleCamera.gameObject.AddComponent<BattleCameraFit>();
+            CameraShake cameraShake = battleCamera.GetComponent<CameraShake>();
+            BattleCameraFit cameraFit = GetOrAdd<BattleCameraFit>(battleCamera.gameObject);
+
+            EnemyLooks enemyLooks = new(_content.Enemies.Kinds());
+            EnemyView enemyView = new(transform, enemyLooks, _breakerLook, _cometLook);
+            BreakerView breakerView = new(transform, _breakerLook);
+            DeathEffectView deathEffectView = new(transform, _lightningLook, _explosionLook);
+            HqView hqView = new(transform, _blackHole, battleCamera);
+
+            _progress = new ProgressState();
+            _progressStore = ProgressStore.Load(
+                Application.persistentDataPath,
+                loaded.NodeTree.Content,
+                loaded.Content.Growth);
+            _settings = GameSettings.Load();
+
+            BattleSystem battle = new(
+                loaded.Content,
+                _progress,
+                enemyView,
+                breakerView,
+                deathEffectView,
+                hqView,
+                cameraFit);
+            AimInput aim = new(battle);
+
+            UIManager ui = CreateUI();
+            ScreenTransition transition = CreateScreenTransition();
+            KeyInput keyInput = GetOrAdd<KeyInput>(gameObject);
+
+            ScreenFlow screens = new(
+                ui,
+                _presentations,
+                battle,
+                _progress,
+                _progressStore,
+                loaded.NodeTree,
+                loaded.NodeItems,
+                loaded.Content.Growth,
+                _settings,
+                transition,
+                keyInput);
+
+            _host = new GameHost(
+                ui,
+                battle,
+                aim,
+                screens,
+                enemyLooks,
+                enemyView,
+                breakerView,
+                deathEffectView,
+                hqView,
+                cameraShake);
         }
 
-        private void BootstrapBattle()
+        private void Start()
         {
-            // 화면이 보는 진행 상태: 방장의 것. 전투 사이에 이어지고, 진행 저장으로 앱을 다시 켜도 이어진다.
-            _viewer = new PlayerState(Host);
-            _battle = new BattleSystem(_loaded.Content, _viewer, _enemyView, _breakerView, _deathEffectView, _hqView, _cameraFit);
-            // 마우스가 조준하는 참가자: 방장.
-            _aim = new AimInput(_battle, _viewer.Id);
+            _host.Start();
+            SoundManager.Instance.Bind(_settings);
         }
 
-        // 진행 저장을 한 번 불러 검사한다. 진행 상태에 넣는 것은 모드 선택에서 계속을 고를 때다.
-        private void BootstrapProgress() =>
-            _progress = ProgressStore.Load(Application.persistentDataPath, _loaded.NodeTree.Content, _loaded.Content.Growth);
+        private void Update() => _host.Tick(Time.deltaTime);
 
-        // 저장된 플레이어 설정을 읽는다(없으면 기본값).
-        private void BootstrapSettings() => _settings = GameSettings.Load();
-
-        private void BootstrapUI()
+        private void OnApplicationPause(bool paused)
         {
-            _ui = new UIManager(
+            if (paused && enabled)
+                _progressStore.Save(_progress);
+        }
+
+        private void OnDestroy() => _host?.Dispose();
+
+        private UIManager CreateUI()
+        {
+            UIContext uiContext = new(Theme.ToId(), Locale.ToId());
+            UIResolver uiResolver = new(uiContext);
+            UIPresentationApplier presentationApplier = new();
+
+            UIManager ui = new(
                 _rootLayer,
                 _panelLayer,
-                new UIResolver(new UIContext(_themeId, _localeId)),
-                new UIPresentationApplier());
+                uiResolver,
+                presentationApplier);
 
             foreach (UIBase view in _views)
             {
@@ -148,108 +152,63 @@ namespace BlackHole.Unity
                     continue;
 
                 view.gameObject.SetActive(false);
-                _ui.Register(view);
+                ui.Register(view);
             }
 
-            // 해상도·Safe Area가 바뀌면(회전, 창 크기) 보이는 화면에 다시 맞춘다. 씬에 없으면 여기서 붙인다.
-            if (_displayRefreshDriver == null)
-                _displayRefreshDriver = gameObject.AddComponent<UIDisplayRefreshDriver>();
+            UIDisplayRefreshDriver displayRefresh = GetOrAdd<UIDisplayRefreshDriver>(gameObject);
+            displayRefresh.Initialize(ui);
 
-            _displayRefreshDriver.Initialize(_ui);
+            return ui;
+        }
 
-            // 화면 전환 덮개는 맨 위 캔버스의 마지막 자식이라 모든 화면·패널 위에 그려진다.
+        private ScreenTransition CreateScreenTransition()
+        {
             Canvas canvas = _rootLayer.GetComponentInParent<Canvas>();
-            _transition = ScreenTransition.Create(canvas != null ? canvas.rootCanvas.transform : _rootLayer.parent, _screenTransitionLook);
+            Transform transitionParent = canvas != null
+                ? canvas.rootCanvas.transform
+                : _rootLayer.parent;
+
+            return ScreenTransition.Create(transitionParent, _screenTransitionLook);
         }
 
-        private void BootstrapScreenFlow()
-        {
-            _screens = new ScreenFlow(
-                _ui,
-                OrEmpty(_titlePresentation, "Title"),
-                OrEmpty(_modeSelectPresentation, "ModeSelect"),
-                OrEmpty(_settingsPresentation, "Settings"),
-                OrEmpty(_pausePresentation, "Pause"),
-                OrEmpty(_upgradePresentation, "Upgrade"),
-                OrEmpty(_battlePresentation, "Battle"),
-                OrEmpty(_settlementPresentation, "Settlement"),
-                OrEmpty(_nodeTreePresentation, "NodeTree"),
-                OrEmpty(_confirmPresentation, "Confirm"),
-                _battle, _viewer, _progress, _loaded.NodeTree, BuildNodeItems(_loaded.NodeTree, _loaded.NodeLayout), _loaded.Content.Growth,
-                _settings, _transition);
-        }
-
-        private void BootstrapHost()
-        {
-            _host = new GameHost(_ui, _battle, _aim, _screens,
-                _enemyLooks, _enemyView, _breakerView, _deathEffectView, _hqView, _cameraShake);
-        }
-
-        private void BootstarpKeyInput()
-        {
-            if (_keyInput == null) return;
-
-            _keyInput.ContinuePressed += _screens.HandleKeyActionSpace;
-            _keyInput.UpgradePressed += _screens.HandleKeyActionShift;
-            _keyInput.PausePressed += _screens.HandleKeyActionEsc;
-        }
-
-        private void Start()
-        {
-            _host?.Start();
-            SoundManager.Instance.Bind(_settings);
-        }
-
-        private void Update() => _host?.Tick(Time.deltaTime);
-
-        // 모바일은 앱 종료 이벤트가 불리지 않는 경우가 많아, 앱이 내려갈 때 저장해 둔다. 조립에 실패했으면 저장할 것이 없다.
-        private void OnApplicationPause(bool paused)
-        {
-            if (paused && enabled)
-                _progress.Save(_viewer);
-        }
-
-        private void OnDestroy()
-        {
-            _host?.Dispose();
-
-            foreach (UIPresentationSpec presentation in _emptyPresentations)
-                Destroy(presentation);
-
-            if(_keyInput != null && _screens != null)
-            {
-                _keyInput.ContinuePressed -= _screens.HandleKeyActionSpace;
-                _keyInput.UpgradePressed -= _screens.HandleKeyActionShift;
-                _keyInput.PausePressed -= _screens.HandleKeyActionEsc;
-            }
-        }
+        // 에디터의 GetComponent는 없을 때 가짜 null을 돌려줘 ??로는 거를 수 없다. TryGetComponent로 본다.
+        private static T GetOrAdd<T>(GameObject owner) where T : Component =>
+            owner.TryGetComponent(out T component) ? component : owner.AddComponent<T>();
 
         private bool HasConfiguredLooks()
         {
             bool configured = true;
 
-            if (_breakerLook == null || _breakerLook.Material == null || _breakerLook.OrbMaterial == null
+            if (_breakerLook == null
+                || _breakerLook.Material == null
+                || _breakerLook.OrbMaterial == null
                 || _breakerLook.CometAuraMaterial == null)
             {
-                Debug.LogError("[외형] GameBootstrap에 Breaker 외형(BreakerLook)을, Breaker 외형에 링·버프 구체·혜성 배경 원 머티리얼을 연결해야 한다.", this);
+                Debug.LogError(
+                    "[외형] GameBootstrap에 Breaker 외형(BreakerLook)을," +
+                    " Breaker 외형에 링·버프 구체·혜성 배경 원 머티리얼을 연결해야 한다.", this);
                 configured = false;
             }
 
-            if (_explosionLook == null || _explosionLook.Material == null)
+            if (_explosionLook == null
+                || _explosionLook.Material == null)
             {
-                Debug.LogError("[외형] GameBootstrap에 폭발 외형(ExplosionLook)을, 폭발 외형에 머티리얼을 연결해야 한다.", this);
+                Debug.LogError("[외형] GameBootstrap에 폭발 외형(ExplosionLook)을," +
+                               " 폭발 외형에 머티리얼을 연결해야 한다.", this);
                 configured = false;
             }
 
             if (_cometLook == null || _cometLook.Material == null)
             {
-                Debug.LogError("[외형] GameBootstrap에 혜성 외형(CometLook)을, 혜성 외형에 머티리얼을 연결해야 한다.", this);
+                Debug.LogError("[외형] GameBootstrap에 혜성 외형(CometLook)을, " +
+                               "혜성 외형에 머티리얼을 연결해야 한다.", this);
                 configured = false;
             }
 
             if (_lightningLook == null || _lightningLook.Material == null)
             {
-                Debug.LogError("[외형] GameBootstrap에 번개 외형(LightningLook)을, 번개 외형에 머티리얼을 연결해야 한다.", this);
+                Debug.LogError("[외형] GameBootstrap에 번개 외형(LightningLook)을," +
+                               " 번개 외형에 머티리얼을 연결해야 한다.", this);
                 configured = false;
             }
 
@@ -258,96 +217,58 @@ namespace BlackHole.Unity
 
         private bool HasConfiguredUI()
         {
-            if (_screenTransitionLook == null || _screenTransitionLook.Material == null)
+            bool configured = true;
+
+            if (_screenTransitionLook == null
+                || _screenTransitionLook.Material == null)
             {
-                Debug.LogError("[UI] GameBootstrap에 화면 전환 외형(ScreenTransitionLook)을, 화면 전환 외형에 머티리얼을 연결해야 한다.", this);
-                return false;
+                Debug.LogError("[UI] GameBootstrap에 화면 전환 외형(ScreenTransitionLook)을," +
+                               " 화면 전환 외형에 머티리얼을 연결해야 한다.", this);
+                configured = false;
             }
 
-            if (_rootLayer != null && _panelLayer != null && _views != null)
+            if (_rootLayer == null
+                || _panelLayer == null)
             {
-                bool hasTitle = false;
-                bool hasModeSelect = false;
-                bool hasSettings = false;
-                bool hasPause = false;
-                bool hasUpgrade = false;
-                bool hasBattle = false;
-                bool hasSettlement = false;
-                bool hasNodeTree = false;
-                bool hasConfirm = false;
-
-                foreach (UIBase view in _views)
-                {
-                    hasTitle |= view is TitleScreen;
-                    hasModeSelect |= view is ModeSelectPanel;
-                    hasSettings |= view is SettingsPanel;
-                    hasPause |= view is PausePanel;
-                    hasUpgrade |= view is UpgradeScreen;
-                    hasBattle |= view is BattleScreen;
-                    hasSettlement |= view is SettlementScreen;
-                    hasNodeTree |= view is NodeTreeView;
-                    hasConfirm |= view is ConfirmPanel;
-                }
-
-                if (hasTitle && hasModeSelect && hasSettings && hasPause && hasUpgrade && hasBattle && hasSettlement && hasNodeTree && hasConfirm)
-                    return true;
+                Debug.LogError("[UI] GameBootstrap에 Root Layer와 Panel Layer를 연결해야 한다.", this);
+                configured = false;
             }
 
-            Debug.LogError(
-                "[UI] GameBootstrap에 Root Layer, Panel Layer와 TitleScreen·UpgradeScreen·BattleScreen·SettlementScreen, " +
-                "업그레이드 화면 안의 트리 보기 페이지(NodeTreeView), Panel Layer 아래의 모드 선택 패널(ModeSelectPanel)·설정 패널(SettingsPanel)·일시 정지 패널(PausePanel)·확인 창(ConfirmPanel)을 Registered Views로 연결해야 한다.",
-                this);
-            return false;
-        }
+            var missingViews = new List<string>();
 
-        // 오류가 있는 콘텐츠로는 시작하지 않는다. 진단은 GameContentLoader가 남긴다.
-        private bool TryBootstrapContent()
-        {
-            if (_enemyCatalog == null || _enemySupply == null || _hqGrowth == null || _skillSetup == null || _nodeCatalog == null)
+            foreach (Type type in RequiredViews)
+            {
+                if (_views == null
+                    || !Array.Exists(_views, view => view != null && view.GetType() == type))
+                    missingViews.Add(type.Name);
+            }
+
+            if (missingViews.Count > 0)
             {
                 Debug.LogError(
-                    "[콘텐츠] GameBootstrap에 적 종류 목록(EnemyCatalog), 적 공급 설정(EnemySupplySetup), 블랙홀 성장 설정(HqGrowthSetup), 스킬 설정(SkillSetup), 노드 목록(NodeCatalog)을 연결해야 한다.",
-                    this);
-                return false;
+                    $"[UI] GameBootstrap의 Registered Views에 빠진 화면이 있다: {string.Join(", ", missingViews)}.", this);
+                configured = false;
             }
 
-            _loaded = GameContentLoader.Load(_skillSetup, _enemyCatalog, _enemySupply, _hqGrowth, _nodeCatalog);
-            return _loaded != null;
-        }
-
-        // 업그레이드 화면에 그릴 노드. 격자 칸은 화면 배치용이라 규칙 트리가 아니라 같은 저작 데이터에서 읽는다.
-        // 로더가 같은 데이터로 트리를 만들었으니 트리의 모든 노드에 칸이 있다.
-        private static IReadOnlyList<NodeTreeView.NodeItem> BuildNodeItems(NodeTree tree, NodeTreeData layout)
-        {
-            var cells = new Dictionary<string, (int X, int Y)>(StringComparer.Ordinal);
-            foreach (NodeData node in layout.Nodes)
+            if (_presentations == null)
             {
-                if (node?.Id != null && !cells.ContainsKey(node.Id))
-                    cells.Add(node.Id, (node.X, node.Y));
+                Debug.LogError(
+                    "[UI] GameBootstrap에 화면 Presentation 묶음(ScreenPresentations)을 연결해야 한다.", this);
+                configured = false;
             }
-
-            var nodes = new List<NodeTreeView.NodeItem>(tree.Nodes.Count);
-            foreach (NodeDefinition node in tree.Nodes)
+            else
             {
-                (int x, int y) = cells.TryGetValue(node.Id, out (int X, int Y) cell) ? cell : (0, 0);
-                NodeRankDefinition first = node.RankAt(1);
-                string stat = first.Effects[0].StatId;   // 노드 그림을 고르는 스탯
-                nodes.Add(new NodeTreeView.NodeItem(node.Id, x, y, first.Cost, stat, node.MaxRank));
+                IReadOnlyList<string> missing = _presentations.MissingReferences();
+
+                if (missing.Count > 0)
+                {
+                    Debug.LogError(
+                        $"[UI] 화면 Presentation 묶음에 연결하지 않은 칸이 있다: {string.Join(", ", missing)}.", _presentations);
+                    configured = false;
+                }
             }
 
-            return nodes;
-        }
-
-        private UIPresentationSpec OrEmpty(UIPresentationSpec presentation, string id)
-        {
-            if (presentation != null)
-                return presentation;
-
-            var empty = ScriptableObject.CreateInstance<UIPresentationSpec>();
-            empty.name = id;
-            empty.presentationId = id;
-            _emptyPresentations.Add(empty);
-            return empty;
+            return configured;
         }
     }
 }

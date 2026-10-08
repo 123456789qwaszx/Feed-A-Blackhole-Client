@@ -1,4 +1,5 @@
 using BlackHole.Core;
+using TMPro;
 using UnityEngine;
 
 namespace BlackHole.Unity
@@ -22,19 +23,18 @@ namespace BlackHole.Unity
         {
         }
 
-        public void Register(Enemy enemy) => enemy.Died += OnDied;
-        public void Unregister(Enemy enemy) => enemy.Died -= OnDied;
-
-        private void OnDied(Enemy enemy)
+        // 사망 기록 하나의 Gold(보상 합계, 황금 치명타 보너스 포함)를 죽은 자리에 띄운다. Gold가 없으면 띄우지 않는다.
+        public void Show(DeathRecord death)
         {
-            if (enemy.Stats.Gold <= 0)
+            long gold = death.Reward.TotalGold;
+
+            if (gold <= 0)
                 return;
 
-            // 황금 성질로 Gold를 더 받은 사망만 고정된 금색으로 띄운다.
-            bool isGolden = enemy.Trait?.Effect is GoldenDefinition;
-            Color color = isGolden ? GoldenColor : NormalColor;
-
-            Show(new Vector3(enemy.Position.X, enemy.Position.Y, 0), $"+${enemy.Stats.Gold}", color, isGolden);
+            // 황금 성질로 Gold를 더 받은 사망만 고정된 금색으로 띄운다. 황금 치명타는 피해 텍스트의 치명타처럼 기울인다.
+            Color color = death.IsGolden ? GoldenColor : NormalColor;
+            FontStyles style = death.Reward.IsCritical ? (FontStyles.Bold | FontStyles.Italic) : FontStyles.Bold;
+            Show(new Vector3(death.Position.X, death.Position.Y, 0), $"+${gold}", color, death.IsGolden, style);
         }
     }
 }

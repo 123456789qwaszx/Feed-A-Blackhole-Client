@@ -11,6 +11,8 @@ namespace BlackHole.Core
     // 전기 소행성과 전기 별은 서로 다른 성질이라 각자의 수치를 가진다.
     public sealed class ChainLightningDefinition : DeathEffectDefinition
     {
+        public override DeathEffectType Type => DeathEffectType.ChainLightning;
+
         // 무한 연쇄를 막는 상한은 MaxTargets 자체다. 이 값은 저작 실수(지나치게 큰 수)만 막는다.
         public const int MaxTargetsLimit = 64;
         // 한 번의 발동에서 나가는 줄기의 상한.

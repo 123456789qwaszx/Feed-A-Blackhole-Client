@@ -4,7 +4,7 @@ namespace BlackHole.Core
 {
     // 출현 위치의 공유 정의:
     // - HQ(원점)를 둘러싼 원형 띠. 적은 띠 안의 무작위 지점에 나온다.
-    // - 저작 값은 성장도 0(전장 배율 1)의 띠다. 판은 그 판의 전장 배율만큼 넓힌 띠를 쓴다(Scaled, SessionAssembler).
+    // - 저작 값은 성장도 0(전장 배율 1)의 띠다. 판은 그 판의 전장 배율만큼 넓힌 띠를 쓴다(Scaled, GameSessionFactory).
     public sealed class EnemyPlacementDefinition
     {
         public float MinDistance { get; }

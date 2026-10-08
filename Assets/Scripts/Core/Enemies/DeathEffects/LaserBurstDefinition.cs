@@ -6,6 +6,8 @@ namespace BlackHole.Core
     // 죽는 순간 경로가 정해지고, 예고 시간(DeathEffects, 0.4초)이 지난 뒤 쏜다.
     public sealed class LaserBurstDefinition : DeathEffectDefinition
     {
+        public override DeathEffectType Type => DeathEffectType.LaserBurst;
+
         public float Damage { get; }
         public float Width { get; } // 레이저의 너비(경로 양쪽 거리의 합).
         public float CritChance { get; }

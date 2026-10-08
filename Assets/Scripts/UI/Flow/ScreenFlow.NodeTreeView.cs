@@ -13,7 +13,7 @@ namespace BlackHole.Unity
         {
             _ui.SwitchPage<NodeTreeView>(
                 host,
-                _nodeTreePresentation,
+                _presentations.NodeTree,
                 afterPresented: page =>
                 {
                     BindView(page, ApplyBindings);
@@ -39,12 +39,12 @@ namespace BlackHole.Unity
 
         private void HandleNodeTreeNodeClicked(string id)
         {
-            PurchaseResult result = NodePurchase.TryPurchase(_player, _tree, id);
+            PurchaseResult result = NodePurchase.TryPurchase(_progress, _tree, id);
 
             if (result == PurchaseResult.Purchased)
             {
                 SoundManager.Instance?.PlayNodeUpgrade();
-                _progress.Save(_player);
+                _progressStore.Save(_progress);
             }
 
             RefreshUpgrade();
@@ -59,16 +59,16 @@ namespace BlackHole.Unity
         }
 
         // 툴팁 본문: 산 Rank, 다음 Rank의 효과(지금 값 → 산 뒤 값), 다음 비용.
-        // 마지막 Rank까지 샀으면 마지막 Rank의 효과와 지금 값. 아직 전투에 이어지지 않은 수치는 표시한다(NodeUpgradeBridge).
+        // 마지막 Rank까지 샀으면 마지막 Rank의 효과와 지금 값.
         private string NodeTooltipBody(string id)
         {
             if (!_tree.TryGet(id, out NodeDefinition node))
                 return string.Empty;
 
-            int rank = _player.RankOf(id);
+            int rank = _progress.RankOf(id);
             bool maxed = rank >= node.MaxRank;
             NodeRankDefinition shown = node.RankAt(maxed ? node.MaxRank : rank + 1);
-            UpgradeStatValues values = NodePurchase.StatsFor(_player, _tree);
+            UpgradeStatValues values = NodePurchase.StatsFor(_progress, _tree);
             var text = new StringBuilder();
 
             if (node.MaxRank > 1)
@@ -76,10 +76,10 @@ namespace BlackHole.Unity
 
             foreach (NodeEffect effect in shown.Effects)
             {
-                UpgradeStatDefinition stat = values.DefinitionOf(effect.StatId);
+                UpgradeStatDefinition stat = values.DefinitionOf(effect.Stat);
                 string unit = stat.Unit == UpgradeStatUnit.Percent ? "%" : string.Empty;
-                float now = values.ValueOf(effect.StatId);
-                text.Append(effect.StatId).Append(' ').Append(NumberText.Signed(effect.Value)).Append(unit);
+                float now = values.ValueOf(effect.Stat);
+                text.Append(stat.StatId).Append(' ').Append(NumberText.Signed(effect.Value)).Append(unit);
 
                 if (maxed)
                 {
@@ -90,9 +90,6 @@ namespace BlackHole.Unity
                     float after = Math.Min(stat.Max, Math.Max(stat.Min, now + effect.Value));
                     text.Append("  (").Append(NumberText.Value(now)).Append(unit).Append(" -> ").Append(NumberText.Value(after)).Append(unit).Append(')');
                 }
-
-                if (!NodeUpgradeBridge.IsRouted(effect.StatId))
-                    text.Append("  [not in battle yet]");
 
                 text.Append('\n');
             }

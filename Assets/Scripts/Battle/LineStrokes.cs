@@ -35,10 +35,6 @@ namespace BlackHole.Unity
             _material = new Material(Shader.Find("Sprites/Default")) { name = name + " Lines" };
         }
 
-        // 그리는 선이 없고, 지운 객체도 장면에서 모두 사라졌는가.
-        // 지운 객체는 프레임 끝에 사라지므로, Reset 뒤 한 프레임이 지나야 true가 된다.
-        public bool IsClear => _lines.Count == 0 && _flashes.Count == 0 && _root.childCount == 0;
-
         public LineRenderer Line(string name, float width, Color color)
         {
             LineRenderer line = Create(name, width, color);

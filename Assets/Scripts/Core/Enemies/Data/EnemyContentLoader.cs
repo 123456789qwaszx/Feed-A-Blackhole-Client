@@ -6,12 +6,12 @@ namespace BlackHole.Core
     // EnemyContentData(저작 형식) → EnemyContent(검증된 정의).
     //
     // 오류가 하나라도 있으면 null을 돌려주고, 모든 진단을 into에 더한다(부분 통과 금지).
-    // 여기서 새로 두는 규칙은 데이터 모양에 관한 것뿐이다(빠진 칸, 알 수 없는 종류 이름, 정의되지 않은 참조).
+    // 여기서 새로 두는 규칙은 데이터 모양에 관한 것뿐이다(빠진 칸, 콘텐츠에 없는 종류의 참조).
     // 수치 규칙은 정의 생성자를, 콘텐츠 전체 규칙은 EnemyContentInvariants를 그대로 호출해 경로를 붙인다.
     //
     // 두 단계로 읽는다. 앞 단계에 오류가 있으면 뒤 단계를 보지 않는다(잘못된 정의가 거짓 참조 오류를 만들지 않게).
-    // 1. 개별 정의: 적 종류(색 등급·특수 성질과 그 사망 효과), 출현 배치, 픽업 출현 배치.
-    // 2. 적 종류를 가리키는 것: 적 ID 유일, 공급되는 종류의 색 수, 종류 사이 연결(변환 대상), 공급(픽업 제외), 픽업 출현 배치.
+    // 1. 개별 정의: 적 종류(색 등급·특수 성질과 그 사망 효과), 출현 배치, 주기 출현 배치. 출현 배치 둘은 필수다.
+    // 2. 정의끼리의 규칙: 적 종류 유일, 공급되는 종류의 색 수, 종류 사이 연결(변환 대상), 공급(픽업 제외), 주기 출현 띠가 일반 띠에서 풀리는가.
     public static class EnemyContentLoader
     {
         public static EnemyContent Load(EnemyContentData data, List<ContentDiagnostic> into)
@@ -29,26 +29,22 @@ namespace BlackHole.Core
 
             List<EnemyDefinition> enemies = LoadEnemies(data.Enemies, into);
             EnemyPlacementDefinition placement = LoadPlacement(data.EnemyPlacement, into);
-            PickupPlacementDefinition pickupPlacement = LoadPickupPlacement(data.PickupPlacement, into);
+            PeriodicSpawnPlacementDefinition periodicSpawnPlacement = LoadPeriodicSpawnPlacement(data.PeriodicSpawnPlacement, into);
 
             if (into.Count > errors)
                 return null;
 
-            EnemyContentInvariants.CollectEnemies(enemies, into, out Dictionary<string, EnemyDefinition> enemiesById);
+            EnemyContentInvariants.CollectEnemies(enemies, into, out Dictionary<EnemyType, EnemyDefinition> enemiesByType);
             EnemyContentInvariants.CheckTierCounts(enemies, into);
-            EnemyContentInvariants.CheckKindLinks(enemies, enemiesById, into);
-            List<SupplyRequest> startSupply = LoadSupplyList(data.StartSupply, "StartSupply", enemiesById, into);
+            EnemyContentInvariants.CheckKindLinks(enemies, enemiesByType, into);
+            List<SupplyRequest> startSupply = LoadSupplyList(data.StartSupply, "StartSupply", enemiesByType, into);
             EnemyContentInvariants.CheckSupplyKinds(startSupply, "StartSupply", into);
-
-            if (startSupply.Count > 0 && placement == null)
-                into.Add(new ContentDiagnostic("EnemyPlacement", "공급이 있으면 출현 배치가 필요하다."));
-
-            EnemyContentInvariants.CheckPickupPlacement(enemies, placement, pickupPlacement, into);
+            EnemyContentInvariants.CheckPeriodicSpawnPlacement(placement, periodicSpawnPlacement, into);
 
             if (into.Count > errors)
                 return null;
 
-            return new EnemyContent(enemies, placement, startSupply, pickupPlacement);
+            return new EnemyContent(enemies, placement, startSupply, periodicSpawnPlacement);
         }
 
         private static List<EnemyDefinition> LoadEnemies(List<EnemyData> items, List<ContentDiagnostic> into)
@@ -61,7 +57,7 @@ namespace BlackHole.Core
             for (int i = 0; i < items.Count; i++)
             {
                 EnemyData item = items[i];
-                string at = At("Enemies", i, item?.Id);
+                string at = item == null ? $"Enemies[{i}]" : $"Enemies[{item.Type}]";
 
                 if (item == null)
                 {
@@ -77,8 +73,8 @@ namespace BlackHole.Core
                     continue;
 
                 EnemyDefinition enemy = Guard(at, into, () =>
-                    new EnemyDefinition(item.Id, item.MoveSpeed, item.Radius, item.RadiusStep, tiers, traits, item.UpgradesTo, item.PickupPeriod,
-                        item.PickupRainCount));
+                    new EnemyDefinition(item.Type, item.MoveSpeed, item.Radius, item.RadiusStep, tiers, traits, item.UpgradesTo, item.SpawnPeriod,
+                        item.RainCount));
 
                 if (enemy != null)
                     enemies.Add(enemy);
@@ -111,7 +107,7 @@ namespace BlackHole.Core
             return tiers;
         }
 
-        // 줄마다 ID와 효과를 검사한다. ID 유일·픽업의 성질 수는 EnemyDefinition이 검사한다.
+        // 줄마다 성질 종류가 정하는 효과를 만든다. 성질 종류 유일·픽업의 성질 수는 EnemyDefinition이 검사한다.
         private static List<EnemyTraitDefinition> LoadTraits(List<EnemyTraitData> items, string at, List<ContentDiagnostic> into)
         {
             var traits = new List<EnemyTraitDefinition>();
@@ -119,7 +115,7 @@ namespace BlackHole.Core
             for (int i = 0; items != null && i < items.Count; i++)
             {
                 EnemyTraitData item = items[i];
-                string itemAt = At(at, i, item?.Id);
+                string itemAt = item == null ? $"{at}[{i}]" : $"{at}[{item.Type}]";
 
                 if (item == null)
                 {
@@ -128,12 +124,12 @@ namespace BlackHole.Core
                 }
 
                 int errors = into.Count;
-                DeathEffectDefinition effect = LoadDeathEffect(item.Effect, itemAt + ".Effect", into);
+                DeathEffectDefinition effect = LoadDeathEffect(item.Type, item.Effect, itemAt + ".Effect", into);
 
                 if (into.Count > errors)
                     continue;
 
-                EnemyTraitDefinition trait = Guard(itemAt, into, () => new EnemyTraitDefinition(item.Id, effect, item.MaxAlive));
+                EnemyTraitDefinition trait = Guard(itemAt, into, () => new EnemyTraitDefinition(item.Type, effect, item.MaxActive));
 
                 if (trait != null)
                     traits.Add(trait);
@@ -142,61 +138,62 @@ namespace BlackHole.Core
             return traits;
         }
 
-        // 종류 이름을 하위 정의로 바꾸고, 가능한 값을 진단에 싣는다. 성질에는 효과가 있어야 하므로 비어 있으면 오류다.
-        public static readonly string[] DeathEffectKinds = { "Golden", "ChainLightning", "Explosion", "LaserBurst", "MoonBuff", "CometBuff" };
-
-        private static DeathEffectDefinition LoadDeathEffect(DeathEffectData item, string at, List<ContentDiagnostic> into)
+        // 성질 종류가 사망 효과를 정한다: 황금 → Golden, 전기 → 연쇄 번개, 달 → 달 버프, 레이저 → 레이저, 슈퍼노바 → 폭발, 혜성 → 혜성 버프.
+        private static DeathEffectDefinition LoadDeathEffect(EnemyTraitType type, DeathEffectData item, string at, List<ContentDiagnostic> into)
         {
-            if (item == null || string.IsNullOrEmpty(item.Kind))
+            if (item == null)
             {
-                into.Add(new ContentDiagnostic(at + ".Kind", $"성질의 사망 효과가 비어 있다. 가능한 값: {string.Join(", ", DeathEffectKinds)}."));
+                into.Add(new ContentDiagnostic(at, "사망 효과의 수치가 없다."));
                 return null;
             }
 
-            switch (item.Kind)
+            switch (type)
             {
-                case "Golden":
+                case EnemyTraitType.Golden:
                     return Guard(at, into, () => new GoldenDefinition(item.Multiplier, item.CritChance, item.CritRewardScale));
-                case "ChainLightning":
+                case EnemyTraitType.Electric:
                     return Guard(at, into, () => new ChainLightningDefinition(
                         item.Damage, item.Radius, item.MaxTargets, item.BranchChance, item.CritChance, item.CritMultiplier));
-                case "Explosion":
+                case EnemyTraitType.Supernova:
                     return Guard(at, into, () => new ExplosionDefinition(item.HealthFraction, item.Radius));
-                case "LaserBurst":
+                case EnemyTraitType.Laser:
                     return Guard(at, into, () => new LaserBurstDefinition(item.Damage, item.Width, item.CritChance, item.CritMultiplier));
-                case "MoonBuff":
-                    return Guard(at, into, () => new MoonBuffDefinition());
-                case "CometBuff":
-                    return Guard(at, into, () => new CometBuffDefinition());
+                case EnemyTraitType.Moon:
+                    return new MoonBuffDefinition();
+                case EnemyTraitType.Comet:
+                    return new CometBuffDefinition();
                 default:
-                    into.Add(new ContentDiagnostic(at + ".Kind",
-                        $"알 수 없는 사망 효과 종류 '{item.Kind}'. 가능한 값: {string.Join(", ", DeathEffectKinds)}."));
+                    into.Add(new ContentDiagnostic(at, $"알 수 없는 성질 종류 {(int)type}."));
                     return null;
             }
         }
 
-        // 없으면 null이다. 공급이 있을 때만 필요하다(Load에서 본다).
         private static EnemyPlacementDefinition LoadPlacement(EnemyPlacementData item, List<ContentDiagnostic> into)
         {
             if (item == null)
+            {
+                into.Add(new ContentDiagnostic("EnemyPlacement", "데이터가 없다."));
                 return null;
+            }
 
             return Guard("EnemyPlacement", into, () => new EnemyPlacementDefinition(item.MinDistance, item.MaxDistance));
         }
 
-        // 없으면 null이다. 픽업 종류가 있을 때만 필요하다(Load에서 본다).
-        private static PickupPlacementDefinition LoadPickupPlacement(PickupPlacementData item, List<ContentDiagnostic> into)
+        private static PeriodicSpawnPlacementDefinition LoadPeriodicSpawnPlacement(PeriodicSpawnPlacementData item, List<ContentDiagnostic> into)
         {
             if (item == null)
+            {
+                into.Add(new ContentDiagnostic("PeriodicSpawnPlacement", "데이터가 없다."));
                 return null;
+            }
 
-            return Guard("PickupPlacement", into, () => new PickupPlacementDefinition(item.InnerOffset, item.OuterOffset));
+            return Guard("PeriodicSpawnPlacement", into, () => new PeriodicSpawnPlacementDefinition(item.InnerOffset, item.OuterOffset));
         }
 
         private static List<SupplyRequest> LoadSupplyList(
             List<SupplyData> items,
             string section,
-            IReadOnlyDictionary<string, EnemyDefinition> enemies,
+            IReadOnlyDictionary<EnemyType, EnemyDefinition> enemies,
             List<ContentDiagnostic> into)
         {
             var requests = new List<SupplyRequest>();
@@ -215,9 +212,15 @@ namespace BlackHole.Core
                     continue;
                 }
 
-                if (item.Enemy == null || !enemies.TryGetValue(item.Enemy, out EnemyDefinition enemy))
+                if (item.Enemy == null)
                 {
-                    into.Add(new ContentDiagnostic(at + ".Enemy", $"정의되지 않은 적 ID '{item.Enemy}'."));
+                    into.Add(new ContentDiagnostic(at + ".Enemy", "적 종류가 비어 있다."));
+                    continue;
+                }
+
+                if (!enemies.TryGetValue(item.Enemy.Value, out EnemyDefinition enemy))
+                {
+                    into.Add(new ContentDiagnostic(at + ".Enemy", $"적 종류 목록에 없는 종류 '{item.Enemy.Value}'."));
                     continue;
                 }
 
@@ -252,8 +255,5 @@ namespace BlackHole.Core
                 return null;
             }
         }
-
-        private static string At(string section, int index, string id) =>
-            string.IsNullOrWhiteSpace(id) ? $"{section}[{index}]" : $"{section}[{id}]";
     }
 }

@@ -22,15 +22,13 @@ namespace BlackHole.Unity
         {
         }
 
-        public void Register(Enemy enemy) => enemy.Damaged += OnDamaged;
-        public void Unregister(Enemy enemy) => enemy.Damaged -= OnDamaged;
-
-        private void OnDamaged(Enemy enemy, Damage damage)
+        // 피격 기록 하나의 피해량을 맞은 자리에 띄운다.
+        public void Show(HitRecord hit)
         {
-            Color color = damage.IsCritical ? CriticalColor : NormalColor;
-            FontStyles style = damage.IsCritical ? (FontStyles.Bold | FontStyles.Italic) : FontStyles.Bold;
-            Show(new Vector3(enemy.Position.X, enemy.Position.Y, 0),
-                Mathf.RoundToInt(damage.Amount).ToString(), color, damage.IsCritical, style);
+            Color color = hit.IsCritical ? CriticalColor : NormalColor;
+            FontStyles style = hit.IsCritical ? (FontStyles.Bold | FontStyles.Italic) : FontStyles.Bold;
+            Show(new Vector3(hit.Position.X, hit.Position.Y, 0),
+                Mathf.RoundToInt(hit.Amount).ToString(), color, hit.IsCritical, style);
         }
     }
 }

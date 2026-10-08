@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
-    // 적 콘텐츠 전체의 규칙: 적 종류의 ID는 유일하다.
+    // 적 콘텐츠 전체의 규칙: 적 종류는 한 번씩만 있다.
     // EnemyContent 생성자(첫 오류로 생성 실패)와 EnemyContentLoader(경로별 진단 수집)가 함께 쓴다.
     // 개별 정의의 수치 규칙은 각 정의 생성자에 있다 — 여기서 다시 보지 않는다.
     // 정의 객체로 해석되는 참조(공급의 적)는 EnemyContentLoader가 이 색인으로 해석하며 진단한다.
@@ -18,46 +18,24 @@ namespace BlackHole.Core
             foreach (EnemyDefinition kind in enemies)
             {
                 if (kind != null && !kind.IsPickup && kind.Tiers.Count != SuppliedTierCount)
-                    into.Add(new ContentDiagnostic($"Enemies[{kind.Id}].Tiers",
+                    into.Add(new ContentDiagnostic($"Enemies[{kind.Type}].Tiers",
                         $"공급되는 종류는 색이 {SuppliedTierCount}개(빨주노초파보)여야 한다. 지금 {kind.Tiers.Count}개."));
             }
         }
 
-        // 픽업 종류가 있으면 픽업 출현 띠가 있어야 하고, 일반 출현 띠에서 풀었을 때 띠가 되어야 한다(바깥 반지름이 0보다 크다).
-        // 일반 띠가 없으면 픽업도 나오지 않으므로 풀어 보지 않는다. 픽업 종류가 없으면 픽업 띠는 쓰이지 않아 보지 않는다.
-        public static void CheckPickupPlacement(
-            IReadOnlyList<EnemyDefinition> enemies,
+        // 주기 출현 띠는 일반 출현 띠에서 풀었을 때 띠가 되어야 한다(바깥 반지름이 0보다 크다).
+        public static void CheckPeriodicSpawnPlacement(
             EnemyPlacementDefinition placement,
-            PickupPlacementDefinition pickupPlacement,
+            PeriodicSpawnPlacementDefinition periodicSpawnPlacement,
             ICollection<ContentDiagnostic> into)
         {
-            bool hasPickup = false;
-
-            foreach (EnemyDefinition kind in enemies)
-            {
-                if (kind != null && kind.IsPickup)
-                    hasPickup = true;
-            }
-
-            if (!hasPickup)
-                return;
-
-            if (pickupPlacement == null)
-            {
-                into.Add(new ContentDiagnostic("PickupPlacement", "픽업 종류가 있으면 픽업 출현 배치가 필요하다."));
-                return;
-            }
-
-            if (placement == null)
-                return;
-
             try
             {
-                pickupPlacement.Resolve(placement);
+                periodicSpawnPlacement.Resolve(placement);
             }
             catch (ArgumentOutOfRangeException ex)
             {
-                into.Add(new ContentDiagnostic("PickupPlacement",
+                into.Add(new ContentDiagnostic("PeriodicSpawnPlacement",
                     $"일반 출현 띠(바깥 반지름 {placement.MaxDistance})에서 풀면 띠가 되지 않는다: {ex.Message}"));
             }
         }
@@ -68,23 +46,33 @@ namespace BlackHole.Core
             for (int i = 0; i < supply.Count; i++)
             {
                 if (supply[i].Enemy.IsPickup)
-                    into.Add(new ContentDiagnostic($"{section}[{i}].Enemy", $"'{supply[i].Enemy.Id}'는 픽업이라 공급할 수 없다."));
+                    into.Add(new ContentDiagnostic($"{section}[{i}].Enemy", $"'{supply[i].Enemy.Type}'는 픽업이라 공급할 수 없다."));
             }
         }
 
         public static void CollectEnemies(
             IReadOnlyList<EnemyDefinition> enemies,
             ICollection<ContentDiagnostic> into,
-            out Dictionary<string, EnemyDefinition> enemiesById)
+            out Dictionary<EnemyType, EnemyDefinition> enemiesByType)
         {
-            enemiesById = Index(enemies, "Enemies", "적", e => e.Id, into);
+            enemiesByType = new Dictionary<EnemyType, EnemyDefinition>();
+
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                EnemyDefinition enemy = enemies[i];
+
+                if (enemy == null)
+                    into.Add(new ContentDiagnostic($"Enemies[{i}]", "적 정의가 null이다."));
+                else if (!enemiesByType.TryAdd(enemy.Type, enemy))
+                    into.Add(new ContentDiagnostic($"Enemies[{i}]", $"적 종류 '{enemy.Type}'가 중복됐다."));
+            }
         }
 
         // 종류 사이의 연결(BLACKHOLE_LEVEL_PLAN 4.3): 변환 대상은 콘텐츠에 있고 픽업이 아니어야 한다.
         // 변환 사슬은 제자리로 돌아오지 않는다(한 마리의 변환이 끝나야 한다).
         public static void CheckKindLinks(
             IReadOnlyList<EnemyDefinition> enemies,
-            IReadOnlyDictionary<string, EnemyDefinition> enemiesById,
+            IReadOnlyDictionary<EnemyType, EnemyDefinition> enemiesByType,
             ICollection<ContentDiagnostic> into)
         {
             foreach (EnemyDefinition kind in enemies)
@@ -92,51 +80,27 @@ namespace BlackHole.Core
                 if (kind == null)
                     continue;
 
-                string at = $"Enemies[{kind.Id}]";
+                string at = $"Enemies[{kind.Type}]";
 
-                if (kind.UpgradesTo != null)
+                if (kind.UpgradesTo.HasValue)
                 {
-                    if (!enemiesById.TryGetValue(kind.UpgradesTo, out EnemyDefinition target))
-                        into.Add(new ContentDiagnostic(at + ".UpgradesTo", $"정의되지 않은 적 ID '{kind.UpgradesTo}'."));
+                    if (!enemiesByType.TryGetValue(kind.UpgradesTo.Value, out EnemyDefinition target))
+                        into.Add(new ContentDiagnostic(at + ".UpgradesTo", $"적 종류 목록에 없는 종류 '{kind.UpgradesTo.Value}'."));
                     else if (target.IsPickup)
-                        into.Add(new ContentDiagnostic(at + ".UpgradesTo", $"'{target.Id}'는 픽업이라 변환 대상이 될 수 없다."));
+                        into.Add(new ContentDiagnostic(at + ".UpgradesTo", $"'{target.Type}'는 픽업이라 변환 대상이 될 수 없다."));
                 }
 
-                var seen = new HashSet<string>(StringComparer.Ordinal) { kind.Id };
+                var seen = new HashSet<EnemyType> { kind.Type };
 
-                for (EnemyDefinition next = kind; next.UpgradesTo != null && enemiesById.TryGetValue(next.UpgradesTo, out next);)
+                for (EnemyDefinition next = kind; next.UpgradesTo.HasValue && enemiesByType.TryGetValue(next.UpgradesTo.Value, out next);)
                 {
-                    if (!seen.Add(next.Id))
+                    if (!seen.Add(next.Type))
                     {
-                        into.Add(new ContentDiagnostic(at + ".UpgradesTo", $"변환 사슬이 '{next.Id}'에서 다시 돈다."));
+                        into.Add(new ContentDiagnostic(at + ".UpgradesTo", $"변환 사슬이 '{next.Type}'에서 다시 돈다."));
                         break;
                     }
                 }
             }
-        }
-
-        private static Dictionary<string, T> Index<T>(
-            IReadOnlyList<T> items,
-            string section,
-            string label,
-            Func<T, string> idOf,
-            ICollection<ContentDiagnostic> into) where T : class
-        {
-            var byId = new Dictionary<string, T>(StringComparer.Ordinal);
-
-            for (int i = 0; i < items.Count; i++)
-            {
-                T item = items[i];
-
-                if (item == null)
-                    into.Add(new ContentDiagnostic($"{section}[{i}]", $"{label} 정의가 null이다."));
-                else if (byId.ContainsKey(idOf(item)))
-                    into.Add(new ContentDiagnostic($"{section}[{i}]", $"{label} ID '{idOf(item)}'가 중복됐다."));
-                else
-                    byId.Add(idOf(item), item);
-            }
-
-            return byId;
         }
     }
 }
