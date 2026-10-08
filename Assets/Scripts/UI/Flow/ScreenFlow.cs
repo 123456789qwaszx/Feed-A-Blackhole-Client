@@ -16,6 +16,7 @@ namespace BlackHole.Unity
         private readonly HqGrowthDefinition _growth;// 블랙홀 성장(성장도별 Level 표, 이정표).
         private readonly GameSettings _settings;// 플레이어 설정.
         private readonly ScreenTransition _transition;
+        private readonly KeyInput _keyInput;
         private readonly Dictionary<UIBase, List<Action>> _cleanupByScreen = new();
 
         public ScreenFlow(
@@ -28,7 +29,8 @@ namespace BlackHole.Unity
             IReadOnlyList<NodeTreeView.NodeItem> nodes,
             HqGrowthDefinition growth,
             GameSettings settings,
-            ScreenTransition transition)
+            ScreenTransition transition,
+            KeyInput keyInput)
         {
             _ui = ui;
             _presentations = presentations;
@@ -40,6 +42,11 @@ namespace BlackHole.Unity
             _growth = growth;
             _settings = settings;
             _transition = transition;
+            _keyInput = keyInput;
+
+            _keyInput.ContinuePressed += HandleKeyActionSpace;
+            _keyInput.UpgradePressed += HandleKeyActionShift;
+            _keyInput.PausePressed += HandleKeyActionEsc;
         }
 
         private void BindView<T>(T screen, Action<T> apply) where T : UIBase
@@ -82,6 +89,10 @@ namespace BlackHole.Unity
 
         public void Dispose()
         {
+            _keyInput.ContinuePressed -= HandleKeyActionSpace;
+            _keyInput.UpgradePressed -= HandleKeyActionShift;
+            _keyInput.PausePressed -= HandleKeyActionEsc;
+
             foreach (List<Action> cleanups in _cleanupByScreen.Values)
                 RunCleanups(cleanups);
 

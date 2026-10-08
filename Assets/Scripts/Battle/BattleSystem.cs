@@ -59,8 +59,7 @@ namespace BlackHole.Unity
 
             Session = GameSessionFactory.Create(_content, _progress, Environment.TickCount, upgrades);
 
-            if (_cameraFit != null)
-                _cameraFit.SetFieldScale(Session.World.Hq.FieldScale);
+            _cameraFit.SetFieldScale(Session.World.Hq.FieldScale);
 
             ResetViews();
             Session.Begin();

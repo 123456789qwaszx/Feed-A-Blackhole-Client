@@ -30,12 +30,6 @@ namespace BlackHole.Unity
         [Header("Presentations")]
         [SerializeField] private ScreenPresentations _presentations;
 
-        [Header("Runtime")]
-        [SerializeField] private UIDisplayRefreshDriver _displayRefreshDriver;
-
-        [Header("Input")]
-        [SerializeField] private KeyInput _keyInput;
-
         private static readonly Type[] RequiredViews =
         {
             typeof(TitleScreen),
@@ -52,156 +46,76 @@ namespace BlackHole.Unity
         private const UITheme Theme = UITheme.Light;
         private const UILocale Locale = UILocale.Korean;
 
-        private LoadedContent _loaded;
-        private EnemyLooks _enemyLooks;
-        private EnemyView _enemyView;
-        private BreakerView _breakerView;
-        private DeathEffectView _deathEffectView;
-        private HqView _hqView;
-        private BattleSystem _battle;
         private ProgressState _progress;
         private ProgressStore _progressStore;
-        private AimInput _aim;
         private GameSettings _settings;
-        private UIManager _ui;
-        private ScreenTransition _transition;
-        private ScreenFlow _screens;
         private GameHost _host;
-        private CameraShake _cameraShake;
-        private BattleCameraFit _cameraFit;
 
         private void Awake()
         {
-            if (!TryBootstrapContent()
-                || !HasConfiguredLooks()
-                || !HasConfiguredUI())
+            LoadedContent loaded = GameContentLoader.Load(_content);
+
+            if (loaded == null || !HasConfiguredLooks() || !HasConfiguredUI())
             {
                 enabled = false;
                 return;
             }
 
-            _cameraShake = Camera.main.GetComponent<CameraShake>();
-
-            BootstrapBattleViews();
-            BootstrapBattle();
-            BootstrapProgress();
-            BootstrapSettings();
-            BootstrapUI();
-            BootstrapScreenFlow();
-            BootstrapHost();
-            BootstrapKeyInput();
-        }
-
-        private void BootstrapBattleViews()
-        {
-            _enemyLooks = new EnemyLooks(_content.Enemies.Kinds());
-            _enemyView = new EnemyView(transform, _enemyLooks, _breakerLook, _cometLook);
-            _breakerView = new BreakerView(transform, _breakerLook);
-            _deathEffectView = new DeathEffectView(transform, _lightningLook, _explosionLook);
-            _hqView = new HqView(transform, _blackHole, Camera.main);
-
             Camera battleCamera = Camera.main;
-            if (battleCamera != null && !battleCamera.TryGetComponent(out _cameraFit))
-                _cameraFit = battleCamera.gameObject.AddComponent<BattleCameraFit>();
-        }
+            CameraShake cameraShake = battleCamera.GetComponent<CameraShake>();
+            BattleCameraFit cameraFit = GetOrAdd<BattleCameraFit>(battleCamera.gameObject);
 
-        private void BootstrapBattle()
-        {
+            EnemyLooks enemyLooks = new(_content.Enemies.Kinds());
+            EnemyView enemyView = new(transform, enemyLooks, _breakerLook, _cometLook);
+            BreakerView breakerView = new(transform, _breakerLook);
+            DeathEffectView deathEffectView = new(transform, _lightningLook, _explosionLook);
+            HqView hqView = new(transform, _blackHole, battleCamera);
+
             _progress = new ProgressState();
-            _battle = new BattleSystem(
-                _loaded.Content,
+            _progressStore = ProgressStore.Load(
+                Application.persistentDataPath,
+                loaded.NodeTree.Content,
+                loaded.Content.Growth);
+            _settings = GameSettings.Load();
+
+            BattleSystem battle = new(
+                loaded.Content,
                 _progress,
-                _enemyView,
-                _breakerView,
-                _deathEffectView,
-                _hqView,
-                _cameraFit);
+                enemyView,
+                breakerView,
+                deathEffectView,
+                hqView,
+                cameraFit);
+            AimInput aim = new(battle);
 
-            _aim = new AimInput(_battle);
-        }
+            UIManager ui = CreateUI();
+            ScreenTransition transition = CreateScreenTransition();
+            KeyInput keyInput = GetOrAdd<KeyInput>(gameObject);
 
-        private void BootstrapProgress()
-        {
-            _progressStore =
-                ProgressStore.Load(
-                    Application.persistentDataPath,
-                    _loaded.NodeTree.Content,
-                    _loaded.Content.Growth);
-        }
-
-        private void BootstrapSettings() => _settings = GameSettings.Load();
-
-        private void BootstrapUI()
-        {
-            UIContext uiContext = new(Theme.ToId(), Locale.ToId());
-            UIResolver uiResolver = new(uiContext);
-            UIPresentationApplier presentationApplier = new();
-
-            _ui = new UIManager(
-                _rootLayer,
-                _panelLayer,
-                uiResolver,
-                presentationApplier);
-
-            foreach (UIBase view in _views)
-            {
-                if (view == null)
-                    continue;
-
-                view.gameObject.SetActive(false);
-                _ui.Register(view);
-            }
-
-            if (_displayRefreshDriver == null)
-                _displayRefreshDriver = gameObject.AddComponent<UIDisplayRefreshDriver>();
-
-            _displayRefreshDriver.Initialize(_ui);
-
-            Canvas canvas = _rootLayer.GetComponentInParent<Canvas>();
-            Transform transitionParent = canvas != null
-                ? canvas.rootCanvas.transform
-                : _rootLayer.parent;
-
-            _transition = ScreenTransition.Create(transitionParent, _screenTransitionLook);
-        }
-
-        private void BootstrapScreenFlow()
-        {
-            _screens = new ScreenFlow(
-                _ui,
+            ScreenFlow screens = new(
+                ui,
                 _presentations,
-                _battle,
+                battle,
                 _progress,
                 _progressStore,
-                _loaded.NodeTree,
-                _loaded.NodeItems,
-                _loaded.Content.Growth,
+                loaded.NodeTree,
+                loaded.NodeItems,
+                loaded.Content.Growth,
                 _settings,
-                _transition);
-        }
+                transition,
+                keyInput);
 
-        private void BootstrapHost()
-        {
             _host = new GameHost(
-                _ui,
-                _battle,
-                _aim,
-                _screens,
-                _enemyLooks,
-                _enemyView,
-                _breakerView,
-                _deathEffectView,
-                _hqView,
-                _cameraShake);
-        }
-
-        private void BootstrapKeyInput()
-        {
-            if (_keyInput == null) return;
-
-            _keyInput.ContinuePressed += _screens.HandleKeyActionSpace;
-            _keyInput.UpgradePressed += _screens.HandleKeyActionShift;
-            _keyInput.PausePressed += _screens.HandleKeyActionEsc;
+                ui,
+                battle,
+                aim,
+                screens,
+                enemyLooks,
+                enemyView,
+                breakerView,
+                deathEffectView,
+                hqView,
+                cameraShake);
         }
 
         private void Start()
@@ -218,17 +132,48 @@ namespace BlackHole.Unity
                 _progressStore.Save(_progress);
         }
 
-        private void OnDestroy()
-        {
-            _host?.Dispose();
+        private void OnDestroy() => _host?.Dispose();
 
-            if(_keyInput != null && _screens != null)
+        private UIManager CreateUI()
+        {
+            UIContext uiContext = new(Theme.ToId(), Locale.ToId());
+            UIResolver uiResolver = new(uiContext);
+            UIPresentationApplier presentationApplier = new();
+
+            UIManager ui = new(
+                _rootLayer,
+                _panelLayer,
+                uiResolver,
+                presentationApplier);
+
+            foreach (UIBase view in _views)
             {
-                _keyInput.ContinuePressed -= _screens.HandleKeyActionSpace;
-                _keyInput.UpgradePressed -= _screens.HandleKeyActionShift;
-                _keyInput.PausePressed -= _screens.HandleKeyActionEsc;
+                if (view == null)
+                    continue;
+
+                view.gameObject.SetActive(false);
+                ui.Register(view);
             }
+
+            UIDisplayRefreshDriver displayRefresh = GetOrAdd<UIDisplayRefreshDriver>(gameObject);
+            displayRefresh.Initialize(ui);
+
+            return ui;
         }
+
+        private ScreenTransition CreateScreenTransition()
+        {
+            Canvas canvas = _rootLayer.GetComponentInParent<Canvas>();
+            Transform transitionParent = canvas != null
+                ? canvas.rootCanvas.transform
+                : _rootLayer.parent;
+
+            return ScreenTransition.Create(transitionParent, _screenTransitionLook);
+        }
+
+        // 에디터의 GetComponent는 없을 때 가짜 null을 돌려줘 ??로는 거를 수 없다. TryGetComponent로 본다.
+        private static T GetOrAdd<T>(GameObject owner) where T : Component =>
+            owner.TryGetComponent(out T component) ? component : owner.AddComponent<T>();
 
         private bool HasConfiguredLooks()
         {
@@ -324,12 +269,6 @@ namespace BlackHole.Unity
             }
 
             return configured;
-        }
-
-        private bool TryBootstrapContent()
-        {
-            _loaded = GameContentLoader.Load(_content);
-            return _loaded != null;
         }
     }
 }
