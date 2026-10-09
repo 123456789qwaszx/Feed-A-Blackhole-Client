@@ -30,6 +30,9 @@ namespace BlackHole.Unity
         [Header("Presentations")]
         [SerializeField] private ScreenPresentations _presentations;
 
+        [Header("Analytics")]
+        [SerializeField] private AnalyticsSettings _analyticsSettings;
+
         private static readonly Type[] RequiredViews =
         {
             typeof(TitleScreen),
@@ -49,6 +52,7 @@ namespace BlackHole.Unity
         private ProgressState _progress;
         private ProgressStore _progressStore;
         private GameSettings _settings;
+        private BattleAnalytics _analytics;
         private GameHost _host;
 
         private void Awake()
@@ -77,6 +81,11 @@ namespace BlackHole.Unity
                 loaded.NodeTree.Content,
                 loaded.Content.Growth);
             _settings = GameSettings.Load();
+            _analytics = BattleAnalytics.Create(
+                _analyticsSettings,
+                Application.persistentDataPath,
+                Application.version,
+                Application.platform.ToString());
 
             BattleSystem battle = new(
                 loaded.Content,
@@ -103,7 +112,8 @@ namespace BlackHole.Unity
                 loaded.Content.Growth,
                 _settings,
                 transition,
-                keyInput);
+                keyInput,
+                _analytics);
 
             _host = new GameHost(
                 ui,
@@ -122,14 +132,25 @@ namespace BlackHole.Unity
         {
             _host.Start();
             SoundManager.Instance.Bind(_settings);
+            // 지난 실행에서 보내지 못한 통계를 보낸다.
+            _analytics.Flush();
         }
 
         private void Update() => _host.Tick(Time.deltaTime);
 
         private void OnApplicationPause(bool paused)
         {
-            if (paused && enabled)
+            if (!enabled)
+                return;
+
+            if (paused)
+            {
                 _progressStore.Save(_progress);
+                return;
+            }
+
+            // 앱으로 돌아왔다. 내려가 있는 동안 보내지 못한 통계를 보낸다.
+            _analytics.Flush();
         }
 
         private void OnDestroy() => _host?.Dispose();

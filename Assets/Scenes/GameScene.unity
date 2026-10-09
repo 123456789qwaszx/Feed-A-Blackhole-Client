@@ -1282,6 +1282,7 @@ MonoBehaviour:
   - {fileID: 747572562}
   - {fileID: 513473408}
   _presentations: {fileID: 11400000, guid: 64149f72c61e4f378df706e37ce97160, type: 2}
+  _analyticsSettings: {fileID: 11400000, guid: 3d7972c378204619b99b58b0f9ca4885, type: 2}
 --- !u!1001 &974995110
 PrefabInstance:
   m_ObjectHideFlags: 0
