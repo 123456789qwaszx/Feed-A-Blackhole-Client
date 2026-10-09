@@ -189,7 +189,7 @@ namespace BlackHole.Unity
                     continue;
 
                 _hitParticles.EmitDeath(new Vector3(death.Position.X, death.Position.Y, 0),
-                    _looks.ColorOf(death.EnemyType, death.Tier), death.Tier, death.Size);
+                    _looks.ColorOf(death.EnemyType, death.Tier), death.EnemyType, death.Tier, death.Size);
                 _goldText.Show(death);
             }
 
