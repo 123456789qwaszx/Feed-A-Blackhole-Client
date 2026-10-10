@@ -1,7 +1,12 @@
 # M4 AI 조정
 
-- 상태: 예정
+- 상태: 다음 (시작 전)
 - 브랜치: `feat/aiTuning` (← `feat/feelNotes`)
+- M3에서 받은 것:
+  - 메모 파일 `PlaytestData/notes.ndjson`(schema 1)과 세팅 키
+  - `PlaytestJson`(쓰기·읽기)
+  - 창의 `NoteFromWindow`·`CurrentSetupKey`, 패널의 `NewNote`, `HudSnapshot`
+  - M2의 수치 지문과 `LiveDataSignal`
 
 ## 목표
 
@@ -23,6 +28,7 @@ AI가 메모·세팅·확정 정보·현재 수치를 읽고 의도에 맞게 �
 ### 1. AI가 읽을 묶음 `PlaytestData/context/<setupKey>.json`
 
 - 에디터가 만든다. 시점: 메모 저장 때, 수치가 바뀔 때(M2) 지금 세팅에 대해, 창의 "AI 묶음 만들기" 버튼.
+- 쓰는 법: `PlaytestJson`의 들여쓰기 쓰기로 사람도 읽기 좋게 쓴다. 메모는 화면용 `FeelNoteView`가 아니라 원문 JSON 객체를 넣는다. `PlaytestNotes`에 원문 읽기를 더한다.
 - 담는 것:
   - 세팅과 `setupKey`
   - 확정 정보 전체(TestSetupReport 칸들)
@@ -93,7 +99,7 @@ Q3 대안 "CSV·에셋을 바로 고친다"는 빠르지만, 원본과 나란히
 - [ ] T3 승격: CSV 행 편집기(서식 유지) + 에셋 대응표 편집기 + 변경 기록
 - [ ] T4 되돌리기
 - [ ] T5 `AI-GUIDE.md`
-- [ ] T6 한 바퀴 시연: 실제 세팅 하나로 메모 → AI 초안 → 비교 → 승격 → 되돌리기
+- [ ] T6 한 바퀴 시연: 실제 세팅 하나로 메모 → AI 초안 → 비교 → 승격 → 되돌리기(M1~M3 Unity 손 확인 뒤에 한다)
 - [ ] T7 컴파일·헤드리스, 문서 갱신(M4 결과, PLAN 점검, M5 문서 보정), 커밋
 
 ## 완료 기준
