@@ -144,6 +144,11 @@ namespace BlackHole.Unity
                 deathEffectView,
                 hqView,
                 cameraShake);
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            PlaytestPanel panel = GetOrAdd<PlaytestPanel>(gameObject);
+            panel.Initialize(playtest, battle, screens, loaded.Content, _analytics);
+#endif
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
