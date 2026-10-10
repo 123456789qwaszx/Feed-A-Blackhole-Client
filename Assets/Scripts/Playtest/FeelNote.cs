@@ -201,6 +201,8 @@ namespace BlackHole.Unity
             ("재미", "boring", "지루함"),
             ("재미", "satisfying", "시원함"),
             ("재미", "chaotic", "정신없음"),
+            ("밀도", "too-dense", "너무 빽빽함"),
+            ("밀도", "too-sparse", "너무 듬성함"),
             ("보상", "gold-too-low", "Gold 부족"),
             ("보상", "gold-too-high", "Gold 과다"),
             ("보상", "golden-too-strong", "황금 과함"),

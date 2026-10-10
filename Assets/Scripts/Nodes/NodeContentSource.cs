@@ -25,6 +25,12 @@ namespace BlackHole.Unity
 
         private static string TextOf(TextAsset csv) => csv != null ? csv.text : null;
 
+#if UNITY_EDITOR
+        // 테스트 도구의 승격·되돌리기(M4)가 행을 고칠 CSV.
+        internal TextAsset NodeCostCsv => _nodeCost;
+        internal TextAsset NodeEffectsCsv => _nodeEffects;
+#endif
+
         // 에셋 인스펙터의 ⋮ 메뉴 > 검사: 불러와서 개수나 진단을 콘솔에 낸다.
         [ContextMenu("검사")]
         private void Check()

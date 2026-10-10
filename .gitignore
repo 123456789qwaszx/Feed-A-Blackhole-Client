@@ -143,3 +143,7 @@ $RECYCLE.BIN/
 
 # 테스트 도구의 느낌 메모·AI 묶음·변경 기록(개인 테스트 데이터, Docs/BalanceLoop/M3-feel-notes.md)
 /PlaytestData/
+
+# AI 초안 프로필(작업 중인 파일, Docs/BalanceLoop/AI-GUIDE.md). 반영하면 PlaytestData/drafts/로 옮겨진다.
+/Assets/Playtest/Profiles/ai-draft.json
+/Assets/Playtest/Profiles/ai-draft.json.meta

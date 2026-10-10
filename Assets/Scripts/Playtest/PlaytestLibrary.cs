@@ -45,7 +45,9 @@ namespace BlackHole.Unity
             {
                 string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
 
-                if (path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                // AI 초안(ai-draft.json)은 작업 중인 파일이라 빌드에 넣지 않는다(git도 무시한다).
+                if (path.EndsWith(".json", StringComparison.OrdinalIgnoreCase)
+                    && !path.EndsWith("/ai-draft.json", StringComparison.OrdinalIgnoreCase))
                     assets.Add(UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(path));
             }
 

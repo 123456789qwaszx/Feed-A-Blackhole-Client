@@ -168,6 +168,33 @@ namespace BlackHole.Unity
             text.Append('"');
         }
 
+        // 한 줄에 객체 하나인 파일(.ndjson)의 줄들 → schema가 맞는 객체(파일 순서). 읽지 못한 줄은 건너뛰고 센다.
+        public static List<JsonObject> ParseLines(IEnumerable<string> lines, int schema, out int skipped)
+        {
+            var objects = new List<JsonObject>();
+            skipped = 0;
+
+            foreach (string line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                try
+                {
+                    if (Parse(line) is JsonObject obj && obj.Int("schema") == schema)
+                        objects.Add(obj);
+                    else
+                        skipped++;
+                }
+                catch (FormatException)
+                {
+                    skipped++;
+                }
+            }
+
+            return objects;
+        }
+
         // 읽기. 틀린 JSON이면 FormatException.
         public static object Parse(string json)
         {

@@ -66,6 +66,22 @@ namespace BlackHole.Unity
             }
         }
 
+        // 모든 메모의 원문 JSON(파일 순서). AI 묶음이 화면용 FeelNoteView가 아니라 원문을 담는다.
+        public static List<JsonObject> ReadRaw()
+        {
+            try
+            {
+                return File.Exists(FilePath)
+                    ? PlaytestJson.ParseLines(File.ReadAllLines(FilePath), FeelNote.Schema, out _)
+                    : new List<JsonObject>();
+            }
+            catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
+            {
+                Debug.LogWarning($"[메모] {FilePath}를 읽지 못했다: {exception.Message}");
+                return new List<JsonObject>();
+            }
+        }
+
         // 모든 메모(파일 순서 = 적은 순서). 파일이 바뀌지 않았으면 다시 읽지 않는다. skipped는 읽지 못한 줄 수.
         public static IReadOnlyList<FeelNoteView> ReadAll(out int skipped)
         {

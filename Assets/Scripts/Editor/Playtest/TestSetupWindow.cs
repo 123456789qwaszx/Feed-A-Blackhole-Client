@@ -22,6 +22,7 @@ namespace BlackHole.EditorTools
     // - 저장: Assets/Playtest/Scenarios의 시나리오 JSON(정확한 노드 목록). 개발 패널의 시나리오 탭에서도 같은 파일을 쓴다.
     // - ▶ 플레이: 세팅을 맡기고 플레이 모드에 들어가면 판이 바로 그 세팅으로 시작한다. 플레이 중에는 "지금 판에 적용"으로 다시 시작한다.
     // - 밸런스 프로필: 고른 프로필을 적용한 값으로 미리보고 플레이한다(바꾸면 다음 플레이부터).
+    // - AI 조정(M4): AI 초안(ai-draft.json)을 켜고 끄며 원본과 비교하고, 원본에 반영(승격)하거나 되돌린다. AI 묶음을 만든다.
     // 창의 세팅은 Undo(Ctrl+Z)로 되돌린다.
     internal sealed class TestSetupWindow : EditorWindow, INodeCanvasHost
     {
@@ -79,6 +80,9 @@ namespace BlackHole.EditorTools
         private Label _title;
         private VisualElement _fileBox;
         private VisualElement _profileBox;
+        private VisualElement _aiBox;
+        private DateTime _draftWrite;
+        private (DateTime Write, long Length) _changesStamp;
         private VisualElement _playBox;
         private VisualElement _fieldsBox;
         private VisualElement _nodesBox;
@@ -112,6 +116,7 @@ namespace BlackHole.EditorTools
             Undo.undoRedoPerformed += OnUndoRedo;
             EditorApplication.playModeStateChanged += OnPlayModeChanged;
             LiveDataSignal.Changed += OnLiveDataChanged;
+            AiContextService.Written += OnContextWritten;
 
             // 플레이에 들어가지 못해(컴파일 오류 등) 남은 세팅이 다음 보통 플레이에서 실행되지 않게 지운다.
             if (!EditorApplication.isPlayingOrWillChangePlaymode)
@@ -123,6 +128,13 @@ namespace BlackHole.EditorTools
             Undo.undoRedoPerformed -= OnUndoRedo;
             EditorApplication.playModeStateChanged -= OnPlayModeChanged;
             LiveDataSignal.Changed -= OnLiveDataChanged;
+            AiContextService.Written -= OnContextWritten;
+        }
+
+        private void OnContextWritten()
+        {
+            if (_aiBox != null)
+                BuildAi();
         }
 
         // 수치 파일이 바뀌었다(LiveDataWatcher가 게임 로더로 검사한 뒤). 창에 다시 들어오지 않아도 바로 다시 계산한다.
@@ -189,6 +201,7 @@ namespace BlackHole.EditorTools
             {
                 BuildProfile();
                 BuildPlay();
+                BuildAi();
             }
         }
 
@@ -227,6 +240,7 @@ namespace BlackHole.EditorTools
             side.style.paddingRight = 8;
             _fileBox = Box(side);
             _profileBox = Box(side);
+            _aiBox = Box(side);
             _playBox = Box(side);
             _messagesBox = Box(side);
             side.Add(Header("세팅"));
@@ -291,6 +305,7 @@ namespace BlackHole.EditorTools
             {
                 BuildProfile();
                 BuildPlay();
+                BuildAi();
             }
         }
 
@@ -447,6 +462,7 @@ namespace BlackHole.EditorTools
             BuildMessages();
             BuildReport();
             BuildNotesList();
+            BuildAi();
         }
 
         // 메모 파일이 바뀌면(개발 패널에서 적었거나 바깥에서 고쳤으면) 목록을 다시 그린다. 1초에 10번 불린다.
@@ -454,6 +470,10 @@ namespace BlackHole.EditorTools
         {
             if (_notesList != null && PlaytestNotes.Stamp() != _notesStamp)
                 BuildNotesList();
+
+            // AI가 초안을 쓰거나 지웠다, 변경 기록이 늘었다.
+            if (_aiBox != null && (DraftWrite() != _draftWrite || PlaytestChanges.Stamp() != _changesStamp))
+                BuildAi();
         }
 
         private void UpdateTitle()
@@ -1012,6 +1032,299 @@ namespace BlackHole.EditorTools
             if (_report != null && _report.Unreachable.Contains(_focusedId))
                 _focusBox.Add(Note("게임에서는 이 노드를 이 순서로 살 수 없다(시작 노드에서 산 노드로 이어지지 않는다). 테스트에는 그대로 쓴다."));
         }
+
+        #endregion
+
+        #region AI 조정
+
+        private const int MaxChangesShown = 5;
+
+        private static DateTime DraftWrite() =>
+            File.Exists(AiContextService.DraftPath) ? File.GetLastWriteTimeUtc(AiContextService.DraftPath) : default;
+
+        // AI 초안(켜기·끄기·반영·버리기), 이 세팅의 AI 묶음, 최근 변경 기록(되돌리기).
+        private void BuildAi()
+        {
+            if (_aiBox == null)
+                return;
+
+            _aiBox.Clear();
+            _draftWrite = DraftWrite();
+            _changesStamp = PlaytestChanges.Stamp();
+            _aiBox.Add(Header("AI 조정"));
+
+            BuildDraft();
+            BuildContextLine();
+            BuildChanges();
+        }
+
+        private void BuildDraft()
+        {
+            if (!ProfilePromoter.HasDraft)
+            {
+                _aiBox.Add(Note($"AI 초안이 없다. AI가 {AiContextService.DraftPath}를 쓰면 여기에 보인다. 지침: Docs/BalanceLoop/AI-GUIDE.md"));
+                return;
+            }
+
+            BalanceProfile draft = ProfilePromoter.ReadDraft(out string error);
+
+            if (draft == null)
+            {
+                _aiBox.Add(new HelpBox($"AI 초안을 읽지 못했다: {error}", HelpBoxMessageType.Error));
+                _aiBox.Add(Grow(new Button(DiscardDraft) { text = "초안 버리기" }));
+                return;
+            }
+
+            bool on = _playtest != null && _playtest.AppliedProfile != null && _playtest.AppliedProfile.name == BalanceProfile.DraftName;
+            var box = new VisualElement();
+            box.style.paddingLeft = 6;
+            box.style.paddingTop = 4;
+            box.style.paddingBottom = 4;
+            box.style.marginBottom = 4;
+            box.style.borderLeftWidth = 3;
+            box.style.borderLeftColor = on ? new Color(0.35f, 0.75f, 0.45f) : new Color(0.9f, 0.7f, 0.3f);
+
+            var title = new Label($"AI 초안 · 값 {draft.patches.Count}개{(on ? " · 켜짐(지금 미리보기·플레이가 초안 값)" : " · 꺼짐")}");
+            title.style.unityFontStyleAndWeight = FontStyle.Bold;
+            title.style.whiteSpace = WhiteSpace.Normal;
+            box.Add(title);
+
+            if (!string.IsNullOrEmpty(draft.note))
+                box.Add(Wrapped(draft.note));
+
+            foreach (BalanceProfile.Patch patch in draft.patches)
+            {
+                if (patch == null)
+                    continue;
+
+                string before = ProfilePromoter.TryReadCurrent(patch.path, out double current, out string readError)
+                    ? Number(current)
+                    : "?";
+                string ratio = before != "?" && current != 0 ? $" (×{Number(patch.value / current)})" : string.Empty;
+                var line = new Label($"{patch.path}: {before} → {Number(patch.value)}{ratio}");
+                line.style.whiteSpace = WhiteSpace.Normal;
+                line.selection.isSelectable = true;
+                box.Add(line);
+
+                if (!string.IsNullOrEmpty(patch.reason))
+                {
+                    Label reason = Note("  " + patch.reason);
+                    reason.style.marginBottom = 2;
+                    box.Add(reason);
+                }
+
+                if (readError != null)
+                    box.Add(new HelpBox($"{patch.path}: {readError}", HelpBoxMessageType.Warning));
+            }
+
+            var row = Row();
+            row.Add(Grow(new Button(() => UseDraft(!on)) { text = on ? "원본으로" : "초안 켜기" }));
+            var promote = new Button(PromoteDraft) { text = "초안을 원본에 반영" };
+            row.Add(Grow(promote));
+            row.Add(Grow(new Button(DiscardDraft) { text = "초안 버리기" }));
+            box.Add(row);
+            box.Add(Note(EditorApplication.isPlaying
+                ? "켜기·원본으로는 같은 세팅·같은 시드로 판을 다시 시작한다. 반영은 노드 CSV·에셋을 고치고 변경 기록에 남긴다."
+                : "켜면 확정 정보가 초안 값이 된다. 플레이하면 초안 값으로 시작한다. 반영은 노드 CSV·에셋을 고치고 변경 기록에 남긴다."));
+            _aiBox.Add(box);
+        }
+
+        private void BuildContextLine()
+        {
+            string key = CurrentSetupKey();
+
+            if (key == null)
+                return;
+
+            string path = AiContextService.PathOf(key);
+            string text = File.Exists(path)
+                ? $"이 세팅의 AI 묶음: PlaytestData/context/{key}.json · {File.GetLastWriteTime(path).ToString("MM-dd HH:mm:ss", CultureInfo.InvariantCulture)}"
+                : "이 세팅의 AI 묶음이 아직 없다. 메모를 저장하면 생긴다(지금 만들 수도 있다).";
+            _aiBox.Add(Note(text));
+
+            var row = Row();
+            row.Add(Grow(new Button(MakeContext) { text = "AI 묶음 만들기" }));
+            row.Add(Grow(new Button(() => EditorUtility.RevealInFinder(File.Exists(path) ? path : AiContextService.Folder)) { text = "폴더 열기" }));
+            _aiBox.Add(row);
+        }
+
+        private void BuildChanges()
+        {
+            List<ChangeRecord> records = PlaytestChanges.ReadAll();
+
+            if (records.Count == 0)
+                return;
+
+            HashSet<string> reverted = ChangeRecord.RevertedIds(records);
+            _aiBox.Add(Note($"변경 기록 {records.Count}개 · PlaytestData/changes.ndjson"));
+            bool sheet = false;
+
+            for (int i = records.Count - 1; i >= 0 && i >= records.Count - MaxChangesShown; i--)
+            {
+                ChangeRecord record = records[i];
+                bool undone = reverted.Contains(record.Id);
+                string kind = record.Kind == ChangeRecord.Promote ? "반영" : "되돌리기";
+                var box = new VisualElement();
+                box.style.marginBottom = 4;
+                box.style.paddingLeft = 4;
+                box.style.borderLeftWidth = 2;
+                box.style.borderLeftColor = new Color(0.5f, 0.5f, 0.55f);
+
+                var head = new Label($"{LocalTime(record.AtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture))} · {kind} · {record.Profile} · " +
+                                     $"값 {record.Patches.Count}개 · 지문 {record.FingerprintBefore} → {record.FingerprintAfter}{(undone ? " · 되돌림" : string.Empty)}");
+                head.style.whiteSpace = WhiteSpace.Normal;
+                head.style.unityFontStyleAndWeight = FontStyle.Bold;
+                box.Add(head);
+
+                foreach (ChangePatch patch in record.Patches)
+                {
+                    box.Add(Wrapped($"{patch.Path}: {Number(patch.Before)} → {Number(patch.After)}"));
+
+                    if (record.Kind == ChangeRecord.Promote && !undone && !record.SheetSynced && patch.Path.StartsWith("node/", StringComparison.Ordinal))
+                        sheet = true;
+                }
+
+                if (record.Kind == ChangeRecord.Promote && !undone)
+                {
+                    ChangeRecord target = record;
+                    box.Add(new Button(() => RevertChange(target)) { text = "되돌리기" });
+                }
+
+                if (undone)
+                    box.style.opacity = 0.5f;
+
+                _aiBox.Add(box);
+            }
+
+            if (sheet)
+                _aiBox.Add(new HelpBox("노드 CSV를 바꾼 반영이 있다. 기획 시트(Google Sheet)에도 같은 값을 옮긴다(M5 전까지 손으로).", HelpBoxMessageType.Info));
+        }
+
+        private void UseDraft(bool on)
+        {
+            string profile = on ? BalanceProfile.DraftName : string.Empty;
+
+            if (EditorApplication.isPlaying)
+            {
+                PlaytestPanel panel = FindAnyObjectByType<PlaytestPanel>();
+
+                if (panel == null)
+                {
+                    _message = "개발 패널을 찾지 못했다(게임이 아직 시작하지 않았다).";
+                    BuildMessages();
+                    return;
+                }
+
+                panel.RestartWithProfile(profile);
+                _message = on ? "AI 초안 값으로 같은 세팅·같은 시드로 다시 시작했다." : "원본 값으로 같은 세팅·같은 시드로 다시 시작했다.";
+            }
+            else
+            {
+                PlaytestSession.SelectProfile(profile);
+                _message = on ? "AI 초안을 켰다. 확정 정보와 플레이가 초안 값이다." : "원본으로 돌렸다.";
+            }
+
+            LoadContent();
+            Recompute();
+            BuildMessages();
+        }
+
+        private void PromoteDraft()
+        {
+            BalanceProfile draft = ProfilePromoter.ReadDraft(out _);
+            int count = draft != null ? draft.patches.Count : 0;
+
+            if (!EditorUtility.DisplayDialog(
+                    "초안을 원본에 반영",
+                    $"AI 초안의 값 {count}개를 원본(노드 CSV·에셋)에 씁니다.\n변경 기록에 남고, 이 창의 \"되돌리기\"로 돌릴 수 있습니다.",
+                    "반영",
+                    "취소"))
+                return;
+
+            if (ProfilePromoter.Promote(out ChangeRecord record, out List<string> errors))
+            {
+                bool node = record.Patches.Exists(patch => patch.Path.StartsWith("node/", StringComparison.Ordinal));
+                _message = $"반영했다({record.Id}): 값 {record.Patches.Count}개 · 지문 {record.FingerprintBefore} → {record.FingerprintAfter}. " +
+                           $"초안은 {record.Archive}로 옮겼다." + (node ? " 노드 CSV를 바꿨다 — 기획 시트에도 옮긴다." : string.Empty);
+
+                if (errors.Count > 0)
+                    _message += "\n" + string.Join("\n", errors);
+            }
+            else
+            {
+                _message = "반영하지 못했다(아무것도 바꾸지 않았다):\n" + string.Join("\n", errors);
+            }
+
+            LoadContent();
+            Recompute();
+            BuildMessages();
+        }
+
+        private void RevertChange(ChangeRecord change)
+        {
+            if (!EditorUtility.DisplayDialog(
+                    "반영 되돌리기",
+                    $"{change.Id}의 값 {change.Patches.Count}개를 이전 값으로 돌립니다. 변경 기록에 남습니다.",
+                    "되돌리기",
+                    "취소"))
+                return;
+
+            _message = ProfilePromoter.Revert(change, out ChangeRecord record, out List<string> errors)
+                ? $"되돌렸다({record.Id}): 값 {record.Patches.Count}개 · 지문 {record.FingerprintBefore} → {record.FingerprintAfter}."
+                  + (errors.Count > 0 ? "\n" + string.Join("\n", errors) : string.Empty)
+                : "되돌리지 못했다(아무것도 바꾸지 않았다):\n" + string.Join("\n", errors);
+
+            LoadContent();
+            Recompute();
+            BuildMessages();
+        }
+
+        private void DiscardDraft()
+        {
+            if (!EditorUtility.DisplayDialog("초안 버리기", "AI 초안을 원본에 반영하지 않고 PlaytestData/drafts/로 옮깁니다.", "버리기", "취소"))
+                return;
+
+            _message = ProfilePromoter.Discard(out string archive, out string error)
+                ? $"초안을 {archive}로 옮겼다."
+                : $"초안을 치우지 못했다: {error}";
+
+            LoadContent();
+            Recompute();
+            BuildMessages();
+        }
+
+        // 지금 세팅의 AI 묶음을 쓴다(메모 없이도). 세팅은 메모와 같은 모양(실제로 적용된 Rank)이다.
+        private void MakeContext()
+        {
+            FeelNote note = NoteFromWindow();
+
+            if (note == null)
+            {
+                _message = "세팅을 넣지 못해 AI 묶음을 만들 수 없다. 위의 오류를 먼저 본다.";
+                BuildMessages();
+                return;
+            }
+
+            var setup = new PlaytestScenario
+            {
+                name = note.SetupName,
+                growthStage = note.GrowthStage,
+                startLevel = note.StartLevel,
+                seed = note.Seed,
+                gold = note.Gold,
+            };
+
+            foreach ((string nodeId, int rank) in note.Nodes)
+                setup.nodes.Add(new PlaytestScenario.Node { nodeId = nodeId, rank = rank });
+
+            _message = AiContextService.WriteFor(setup, note.SetupKey, out string path, out string error)
+                ? $"AI 묶음을 썼다: {path}"
+                : $"AI 묶음을 쓰지 못했다: {error}";
+            BuildMessages();
+            BuildAi();
+        }
+
+        private static string Number(double value) => value.ToString("0.####", CultureInfo.InvariantCulture);
 
         #endregion
 

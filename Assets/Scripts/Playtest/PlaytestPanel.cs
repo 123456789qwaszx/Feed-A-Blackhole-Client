@@ -616,10 +616,10 @@ namespace BlackHole.Unity
             {
                 GUILayout.BeginVertical(GUI.skin.box);
                 string name = _pendingProfile.Length > 0 ? _pendingProfile : "원본";
-                GUILayout.Label($"'{name}'(으)로 다시 시작한다. 진행 중인 판은 버린다(결산·통계 없음).", _label);
+                GUILayout.Label($"'{name}'(으)로 다시 시작한다. 진행 중인 판은 버린다(결산·통계 없음). 판이나 세팅이 있으면 같은 세팅·같은 시드로 다시 시작한다.", _label);
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("다시 시작"))
-                    Restart(_pendingProfile);
+                    RestartWithProfile(_pendingProfile);
                 if (GUILayout.Button("취소"))
                     _pendingProfile = null;
                 GUILayout.EndHorizontal();
@@ -666,10 +666,14 @@ namespace BlackHole.Unity
             GUILayout.EndHorizontal();
         }
 
-        private static void Restart(string profile)
+        // 프로필을 바꿔 다시 시작한다. 판이나 세팅이 있으면 같은 세팅·같은 시드로 판을 바로 다시 시작한다(원본과 AI 초안 비교).
+        // 테스트 세팅 창의 "초안 켜기·원본으로"도 플레이 중에는 이것을 부른다.
+        internal void RestartWithProfile(string profile)
         {
-            PlaytestSession.SelectProfile(profile);
-            ReloadScene();
+            PlaytestSession.SelectProfile(profile ?? string.Empty);
+            _pendingProfile = null;
+            SetOpen(false, resume: false);
+            RestartForNewData();
         }
 
         private static void ReloadScene()

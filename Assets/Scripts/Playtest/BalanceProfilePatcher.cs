@@ -7,16 +7,18 @@ using BlackHole.Core;
 
 namespace BlackHole.Unity
 {
-    // 밸런스 프로필의 패치를 콘텐츠 저작 데이터(ContentData)와 노드 시트 데이터(NodeContentData)에 적용한다.
+    // 밸런스 프로필의 경로로 콘텐츠 저작 데이터(ContentData)와 노드 시트 데이터(NodeContentData)의 값을 읽고 쓴다.
     // 로더(ContentLoader·NodeContentLoader)에 넘기기 전에 부르므로, 패치한 값도 원래 검증을 그대로 거친다.
+    // 같은 경로를 AI 묶음(지금 값)·변경 기록(이전 값)·승격(ProfileTargets가 원본 칸으로 옮긴다)도 쓴다.
     //
     // 경로는 슬래시로 나눈다. 종류·성질은 계약 ID처럼 열거형 이름의 첫 글자만 소문자다(asteroid, golden).
     //   battle/<timeLimit|killTimeBonus>
     //   breaker/<damage|interval|radius|critChance|critDamage|moonDuration|moonSpeedBonus|moonRadiusBonus|cometDuration|cometCritDamageBonus|planetBonusDamage|starBonusDamage>
+    //   placement/<minDistance|maxDistance>           적 출현 띠(HQ로부터 거리, 전장 배율 1 기준)
     //   enemy/<종류>/<moveSpeed|radius|radiusStep|spawnPeriod|rainCount>
     //   enemy/<종류>/tier/<색 등급, 1부터>/<hp|gold|exp>
     //   enemy/<종류>/trait/<성질>/<multiplier|critRewardScale|damage|radius|maxTargets|branchChance|critChance|critMultiplier|healthFraction|width|maxActive>
-    //   supply/<종류>/count                       시작 공급에 없는 종류면 더한다
+    //   supply/<종류>/count                       시작 공급에 없는 종류면 더한다(없는 종류의 지금 값은 0)
     //   growth/levelExp/<Level, 1부터>             그 Level에 닿는 누적 EXP
     //   growth/milestone/<번호, 1부터>/<level|targetGold|fieldScale>
     //   node/<노드 ID>/<Rank>/cost
@@ -24,6 +26,46 @@ namespace BlackHole.Unity
     // 모든 패치를 먼저 검사하고, 하나라도 틀리면 아무것도 바꾸지 않는다(부분 적용 없음).
     internal static class BalanceProfilePatcher
     {
+        // 값의 종류. 실수는 float, 정수는 int, 큰 정수(Gold·EXP·비용)는 long 칸이다.
+        internal enum SlotKind
+        {
+            Real,
+            Int,
+            Long,
+        }
+
+        // 경로가 가리키는 값 하나(읽기·쓰기).
+        internal sealed class Slot
+        {
+            public SlotKind Kind;
+            public Func<double> Get;
+            public Action<double> Set;
+        }
+
+        // 성질마다 쓰는 사망 효과 칸(EnemyContentLoader.LoadDeathEffect와 같다). 모든 성질은 maxActive도 있다.
+        private static readonly Dictionary<EnemyTraitType, string[]> TraitFields = new Dictionary<EnemyTraitType, string[]>
+        {
+            { EnemyTraitType.Golden, new[] { "multiplier", "critChance", "critRewardScale" } },
+            { EnemyTraitType.Electric, new[] { "damage", "radius", "maxTargets", "branchChance", "critChance", "critMultiplier" } },
+            { EnemyTraitType.Supernova, new[] { "healthFraction", "radius" } },
+            { EnemyTraitType.Laser, new[] { "damage", "width", "critChance", "critMultiplier" } },
+            { EnemyTraitType.Moon, Array.Empty<string>() },
+            { EnemyTraitType.Comet, Array.Empty<string>() },
+        };
+
+        private static readonly string[] BattleFields = { "timeLimit", "killTimeBonus" };
+
+        private static readonly string[] BreakerFields =
+        {
+            "damage", "interval", "radius", "critChance", "critDamage", "moonDuration", "moonSpeedBonus", "moonRadiusBonus",
+            "cometDuration", "cometCritDamageBonus", "planetBonusDamage", "starBonusDamage",
+        };
+
+        private static readonly string[] PlacementFields = { "minDistance", "maxDistance" };
+        private static readonly string[] EnemyFields = { "moveSpeed", "radius", "radiusStep", "spawnPeriod", "rainCount" };
+        private static readonly string[] TierFields = { "hp", "gold", "exp" };
+        private static readonly string[] MilestoneFields = { "level", "targetGold", "fieldScale" };
+
         public static IReadOnlyList<string> Apply(BalanceProfile profile, ContentData content, NodeContentData nodes)
         {
             var errors = new List<string>();
@@ -40,12 +82,14 @@ namespace BlackHole.Unity
                     continue;
                 }
 
-                Action setter = Resolve(path.Split('/'), patch.value, content, nodes, out string error);
-
-                if (setter == null)
+                if (!TryResolve(path, content, nodes, out Slot slot, out string error) || !Accepts(slot.Kind, patch.value, out error))
+                {
                     errors.Add($"patches[{i}] '{path}': {error}");
-                else
-                    setters.Add(setter);
+                    continue;
+                }
+
+                double value = patch.value;
+                setters.Add(() => slot.Set(value));
             }
 
             if (errors.Count == 0)
@@ -57,59 +101,218 @@ namespace BlackHole.Unity
             return errors;
         }
 
-        private static Action Resolve(string[] path, double value, ContentData content, NodeContentData nodes, out string error)
+        // 경로의 지금 값.
+        public static bool TryRead(string path, ContentData content, NodeContentData nodes, out double value, out string error)
+        {
+            if (!TryResolve(path, content, nodes, out Slot slot, out error))
+            {
+                value = 0;
+                return false;
+            }
+
+            value = slot.Get();
+            return true;
+        }
+
+        // 값이 그 칸의 종류에 맞는가(유한한 실수, 정수 범위).
+        public static bool Accepts(SlotKind kind, double value, out string error)
+        {
+            switch (kind)
+            {
+                case SlotKind.Real:
+                    if (double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value) > float.MaxValue)
+                    {
+                        error = $"유한한 실수가 필요하다: {value}.";
+                        return false;
+                    }
+
+                    break;
+                case SlotKind.Int:
+                    if (value != Math.Floor(value) || value < int.MinValue || value > int.MaxValue)
+                    {
+                        error = $"정수가 필요하다: {value}.";
+                        return false;
+                    }
+
+                    break;
+                default:
+                    // double이 정수를 정확히 담는 범위(2^53)까지만 받는다.
+                    if (value != Math.Floor(value) || Math.Abs(value) > 9007199254740992d)
+                    {
+                        error = $"정수가 필요하다: {value}.";
+                        return false;
+                    }
+
+                    break;
+            }
+
+            error = null;
+            return true;
+        }
+
+        public static bool TryResolve(string path, ContentData content, NodeContentData nodes, out Slot slot, out string error)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                slot = null;
+                error = "경로가 비어 있다.";
+                return false;
+            }
+
+            slot = Resolve(path.Split('/'), content, nodes, out error);
+            return slot != null;
+        }
+
+        // 노드가 아닌 모든 경로(값 목록, 대응표 검사). 순서: battle, breaker, placement, supply, enemy, growth.
+        public static List<string> ContentPaths(ContentData content)
+        {
+            var paths = new List<string>();
+
+            foreach (string field in BattleFields)
+                paths.Add("battle/" + field);
+
+            foreach (string field in BreakerFields)
+                paths.Add("breaker/" + field);
+
+            foreach (string field in PlacementFields)
+                paths.Add("placement/" + field);
+
+            foreach (SupplyData supply in content.Enemies.StartSupply)
+            {
+                if (supply?.Enemy != null)
+                    paths.Add($"supply/{ContractIds.Of(supply.Enemy.Value.ToString())}/count");
+            }
+
+            foreach (EnemyData enemy in content.Enemies.Enemies)
+            {
+                string kind = "enemy/" + ContractIds.Of(enemy.Type.ToString());
+
+                foreach (string field in EnemyFields)
+                    paths.Add($"{kind}/{field}");
+
+                for (int tier = 1; tier <= enemy.Tiers.Count; tier++)
+                {
+                    foreach (string field in TierFields)
+                        paths.Add($"{kind}/tier/{tier}/{field}");
+                }
+
+                foreach (EnemyTraitData trait in enemy.Traits)
+                {
+                    string at = $"{kind}/trait/{ContractIds.Of(trait.Type.ToString())}";
+
+                    if (trait.Effect != null && TraitFields.TryGetValue(trait.Type, out string[] fields))
+                    {
+                        foreach (string field in fields)
+                            paths.Add($"{at}/{field}");
+                    }
+
+                    paths.Add($"{at}/maxActive");
+                }
+            }
+
+            for (int level = 1; level <= content.Growth.LevelExp.Count; level++)
+                paths.Add($"growth/levelExp/{level}");
+
+            for (int milestone = 1; milestone <= content.Growth.Milestones.Count; milestone++)
+            {
+                foreach (string field in MilestoneFields)
+                    paths.Add($"growth/milestone/{milestone}/{field}");
+            }
+
+            return paths;
+        }
+
+        // 노드 한 Rank의 경로: 비용, 그리고 효과(StatId)마다 하나.
+        public static List<string> NodePaths(NodeContentData nodes, string nodeId, int rank)
+        {
+            var paths = new List<string>();
+            string at = $"node/{nodeId}/{rank.ToString(CultureInfo.InvariantCulture)}";
+
+            if (nodes.Costs.Exists(c => c.NodeId == nodeId && c.Rank == rank))
+                paths.Add(at + "/cost");
+
+            foreach (NodeEffectRowData effect in nodes.Effects)
+            {
+                if (effect.NodeId == nodeId && effect.Rank == rank)
+                    paths.Add($"{at}/{effect.StatId}");
+            }
+
+            return paths;
+        }
+
+        private static Slot Resolve(string[] path, ContentData content, NodeContentData nodes, out string error)
         {
             switch (path[0])
             {
                 case "battle" when path.Length == 2:
-                    return Battle(path[1], value, content.BattleRules, out error);
+                    return Battle(path[1], content.BattleRules, out error);
                 case "breaker" when path.Length == 2:
-                    return Breaker(path[1], value, content.Breaker, out error);
+                    return Breaker(path[1], content.Breaker, out error);
+                case "placement" when path.Length == 2:
+                    return Placement(path[1], content.Enemies, out error);
                 case "enemy":
-                    return Enemy(path, value, content.Enemies, out error);
+                    return Enemy(path, content.Enemies, out error);
                 case "supply" when path.Length == 3 && path[2] == "count":
-                    return Supply(path[1], value, content.Enemies, out error);
+                    return Supply(path[1], content.Enemies, out error);
                 case "growth":
-                    return Growth(path, value, content.Growth, out error);
+                    return Growth(path, content.Growth, out error);
                 case "node" when path.Length == 4:
-                    return Node(path[1], path[2], path[3], value, nodes, out error);
+                    return Node(path[1], path[2], path[3], nodes, out error);
                 default:
                     error = "알 수 없는 경로다.";
                     return null;
             }
         }
 
-        private static Action Battle(string field, double value, BattleRulesData rules, out string error)
+        private static Slot Battle(string field, BattleRulesData rules, out string error)
         {
             switch (field)
             {
-                case "timeLimit": return Real(value, v => rules.TimeLimit = v, out error);
-                case "killTimeBonus": return Real(value, v => rules.KillTimeBonus = v, out error);
+                case "timeLimit": return Real(() => rules.TimeLimit, v => rules.TimeLimit = v, out error);
+                case "killTimeBonus": return Real(() => rules.KillTimeBonus, v => rules.KillTimeBonus = v, out error);
                 default: return Unknown(field, out error);
             }
         }
 
-        private static Action Breaker(string field, double value, BreakerData breaker, out string error)
+        private static Slot Breaker(string field, BreakerData breaker, out string error)
         {
             switch (field)
             {
-                case "damage": return Real(value, v => breaker.Damage = v, out error);
-                case "interval": return Real(value, v => breaker.Interval = v, out error);
-                case "radius": return Real(value, v => breaker.Radius = v, out error);
-                case "critChance": return Real(value, v => breaker.CritChance = v, out error);
-                case "critDamage": return Real(value, v => breaker.CritDamage = v, out error);
-                case "moonDuration": return Real(value, v => breaker.MoonDuration = v, out error);
-                case "moonSpeedBonus": return Real(value, v => breaker.MoonSpeedBonus = v, out error);
-                case "moonRadiusBonus": return Real(value, v => breaker.MoonRadiusBonus = v, out error);
-                case "cometDuration": return Real(value, v => breaker.CometDuration = v, out error);
-                case "cometCritDamageBonus": return Real(value, v => breaker.CometCritDamageBonus = v, out error);
-                case "planetBonusDamage": return Real(value, v => breaker.PlanetBonusDamage = v, out error);
-                case "starBonusDamage": return Real(value, v => breaker.StarBonusDamage = v, out error);
+                case "damage": return Real(() => breaker.Damage, v => breaker.Damage = v, out error);
+                case "interval": return Real(() => breaker.Interval, v => breaker.Interval = v, out error);
+                case "radius": return Real(() => breaker.Radius, v => breaker.Radius = v, out error);
+                case "critChance": return Real(() => breaker.CritChance, v => breaker.CritChance = v, out error);
+                case "critDamage": return Real(() => breaker.CritDamage, v => breaker.CritDamage = v, out error);
+                case "moonDuration": return Real(() => breaker.MoonDuration, v => breaker.MoonDuration = v, out error);
+                case "moonSpeedBonus": return Real(() => breaker.MoonSpeedBonus, v => breaker.MoonSpeedBonus = v, out error);
+                case "moonRadiusBonus": return Real(() => breaker.MoonRadiusBonus, v => breaker.MoonRadiusBonus = v, out error);
+                case "cometDuration": return Real(() => breaker.CometDuration, v => breaker.CometDuration = v, out error);
+                case "cometCritDamageBonus": return Real(() => breaker.CometCritDamageBonus, v => breaker.CometCritDamageBonus = v, out error);
+                case "planetBonusDamage": return Real(() => breaker.PlanetBonusDamage, v => breaker.PlanetBonusDamage = v, out error);
+                case "starBonusDamage": return Real(() => breaker.StarBonusDamage, v => breaker.StarBonusDamage = v, out error);
                 default: return Unknown(field, out error);
             }
         }
 
-        private static Action Enemy(string[] path, double value, EnemyContentData enemies, out string error)
+        private static Slot Placement(string field, EnemyContentData enemies, out string error)
+        {
+            EnemyPlacementData placement = enemies.EnemyPlacement;
+
+            if (placement == null)
+            {
+                error = "출현 배치 데이터가 없다.";
+                return null;
+            }
+
+            switch (field)
+            {
+                case "minDistance": return Real(() => placement.MinDistance, v => placement.MinDistance = v, out error);
+                case "maxDistance": return Real(() => placement.MaxDistance, v => placement.MaxDistance = v, out error);
+                default: return Unknown(field, out error);
+            }
+        }
+
+        private static Slot Enemy(string[] path, EnemyContentData enemies, out string error)
         {
             if (path.Length < 3)
                 return Unknown(string.Join("/", path), out error);
@@ -126,11 +329,11 @@ namespace BlackHole.Unity
             {
                 switch (path[2])
                 {
-                    case "moveSpeed": return Real(value, v => enemy.MoveSpeed = v, out error);
-                    case "radius": return Real(value, v => enemy.Radius = v, out error);
-                    case "radiusStep": return Real(value, v => enemy.RadiusStep = v, out error);
-                    case "spawnPeriod": return Real(value, v => enemy.SpawnPeriod = v, out error);
-                    case "rainCount": return Int(value, v => enemy.RainCount = v, out error);
+                    case "moveSpeed": return Real(() => enemy.MoveSpeed, v => enemy.MoveSpeed = v, out error);
+                    case "radius": return Real(() => enemy.Radius, v => enemy.Radius = v, out error);
+                    case "radiusStep": return Real(() => enemy.RadiusStep, v => enemy.RadiusStep = v, out error);
+                    case "spawnPeriod": return Real(() => enemy.SpawnPeriod, v => enemy.SpawnPeriod = v, out error);
+                    case "rainCount": return Int(() => enemy.RainCount, v => enemy.RainCount = v, out error);
                     default: return Unknown(path[2], out error);
                 }
             }
@@ -144,9 +347,9 @@ namespace BlackHole.Unity
 
                 switch (path[4])
                 {
-                    case "hp": return Real(value, v => tier.MaxHealth = v, out error);
-                    case "gold": return Long(value, v => tier.Gold = v, out error);
-                    case "exp": return Long(value, v => tier.Exp = v, out error);
+                    case "hp": return Real(() => tier.MaxHealth, v => tier.MaxHealth = v, out error);
+                    case "gold": return Long(() => tier.Gold, v => tier.Gold = v, out error);
+                    case "exp": return Long(() => tier.Exp, v => tier.Exp = v, out error);
                     default: return Unknown(path[4], out error);
                 }
             }
@@ -162,7 +365,7 @@ namespace BlackHole.Unity
                 }
 
                 if (path[4] == "maxActive")
-                    return Int(value, v => trait.MaxActive = v, out error);
+                    return Int(() => trait.MaxActive, v => trait.MaxActive = v, out error);
 
                 DeathEffectData effect = trait.Effect;
 
@@ -174,16 +377,16 @@ namespace BlackHole.Unity
 
                 switch (path[4])
                 {
-                    case "multiplier": return Real(value, v => effect.Multiplier = v, out error);
-                    case "critRewardScale": return Real(value, v => effect.CritRewardScale = v, out error);
-                    case "damage": return Real(value, v => effect.Damage = v, out error);
-                    case "radius": return Real(value, v => effect.Radius = v, out error);
-                    case "maxTargets": return Int(value, v => effect.MaxTargets = v, out error);
-                    case "branchChance": return Real(value, v => effect.BranchChance = v, out error);
-                    case "critChance": return Real(value, v => effect.CritChance = v, out error);
-                    case "critMultiplier": return Real(value, v => effect.CritMultiplier = v, out error);
-                    case "healthFraction": return Real(value, v => effect.HealthFraction = v, out error);
-                    case "width": return Real(value, v => effect.Width = v, out error);
+                    case "multiplier": return Real(() => effect.Multiplier, v => effect.Multiplier = v, out error);
+                    case "critRewardScale": return Real(() => effect.CritRewardScale, v => effect.CritRewardScale = v, out error);
+                    case "damage": return Real(() => effect.Damage, v => effect.Damage = v, out error);
+                    case "radius": return Real(() => effect.Radius, v => effect.Radius = v, out error);
+                    case "maxTargets": return Int(() => effect.MaxTargets, v => effect.MaxTargets = v, out error);
+                    case "branchChance": return Real(() => effect.BranchChance, v => effect.BranchChance = v, out error);
+                    case "critChance": return Real(() => effect.CritChance, v => effect.CritChance = v, out error);
+                    case "critMultiplier": return Real(() => effect.CritMultiplier, v => effect.CritMultiplier = v, out error);
+                    case "healthFraction": return Real(() => effect.HealthFraction, v => effect.HealthFraction = v, out error);
+                    case "width": return Real(() => effect.Width, v => effect.Width = v, out error);
                     default: return Unknown(path[4], out error);
                 }
             }
@@ -191,7 +394,7 @@ namespace BlackHole.Unity
             return Unknown(string.Join("/", path), out error);
         }
 
-        private static Action Supply(string kind, double value, EnemyContentData enemies, out string error)
+        private static Slot Supply(string kind, EnemyContentData enemies, out string error)
         {
             EnemyType? type = null;
 
@@ -207,10 +410,12 @@ namespace BlackHole.Unity
                 return null;
             }
 
-            SupplyData supply = enemies.StartSupply.Find(s => s.Enemy == type);
+            SupplyData Find() => enemies.StartSupply.Find(s => s.Enemy == type);
 
-            return Int(value, v =>
+            return Int(() => Find()?.Count ?? 0, v =>
             {
+                SupplyData supply = Find();
+
                 if (supply != null)
                     supply.Count = v;
                 else
@@ -218,14 +423,14 @@ namespace BlackHole.Unity
             }, out error);
         }
 
-        private static Action Growth(string[] path, double value, HqGrowthData growth, out string error)
+        private static Slot Growth(string[] path, HqGrowthData growth, out string error)
         {
             if (path.Length == 3 && path[1] == "levelExp")
             {
                 if (!TryIndex(path[2], growth.LevelExp.Count, out int index, out error))
                     return null;
 
-                return Long(value, v => growth.LevelExp[index] = v, out error);
+                return Long(() => growth.LevelExp[index], v => growth.LevelExp[index] = v, out error);
             }
 
             if (path.Length == 4 && path[1] == "milestone")
@@ -237,9 +442,9 @@ namespace BlackHole.Unity
 
                 switch (path[3])
                 {
-                    case "level": return Int(value, v => milestone.Level = v, out error);
-                    case "targetGold": return Long(value, v => milestone.TargetGold = v, out error);
-                    case "fieldScale": return Real(value, v => milestone.FieldScale = v, out error);
+                    case "level": return Int(() => milestone.Level, v => milestone.Level = v, out error);
+                    case "targetGold": return Long(() => milestone.TargetGold, v => milestone.TargetGold = v, out error);
+                    case "fieldScale": return Real(() => milestone.FieldScale, v => milestone.FieldScale = v, out error);
                     default: return Unknown(path[3], out error);
                 }
             }
@@ -247,7 +452,7 @@ namespace BlackHole.Unity
             return Unknown(string.Join("/", path), out error);
         }
 
-        private static Action Node(string nodeId, string rankText, string field, double value, NodeContentData nodes, out string error)
+        private static Slot Node(string nodeId, string rankText, string field, NodeContentData nodes, out string error)
         {
             if (!int.TryParse(rankText, NumberStyles.None, CultureInfo.InvariantCulture, out int rank))
             {
@@ -265,7 +470,7 @@ namespace BlackHole.Unity
                     return null;
                 }
 
-                return Long(value, v => cost.Cost = v, out error);
+                return Long(() => cost.Cost, v => cost.Cost = v, out error);
             }
 
             NodeEffectRowData effect = nodes.Effects.Find(e => e.NodeId == nodeId && e.Rank == rank && e.StatId == field);
@@ -276,7 +481,7 @@ namespace BlackHole.Unity
                 return null;
             }
 
-            return Real(value, v => effect.Value = v, out error);
+            return Real(() => effect.Value, v => effect.Value = v, out error);
         }
 
         // 1부터 센 번호 text를 0부터의 인덱스로. 범위 밖이면 false.
@@ -294,44 +499,29 @@ namespace BlackHole.Unity
             return false;
         }
 
-        private static Action Real(double value, Action<float> set, out string error)
+        private static Slot Real(Func<float> get, Action<float> set, out string error)
         {
-            if (double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value) > float.MaxValue)
-            {
-                error = $"유한한 실수가 필요하다: {value}.";
-                return null;
-            }
-
             error = null;
-            return () => set((float)value);
+            return new Slot { Kind = SlotKind.Real, Get = () => Decimal(get()), Set = v => set((float)v) };
         }
 
-        private static Action Long(double value, Action<long> set, out string error)
-        {
-            // double이 정수를 정확히 담는 범위(2^53)까지만 받는다.
-            if (value != Math.Floor(value) || Math.Abs(value) > 9007199254740992d)
-            {
-                error = $"정수가 필요하다: {value}.";
-                return null;
-            }
+        // float 값을 사람이 적은 그대로의 십진수로(0.35f → 0.35, 0.3499999940… 아님). 비교·기록·묶음에 쓴다.
+        public static double Decimal(float value) =>
+            double.Parse(value.ToString("R", CultureInfo.InvariantCulture), NumberStyles.Float, CultureInfo.InvariantCulture);
 
+        private static Slot Long(Func<long> get, Action<long> set, out string error)
+        {
             error = null;
-            return () => set((long)value);
+            return new Slot { Kind = SlotKind.Long, Get = () => get(), Set = v => set((long)v) };
         }
 
-        private static Action Int(double value, Action<int> set, out string error)
+        private static Slot Int(Func<int> get, Action<int> set, out string error)
         {
-            if (value != Math.Floor(value) || value < int.MinValue || value > int.MaxValue)
-            {
-                error = $"정수가 필요하다: {value}.";
-                return null;
-            }
-
             error = null;
-            return () => set((int)value);
+            return new Slot { Kind = SlotKind.Int, Get = () => get(), Set = v => set((int)v) };
         }
 
-        private static Action Unknown(string field, out string error)
+        private static Slot Unknown(string field, out string error)
         {
             error = $"알 수 없는 칸이다: '{field}'.";
             return null;
