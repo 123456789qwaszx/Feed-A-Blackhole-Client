@@ -31,10 +31,10 @@
 
 | 수치 | 파일 | 원본 | 지금 고치는 방법 |
 | --- | --- | --- | --- |
-| 노드: 수치 정의(기본값·Min·Max) | `Assets/Data/NodeTable/UpgradeStats.csv` | 구글 시트 v3 | 시트에서 고친 뒤 CSV로 내려받아 덮어쓰기 |
-| 노드: 목록·Rank 수 | `Assets/Data/NodeTable/Nodes.csv` | 구글 시트 v3 | 〃 |
-| 노드: Rank별 비용 | `Assets/Data/NodeTable/NodeCost.csv` | 구글 시트 v3 | 〃 |
-| 노드: Rank별 효과 | `Assets/Data/NodeTable/NodeEffects.csv` | 구글 시트 v3 | 〃 |
+| 노드: 수치 정의(기본값·Min·Max) | `Assets/Data/NodeTable/UpgradeStats.csv` | 구글 시트 `BlackHole_Node_Data` | 시트에서 고친 뒤 CSV로 내려받아 덮어쓰기 |
+| 노드: 목록·Rank 수 | `Assets/Data/NodeTable/Nodes.csv` | 구글 시트 `BlackHole_Node_Data` | 〃 |
+| 노드: Rank별 비용 | `Assets/Data/NodeTable/NodeCost.csv` | 구글 시트 `BlackHole_Node_Data` | 〃 |
+| 노드: Rank별 효과 | `Assets/Data/NodeTable/NodeEffects.csv` | 구글 시트 `BlackHole_Node_Data` | 〃 |
 | 노드: 칸·선·시작 노드 | `Assets/Data/NodeCatalog.asset` | 에셋 | Node Tree 창 |
 | 판 규칙(제한 시간·처치 시간) | `Assets/Data/BattleRules.asset` | 에셋 | Inspector |
 | Breaker 기본값 | `Assets/Data/SkillSetup.asset` | 에셋 | Inspector |
