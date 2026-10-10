@@ -98,6 +98,7 @@ namespace BlackHole.EditorTools
         {
             Undo.undoRedoPerformed += OnUndoRedo;
             EditorApplication.playModeStateChanged += OnPlayModeChanged;
+            LiveDataSignal.Changed += OnLiveDataChanged;
 
             // 플레이에 들어가지 못해(컴파일 오류 등) 남은 세팅이 다음 보통 플레이에서 실행되지 않게 지운다.
             if (!EditorApplication.isPlayingOrWillChangePlaymode)
@@ -108,6 +109,42 @@ namespace BlackHole.EditorTools
         {
             Undo.undoRedoPerformed -= OnUndoRedo;
             EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+            LiveDataSignal.Changed -= OnLiveDataChanged;
+        }
+
+        // 수치 파일이 바뀌었다(LiveDataWatcher가 게임 로더로 검사한 뒤). 창에 다시 들어오지 않아도 바로 다시 계산한다.
+        private void OnLiveDataChanged(LiveDataChange change)
+        {
+            if (_canvas == null)
+                return;
+
+            if (!change.ContentChanged)
+            {
+                // 시나리오 파일만 바뀌었다: 불러오기 목록만 고친다(열어 둔 세팅은 그대로).
+                BuildFile();
+                return;
+            }
+
+            if (!change.Valid)
+            {
+                var shown = new List<string>();
+                for (int i = 0; i < change.Errors.Count && i < 5; i++)
+                    shown.Add(change.Errors[i]);
+
+                _message = $"수치 오류 {change.Errors.Count}개({change.Files}) — 확정 정보는 이전 값이다.\n" + string.Join("\n", shown);
+                BuildMessages();
+                return;
+            }
+
+            string before = _playtest != null ? _playtest.Fingerprint : string.Empty;
+            LoadContent();
+            Recompute();
+
+            if (before != change.Fingerprint)
+            {
+                _message = $"수치 바뀜: {change.Files} · 지문 {before} → {change.Fingerprint}";
+                BuildMessages();
+            }
         }
 
         // 시트(CSV)나 프로필을 고치고 돌아오면 다시 불러온다.
@@ -402,7 +439,8 @@ namespace BlackHole.EditorTools
 
             bool dirty = IsDirty;
             string file = string.IsNullOrEmpty(_filePath) ? "저장 안 함" : Path.GetFileName(_filePath);
-            _title.text = $"{_setupName}{(dirty ? " *" : string.Empty)}  ·  {file}";
+            string fingerprint = _playtest != null && _playtest.Fingerprint.Length > 0 ? $"  ·  지문 {_playtest.Fingerprint}" : string.Empty;
+            _title.text = $"{_setupName}{(dirty ? " *" : string.Empty)}  ·  {file}{fingerprint}";
             _title.style.color = dirty ? new StyleColor(DirtyText) : new StyleColor(StyleKeyword.Null);
             titleContent = new GUIContent(dirty ? "Test Setup *" : "Test Setup");
         }

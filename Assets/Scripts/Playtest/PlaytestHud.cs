@@ -42,9 +42,17 @@ namespace BlackHole.Unity
 
         public string Text { get; private set; } = "";
 
-        // LateUpdate마다 부른다(판이 이번 프레임에 Step을 마친 뒤). setupName은 마지막으로 넣은 시나리오·세팅(없으면 null).
+        // LateUpdate마다 부른다(판이 이번 프레임에 Step을 마친 뒤). setupName은 마지막으로 넣은 시나리오·세팅(없으면 null),
+        // fingerprint는 이번 실행의 수치 지문, liveStatus는 수치 실시간 반영 상태 한 줄(없으면 null).
         // unscaledDelta는 글을 다시 만드는 간격에만 쓴다.
-        public void Update(GameSession session, ContentTag tag, string setupName, float timeScale, float unscaledDelta)
+        public void Update(
+            GameSession session,
+            ContentTag tag,
+            string setupName,
+            string fingerprint,
+            string liveStatus,
+            float timeScale,
+            float unscaledDelta)
         {
             if (session == null)
             {
@@ -72,7 +80,7 @@ namespace BlackHole.Unity
                 return;
 
             _sinceRefresh = 0;
-            Text = Build(session, tag, setupName, timeScale);
+            Text = Build(session, tag, setupName, fingerprint, liveStatus, timeScale);
         }
 
         private void Reset(GameSession session)
@@ -102,7 +110,7 @@ namespace BlackHole.Unity
             }
         }
 
-        private string Build(GameSession session, ContentTag tag, string setupName, float timeScale)
+        private string Build(GameSession session, ContentTag tag, string setupName, string fingerprint, string liveStatus, float timeScale)
         {
             World world = session.World;
             Hq hq = world.Hq;
@@ -113,6 +121,8 @@ namespace BlackHole.Unity
 
             string version = tag.ContentVersion.Length > 0 ? tag.ContentVersion : "원본";
             _text.Append(version);
+            if (!string.IsNullOrEmpty(fingerprint))
+                _text.Append(" · ").Append(fingerprint);
             if (timeScale != 1f)
                 _text.Append($" · ×{timeScale:0.##}");
             if (BattleCheats.IsTimeFrozen(session))
@@ -120,6 +130,9 @@ namespace BlackHole.Unity
             if (BattleCheats.EnemyMoveScaleOf(session) != 1f)
                 _text.Append($" · 적 이동 ×{BattleCheats.EnemyMoveScaleOf(session):0.##}");
             _text.AppendLine();
+
+            if (!string.IsNullOrEmpty(liveStatus))
+                _text.AppendLine(liveStatus);
 
             _text.Append($"남은 {session.Remaining:0.0}s · 흐른 {session.Elapsed:0.0}s · Lv {hq.Level}");
             if (hq.GoalLevel != HqGrowthDefinition.NoGoal)

@@ -59,6 +59,17 @@ namespace BlackHole.Unity
         // 테스트 세팅 창이 플레이를 시작하며 맡긴 세팅. 첫 Update에서 판을 시작한다(에디터만).
         private PlaytestScenario _pendingLaunch;
         private ProgressState _progress;
+
+        // 수치 실시간 반영(M2, 에디터만). 수치 파일이 바뀌면 지금 세팅으로 장면을 다시 시작한다(끌 수 있다).
+#if UNITY_EDITOR
+        private const string LiveRestartKey = "playtest.liveRestart";
+        private bool _restartOnDataChange = true;
+        // 바뀐 수치를 아직 적용하지 않았다(다시 시작을 껐거나 기다리는 중).
+        private bool _dataChanged;
+#endif
+        private bool _restartRequested;
+        // HUD와 패널에 보이는 수치 상태 한 줄. 없으면 null(개발 빌드는 늘 null).
+        private string _liveStatus = null;
         private readonly List<string> _scenarioErrors = new();
         private readonly List<string> _scenarioWarnings = new();
 
@@ -100,6 +111,8 @@ namespace BlackHole.Unity
             _analytics = analytics;
 #if UNITY_EDITOR
             _pendingLaunch = TestSetupLaunch.Take();
+            _restartOnDataChange = PlayerPrefs.GetInt(LiveRestartKey, 1) == 1;
+            LiveDataSignal.Changed += OnLiveDataChanged;
 #endif
 
             IReadOnlyList<EnemyDefinition> kinds = content.Enemies.Enemies;
@@ -115,6 +128,14 @@ namespace BlackHole.Unity
         {
             if (_session == null)
                 return;
+
+            // 장면을 다시 부르는 일은 신호를 받은 자리(에디터 update)가 아니라 여기(게임 Update)에서 한다.
+            if (_restartRequested)
+            {
+                _restartRequested = false;
+                RestartForNewData();
+                return;
+            }
 
             if (_pendingLaunch != null)
             {
@@ -143,13 +164,96 @@ namespace BlackHole.Unity
         private void LateUpdate()
         {
             if (_session != null)
-                _hud.Update(_battle.Session, _session.Tag, _lastScenario?.name, Time.timeScale, Time.unscaledDeltaTime);
+                _hud.Update(_battle.Session, _session.Tag, _lastScenario?.name, _session.Fingerprint, _liveStatus, Time.timeScale, Time.unscaledDeltaTime);
         }
 
         private void OnDisable()
         {
             BlockGameInput(false);
             Time.timeScale = 1f;
+        }
+
+        private void OnDestroy()
+        {
+#if UNITY_EDITOR
+            LiveDataSignal.Changed -= OnLiveDataChanged;
+#endif
+        }
+
+#if UNITY_EDITOR
+        // 에디터의 수치 감시가 새 값을 검사한 뒤 부른다.
+        private void OnLiveDataChanged(LiveDataChange change)
+        {
+            if (!change.ContentChanged || _session == null)
+                return;
+
+            if (!change.Valid)
+            {
+                _liveStatus = $"수치 오류 {change.Errors.Count}개 — 이전 값으로 계속 ({change.Files})";
+                _status = _liveStatus;
+                return;
+            }
+
+            if (change.Fingerprint == _session.Fingerprint)
+            {
+                // 저장만 다시 했거나 값이 그대로다.
+                _liveStatus = _dataChanged ? _liveStatus : null;
+                return;
+            }
+
+            _dataChanged = true;
+            _liveStatus = $"수치 바뀜 {_session.Fingerprint} → {change.Fingerprint} ({change.Files})";
+
+            if (_restartOnDataChange)
+                _restartRequested = true;
+            else
+                _status = _liveStatus + " · 판 탭의 '새 수치로 다시 시작'으로 적용한다.";
+        }
+#endif
+
+        // 새 수치로 장면을 다시 부른다. 마지막 세팅(같은 시드)이나 지금 진행으로 판을 바로 다시 시작한다.
+        // 판도 세팅도 없으면(타이틀·업그레이드 화면의 보통 플레이) 장면만 다시 부른다(저장에서 다시 불러온다).
+        private void RestartForNewData()
+        {
+            PlaytestScenario setup = SetupForRestart();
+#if UNITY_EDITOR
+            if (setup != null)
+                TestSetupLaunch.Request(setup);
+#endif
+            Debug.Log($"[테스트] 새 수치로 다시 시작한다{(setup != null ? $"(세팅 '{setup.name}', 시드 {setup.seed})" : "")}.");
+            ReloadScene();
+        }
+
+        private PlaytestScenario SetupForRestart()
+        {
+            if (_lastScenario != null)
+            {
+                PlaytestScenario copy = PlaytestScenario.Parse(JsonUtility.ToJson(_lastScenario), out _);
+
+                if (copy != null && _battle.LastSeed != 0)
+                    copy.seed = _battle.LastSeed;
+
+                return copy;
+            }
+
+            GameSession session = _battle.Session;
+
+            if (session == null || _progress == null)
+                return null;
+
+            var setup = new PlaytestScenario
+            {
+                name = "지금 진행",
+                growthStage = _progress.GrowthStage,
+                gold = _progress.Gold,
+                startLevel = session.World.Hq.Level,
+                seed = _battle.LastSeed,
+            };
+
+            foreach (string id in _progress.OwnedNodes)
+                setup.nodes.Add(new PlaytestScenario.Node { nodeId = id, rank = _progress.RankOf(id) });
+
+            return setup;
         }
 
         private bool TogglePressed()
@@ -542,6 +646,11 @@ namespace BlackHole.Unity
         private static void Restart(string profile)
         {
             PlaytestSession.SelectProfile(profile);
+            ReloadScene();
+        }
+
+        private static void ReloadScene()
+        {
             Time.timeScale = 1f;
             Scene scene = SceneManager.GetActiveScene();
 #if UNITY_EDITOR
@@ -580,6 +689,23 @@ namespace BlackHole.Unity
         private void DrawBattle()
         {
             _pauseOnOpen = GUILayout.Toggle(_pauseOnOpen, " 패널을 열면 판을 멈춘다");
+#if UNITY_EDITOR
+            bool restart = GUILayout.Toggle(_restartOnDataChange, " 수치가 바뀌면 지금 세팅으로 다시 시작");
+            if (restart != _restartOnDataChange)
+            {
+                _restartOnDataChange = restart;
+                PlayerPrefs.SetInt(LiveRestartKey, restart ? 1 : 0);
+            }
+
+            if (_liveStatus != null)
+                GUILayout.Label(_liveStatus, _dataChanged ? _small : _error);
+
+            if (_dataChanged && GUILayout.Button("새 수치로 다시 시작"))
+            {
+                SetOpen(false, resume: false);
+                RestartForNewData();
+            }
+#endif
 
             GUILayout.BeginHorizontal();
             _showHud = GUILayout.Toggle(_showHud, " HUD");

@@ -29,6 +29,11 @@ namespace BlackHole.Unity
 
         // 고른 프로필을 적용하지 못한 이유. 없으면 null.
         public string ProfileProblem { get; private set; }
+
+        // 수치 지문(ContentFingerprint). 원본은 프로필을 적용하기 전, Fingerprint는 이번 실행이 실제로 쓰는 값.
+        // 콘텐츠를 불러오기 전에는 빈 글이다.
+        public string BaseFingerprint { get; private set; } = string.Empty;
+        public string Fingerprint { get; private set; } = string.Empty;
         public IReadOnlyList<string> ProfileErrors { get; private set; } = Array.Empty<string>();
 
         public List<ProfileOption> Profiles { get; } = new();
@@ -82,6 +87,9 @@ namespace BlackHole.Unity
         // GameContentLoader의 패치(ContentPatch). 고른 프로필이 없으면 아무것도 하지 않는다.
         public IReadOnlyList<string> Patch(ContentData content, NodeContentData nodes)
         {
+            BaseFingerprint = ContentFingerprint.Of(content, nodes);
+            Fingerprint = BaseFingerprint;
+
             if (string.IsNullOrEmpty(SelectedProfile))
                 return Array.Empty<string>();
 
@@ -105,6 +113,7 @@ namespace BlackHole.Unity
 
             AppliedProfile = option.Profile;
             Tag.SetProfile(option.Profile.name);
+            Fingerprint = ContentFingerprint.Of(content, nodes);
             Debug.Log($"[테스트] 밸런스 프로필 '{option.Profile.name}'을 적용했다(값 {option.Profile.patches.Count}개, {option.File}).");
             return errors;
         }
@@ -115,6 +124,7 @@ namespace BlackHole.Unity
             ProfileProblem = $"프로필 '{SelectedProfile}'을 적용한 값이 콘텐츠 검사를 통과하지 못해 원본 값으로 시작했다. 콘솔의 [콘텐츠] 오류를 본다.";
             AppliedProfile = null;
             Tag.SetProfile("");
+            Fingerprint = BaseFingerprint;
         }
 
         // 진행 저장 폴더. 프로필을 적용했으면 프로필마다 따로 둔다.
