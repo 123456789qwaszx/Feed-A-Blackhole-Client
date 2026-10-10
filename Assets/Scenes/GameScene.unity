@@ -1283,6 +1283,7 @@ MonoBehaviour:
   - {fileID: 513473408}
   _presentations: {fileID: 11400000, guid: 64149f72c61e4f378df706e37ce97160, type: 2}
   _analyticsSettings: {fileID: 11400000, guid: 3d7972c378204619b99b58b0f9ca4885, type: 2}
+  _playtest: {fileID: 11400000, guid: a1fc7e1b1ac44b8f8088a806653e8fbe, type: 2}
 --- !u!1001 &974995110
 PrefabInstance:
   m_ObjectHideFlags: 0
