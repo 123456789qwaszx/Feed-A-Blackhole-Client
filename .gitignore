@@ -140,3 +140,6 @@ $RECYCLE.BIN/
 
 # Cowork(Claude)가 미리보기 이미지를 저장하는 폴더
 /Claude outputs/
+
+# 테스트 도구의 느낌 메모·AI 묶음·변경 기록(개인 테스트 데이터, Docs/BalanceLoop/M3-feel-notes.md)
+/PlaytestData/

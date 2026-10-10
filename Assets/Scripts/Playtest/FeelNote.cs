@@ -1,0 +1,287 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
+using BlackHole.Analytics;
+
+namespace BlackHole.Unity
+{
+    // 느낌 메모 한 줄(schema 1, M3). 적는 순간의 세팅·수치 지문·판 상태와 느낌을 함께 담는다.
+    // 사람과 AI가 같은 파일(PlaytestNotes)을 줄 단위로 읽는다. 형식은 Docs/BalanceLoop/M3-feel-notes.md.
+    // - setup: 그 판(또는 창의 세팅)이 시작한 상태. 노드는 실제로 적용된 Rank다(콘텐츠에 없는 노드는 빠진다).
+    // - battle: 플레이 중에 적었을 때만. 에디터에서 세팅만 보고 적으면 없다(null).
+    internal sealed class FeelNote
+    {
+        public const int Schema = 1;
+        public const int DifficultyMin = -2;
+        public const int DifficultyMax = 2;
+        public const int FunMin = 1;
+        public const int FunMax = 5;
+
+        public string Id;
+        public DateTime AtUtc;
+        // 어디서 적었나: "window"(테스트 세팅 창) | "panel"(개발 패널)
+        public string Source;
+        public string BuildVersion;
+
+        public string SetupName;
+        public int GrowthStage;
+        public int StartLevel;
+        public int Seed;
+        public long Gold;
+        public List<(string NodeId, int Rank)> Nodes = new List<(string NodeId, int Rank)>();
+        // 게임 순서로 만들 수 있는 세팅인가. 모르면 null.
+        public bool? ReachableInGame;
+
+        public string Profile;
+        public string Fingerprint;
+        public string BaseFingerprint;
+
+        public HudSnapshot Battle;
+        public string BattleId;
+        public bool Cheated;
+
+        public int? Difficulty;
+        public int? Fun;
+        public List<string> Tags = new List<string>();
+        public string Text;
+        public string Intent;
+
+        public string SetupKey => FeelNotes.SetupKeyOf(GrowthStage, StartLevel, Nodes);
+
+        public static string NewId(DateTime atUtc, Random random) =>
+            $"n-{atUtc.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture)}-{random.Next(0x10000):x4}";
+
+        public JsonObject ToJson()
+        {
+            var nodes = new List<object>(Nodes.Count);
+            foreach ((string nodeId, int rank) in Nodes)
+                nodes.Add(new JsonObject { { "nodeId", nodeId }, { "rank", rank } });
+
+            var tags = new List<object>(Tags);
+
+            return new JsonObject
+            {
+                { "schema", Schema },
+                { "id", Id },
+                { "atUtc", AtUtc.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture) },
+                { "source", Source },
+                { "build", BuildVersion },
+                { "setupKey", SetupKey },
+                {
+                    "setup", new JsonObject
+                    {
+                        { "name", SetupName },
+                        { "growthStage", GrowthStage },
+                        { "startLevel", StartLevel },
+                        { "seed", Seed },
+                        { "gold", Gold },
+                        { "nodes", nodes },
+                        { "reachableInGame", ReachableInGame },
+                    }
+                },
+                {
+                    "content", new JsonObject
+                    {
+                        { "profile", Profile ?? string.Empty },
+                        { "fingerprint", Fingerprint },
+                        { "baseFingerprint", BaseFingerprint },
+                    }
+                },
+                { "battle", Battle != null ? BattleJson() : null },
+                { "difficulty", Difficulty },
+                { "fun", Fun },
+                { "tags", tags },
+                { "text", Text ?? string.Empty },
+                { "intent", Intent ?? string.Empty },
+            };
+        }
+
+        private JsonObject BattleJson()
+        {
+            var alive = new JsonObject();
+            foreach ((var type, int count) in Battle.Alive)
+                alive.Add(ContractIds.Of(type.ToString()), count);
+
+            return new JsonObject
+            {
+                { "battleId", BattleId },
+                { "elapsed", Round(Battle.Elapsed) },
+                { "remaining", Round(Battle.Remaining) },
+                { "stage", Battle.Stage },
+                { "level", Battle.Level },
+                { "goalLevel", Battle.GoalLevel },
+                { "exp", Battle.Exp },
+                { "kills", Battle.Kills },
+                { "gold", Battle.Gold },
+                { "damage", Round(Battle.Damage) },
+                {
+                    "rates5s", Battle.RateSpan > 0
+                        ? new JsonObject
+                        {
+                            { "span", Round(Battle.RateSpan) },
+                            { "kills", Round(Battle.KillsPerSecond) },
+                            { "gold", Round(Battle.GoldPerSecond) },
+                            { "exp", Round(Battle.ExpPerSecond) },
+                            { "damage", Round(Battle.DamagePerSecond) },
+                        }
+                        : null
+                },
+                { "alive", alive },
+                { "cheated", Cheated },
+            };
+        }
+
+        private static double Round(double value) => Math.Round(value, 2);
+    }
+
+    // 읽은 메모(창의 목록에 필요한 만큼).
+    internal sealed class FeelNoteView
+    {
+        public string Id;
+        public string AtUtc;
+        public string SetupKey;
+        public string SetupName;
+        public string Profile;
+        public string Fingerprint;
+        public int? Difficulty;
+        public int? Fun;
+        public List<string> Tags = new List<string>();
+        public string Text;
+        public string Intent;
+        public bool HasBattle;
+        public int? BattleLevel;
+        public double? BattleElapsed;
+    }
+
+    internal static class FeelNotes
+    {
+        // 세팅 키: 이정표 단계·시작 Level·노드(id:rank, 이름 순)의 SHA-1 앞 8자리. 이름이 달라도 같은 상태면 같은 키다.
+        public static string SetupKeyOf(int growthStage, int startLevel, IEnumerable<(string NodeId, int Rank)> nodes)
+        {
+            var list = new List<string>();
+            foreach ((string nodeId, int rank) in nodes)
+            {
+                if (rank > 0 && !string.IsNullOrEmpty(nodeId))
+                    list.Add($"{nodeId}:{rank}");
+            }
+
+            list.Sort(StringComparer.Ordinal);
+            string canonical = $"stage={growthStage};level={startLevel};nodes={string.Join(",", list)}";
+
+            using SHA1 sha = SHA1.Create();
+            byte[] hash = sha.ComputeHash(Encoding.UTF8.GetBytes(canonical));
+            var hex = new StringBuilder(8);
+            for (int i = 0; i < 4; i++)
+                hex.Append(hash[i].ToString("x2", CultureInfo.InvariantCulture));
+
+            return hex.ToString();
+        }
+
+        // 난이도 −2 ~ +2의 이름.
+        public static string DifficultyLabel(int difficulty) => difficulty switch
+        {
+            -2 => "너무 쉬움",
+            -1 => "쉬움",
+            0 => "적당",
+            1 => "어려움",
+            2 => "너무 어려움",
+            _ => difficulty.ToString(CultureInfo.InvariantCulture),
+        };
+
+        // 태그 어휘(묶음, ID, 이름). ID가 파일에 들어간다.
+        public static readonly (string Group, string Id, string Label)[] Tags =
+        {
+            ("속도", "too-slow", "너무 느림"),
+            ("속도", "too-fast", "너무 빠름"),
+            ("속도", "level-stall", "Level 정체"),
+            ("속도", "level-rush", "Level 급등"),
+            ("재미", "boring", "지루함"),
+            ("재미", "satisfying", "시원함"),
+            ("재미", "chaotic", "정신없음"),
+            ("보상", "gold-too-low", "Gold 부족"),
+            ("보상", "gold-too-high", "Gold 과다"),
+            ("보상", "golden-too-strong", "황금 과함"),
+            ("보상", "node-pointless", "노드 효과 없음"),
+            ("기타", "bug", "버그"),
+            ("기타", "visual", "연출"),
+            ("기타", "ui", "UI"),
+        };
+
+        public static string TagLabel(string id)
+        {
+            foreach ((string _, string tagId, string label) in Tags)
+            {
+                if (tagId == id)
+                    return label;
+            }
+
+            return id;
+        }
+
+        // 줄마다 JSON 하나. 읽지 못한 줄은 건너뛰고 수를 센다(사람이 고치다 깨뜨려도 나머지는 읽는다).
+        public static List<FeelNoteView> Parse(IEnumerable<string> lines, out int skipped)
+        {
+            var notes = new List<FeelNoteView>();
+            skipped = 0;
+
+            foreach (string line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                try
+                {
+                    if (PlaytestJson.Parse(line) is JsonObject obj && obj.Int("schema") == FeelNote.Schema)
+                        notes.Add(ViewOf(obj));
+                    else
+                        skipped++;
+                }
+                catch (FormatException)
+                {
+                    skipped++;
+                }
+            }
+
+            return notes;
+        }
+
+        private static FeelNoteView ViewOf(JsonObject obj)
+        {
+            JsonObject setup = obj.Object("setup");
+            JsonObject content = obj.Object("content");
+            JsonObject battle = obj.Object("battle");
+            var view = new FeelNoteView
+            {
+                Id = obj.Text("id"),
+                AtUtc = obj.Text("atUtc"),
+                SetupKey = obj.Text("setupKey"),
+                SetupName = setup?.Text("name"),
+                Profile = content?.Text("profile"),
+                Fingerprint = content?.Text("fingerprint"),
+                Difficulty = obj.Int("difficulty"),
+                Fun = obj.Int("fun"),
+                Text = obj.Text("text") ?? string.Empty,
+                Intent = obj.Text("intent") ?? string.Empty,
+                HasBattle = battle != null,
+                BattleLevel = battle?.Int("level"),
+                BattleElapsed = battle?.Number("elapsed"),
+            };
+
+            List<object> tags = obj.Array("tags");
+            if (tags != null)
+            {
+                foreach (object tag in tags)
+                {
+                    if (tag is string id)
+                        view.Tags.Add(id);
+                }
+            }
+
+            return view;
+        }
+    }
+}
+#endif

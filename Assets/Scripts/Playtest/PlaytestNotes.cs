@@ -1,55 +1,61 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System;
-using System.Globalization;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 플레이 메모: 한 줄에 JSON 하나(ndjson)로 기기에 쌓는다(PlaytestFiles.Notes).
-    // 판 ID로 전투 요약과 잇는다 — 숫자(전투 요약)와 느낌(메모)을 같이 AI에게 보여 준다.
+    // 느낌 메모 파일(한 줄에 JSON 하나, schema 1). 덧붙이기만 하고 고치거나 지우지 않는다.
+    // - 에디터: <레포>/PlaytestData/notes.ndjson (git 무시). AI가 레포에서 바로 읽는다.
+    // - 개발 빌드(폰): persistentDataPath/playtest/notes.ndjson. 꺼내는 길은 adb pull이다.
+    // 테스트 세팅 창과 개발 패널이 같은 함수로 쓰고 읽는다.
     internal static class PlaytestNotes
     {
-        [Serializable]
-        private sealed class Line
+        public const string DataFolderName = "PlaytestData";
+        private const string FileName = "notes.ndjson";
+
+        private static readonly System.Random Ids = new System.Random();
+        private static DateTime _cachedWrite;
+        private static long _cachedLength = -1;
+        private static List<FeelNoteView> _cached = new List<FeelNoteView>();
+        private static int _cachedSkipped;
+
+#if UNITY_EDITOR
+        // 레포 루트의 PlaytestData 폴더(Assets의 부모).
+        public static string DataFolder => Path.GetFullPath(Path.Combine(Application.dataPath, "..", DataFolderName));
+#else
+        public static string DataFolder => PlaytestFiles.Root;
+#endif
+
+        public static string FilePath => Path.Combine(DataFolder, FileName);
+
+        // 파일이 바뀌었는지 볼 때 쓰는 값(마지막 쓰기 시각과 크기). 파일이 없으면 default.
+        public static (DateTime Write, long Length) Stamp()
         {
-            public string atUtc;
-            public string battleId;
-            public string buildVersion;
-            public string contentVersion;
-            // 판이 없으면 -1.
-            public float elapsed;
-            public int level;
-            public int growthStage;
-            public string text;
+            try
+            {
+                var file = new FileInfo(FilePath);
+                return file.Exists ? (file.LastWriteTimeUtc, file.Length) : default;
+            }
+            catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
+            {
+                return default;
+            }
         }
 
-        // 저장하면 true. 실패하면 error에 이유가 있다.
-        public static bool TryAppend(
-            string text,
-            string battleId,
-            string contentVersion,
-            float elapsed,
-            int level,
-            int growthStage,
-            out string error)
+        // 메모에 ID·시각·빌드를 채워 한 줄로 붙인다. 성공하면 ID를 돌려준다.
+        public static bool TryAppend(FeelNote note, out string id, out string error)
         {
-            var line = new Line
-            {
-                atUtc = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
-                battleId = battleId ?? "",
-                buildVersion = Application.version,
-                contentVersion = contentVersion ?? "",
-                elapsed = elapsed,
-                level = level,
-                growthStage = growthStage,
-                text = text,
-            };
+            note.AtUtc = DateTime.UtcNow;
+            note.Id = FeelNote.NewId(note.AtUtc, Ids);
+            note.BuildVersion = Application.version;
+            id = note.Id;
 
             try
             {
-                Directory.CreateDirectory(PlaytestFiles.Root);
-                File.AppendAllText(PlaytestFiles.Notes, JsonUtility.ToJson(line) + "\n");
+                Directory.CreateDirectory(DataFolder);
+                File.AppendAllText(FilePath, PlaytestJson.Write(note.ToJson()) + "\n");
                 error = null;
                 return true;
             }
@@ -57,6 +63,40 @@ namespace BlackHole.Unity
             {
                 error = exception.Message;
                 return false;
+            }
+        }
+
+        // 모든 메모(파일 순서 = 적은 순서). 파일이 바뀌지 않았으면 다시 읽지 않는다. skipped는 읽지 못한 줄 수.
+        public static IReadOnlyList<FeelNoteView> ReadAll(out int skipped)
+        {
+            skipped = _cachedSkipped;
+
+            try
+            {
+                var file = new FileInfo(FilePath);
+
+                if (!file.Exists)
+                {
+                    _cached = new List<FeelNoteView>();
+                    _cachedLength = -1;
+                    _cachedSkipped = 0;
+                    skipped = 0;
+                    return _cached;
+                }
+
+                if (file.LastWriteTimeUtc == _cachedWrite && file.Length == _cachedLength)
+                    return _cached;
+
+                _cached = FeelNotes.Parse(File.ReadAllLines(FilePath), out _cachedSkipped);
+                _cachedWrite = file.LastWriteTimeUtc;
+                _cachedLength = file.Length;
+                skipped = _cachedSkipped;
+                return _cached;
+            }
+            catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
+            {
+                Debug.LogWarning($"[메모] {FilePath}를 읽지 못했다: {exception.Message}");
+                return _cached;
             }
         }
     }

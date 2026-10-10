@@ -23,7 +23,6 @@ namespace BlackHole.Unity
         private static readonly float[] TimeScales = { 0.25f, 0.5f, 1f, 2f, 4f, 8f };
         private static readonly float[] MoveScales = { 0f, 0.5f, 1f, 2f };
         private static readonly int[] SpawnCounts = { 1, 5, 20 };
-        private static readonly string[] QuickNotes = { "너무 쉬움", "너무 어려움", "지루함", "답답함", "시원함", "버그" };
 
         // GUI 배율의 기준: 화면의 짧은 변이 이만큼이면 1배.
         private const float ReferenceShortSide = 540f;
@@ -83,8 +82,29 @@ namespace BlackHole.Unity
         private int _traitIndex; // 0이면 성질 없음, 1부터 이 판 구성의 성질.
 
         // 메모
-        private string _note = "";
+        private int? _noteDifficulty;
+        private int? _noteFun;
+        private readonly List<string> _noteTags = new();
+        private string _noteText = "";
+        private string _noteIntent = "";
         private int _savedNotes;
+
+        // 지금(또는 마지막) 판이 시작한 세팅. 판이 바뀌는 순간 뜬다. 메모의 setup은 이것이다
+        // (판이 끝나 결산이 진행 상태를 바꾼 뒤에 적어도 그 판의 세팅이 남는다).
+        private GameSession _trackedSession;
+        private BattleSetup _battleSetup;
+        // 다음에 시작할 판을 연 시나리오·세팅. 그 판을 보면 지운다.
+        private PlaytestScenario _scenarioForNextBattle;
+
+        private sealed class BattleSetup
+        {
+            public string Name;
+            public int GrowthStage;
+            public int StartLevel;
+            public int Seed;
+            public long Gold;
+            public readonly List<(string NodeId, int Rank)> Nodes = new();
+        }
 
         private bool _stylesReady;
         private GUIStyle _label;
@@ -145,6 +165,8 @@ namespace BlackHole.Unity
                 if (!RunScenario(launch, true, null))
                     Debug.LogError($"[테스트] 세팅 '{launch.name}'을 넣지 못했다.\n  {string.Join("\n  ", _scenarioErrors)}");
             }
+
+            TrackBattleSetup();
 
             if (TogglePressed())
                 SetOpen(!_open);
@@ -535,6 +557,7 @@ namespace BlackHole.Unity
 
             _session.Tag.MarkTestSession();
             _lastScenario = scenario;
+            _scenarioForNextBattle = startBattle ? scenario : null;
 
             int? useSeed = seed ?? (scenario.seed != 0 ? scenario.seed : (int?)null);
             Action<GameSession> afterStart = startBattle ? battle => AfterScenarioStart(battle, scenario) : null;
@@ -904,59 +927,180 @@ namespace BlackHole.Unity
 
         private void DrawNote()
         {
-            GUILayout.Label("느낌을 적는다. 판 ID·콘텐츠 표시·흐른 시간·Level과 함께 기기에 쌓는다. 전투 요약과 판 ID로 잇는다.", _small);
+            GUILayout.Label("느낌을 적는다. 이 판의 세팅·수치 지문·판 상태가 함께 한 줄로 쌓이고, 사람과 AI가 같은 파일을 읽는다.", _small);
 
+            GUILayout.Label("난이도", _small);
             GUILayout.BeginHorizontal();
-            for (int i = 0; i < QuickNotes.Length; i++)
+            for (int value = FeelNote.DifficultyMin; value <= FeelNote.DifficultyMax; value++)
             {
-                if (i == 3)
-                {
-                    GUILayout.EndHorizontal();
-                    GUILayout.BeginHorizontal();
-                }
-
-                if (GUILayout.Button(QuickNotes[i]))
-                    _note = _note.Length == 0 ? QuickNotes[i] : $"{_note} {QuickNotes[i]}";
+                bool on = _noteDifficulty == value;
+                if (GUILayout.Toggle(on, FeelNotes.DifficultyLabel(value), GUI.skin.button) != on)
+                    _noteDifficulty = on ? (int?)null : value;
             }
             GUILayout.EndHorizontal();
 
-            _note = GUILayout.TextArea(_note, GUILayout.MinHeight(72));
+            GUILayout.Label("재미", _small);
+            GUILayout.BeginHorizontal();
+            for (int value = FeelNote.FunMin; value <= FeelNote.FunMax; value++)
+            {
+                bool on = _noteFun == value;
+                if (GUILayout.Toggle(on, value.ToString(), GUI.skin.button) != on)
+                    _noteFun = on ? (int?)null : value;
+            }
+            GUILayout.EndHorizontal();
 
-            GUI.enabled = _note.Trim().Length > 0;
+            GUILayout.Label("태그", _small);
+            string group = null;
+            int inRow = 0;
+            foreach ((string tagGroup, string id, string label) in FeelNotes.Tags)
+            {
+                if (tagGroup != group || inRow == 3)
+                {
+                    if (group != null)
+                        GUILayout.EndHorizontal();
+
+                    GUILayout.BeginHorizontal();
+                    group = tagGroup;
+                    inRow = 0;
+                }
+
+                bool on = _noteTags.Contains(id);
+                if (GUILayout.Toggle(on, label, GUI.skin.button) != on)
+                {
+                    if (on)
+                        _noteTags.Remove(id);
+                    else
+                        _noteTags.Add(id);
+                }
+
+                inRow++;
+            }
+            if (group != null)
+                GUILayout.EndHorizontal();
+
+            GUILayout.Label("느낌", _small);
+            _noteText = GUILayout.TextArea(_noteText, GUILayout.MinHeight(56));
+            GUILayout.Label("의도 (어떻게 되면 좋겠나)", _small);
+            _noteIntent = GUILayout.TextArea(_noteIntent, GUILayout.MinHeight(36));
+
+            GUI.enabled = HasNoteInput;
             if (GUILayout.Button("저장"))
                 SaveNote();
             GUI.enabled = true;
 
-            GUILayout.Label($"이번 실행에 {_savedNotes}개 저장 · {PlaytestFiles.Notes}", _small);
+            GUILayout.Label($"이번 실행에 {_savedNotes}개 저장 · {PlaytestNotes.FilePath}", _small);
 #if UNITY_EDITOR
             if (GUILayout.Button("폴더 열기"))
-                UnityEditor.EditorUtility.RevealInFinder(PlaytestFiles.Notes);
+                UnityEditor.EditorUtility.RevealInFinder(PlaytestNotes.FilePath);
 #endif
         }
 
+        private bool HasNoteInput =>
+            _noteDifficulty.HasValue || _noteFun.HasValue || _noteTags.Count > 0
+            || _noteText.Trim().Length > 0 || _noteIntent.Trim().Length > 0;
+
         private void SaveNote()
         {
-            GameSession session = _battle.Session;
-            Hq hq = session?.World.Hq;
+            FeelNote note = NewNote("panel");
+            note.Difficulty = _noteDifficulty;
+            note.Fun = _noteFun;
+            note.Tags.AddRange(_noteTags);
+            note.Text = _noteText.Trim();
+            note.Intent = _noteIntent.Trim();
 
-            bool saved = PlaytestNotes.TryAppend(
-                _note.Trim(),
-                _analytics.CurrentBattleId,
-                _session.Tag.ContentVersion,
-                session?.Elapsed ?? -1f,
-                hq?.Level ?? -1,
-                hq?.Stage ?? -1,
-                out string error);
-
-            if (!saved)
+            if (!PlaytestNotes.TryAppend(note, out string id, out string error))
             {
                 _status = $"메모를 저장하지 못했다: {error}";
                 return;
             }
 
             _savedNotes++;
-            _note = "";
-            _status = "메모를 저장했다.";
+            _noteDifficulty = null;
+            _noteFun = null;
+            _noteTags.Clear();
+            _noteText = "";
+            _noteIntent = "";
+            _status = $"메모 {id}를 저장했다(세팅 키 {note.SetupKey}).";
+        }
+
+        // 판이 바뀌는 순간 그 판이 시작한 세팅을 떠 둔다.
+        private void TrackBattleSetup()
+        {
+            GameSession session = _battle.Session;
+
+            if (session == _trackedSession)
+                return;
+
+            _trackedSession = session;
+
+            if (session == null)
+                return;
+
+            PlaytestScenario scenario = _scenarioForNextBattle;
+            _scenarioForNextBattle = null;
+            Hq hq = session.World.Hq;
+
+            _battleSetup = new BattleSetup
+            {
+                Name = scenario != null ? scenario.name : "지금 진행",
+                GrowthStage = hq.Stage,
+                // 시나리오 판은 시작 Level까지 EXP를 채워 시작했다(단계 시작보다 낮으면 단계 시작).
+                StartLevel = scenario != null ? Math.Max(scenario.startLevel, hq.StartLevel) : hq.StartLevel,
+                Seed = _battle.LastSeed,
+                Gold = _progress != null ? _progress.Gold : 0,
+            };
+
+            if (_progress != null)
+            {
+                foreach (string nodeId in _progress.OwnedNodes)
+                    _battleSetup.Nodes.Add((nodeId, _progress.RankOf(nodeId)));
+            }
+        }
+
+        // 지금 판(없으면 지금 진행)의 세팅·수치·판 상태를 담은 메모. 느낌 칸은 부르는 쪽이 채운다.
+        // 테스트 세팅 창도 플레이 중에는 이것으로 메모를 만든다(창의 세팅이 아니라 실제로 플레이한 상태가 남는다).
+        internal FeelNote NewNote(string source)
+        {
+            TrackBattleSetup();
+
+            var note = new FeelNote
+            {
+                Source = source,
+                Profile = _session.AppliedProfile != null ? _session.AppliedProfile.name : string.Empty,
+                Fingerprint = _session.Fingerprint,
+                BaseFingerprint = _session.BaseFingerprint,
+                Cheated = _session.Tag.IsTest,
+            };
+
+            if (_battleSetup != null)
+            {
+                note.SetupName = _battleSetup.Name;
+                note.GrowthStage = _battleSetup.GrowthStage;
+                note.StartLevel = _battleSetup.StartLevel;
+                note.Seed = _battleSetup.Seed;
+                note.Gold = _battleSetup.Gold;
+                note.Nodes.AddRange(_battleSetup.Nodes);
+            }
+            else if (_progress != null)
+            {
+                note.SetupName = _lastScenario != null ? _lastScenario.name : "지금 진행";
+                note.GrowthStage = _progress.GrowthStage;
+                note.StartLevel = _content.Growth.StartLevelAt(Math.Min(_progress.GrowthStage, _content.Growth.MaxStage));
+                note.Gold = _progress.Gold;
+
+                foreach (string nodeId in _progress.OwnedNodes)
+                    note.Nodes.Add((nodeId, _progress.RankOf(nodeId)));
+            }
+
+            GameSession session = _battle.Session;
+
+            if (session != null)
+            {
+                note.Battle = _hud.Capture(session);
+                note.BattleId = _analytics.CurrentBattleId;
+            }
+
+            return note;
         }
 
         // ── 모양 ──────────────────────────────────────────────

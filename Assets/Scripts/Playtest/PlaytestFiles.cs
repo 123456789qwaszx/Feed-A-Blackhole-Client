@@ -11,7 +11,7 @@ namespace BlackHole.Unity
     //   개발 빌드는 PlaytestLibrary에 모은 에셋을 읽는다. 둘 다 기기 폴더(persistentDataPath/playtest/...)도 읽고,
     //   같은 이름이면 기기 파일이 이긴다 — 빌드 없이 폰에 JSON만 넣어(adb push) 값을 바꿔 볼 수 있다.
     // - 프로필별 저장: persistentDataPath/playtest/saves/<프로필 이름>
-    // - 플레이 메모: persistentDataPath/playtest/notes.ndjson
+    // - 느낌 메모: PlaytestNotes(에디터는 레포 PlaytestData/, 개발 빌드는 Root 아래)
     internal static class PlaytestFiles
     {
         public const string AssetSource = "에셋";
@@ -21,7 +21,6 @@ namespace BlackHole.Unity
         public static string DeviceProfiles => Path.Combine(Root, "profiles");
         public static string DeviceScenarios => Path.Combine(Root, "scenarios");
         public static string Saves => Path.Combine(Root, "saves");
-        public static string Notes => Path.Combine(Root, "notes.ndjson");
 
         public static List<PlaytestFile> Profiles(PlaytestLibrary library, List<string> problems) =>
             Collect(library != null ? library.Profiles : null, PlaytestLibrary.ProfilesFolder, DeviceProfiles, problems);
