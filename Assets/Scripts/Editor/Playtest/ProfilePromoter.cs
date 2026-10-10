@@ -556,14 +556,15 @@ namespace BlackHole.EditorTools
             return $"{PlaytestNotes.DataFolderName}/drafts/{name}.json";
         }
 
-        private static string Fingerprint(GameContentSetup setup)
+        // 원본(프로필 없음) 수치 지문. 시트 끌어오기(SheetSync)도 쓴다.
+        internal static string Fingerprint(GameContentSetup setup)
         {
             var errors = new List<ContentDiagnostic>();
             NodeContentData nodes = setup.Nodes.Content.Read(errors);
             return ContentFingerprint.Of(setup.ToData(), nodes);
         }
 
-        private static bool HasBom(string path)
+        internal static bool HasBom(string path)
         {
             byte[] head = new byte[3];
 

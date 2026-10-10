@@ -5,21 +5,25 @@ using System.Globalization;
 
 namespace BlackHole.Unity
 {
-    // 원본 수치 변경 기록 한 줄(schema 1, M4). 초안 승격(promote)과 되돌리기(revert)마다 하나다.
+    // 원본 수치 변경 기록 한 줄(schema 1). 초안 승격(promote)과 되돌리기(revert, M4), 시트에서 끌어오기(pull)와 시트에 반영(sheet, M5)마다 하나다.
     // 형식은 Docs/BalanceLoop/M4-ai-tuning.md. 사람과 AI가 같은 파일을 읽는다.
     internal sealed class ChangeRecord
     {
         public const int Schema = 1;
         public const string Promote = "promote";
         public const string Revert = "revert";
+        // 기획 시트에서 노드 CSV를 끌어왔다(author: sheet). 노드 값이 바뀐 칸만 patches에 있고, 나머지는 summary에 적는다.
+        public const string Pull = "pull";
+        // 승격·되돌리기한 노드 값을 기획 시트에 썼다. syncOf가 그 기록들이다.
+        public const string Sheet = "sheet";
 
         public string Id;
         public DateTime AtUtc;
-        // promote | revert
+        // promote | revert | pull | sheet
         public string Kind;
-        // 값을 정한 쪽: ai(AI 초안) | human
+        // 값을 정한 쪽: ai(AI 초안) | human | sheet(기획 시트)
         public string Author;
-        // 반영 버튼을 누른 쪽. 지금은 늘 human이다(AI는 초안까지만).
+        // 반영 버튼을 누른 쪽: human, 또는 시트 자동 끌어오기면 auto. AI는 초안까지만 쓴다.
         public string AppliedBy = "human";
         // 승격한 프로필 이름과 설명. 되돌리기면 되돌린 변경의 것.
         public string Profile;
@@ -34,8 +38,12 @@ namespace BlackHole.Unity
         public List<string> SetupKeys = new List<string>();
         // 보관한 초안 파일(레포 기준 경로). 없으면 null.
         public string Archive;
-        // 기획 시트에 옮겼나(M5). 그 전까지 false: 노드 CSV를 바꾼 기록은 시트에 손으로 옮겨야 한다는 표시다.
+        // 이 기록이 이미 기획 시트와 같은가. pull·sheet 기록은 true다. promote·revert는 false로 쓰고, 뒤의 pull·sheet 기록의 syncOf에 들면 반영된 것이다.
         public bool SheetSynced;
+        // pull·sheet: 이 기록으로 시트와 맞춰진 앞 기록 ID.
+        public List<string> SyncOf = new List<string>();
+        // 사람이 읽는 요약(끌어오기에서 늘거나 준 행, 값 말고 바뀐 칸 등). 없으면 null.
+        public string Summary;
 
         public static string NewId(DateTime atUtc, System.Random random) =>
             $"c-{atUtc.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture)}-{random.Next(0x10000):x4}";
@@ -48,6 +56,22 @@ namespace BlackHole.Unity
             {
                 if (record.Kind == ChangeRecord.Revert && !string.IsNullOrEmpty(record.RevertOf))
                     ids.Add(record.RevertOf);
+            }
+
+            return ids;
+        }
+
+        // 시트와 맞춰진 기록 ID: sheetSynced가 true이거나, pull·sheet 기록의 syncOf에 든 것.
+        public static HashSet<string> SyncedIds(IEnumerable<ChangeRecord> records)
+        {
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            foreach (ChangeRecord record in records)
+            {
+                if (record.SheetSynced && !string.IsNullOrEmpty(record.Id))
+                    ids.Add(record.Id);
+
+                foreach (string id in record.SyncOf)
+                    ids.Add(id);
             }
 
             return ids;
@@ -76,6 +100,8 @@ namespace BlackHole.Unity
                 { "setupKeys", new List<object>(SetupKeys) },
                 { "archive", Archive },
                 { "sheetSynced", SheetSynced },
+                { "syncOf", new List<object>(SyncOf) },
+                { "summary", Summary },
             };
         }
 
@@ -94,6 +120,7 @@ namespace BlackHole.Unity
                 FingerprintAfter = obj.Text("fingerprintAfter"),
                 Archive = obj.Text("archive"),
                 SheetSynced = obj["sheetSynced"] is bool synced && synced,
+                Summary = obj.Text("summary"),
             };
 
             if (DateTime.TryParse(obj.Text("atUtc"), CultureInfo.InvariantCulture,
@@ -110,6 +137,12 @@ namespace BlackHole.Unity
             {
                 if (item is string key)
                     record.SetupKeys.Add(key);
+            }
+
+            foreach (object item in obj.Array("syncOf") ?? new List<object>())
+            {
+                if (item is string id)
+                    record.SyncOf.Add(id);
             }
 
             return record;

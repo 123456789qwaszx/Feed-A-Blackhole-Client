@@ -26,7 +26,9 @@ namespace BlackHole.Unity
         private static string TextOf(TextAsset csv) => csv != null ? csv.text : null;
 
 #if UNITY_EDITOR
-        // 테스트 도구의 승격·되돌리기(M4)가 행을 고칠 CSV.
+        // 테스트 도구의 승격·되돌리기(M4)가 행을 고치고, 시트 연동(M5)이 덮어쓸 CSV.
+        internal TextAsset UpgradeStatsCsv => _upgradeStats;
+        internal TextAsset NodesCsv => _nodes;
         internal TextAsset NodeCostCsv => _nodeCost;
         internal TextAsset NodeEffectsCsv => _nodeEffects;
 #endif

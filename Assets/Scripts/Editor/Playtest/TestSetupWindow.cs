@@ -1157,32 +1157,36 @@ namespace BlackHole.EditorTools
 
             HashSet<string> reverted = ChangeRecord.RevertedIds(records);
             _aiBox.Add(Note($"변경 기록 {records.Count}개 · PlaytestData/changes.ndjson"));
-            bool sheet = false;
 
             for (int i = records.Count - 1; i >= 0 && i >= records.Count - MaxChangesShown; i--)
             {
                 ChangeRecord record = records[i];
                 bool undone = reverted.Contains(record.Id);
-                string kind = record.Kind == ChangeRecord.Promote ? "반영" : "되돌리기";
+                string kind = record.Kind switch
+                {
+                    ChangeRecord.Promote => "반영",
+                    ChangeRecord.Revert => "되돌리기",
+                    ChangeRecord.Pull => "시트에서 끌어옴",
+                    ChangeRecord.Sheet => "시트에 반영",
+                    _ => record.Kind,
+                };
                 var box = new VisualElement();
                 box.style.marginBottom = 4;
                 box.style.paddingLeft = 4;
                 box.style.borderLeftWidth = 2;
                 box.style.borderLeftColor = new Color(0.5f, 0.5f, 0.55f);
 
-                var head = new Label($"{LocalTime(record.AtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture))} · {kind} · {record.Profile} · " +
+                var head = new Label($"{LocalTime(record.AtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture))} · {kind} · {record.Profile ?? record.Author} · " +
                                      $"값 {record.Patches.Count}개 · 지문 {record.FingerprintBefore} → {record.FingerprintAfter}{(undone ? " · 되돌림" : string.Empty)}");
                 head.style.whiteSpace = WhiteSpace.Normal;
                 head.style.unityFontStyleAndWeight = FontStyle.Bold;
                 box.Add(head);
 
                 foreach (ChangePatch patch in record.Patches)
-                {
                     box.Add(Wrapped($"{patch.Path}: {Number(patch.Before)} → {Number(patch.After)}"));
 
-                    if (record.Kind == ChangeRecord.Promote && !undone && !record.SheetSynced && patch.Path.StartsWith("node/", StringComparison.Ordinal))
-                        sheet = true;
-                }
+                if (!string.IsNullOrEmpty(record.Summary))
+                    box.Add(Note(record.Summary));
 
                 if (record.Kind == ChangeRecord.Promote && !undone)
                 {
@@ -1196,8 +1200,12 @@ namespace BlackHole.EditorTools
                 _aiBox.Add(box);
             }
 
-            if (sheet)
-                _aiBox.Add(new HelpBox("노드 CSV를 바꾼 반영이 있다. 기획 시트(Google Sheet)에도 같은 값을 옮긴다(M5 전까지 손으로).", HelpBoxMessageType.Info));
+            int pending = SheetSyncPlan.Pending(records).Count;
+            if (pending > 0)
+            {
+                _aiBox.Add(new HelpBox($"기획 시트에 아직 옮기지 않은 노드 변경 기록이 {pending}개 있다. Sheet Sync 창의 \"시트에 반영\"으로 옮긴다.", HelpBoxMessageType.Info));
+                _aiBox.Add(new Button(SheetSyncWindow.Open) { text = "Sheet Sync 열기" });
+            }
         }
 
         private void UseDraft(bool on)
