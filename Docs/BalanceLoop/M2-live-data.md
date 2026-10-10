@@ -1,7 +1,8 @@
 # M2 수치 실시간 반영
 
-- 상태: 다음 (시작 전)
-- 브랜치: `feat/liveData` (← `feat/testSetup`)
+- 상태: 구현 완료, Unity 손 확인 대기
+- 브랜치: `feat/liveData` (← `feat/testSetup` e9f3442)
+- 커밋: 65585e1 기능(지문·감시·자동 다시 시작·창·HUD) · 이 문서를 담은 docs 커밋
 
 ## 목표
 
@@ -11,95 +12,108 @@
 2. 플레이 중이면 지금 세팅·같은 시드로 판이 다시 시작되어 새 값으로 플레이한다.
 3. 어떤 수치로 플레이했는지를 짧은 지문(해시)으로 알 수 있다. 지문은 M3 메모와 M4 변경 기록의 열쇠가 된다.
 
-## 지금 상황
+## 시작할 때 상황
 
-- 게임은 `GameBootstrap.Awake`에서 수치를 한 번 읽는다. 판 구성은 판을 시작할 때 굳는다. 그래서 값이 바뀌면 판을 새로 만들어야 하고, 확실한 길은 장면을 다시 부르는 것이다.
-- 노드 CSV는 TextAsset이라 Unity가 가져와야(import) 내용이 바뀐다. Unity의 Auto Refresh 설정이 "플레이 밖에서만"이면 플레이 중 바뀐 파일은 가져오지 않는다. 창이 뒤에 있을 때도 Unity가 앞에 올 때까지 가져오지 않는다.
-- 에셋(SO)은 Inspector에서 고치면 메모리 값이 바로 바뀐다. 디스크 YAML이 바뀌면 가져올 때 다시 읽힌다.
-- 테스트 세팅 창은 지금 OnFocus 때만 다시 읽는다.
+- 게임은 `GameBootstrap.Awake`에서 수치를 한 번 읽고, 판 구성은 판을 시작할 때 굳는다. 값이 바뀌면 판을 새로 만들어야 하고, 확실한 길은 장면을 다시 부르는 것이다.
+- 노드 CSV는 TextAsset이라 Unity가 가져와야(import) 내용이 바뀐다. Auto Refresh 설정이 "플레이 밖에서만"이면 플레이 중 바뀐 파일은 가져오지 않는다. Unity가 뒤에 있을 때도 앞에 올 때까지 가져오지 않는다.
+- 테스트 세팅 창은 OnFocus 때만 다시 읽었다.
 
-## 범위
+## 결정
 
-- 포함: 에디터(플레이 모드 포함)에서의 감시·반영, 수치 지문, 창·HUD 표시, 자동 다시 시작 켜고 끄기
-- 제외: 개발 빌드(폰)의 실시간 반영(지금처럼 프로필 JSON을 adb push하고 패널에서 다시 읽기), 기획 시트(M5)
+- Q1 플레이 중 수치가 바뀌면 → **같은 세팅·같은 시드로 장면을 다시 시작한다**(10-10, 권장안). 판 탭의 토글로 끌 수 있다.
+  - 끄면 "새 수치로 다시 시작" 버튼으로 적용한다.
+- 판도 세팅도 없으면(타이틀·업그레이드 화면의 보통 플레이) 장면만 다시 부른다. 진행은 저장에서 다시 불러온다.
+- 지문이 그대로면(저장만 다시 했거나 값이 같으면) 다시 시작하지 않는다.
 
-## 설계
-
-### 1. 수치 지문 `ContentFingerprint` (개발 전용)
-
-- 패치까지 적용한 `ContentData`와 `NodeContentData`를 리플렉션으로 필드 순서대로 풀어 쓴 글의 SHA-1 앞 8자리다.
-- 에셋 YAML이나 `JsonUtility`를 쓰지 않는다. 객체 참조(instanceID)가 실행마다 달라져 같은 값에서도 지문이 바뀌기 때문이다.
-- `PlaytestSession.Patch`가 패치 뒤에 계산해 `Fingerprint`로 둔다. 원본 지문과 적용 지문을 둘 다 남긴다.
-- 표시: 창 제목 줄, HUD 첫 줄(`golden-x5 · a1b2c3d4`).
-- 메모(M3), 변경 기록(M4), 컨텍스트 묶음(M4)에 넣는다.
-
-### 2. 감시 `LiveDataWatcher` (에디터, `[InitializeOnLoad]`)
-
-- 감시 대상:
-  - `Assets/Data` 아래 `*.csv`, `*.asset`
-  - `Assets/Playtest/Profiles/*.json`
-  - `Assets/Playtest/Scenarios/*.json`(창의 파일 목록용)
-- 길:
-  1. 디스크 바뀜은 `FileSystemWatcher`가 잡는다. 이벤트는 스레드 안전한 큐에 넣는다.
-  2. Unity 안 저장(Inspector에서 고친 뒤 Ctrl+S)은 `AssetPostprocessor.OnPostprocessAllAssets`가 잡는다.
-  3. `EditorApplication.update`가 큐를 비운다. 마지막 바뀜 뒤 0.3초 조용하면 한 번에 처리한다.
-  4. 플레이 중이면 바뀐 경로를 `AssetDatabase.ImportAsset(path, ForceUpdate)`로 직접 가져온다. 스크립트는 감시하지 않으므로 컴파일은 일어나지 않는다.
-  5. `LiveData.Changed(바뀐 경로 목록)`를 낸다.
-- git checkout처럼 한꺼번에 많이 바뀌면, 마지막 바뀜 뒤 한 번만 처리한다.
-
-### 3. 창의 반응 (`TestSetupWindow`)
-
-- `LiveData.Changed`를 받으면 콘텐츠를 다시 불러오고 확정 정보를 다시 계산한다.
-- 알림을 띄운다: `수치 바뀜: NodeCost.csv · 지문 a1b2c3d4 → 9f8e7d6c`.
-- 새 값이 검증을 통과하지 못하면 오류를 보이고, 확정 정보는 마지막으로 통과한 값을 유지한다.
-
-### 4. 플레이 중 반응 (`PlaytestPanel`, Q1)
-
-1. 에디터 쪽이 새 값을 같은 로더로 검증한다(`GameContentLoader.Load(setup, profile.Patch)`).
-2. 통과하고 "수치가 바뀌면 다시 시작"(기본 켬, 판 탭 토글)이 켜져 있으면, 다시 시작할 세팅을 고른다.
-   - 마지막 시나리오·세팅이 있으면 그것을 쓰고, 시드는 방금 판의 시드(`LastSeed`)를 쓴다.
-   - 없으면 지금 진행(성장도·노드·Gold)과 판 Level을 세팅으로 떠서 쓴다.
-3. `TestSetupLaunch`에 맡기고 장면을 다시 부른다. 프로필 바꾸기와 같은 길이다.
-4. 통과하지 못하면 다시 시작하지 않는다. HUD와 패널에 `수치 오류 N개 — 이전 값으로 계속`을 보인다.
-5. 런타임 쪽 신호는 `LiveDataSignal`(Assembly-CSharp, `#if UNITY_EDITOR`의 정적 이벤트)로 받는다. 에디터 감시가 이 신호를 낸다.
-
-Q1 대안 "다음 판부터 적용"은 BattleSystem·ScreenFlow·노드 화면이 쥔 콘텐츠를 모두 바꿔 끼워야 한다. 고칠 곳이 많고 빠뜨리기 쉬워 하지 않는다.
-
-## 만들 파일
+## 만든 것
 
 | 파일 | 어셈블리 | 내용 |
 | --- | --- | --- |
-| `Playtest/ContentFingerprint.cs` | Assembly-CSharp(개발) | 리플렉션 풀어쓰기 + SHA-1 |
-| `Playtest/LiveDataSignal.cs` | Assembly-CSharp(에디터) | 정적 이벤트, 검증 결과 전달 |
-| `Editor/Playtest/LiveDataWatcher.cs` | Editor | 감시·디바운스·가져오기·검증·신호 |
-| `PlaytestSession`·`PlaytestPanel`·`PlaytestHud`·`TestSetupWindow` 수정 | — | 지문 보관, 자동 다시 시작, 표시 |
+| `Playtest/ContentFingerprint.cs` | Assembly-CSharp(개발) | 패치까지 적용한 `ContentData`·`NodeContentData`를 공개 필드 이름 순으로 풀어 쓴 글의 SHA-1 앞 8자리 |
+| `Playtest/LiveDataSignal.cs` | Assembly-CSharp(에디터) | `LiveDataSignal.Changed` 이벤트와 `LiveDataChange`(경로, 판 수치가 바뀌었나, 통과했나, 오류, 새 지문, 프로필) |
+| `Editor/Playtest/LiveDataWatcher.cs` | Editor | `[InitializeOnLoad]` 파일 감시 → 0.3초 디바운스 → 직접 가져오기 → 게임 로더로 검사 → 신호 |
+| `PlaytestSession` | 개발 | `BaseFingerprint`(프로필 전), `Fingerprint`(이번 실행이 쓰는 값) |
+| `PlaytestPanel` | 개발 | 신호를 받아 자동 다시 시작(판 탭 토글, 설정은 PlayerPrefs `playtest.liveRestart`), 실패 표시, 장면 다시 부르기는 게임 Update에서 |
+| `PlaytestHud` | 개발 | 첫 줄에 지문, 둘째 줄에 수치 상태(바뀜·오류) |
+| `TestSetupWindow` | Editor | 신호를 받아 바로 다시 계산, "수치 바뀜 · 지문 a → b" 알림, 오류면 이전 값 유지, 제목에 지문 |
+
+### 감시의 세부
+
+- **대상**: `Assets/Data`, `Assets/Playtest/Profiles`, `Assets/Playtest/Scenarios` 아래의 `.csv`·`.asset`·`.json`이다. `.meta`와 편집기 임시 파일은 뺀다.
+- **판 수치인가**: 게임 콘텐츠 세트가 참조하는 에셋 전부(`AssetDatabase.GetDependencies`, 노드 CSV 포함)와 프로필 폴더만 판 수치다.
+  - 외형 에셋(BreakerLook 등)이나 시나리오 파일만 바뀌면 판 수치 변경이 아니다. 창은 파일 목록만 고친다.
+- **검사**: 고른 프로필까지 적용해 `GameContentLoader.Load`로 불러 본다. 로더가 콘솔에 남기는 오류는 `Application.logMessageReceived`로 모은다. 프로필 문제(찾지 못함·패치 오류)도 실패로 친다.
+- **계획에서 바꾼 것**: `AssetPostprocessor`는 쓰지 않는다.
+  - Unity가 저장하는 파일도 디스크 감시가 잡는다.
+  - 감시 쪽이 스스로 부르는 ImportAsset이 다시 신호를 내는 고리를 피할 수 있다.
+
+### 지문의 성질
+
+- 값만 본다. CSV 줄 번호(`Row`)는 넣지 않는다.
+- 목록은 순서대로 쓰므로, CSV 행 순서를 바꾸면 값이 같아도 지문이 바뀐다.
+- 객체 참조(instanceID)는 실행마다 달라지므로 에셋 YAML이나 `JsonUtility`는 쓰지 않는다.
+- 원본 지문은 지금 `9a787fff`다(feat/liveData 시점 데이터).
 
 ## 작업
 
-- [ ] T1 수치 지문 + 헤드리스 테스트(같은 값이면 같고, 값 하나 바뀌면 바뀌고, 패치 순서와 무관)
-- [ ] T2 LiveDataWatcher(감시·디바운스·플레이 중 가져오기·검증)
-- [ ] T3 LiveDataSignal과 패널의 자동 다시 시작(토글, 세팅 고르기, 실패 표시)
-- [ ] T4 창의 즉시 반영과 알림, 지문 표시
-- [ ] T5 HUD 지문
-- [ ] T6 개발·릴리스·에디터 컴파일, 헤드리스
-- [ ] T7 문서 갱신(M2 결과, PLAN 점검, M3 문서 보정), 커밋
+- [x] T1 수치 지문 + 헤드리스 테스트
+- [x] T2 LiveDataWatcher(감시·디바운스·플레이 중 가져오기·검증)
+- [x] T3 LiveDataSignal과 패널의 자동 다시 시작
+- [x] T4 창의 즉시 반영과 알림, 지문 표시
+- [x] T5 HUD 지문
+- [x] T6 개발·릴리스·에디터 컴파일, 헤드리스
+- [x] T7 문서 갱신, 커밋
+
+## 검증
+
+- 개발·릴리스·에디터 세 설정 컴파일 오류 0, 새 경고 0
+  - 에디터 쪽은 UnityEditor 스텁(AssemblyReloadEvents·ImportAssetOptions·GetDependencies 더함)과 실제 UIElementsModule로 컴파일했다.
+- 헤드리스 138개 통과(기존 118 + 지문). 지문 확인:
+  - 같은 값이면 같다.
+  - 노드 비용 하나, 에셋 값 0.0001 차이에도 바뀐다.
+  - 줄 번호만 바뀌면 그대로다.
+  - 프로필을 적용하면 바뀐다.
+  - 서로 다른 칸을 고치는 패치는 순서와 관계없이 같다.
+  - 원본과 같은 값을 쓰는 패치는 원본과 같다.
+- 감시·다시 시작은 Unity에서만 확인할 수 있다(아래).
 
 ## 완료 기준
 
+- [x] 헤드리스: 지문 테스트 통과, 기존 118개 유지
 - [ ] 플레이 밖: 메모장으로 `NodeCost.csv` 한 칸을 고쳐 저장하면 3초 안에 창의 확정 정보와 지문이 바뀐다.
 - [ ] 플레이 중: 같은 수정이면 같은 세팅·같은 시드로 판이 다시 시작하고 HUD 지문이 바뀐다.
 - [ ] 프로필 JSON 수정, Inspector에서 에셋 수정 후 저장도 같다.
-- [ ] 잘못된 값(음수 제한 시간)은 다시 시작하지 않고 오류를 보인다. 고치면 다시 정상으로 돌아온다.
+- [ ] 잘못된 값은 다시 시작하지 않고 오류를 보인다. 고치면 다시 정상으로 돌아온다.
 - [ ] git checkout으로 파일 수십 개가 바뀌어도 한 번만 처리한다.
-- [ ] 헤드리스: 지문 테스트 통과. 기존 118개 유지.
 
-## 결정 (시작할 때 확인)
+## Unity 손 확인 순서
 
-- Q1 플레이 중 수치가 바뀌면 → 권장: 같은 세팅·같은 시드로 장면 다시 시작(토글로 끌 수 있음)
-- Q6 contentVersion에 지문을 넣을지 → M2 끝에 서버 계약(64자) 안에서 `프로필@지문` 형식을 검토해 PLAN에 올린다
+1. Unity를 앞에 두고 컴파일이 끝나기를 기다린다. Test Setup 창 제목 끝에 `지문 xxxxxxxx`가 보이는지 본다.
+2. 메모장으로 `Assets/Data/NodeTable/NodeCost.csv`의 `timer-01` 비용을 바꾸고 저장한다.
+   - 1초 안에 창에 "수치 바뀜: NodeCost.csv · 지문 a → b"가 뜨는지 본다.
+   - Console에 `[수치 감시] 바뀜`이 한 번 찍히는지 본다.
+   - "고른 노드"에 새 비용이 보이는지 본다.
+3. 그 노드를 산 세팅으로 ▶ 플레이한다. 같은 칸을 다시 바꾸고 저장한다.
+   - 장면이 다시 불려 같은 세팅으로 판이 시작하는지 본다.
+   - HUD 첫 줄 지문이 바뀌는지 본다.
+4. 비용 칸에 `abc`를 넣고 저장한다.
+   - 다시 시작하지 않는지 본다.
+   - HUD·패널에 "수치 오류 N개 — 이전 값으로 계속", 창에 오류가 보이는지 본다.
+   - 원래대로 고치면 다시 정상이 되는지 본다.
+5. 판 탭에서 "수치가 바뀌면 지금 세팅으로 다시 시작"을 끄고 값을 바꾼다. "새 수치로 다시 시작" 버튼으로 적용되는지 본다.
+6. 고른 프로필 JSON의 값을 바꿔도 3과 같은지 본다.
+7. 처음 바꾼 값을 되돌린 뒤 `git stash` / `git stash pop`처럼 여러 파일을 한꺼번에 바꾼다. 처리가 한 번만 일어나는지 본다.
 
-## 위험
+## 알려진 한계
 
-- `FileSystemWatcher`가 일부 편집기의 임시 파일 저장(쓰기→이름 바꾸기)에 이벤트를 여러 번 낸다 → 확장자 필터와 디바운스
-- 플레이 중 `ImportAsset`은 Unity 버전에 따라 경고를 낼 수 있다 → 손 확인 항목에 넣는다
-- 장면 다시 부르기는 1~2초 걸린다 → 허용(목표는 몇 초 안)
+- Inspector에서 고치고 저장하지 않은 값은 감지하지 않는다(저장하면 감지한다).
+- Unity가 뒤에 있으면 앞에 올 때 처리될 수 있다. 메모장으로 고친 뒤 Unity를 누르면 확실하다.
+- 개발 빌드(폰)에는 감시가 없다. 프로필 JSON을 넣고 패널에서 다시 읽는다.
+- 장면 다시 부르기는 1~2초 걸린다.
+
+## 다음으로 넘기는 것
+
+- M3 메모: `PlaytestSession.Fingerprint`와 `BaseFingerprint`를 그대로 담는다. 창은 `LiveDataSignal`로 지문이 바뀌는 순간을 알므로 "이전 수치" 표시에 쓴다.
+- M4: 승격(CSV·에셋 저장)이 끝나면 감시가 바로 반영한다. 따로 다시 불러올 필요가 없다.
+- Q6(contentVersion에 지문 넣기): 지금 계약은 64자이고, 프로필 이름은 58자까지라 `@지문`(9자)을 붙이면 넘친다.
+  - 권장: 전투 요약 계약에 `contentFingerprint`(8자) 칸을 따로 둔다(서버 마이그레이션 필요). 그 전까지는 메모와 변경 기록에만 쓴다.
