@@ -148,6 +148,7 @@ flowchart LR
 
 ## 문서
 
+- [전체 안내서 (M0~M6 정리: 무엇을·사용법·설계·구조·알아야 할 것)](README.md)
 - [M0 공용 테스트 도구](M0-playtest-tools.md)
 - [M1 테스트 세팅 창](M1-test-setup.md)
 - [M2 수치 실시간 반영](M2-live-data.md)
