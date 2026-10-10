@@ -138,6 +138,37 @@ namespace BlackHole.Unity
             return diff;
         }
 
+        // 시트 끝의 빈 행(칸이 모두 빈 줄, 예: ",,,,,")을 뺀다. 시트는 수식이나 서식이 아래로 늘어 있으면 그 행까지 읽히지만,
+        // 시트의 CSV 다운로드는 끝의 빈 행을 넣지 않는다. 중간의 빈 행은 그대로 둔다.
+        // 뺄 것이 없으면 글을 그대로 돌려주고, 뺐으면 원래 줄 끝(CRLF/LF)으로 잇되 마지막 줄바꿈은 두지 않는다(다운로드 모양).
+        public static string TrimEmptyRows(string csv)
+        {
+            string original = csv ?? string.Empty;
+            string eol = original.Contains("\r\n") ? "\r\n" : "\n";
+            string[] lines = original.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
+            int count = lines.Length;
+
+            while (count > 1 && IsEmptyRow(lines[count - 1]))
+                count--;
+
+            // 마지막 줄바꿈 하나(빈 줄 하나)만 있었으면 빈 행이 아니다.
+            if (count == lines.Length || (count == lines.Length - 1 && lines[lines.Length - 1].Length == 0))
+                return original;
+
+            return string.Join(eol, lines, 0, count);
+        }
+
+        private static bool IsEmptyRow(string line)
+        {
+            foreach (char c in line)
+            {
+                if (c != ',' && c != '"' && !char.IsWhiteSpace(c))
+                    return false;
+            }
+
+            return true;
+        }
+
         // 끌어온 글을 레포 파일의 줄 끝(CRLF/LF)과 마지막 줄바꿈 여부에 맞춘다. 시트 CSV 다운로드는 CRLF, 마지막 줄바꿈 없음이다.
         public static string MatchLineEndings(string remote, string local)
         {

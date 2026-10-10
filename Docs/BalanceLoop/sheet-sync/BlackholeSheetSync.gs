@@ -6,7 +6,7 @@
  *
  * - 모든 요청은 POST(JSON 본문)이고, 본문의 token이 스크립트 속성 BH_SYNC_TOKEN과 같아야 한다.
  * - read: 탭을 시트 메뉴 "파일 > 다운로드 > CSV"와 같은 모양으로 돌려준다
- *   (보이는 값, 쉼표·따옴표·줄바꿈이 든 칸만 따옴표, 줄 끝 CRLF, 마지막 줄바꿈 없음).
+ *   (보이는 값, 쉼표·따옴표·줄바꿈이 든 칸만 따옴표, 줄 끝 CRLF, 마지막 줄바꿈 없음, 끝의 빈 행 없음).
  * - write: 키(NodeId·Rank·StatId)로 행을 찾아 NodeCost의 Cost, NodeEffects의 Value 칸만 고친다.
  *   모든 칸을 찾고, 지금 값이 기대값(expected)일 때만 한 번에 쓴다(하나라도 틀리면 아무것도 쓰지 않는다).
  *   이미 새 값이면 쓰지 않고 성공으로 친다. NodeEffects의 표시 칸은 수식이 아니고 이전 값의 표시와 같을 때만 맞춘다.
@@ -85,6 +85,11 @@ function bhRead_(tabs) {
     if (!sheet) return bhFail_('탭이 없다: ' + tabs[i]);
 
     var rows = sheet.getDataRange().getDisplayValues();
+
+    // 수식·서식이 아래로 늘어 있으면 빈 행까지 읽힌다. 시트의 CSV 다운로드처럼 끝의 빈 행은 뺀다.
+    while (rows.length > 1 && rows[rows.length - 1].every(function (cell) { return String(cell).trim() === ''; }))
+      rows.pop();
+
     out[tabs[i]] = rows.map(function (row) { return row.map(bhCsvCell_).join(','); }).join('\r\n');
   }
 

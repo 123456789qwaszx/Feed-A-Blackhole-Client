@@ -44,7 +44,7 @@ namespace BlackHole.Unity
                 ? PostJson(_config.Endpoint, new JsonObject { { "token", _config.Token }, { "action", "ping" } })
                 : Task.FromResult(SheetReply.Fail("웹 앱 주소와 토큰이 없다."));
 
-        // 탭 4개를 읽는다. 성공하면 Tabs에 레포 CSV 이름 → 글이 모두 있다.
+        // 탭 4개를 읽는다. 성공하면 Tabs에 레포 CSV 이름 → 글이 모두 있다. 끝의 빈 행은 뺀다(SheetDiff.TrimEmptyRows).
         public async Task<SheetReply> Read()
         {
             if (!_config.HasEndpoint)
@@ -69,7 +69,7 @@ namespace BlackHole.Unity
             foreach (string name in SheetTabs.Names)
             {
                 if (read?[_config.TabOf(name)] is string csv)
-                    reply.Tabs[name] = csv;
+                    reply.Tabs[name] = SheetDiff.TrimEmptyRows(csv);
                 else
                     return SheetReply.Fail($"응답에 탭 '{_config.TabOf(name)}'이 없다.");
             }
@@ -117,7 +117,7 @@ namespace BlackHole.Unity
                 if (text.TrimStart().StartsWith("<", StringComparison.Ordinal))
                     return SheetReply.Fail($"{name}: CSV가 아니라 웹 페이지가 왔다. 공개 범위나 주소를 본다. 앞부분: {Snippet(text)}");
 
-                reply.Tabs[name] = text;
+                reply.Tabs[name] = SheetDiff.TrimEmptyRows(text);
             }
 
             return reply;
