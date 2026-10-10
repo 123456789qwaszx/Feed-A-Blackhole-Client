@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8721ee9bc5c84acc89ef612256a664e0, type: 3}
+  m_Name: PlaytestLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.PlaytestLibrary
+  _profiles:
+  - {fileID: 4900000, guid: f16a76670df74b049e48392e6619490b, type: 3}
+  - {fileID: 4900000, guid: 804a0b2e78c148938960023180632aad, type: 3}
+  - {fileID: 4900000, guid: 033499f1801b49bbafc347aff3eb19d3, type: 3}
+  _scenarios:
+  - {fileID: 4900000, guid: 78836164f7b4451b83ab4e7f4cb2a2cc, type: 3}
+  - {fileID: 4900000, guid: 9b3959ef4dc549fe821d49887c7b8a9f, type: 3}
+  - {fileID: 4900000, guid: da3e6a51832846f884da055666df8b8e, type: 3}
+  - {fileID: 4900000, guid: 499144b52d27432c9f4c2f9bfe364572, type: 3}
+  - {fileID: 4900000, guid: e19b8156fb264b1a8de5ede8136bf7ff, type: 3}
+  _font: {fileID: 0}
