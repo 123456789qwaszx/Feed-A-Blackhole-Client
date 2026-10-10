@@ -1,7 +1,11 @@
 # M5 기획 시트 연동
 
-- 상태: 결정 대기
+- 상태: 다음 (Q4 결정 필요)
 - 브랜치: `feat/sheetSync` (← `feat/aiTuning`)
+- M4에서 받은 것:
+  - 변경 기록 `PlaytestData/changes.ndjson`: 노드 경로를 반영한 기록은 `sheetSynced: false`이고, 패치마다 `target`(예: `NodeEffects.csv growth.asteroids-01 Rank 1 growth.asteroids · Value`)과 이전·이후 값이 있다. 되돌린 기록은 `revertOf`로 안다(`ChangeRecord.RevertedIds`).
+  - `NodeSheetEdits`: (노드, Rank, StatId)로 행을 찾고 그 칸만 고치는 편집기. 시트 서식(천 단위 쉼표·따옴표)과 표시 칸 규칙(부호 + 값 + %)을 안다.
+  - `ProfileTargets`: 노드 경로 → CSV 행.
 
 ## 목표
 
@@ -34,7 +38,10 @@
   1. 내려받는다.
   2. 지금 CSV와 행 단위로 비교해 바뀐 행을 보인다.
   3. 확인하면 덮어쓴다. M2가 감지해 바로 반영한다.
-- 끌어오기 전에 변경 기록(M4)에 `sheetSynced: false`인 노드 변경이 있으면 경고한다. 덮어쓰면 그 변경이 사라지기 때문이다.
+- 끌어오기 전에 변경 기록(M4)에 `sheetSynced: false`이고 되돌리지 않은 노드 변경이 있으면 경고한다. 덮어쓰면 그 변경이 사라지기 때문이다.
+  - 내려받은 시트 CSV에 그 칸의 값이 이미 기록의 이후 값이면(사람이 시트에 옮겼으면) 경고하지 않고, 변경 기록에 `sheet-sync` 한 줄을 더해 반영됨으로 둔다.
+- 차이는 글자가 아니라 읽은 행(NodeId·Rank·StatId → 값)으로 비교한다. 시트가 내보내는 따옴표·쉼표 모양이 바뀌어도 값이 같으면 차이로 보지 않는다.
+- 표시 칸("+25%")이 시트에서 수식이면, 시트에 쓸 때는 Value만 쓴다.
 - (B·D를 고르면) "시트에 반영": 승격된 노드 변경을 셀 단위로 시트에 쓰고 `sheetSynced: true`로 기록한다.
 
 ## 작업 (A 기준, 시작할 때 확정)

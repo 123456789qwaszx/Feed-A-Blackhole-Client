@@ -27,6 +27,7 @@
 
 ## 남은 일
 
-- [ ] GameScene의 GameBootstrap Playtest 칸에 PlaytestLibrary 연결(장면 한 줄 커밋). 연결 전에도 에디터는 폴더를 바로 읽어 동작한다. 개발 빌드는 연결해야 예시가 들어간다.
+- [x] GameScene의 GameBootstrap Playtest 칸에 PlaytestLibrary 연결(장면 한 줄 커밋, 209a23e). 연결 전에도 에디터는 폴더를 바로 읽어 동작한다. 개발 빌드는 연결해야 예시가 들어간다.
 - [ ] Unity 손 확인: F1 패널, 시나리오 시작, 프로필 바꿔 다시 시작, 적 탭, 메모 저장, DB의 content_version
+  - 10-10 사용자: F1 패널과 메모 저장(M3 형식, battle 채워짐)을 확인했다. 프로필 바꿔 다시 시작은 M4 T6에서 같은 세팅·같은 시드로 바뀐 길로 확인한다.
 - [ ] 개발 빌드 APK에서 세 손가락 터치
