@@ -1,7 +1,7 @@
 # 밸런스 루프 전체 계획 (PLAN)
 
 - 갱신: 2026-10-10
-- 지금: M5 구현·커밋 완료(시트에 웹 앱 설치·Unity 손 확인 대기) → 다음은 M6(선택)
+- 지금: M5 완료(사용자가 설치·연결·끌어오기 확인, 시트에 반영·자동 끌어오기 확인 남음) → M6 시작(Q5 결정 중)
 - 작업 브랜치: `feat/sheetSync` (feat/analytics → feat/playtestTools → feat/testSetup → feat/liveData → feat/feelNotes → feat/aiTuning → feat/sheetSync 순서로 쌓임)
 - Unity 손 확인이 남은 것:
   - M0·M1·M3 일부. 사용자가 창·플레이·패널 메모는 확인했다.
@@ -71,7 +71,7 @@ flowchart LR
 | M2 | 수치 실시간 반영 | 수치 파일이 바뀌면 몇 초 안에 창과 플레이 중인 게임이 새 값으로 바뀐다 | 구현·커밋 완료, Unity 확인 대기 | `feat/liveData` | [M2](M2-live-data.md) |
 | M3 | 플레이 메모 | 세팅 기준 느낌을 적으면 세팅·수치·판 상태와 함께 JSON으로 바로 쌓인다 | 구현·커밋 완료, Unity 확인 일부 | `feat/feelNotes` | [M3](M3-feel-notes.md) |
 | M4 | AI 조정 | AI가 메모를 읽고 초안을 만들면 바로 비교 플레이하고, 승인하면 원본에 반영한다 | 구현·커밋 완료, 시연 대기(Unity에서 묶음 확인) | `feat/aiTuning` | [M4](M4-ai-tuning.md) · [AI 지침](AI-GUIDE.md) |
-| M5 | 기획 시트 연동 | 구글 시트와 레포 CSV를 끌어오고 반영한다 | 구현·커밋 완료, 설치·확인 대기 | `feat/sheetSync` | [M5](M5-sheet-sync.md) |
+| M5 | 기획 시트 연동 | 구글 시트와 레포 CSV를 끌어오고 반영한다 | 완료(손 확인 일부 남음) | `feat/sheetSync` | [M5](M5-sheet-sync.md) |
 | M6 | 자동 루프 (선택) | 메모를 저장하면 AI가 알아서 초안을 만든다 | 다음(Q5 결정 필요) | `feat/autoLoop` | [M6](M6-auto-loop.md) |
 
 순서의 이유:
