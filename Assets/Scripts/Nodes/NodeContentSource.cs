@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BlackHole.Core;
 using UnityEngine;
 
@@ -17,6 +18,10 @@ namespace BlackHole.Unity
         // 부를 때마다 CSV를 새로 읽는다. 연결하지 않은 CSV는 "시트가 없다" 진단이 된다.
         public NodeContentLoadResult Load() =>
             NodeContentCsv.Load(TextOf(_upgradeStats), TextOf(_nodes), TextOf(_nodeCost), TextOf(_nodeEffects));
+
+        // CSV를 읽기만 한다(규칙 검사 전). 형식 오류는 into에 더한다. 밸런스 프로필이 이 데이터에 패치를 적용한 뒤 로더에 넘긴다.
+        internal NodeContentData Read(List<ContentDiagnostic> into) =>
+            NodeContentCsv.Read(TextOf(_upgradeStats), TextOf(_nodes), TextOf(_nodeCost), TextOf(_nodeEffects), into);
 
         private static string TextOf(TextAsset csv) => csv != null ? csv.text : null;
 

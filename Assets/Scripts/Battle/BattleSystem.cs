@@ -22,6 +22,8 @@ namespace BlackHole.Unity
         private readonly HqView _hqView;
         private readonly BattleCameraFit _cameraFit;
         private State _state = State.Idle;
+        // 다음 판에 쓸 시드. 테스트 도구만 정한다(UseSeedForNextBattle). 없으면 시각으로 정한다.
+        private int? _nextSeed;
 
         // 진행 중인 판. 판이 없으면 null.
         public GameSession Session { get; private set; }
@@ -30,6 +32,9 @@ namespace BlackHole.Unity
         public bool IsRunning => _state == State.Running && !Session.IsEnded;
 
         public bool IsPaused => _state == State.Paused;
+
+        // 마지막으로 시작한 판의 시드. 테스트 도구가 같은 판을 다시 할 때 쓴다.
+        public int LastSeed { get; private set; }
 
         // 판이 있는가(진행 또는 정지). 종료·포기는 이때만 한다.
         private bool HasBattle => _state == State.Running || _state == State.Paused;
@@ -57,7 +62,9 @@ namespace BlackHole.Unity
             if (_state != State.Idle)
                 return false;
 
-            Session = GameSessionFactory.Create(_content, _progress, Environment.TickCount, upgrades);
+            LastSeed = _nextSeed ?? Environment.TickCount;
+            _nextSeed = null;
+            Session = GameSessionFactory.Create(_content, _progress, LastSeed, upgrades);
 
             _cameraFit.SetFieldScale(Session.World.Hq.FieldScale);
 
@@ -69,6 +76,9 @@ namespace BlackHole.Unity
             _state = State.Running;
             return true;
         }
+
+        // 다음 판 하나만 이 시드로 시작한다(테스트 도구: 시나리오의 시드, 같은 시드로 다시).
+        public void UseSeedForNextBattle(int seed) => _nextSeed = seed;
 
         // 판을 한 Step 진행하고 전투 화면을 맞춘다. 진행 중인 판이 없으면 아무것도 하지 않는다.
         // 정지 중에는 판을 진행하지 않는다(화면은 멈춘 채 맞춘다). Ended는 이번 Step에 판이 끝났을 때만 true다.

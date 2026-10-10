@@ -11,6 +11,7 @@ namespace BlackHole.Unity
     // - 시작: 설치의 다음 판 번호를 정하고 시작 조건을 적어 둔다.
     // - 끝: 결과를 채워 큐에 넣고 보낸다. 닿지 않으면 큐에 남아 다음 기회(다음 판의 끝, 앱 시작·복귀)에 보낸다.
     // - 포기: 적어 둔 요약을 버린다. 끝나지 않은 판은 보내지 않는다(판 번호는 건너뛴다).
+    // - contentVersion: 판이 끝날 때 콘텐츠 표시(ContentTag)에서 적는다. 릴리스는 늘 ""다.
     //
     // 통계 때문에 게임이 멈추면 안 된다. 그래서 여기가 경계다: 요약을 만들다 난 예외는 여기서 로그로 남기고 그 판의 통계만 잃는다.
     // 보내기(AnalyticsSender)는 원래 예외를 던지지 않는다.
@@ -21,23 +22,27 @@ namespace BlackHole.Unity
         // 큐에 쌓아 둘 판의 수. 오래 오프라인이어도 이만큼은 남긴다.
         private const int QueueCapacity = 200;
 
-        // 설정이 없거나 꺼져 있을 때. 보낼 곳이 없어 아무것도 하지 않는다.
-        private static readonly BattleAnalytics Disabled = new(null, null, null, null);
-
         private readonly AnalyticsInstall _install;
         private readonly AnalyticsSender _sender;
         private readonly string _buildVersion;
         private readonly string _platform;
+        private readonly ContentTag _tag;
         // 시작해서 아직 끝나지 않은 판의 요약. 없으면 null이다.
         private BattleSummaryDto _pending;
+        // 마지막으로 보낸 판의 ID.
+        private string _lastBattleId;
 
-        private BattleAnalytics(AnalyticsInstall install, AnalyticsSender sender, string buildVersion, string platform)
+        private BattleAnalytics(AnalyticsInstall install, AnalyticsSender sender, string buildVersion, string platform, ContentTag tag)
         {
             _install = install;
             _sender = sender;
             _buildVersion = buildVersion;
             _platform = platform;
+            _tag = tag ?? new ContentTag();
         }
+
+        // 진행 중인 판의 ID, 없으면 마지막으로 보낸 판의 ID. 꺼져 있거나 아직 판이 없으면 null. 플레이 메모가 판을 가리킬 때 쓴다.
+        public string CurrentBattleId => _pending?.battleId ?? _lastBattleId;
 
         private bool Enabled => _sender != null;
 
@@ -47,12 +52,16 @@ namespace BlackHole.Unity
             AnalyticsSettings settings,
             string persistentDataPath,
             string buildVersion,
-            string platform)
+            string platform,
+            ContentTag tag)
         {
+            // 설정이 없거나 꺼져 있을 때. 보낼 곳이 없어 아무것도 하지 않는다.
+            var disabled = new BattleAnalytics(null, null, null, null, tag);
+
             if (settings == null || !settings.Enabled)
             {
                 Debug.Log("[통계] 설정이 없거나 꺼져 있어 통계를 보내지 않는다.");
-                return Disabled;
+                return disabled;
             }
 
             try
@@ -63,18 +72,21 @@ namespace BlackHole.Unity
                 AnalyticsClient client = new(settings.BaseUrl, settings.TimeoutSeconds);
                 AnalyticsSender sender = new(queue, client);
 
-                return new BattleAnalytics(install, sender, buildVersion, platform);
+                return new BattleAnalytics(install, sender, buildVersion, platform, tag);
             }
             catch (Exception error)
             {
                 Debug.LogError($"[통계] 준비하지 못해 이번 실행은 통계를 보내지 않는다: {error}");
-                return Disabled;
+                return disabled;
             }
         }
 
         // 판을 막 시작했을 때(흐르기 전) 부른다.
         public void BattleStarted(GameSession session, ProgressState progress)
         {
+            // 판마다 조작 표시를 지운다. 테스트 세션 표시는 남는다.
+            _tag.BeginBattle();
+
             if (!Enabled)
                 return;
 
@@ -108,6 +120,7 @@ namespace BlackHole.Unity
 
             try
             {
+                summary.contentVersion = _tag.ContentVersion;
                 BattleSummaryBuilder.Complete(summary, raw, DateTime.UtcNow);
             }
             catch (Exception error)
@@ -116,6 +129,7 @@ namespace BlackHole.Unity
                 return;
             }
 
+            _lastBattleId = summary.battleId;
             _ = _sender.SendAsync(summary);
         }
 
