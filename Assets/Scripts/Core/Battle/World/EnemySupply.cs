@@ -194,6 +194,27 @@ namespace BlackHole.Core
 
         internal void Clear() => _requests.Clear();
 
+        // 테스트 도구(BattleCheats)가 부른다: 종류·색 등급·성질·크기를 정해 count마리를 출현 띠에 바로 만든다.
+        // 성질과 크기는 이 판의 판 구성 안의 것이어야 한다(EnemyStatTable.Of가 검사한다). 동시 상한(SafetyMaxAlive)까지만 만든다.
+        internal int SpawnExact(EnemyDefinition kind, int tier, EnemyTraitDefinition trait, int size, int count)
+        {
+            int room = SafetyMaxAlive - SuppliedAlive();
+            int made = 0;
+
+            for (; made < count && made < room; made++)
+            {
+                _enemies.Spawn(
+                    kind,
+                    tier,
+                    trait,
+                    size,
+                    _stats.Of(kind, tier, trait, size),
+                    _placement.Pick(_placementRandom));
+            }
+
+            return made;
+        }
+
         private int SuppliedAlive()
         {
             int count = _enemies.Alive.Count;

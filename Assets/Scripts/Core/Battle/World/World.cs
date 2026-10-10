@@ -32,6 +32,9 @@ namespace BlackHole.Core
         // 밖에서는 읽기만 한다(표는 읽기 API만 연다). 전투 통계가 이 판에 적용된 성질 확률·황금 배율을 읽는다.
         public EnemyStatTable Stats { get; }
 
+        // 적 이동 배율. 게임에서는 늘 1이고, 테스트 도구(BattleCheats)만 바꾼다(0이면 멈춤).
+        internal float EnemyMoveScale { get; set; } = 1f;
+
         internal World(
             int seed,
             EnemyStatTable stats,
@@ -88,6 +91,13 @@ namespace BlackHole.Core
             _enemies.ClearAlive();
         }
 
+        // 테스트 도구(BattleCheats)가 부른다. 정해진 적을 바로 만든다. 만든 수를 돌려준다.
+        internal int SpawnExact(EnemyDefinition kind, int tier, EnemyTraitDefinition trait, int size, int count) =>
+            _supply.SpawnExact(kind, tier, trait, size, count);
+
+        // 테스트 도구(BattleCheats)가 부른다. 살아 있는 적만 치운다. 처치가 아니다(사망 기록·처치 수·Gold 없음).
+        internal void ClearAliveEnemies() => _enemies.ClearAlive();
+
         internal bool DealDamage(Enemy enemy, Damage damage)
         {
             if (!_enemies.DealDamage(enemy, damage))
@@ -107,8 +117,9 @@ namespace BlackHole.Core
             DeathEffects.BeginStep();
             Breaker.BeginStep();
 
-            // 1. Enemy Action
-            _enemies.Move(delta);
+            // 1. Enemy Action. 이동 배율 0(테스트 도구의 멈춤)이면 위치를 다시 계산하지 않는다 — 각도 재계산의 반올림으로 조금씩 밀리지 않게.
+            if (EnemyMoveScale > 0)
+                _enemies.Move(delta * EnemyMoveScale);
 
             // 2. Passive Attack: (DealDamage).
             Breaker.Advance(delta, this);
