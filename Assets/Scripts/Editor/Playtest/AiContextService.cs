@@ -14,6 +14,7 @@ namespace BlackHole.EditorTools
     //   (묶음 하나에 흐름 계산이 원본·초안 두 번이라 다 쓰면 에디터가 멈칫한다).
     //   AI가 초안을 쓰면 몇 초 안에 묶음의 draft 칸(검사 결과·원본과 다른 확정 정보·흐름)이 채워진다.
     // - 창의 "AI 묶음 만들기"는 메모 없이도 지금 세팅의 묶음을 쓴다.
+    // - 새 메모의 묶음을 쓴 뒤 자동 루프 실행기(AiRunner, M6)에 알린다. 자동이 켜져 있으면 Claude Code가 초안을 쓴다.
     // 묶음: PlaytestData/context/<setupKey>.json, 목록: PlaytestData/context/index.json
     [InitializeOnLoad]
     internal static class AiContextService
@@ -66,6 +67,7 @@ namespace BlackHole.EditorTools
             _notesStamp = stamp;
             List<JsonObject> notes = PlaytestNotes.ReadRaw();
             var keys = new List<string>();
+            JsonObject newest = null;
 
             if (_notesSeen < 0)
             {
@@ -86,6 +88,9 @@ namespace BlackHole.EditorTools
 
                     if (key != null && !keys.Contains(key))
                         keys.Add(key);
+
+                    if (key != null)
+                        newest = notes[i];
                 }
             }
 
@@ -93,6 +98,10 @@ namespace BlackHole.EditorTools
 
             if (keys.Count > 0)
                 WriteKeys(keys, notes);
+
+            // 자동 루프(M6): 묶음을 쓴 뒤 가장 최근 새 메모를 실행기에 알린다(켜져 있으면 AI에게 맡긴다).
+            if (newest != null)
+                AiRunner.OnNewNote(newest.Text("setupKey"), newest.Text("id"));
         }
 
         private static void OnLiveData(LiveDataChange change)
@@ -143,6 +152,33 @@ namespace BlackHole.EditorTools
             WriteIndex(notes);
             Written?.Invoke();
             return true;
+        }
+
+        // 초안(ai-draft.json)을 게임과 같은 로더로 검사한다(M6 실행기가 AI 실행 뒤에 부른다).
+        // 통과하면 true. draft는 읽은 초안(파일이 없거나 읽지 못했으면 null), errors는 읽기·패치·콘텐츠 검사 오류.
+        public static bool TryValidateDraft(out BalanceProfile draft, out List<string> errors)
+        {
+            Loaded loaded = Load(out string error);
+            draft = null;
+
+            if (loaded == null)
+            {
+                errors = new List<string> { error };
+                return false;
+            }
+
+            errors = loaded.DraftErrors;
+
+            if (loaded.Draft == null)
+            {
+                errors.Add("초안 파일이 없다.");
+                return false;
+            }
+
+            if (loaded.Draft.patches != null && loaded.Draft.patches.Count > 0)
+                draft = loaded.Draft;
+
+            return errors.Count == 0 && loaded.DraftLoaded != null;
         }
 
         private static void WriteKeys(List<string> keys, List<JsonObject> notes)

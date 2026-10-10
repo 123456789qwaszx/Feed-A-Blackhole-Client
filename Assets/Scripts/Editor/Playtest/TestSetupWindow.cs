@@ -23,6 +23,7 @@ namespace BlackHole.EditorTools
     // - ▶ 플레이: 세팅을 맡기고 플레이 모드에 들어가면 판이 바로 그 세팅으로 시작한다. 플레이 중에는 "지금 판에 적용"으로 다시 시작한다.
     // - 밸런스 프로필: 고른 프로필을 적용한 값으로 미리보고 플레이한다(바꾸면 다음 플레이부터).
     // - AI 조정(M4): AI 초안(ai-draft.json)을 켜고 끄며 원본과 비교하고, 원본에 반영(승격)하거나 되돌린다. AI 묶음을 만든다.
+    //   자동 루프(M6): 이 PC의 Claude Code에게 초안을 맡긴다(버튼, 또는 메모 저장 때 자동). 상태·결과·비용을 보인다.
     // 창의 세팅은 Undo(Ctrl+Z)로 되돌린다.
     internal sealed class TestSetupWindow : EditorWindow, INodeCanvasHost
     {
@@ -81,6 +82,8 @@ namespace BlackHole.EditorTools
         private VisualElement _fileBox;
         private VisualElement _profileBox;
         private VisualElement _aiBox;
+        private Label _aiRunStatus;
+        private bool _aiRunBusy;
         private DateTime _draftWrite;
         private (DateTime Write, long Length) _changesStamp;
         private VisualElement _playBox;
@@ -117,6 +120,8 @@ namespace BlackHole.EditorTools
             EditorApplication.playModeStateChanged += OnPlayModeChanged;
             LiveDataSignal.Changed += OnLiveDataChanged;
             AiContextService.Written += OnContextWritten;
+            AiRunner.Changed += OnContextWritten;
+            AiRunner.Finished += OnAiRunFinished;
 
             // 플레이에 들어가지 못해(컴파일 오류 등) 남은 세팅이 다음 보통 플레이에서 실행되지 않게 지운다.
             if (!EditorApplication.isPlayingOrWillChangePlaymode)
@@ -129,6 +134,17 @@ namespace BlackHole.EditorTools
             EditorApplication.playModeStateChanged -= OnPlayModeChanged;
             LiveDataSignal.Changed -= OnLiveDataChanged;
             AiContextService.Written -= OnContextWritten;
+            AiRunner.Changed -= OnContextWritten;
+            AiRunner.Finished -= OnAiRunFinished;
+        }
+
+        // AI 실행이 끝났다(M6). 초안이 도착했으면 창에 알린다.
+        private void OnAiRunFinished(AiRunRecord record)
+        {
+            if (record.Status == AiRun.Ok)
+                ShowNotification(new GUIContent("AI 초안 도착"));
+            else if (record.Status == AiRun.InvalidDraft || record.Status == AiRun.Error)
+                ShowNotification(new GUIContent("AI 실행: " + AiRun.StatusText(record.Status)));
         }
 
         private void OnContextWritten()
@@ -471,9 +487,11 @@ namespace BlackHole.EditorTools
             if (_notesList != null && PlaytestNotes.Stamp() != _notesStamp)
                 BuildNotesList();
 
-            // AI가 초안을 쓰거나 지웠다, 변경 기록이 늘었다.
-            if (_aiBox != null && (DraftWrite() != _draftWrite || PlaytestChanges.Stamp() != _changesStamp))
+            // AI가 초안을 쓰거나 지웠다, 변경 기록이 늘었다, AI 실행이 시작되거나 끝났다.
+            if (_aiBox != null && (DraftWrite() != _draftWrite || PlaytestChanges.Stamp() != _changesStamp || AiRunner.Busy != _aiRunBusy))
                 BuildAi();
+            else if (_aiRunStatus != null && AiRunner.Busy)
+                _aiRunStatus.text = AiRunningText();
         }
 
         private void UpdateTitle()
@@ -1054,6 +1072,7 @@ namespace BlackHole.EditorTools
             _aiBox.Add(Header("AI 조정"));
 
             BuildDraft();
+            BuildAutoRun();
             BuildContextLine();
             BuildChanges();
         }
@@ -1127,6 +1146,172 @@ namespace BlackHole.EditorTools
                 ? "켜기·원본으로는 같은 세팅·같은 시드로 판을 다시 시작한다. 반영은 노드 CSV·에셋을 고치고 변경 기록에 남긴다."
                 : "켜면 확정 정보가 초안 값이 된다. 플레이하면 초안 값으로 시작한다. 반영은 노드 CSV·에셋을 고치고 변경 기록에 남긴다."));
             _aiBox.Add(box);
+        }
+
+        // 자동 루프(M6): Claude Code 실행 상태·마지막 결과·버튼·자동 토글.
+        private void BuildAutoRun()
+        {
+            AiRunRequest active = AiRunner.Active;
+            _aiRunBusy = active != null;
+            var box = new VisualElement();
+            box.style.paddingLeft = 6;
+            box.style.paddingTop = 4;
+            box.style.paddingBottom = 4;
+            box.style.marginBottom = 4;
+            box.style.borderLeftWidth = 3;
+            box.style.borderLeftColor = active != null ? new Color(0.4f, 0.65f, 0.95f) : new Color(0.5f, 0.5f, 0.5f);
+
+            var title = new Label("AI 자동 실행 · 이 PC의 Claude Code");
+            title.style.unityFontStyleAndWeight = FontStyle.Bold;
+            box.Add(title);
+
+            if (active != null)
+            {
+                _aiRunStatus = Wrapped(AiRunningText());
+                box.Add(_aiRunStatus);
+            }
+            else
+            {
+                _aiRunStatus = null;
+            }
+
+            List<AiRunRecord> records = AiRunner.ReadRecords();
+            AiRunRecord last = records.Count > 0 ? records[records.Count - 1] : null;
+
+            if (last != null)
+            {
+                string cost = last.CostUsd.HasValue ? $" · ${last.CostUsd.Value.ToString("0.00", CultureInfo.InvariantCulture)}" : string.Empty;
+                string turns = last.Turns.HasValue ? $" · {last.Turns}턴" : string.Empty;
+                box.Add(Wrapped($"마지막: {AiRun.StatusText(last.Status)} · {last.FinishedAtUtc.ToLocalTime().ToString("MM-dd HH:mm", CultureInfo.InvariantCulture)}"
+                                + $" · {last.Seconds.ToString("0", CultureInfo.InvariantCulture)}초{cost}{turns} · {AiRun.TriggerText(last.Trigger)}"
+                                + (last.NoteId != null ? $" · 메모 {last.NoteId}" : string.Empty)));
+
+                if (last.Summary != null)
+                {
+                    Label summary = Wrapped(last.Summary);
+                    summary.selection.isSelectable = true;
+                    summary.style.marginLeft = 8;
+                    box.Add(summary);
+                }
+
+                if (last.Errors.Count > 0)
+                {
+                    var shown = new List<string>();
+                    for (int i = 0; i < last.Errors.Count && i < 6; i++)
+                        shown.Add(last.Errors[i]);
+
+                    box.Add(new HelpBox(string.Join("\n", shown), last.Status == AiRun.Ok ? HelpBoxMessageType.Info : HelpBoxMessageType.Warning));
+                }
+
+                if (last.Warnings.Count > 0)
+                    box.Add(new HelpBox("확인할 것:\n" + string.Join("\n", last.Warnings), HelpBoxMessageType.Info));
+            }
+            else if (active == null)
+            {
+                box.Add(Note("아직 실행이 없다. 버튼을 누르거나, 아래 토글을 켜고 메모를 저장하면 Claude Code가 이 PC에서 초안을 쓴다."));
+            }
+
+            if (AiRunner.PendingNoteId != null)
+                box.Add(Note($"다음 차례: 메모 {AiRunner.PendingNoteId}(지금 실행이 끝나면 맡긴다)"));
+
+            var row = Row();
+
+            if (active != null)
+                row.Add(Grow(new Button(AiRunner.Stop) { text = "멈추기" }));
+            else
+                row.Add(Grow(new Button(RunAi) { text = "AI에게 초안 맡기기" }));
+
+            var check = new Button(AiRunner.CheckClaude) { text = AiRunner.Checking ? "확인 중…" : "Claude Code 확인" };
+            check.SetEnabled(!AiRunner.Checking);
+            row.Add(Grow(check));
+            row.Add(Grow(new Button(RevealAiRuns) { text = "실행 기록" }));
+            box.Add(row);
+
+            AiRunSettings settings = AiRunner.LoadSettings(out string settingsError);
+            var auto = new Toggle("메모 저장 때 자동으로 맡기기") { value = settings.AutoOnNote };
+            auto.RegisterValueChangedCallback(evt =>
+            {
+                if (AiRunner.SetAutoOnNote(evt.newValue, out string error))
+                    return;
+
+                _message = $"자동 실행 설정을 저장하지 못했다: {error}";
+                BuildMessages();
+                auto.SetValueWithoutNotify(evt.previousValue);
+            });
+            box.Add(auto);
+
+            if (settingsError != null)
+                box.Add(new HelpBox(settingsError, HelpBoxMessageType.Warning));
+
+            if (AiRunner.CheckText != null)
+            {
+                Label checkText = Note(AiRunner.CheckText);
+                checkText.selection.isSelectable = true;
+                box.Add(checkText);
+            }
+
+            box.Add(Note($"실행마다 Claude 사용량이 든다(한 번에 최대 {settings.MaxTurns}턴·${settings.MaxBudgetUsd.ToString("0.##", CultureInfo.InvariantCulture)}, "
+                         + $"{settings.TimeoutSeconds}초). AI는 초안 파일만 쓸 수 있다. 설정: PlaytestData/{AiRunSettings.FileName}"));
+            _aiBox.Add(box);
+        }
+
+        private static string AiRunningText()
+        {
+            AiRunRequest active = AiRunner.Active;
+
+            if (active == null)
+                return string.Empty;
+
+            return $"실행 중 · {AiRunner.ActiveSeconds.ToString("0", CultureInfo.InvariantCulture)}초 · {AiRun.TriggerText(active.Trigger)}"
+                   + $" · 메모 {active.NoteId ?? "없음"}" + (active.Attempt > 1 ? $" · {active.Attempt}번째 시도" : string.Empty)
+                   + " · 끝나면 여기에 결과가 보인다.";
+        }
+
+        // 지금 세팅의 묶음으로 AI에게 맡긴다. 묶음이 없으면 먼저 만든다. 이 세팅의 가장 최근 메모를 먼저 보게 한다.
+        private void RunAi()
+        {
+            string key = CurrentSetupKey();
+
+            if (key == null)
+            {
+                _message = "세팅을 넣지 못해 AI에게 맡길 수 없다. 위의 오류를 먼저 본다.";
+                BuildMessages();
+                return;
+            }
+
+            if (!File.Exists(AiContextService.PathOf(key)))
+                MakeContext();
+
+            string noteId = null;
+            List<JsonObject> notes = PlaytestNotes.ReadRaw();
+
+            for (int i = notes.Count - 1; i >= 0 && noteId == null; i--)
+            {
+                if (notes[i].Text("setupKey") == key)
+                    noteId = notes[i].Text("id");
+            }
+
+            _message = AiRunner.Start(AiRun.ByButton, key, noteId, out string error)
+                ? $"AI에게 맡겼다(메모 {noteId ?? "없음"}). 끝나면 AI 조정 칸에 결과가 보이고, 초안을 쓰면 초안 칸이 생긴다."
+                : $"AI에게 맡기지 못했다: {error}";
+            BuildMessages();
+            BuildAi();
+        }
+
+        private static void RevealAiRuns()
+        {
+            string path = Directory.Exists(AiRunner.RunsFolder) ? AiRunner.RunsFolder : PlaytestNotes.DataFolder;
+            List<AiRunRecord> records = AiRunner.ReadRecords();
+
+            if (records.Count > 0)
+            {
+                string done = Path.Combine(AiRun.RunDir(AiRunner.RepoRoot, records[records.Count - 1].Id), AiRun.DoneFile);
+
+                if (File.Exists(done))
+                    path = done;
+            }
+
+            EditorUtility.RevealInFinder(path);
         }
 
         private void BuildContextLine()
