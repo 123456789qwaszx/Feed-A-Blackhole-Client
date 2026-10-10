@@ -1,7 +1,12 @@
 # M6 자동 루프 (선택)
 
-- 상태: 결정 대기
-- 브랜치: 미정
+- 상태: 다음 (Q5 결정 필요)
+- 브랜치: `feat/autoLoop` (← `feat/sheetSync`)
+- 앞에서 받은 것:
+  - AI가 읽을 곳: `PlaytestData/context/index.json`과 세팅별 묶음. 메모 저장 1초 안에 에디터가 쓴다(M4 `AiContextService`).
+  - AI가 쓸 곳: `Assets/Playtest/Profiles/ai-draft.json` 하나. 쓰면 묶음의 draft 칸에 검사 결과가 다시 써진다.
+  - AI 작업 지침 `Docs/BalanceLoop/AI-GUIDE.md`.
+  - 승격·되돌리기(M4)와 시트 반영(M5)은 사람 버튼이다. 자동 루프도 이것을 바꾸지 않는다.
 
 ## 목표
 
@@ -21,7 +26,8 @@
 
 - 창의 "AI에게 보내기" 버튼과 "메모 저장 때 자동" 토글
 - 실행: 백그라운드 프로세스로 돌린다. 결과(초안 경로·요약)를 `PlaytestData/ai-runs.ndjson`에 남긴다.
-- 안전: 쓰기를 `Assets/Playtest/Profiles/ai-draft.json`과 `PlaytestData/`로만 제한한다. 승격은 사람만 한다.
+- 안전: 쓰기를 `Assets/Playtest/Profiles/ai-draft.json`과 `PlaytestData/`로만 제한한다. 승격과 시트 반영은 사람만 한다.
+- 프롬프트 뼈대: "AI-GUIDE.md를 따라 PlaytestData/context/index.json에서 가장 최근 메모의 묶음을 읽고 ai-draft.json을 써라. 끝나면 세 줄 요약." 묶음이 다시 써질 때까지(draft.valid) 기다렸다가 결과를 기록한다.
 
 ## 결정 (시작할 때 확인)
 

@@ -10,7 +10,7 @@ AI는 초안까지만 만든다. 원본(노드 CSV·에셋)에 반영하는 것�
 | `PlaytestData/context/index.json` | 묶음 목록. 세팅 키마다 이름, 메모 수, 마지막 메모 ID와 시각이 있다. 가장 최근 메모가 있는 묶음부터 본다. |
 | `PlaytestData/context/<setupKey>.json` | 판단에 필요한 전부(아래 2). 에디터가 메모를 저장할 때, 수치나 초안이 바뀔 때 다시 쓴다. |
 | `PlaytestData/notes.ndjson` | 메모 원문 전체. 묶음에는 그 세팅의 최근 20개만 있다. |
-| `PlaytestData/changes.ndjson` | 반영·되돌리기 기록 전체. |
+| `PlaytestData/changes.ndjson` | 변경 기록 전체: 반영(promote)·되돌리기(revert), 시트에서 끌어옴(pull, author `sheet`), 시트에 반영(sheet). |
 
 - AI는 Unity를 돌릴 수 없다. 필요한 숫자는 묶음에 미리 계산되어 있다.
 - 묶음이 없거나 오래됐으면 사람에게 창의 "AI 묶음 만들기"를 눌러 달라고 한다.
@@ -100,5 +100,6 @@ AI는 초안까지만 만든다. 원본(노드 CSV·에셋)에 반영하는 것�
 ## 7. 반영과 되돌리기 (사람이 한다)
 
 - 창의 "초안을 원본에 반영"은 노드 CSV의 그 칸(서식 유지)과 에셋의 그 칸만 고친다. `PlaytestData/changes.ndjson`에 이전·이후 값, 이유, 메모 ID, 지문 앞뒤를 남기고, 초안은 `PlaytestData/drafts/`로 옮긴다.
-- 노드 경로를 반영한 기록은 `sheetSynced: false`다. M5 전까지는 기획 시트(Google Sheet)에 손으로 옮긴다.
+- 노드 경로를 반영한 기록은 아직 기획 시트에 없다. 사람이 Sheet Sync 창(BlackHole > Sheet Sync)의 "시트에 반영"으로 옮긴다. 뒤의 `sheet` 기록의 `syncOf`에 들면 옮겨진 것이다.
+- 기획자가 시트에서 바꾼 값은 `pull` 기록(author `sheet`)으로 들어온다. 초안을 쓰기 전에 최근 pull을 본다. 기획자가 방금 바꾼 칸을 AI가 바로 되돌리지 않게 한다.
 - 창의 "되돌리기"는 기록의 이전 값으로 돌린다. 그 뒤에 값이 또 바뀌었으면 하지 않는다.
