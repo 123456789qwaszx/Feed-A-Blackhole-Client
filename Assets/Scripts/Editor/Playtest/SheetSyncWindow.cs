@@ -297,6 +297,7 @@ namespace BlackHole.EditorTools
 
         #region 시트에 반영
 
+        // 버튼은 늘 보인다. 누를 수 없으면 회색으로 두고 이유를 아래에 적는다.
         private void BuildPush()
         {
             _root.Add(Header("레포 → 시트 (시트에 반영)"));
@@ -305,22 +306,32 @@ namespace BlackHole.EditorTools
 
             if (pending.Count == 0)
             {
-                _root.Add(Note("시트에 옮길 변경이 없다(승격·되돌리기한 노드 값이 모두 시트와 맞춰졌다)."));
-                return;
+                _root.Add(Note("시트에 옮길 변경이 없다. Test Setup 창에서 AI 초안을 원본에 반영하거나 되돌리면 여기에 칸이 생긴다."));
+            }
+            else
+            {
+                _root.Add(Note($"시트에 아직 안 옮긴 기록 {pending.Count}개 → 칸 {updates.Count}개(같은 칸은 처음 이전 값 → 마지막 이후 값으로 합친다)"));
+
+                foreach (SheetUpdate update in updates)
+                    _root.Add(Wrapped($"{update.Describe()}: {Number(update.Before)} → {Number(update.After)}"));
             }
 
-            _root.Add(Note($"시트에 아직 안 옮긴 기록 {pending.Count}개 → 칸 {updates.Count}개(같은 칸은 처음 이전 값 → 마지막 이후 값으로 합친다)"));
+            var reasons = new List<string>();
+            if (pending.Count == 0)
+                reasons.Add("옮길 변경이 없다.");
+            if (updates.Count > 0 && !_config.HasEndpoint)
+                reasons.Add("시트에 쓰려면 위 \"시트 웹 앱\"에 주소와 토큰을 넣고 저장한다.");
 
-            foreach (SheetUpdate update in updates)
-                _root.Add(Wrapped($"{update.Describe()}: {Number(update.Before)} → {Number(update.After)}"));
-
-            var push = new Button(StartPush) { text = updates.Count > 0 ? "시트에 반영" : "기록 정리(쓸 칸 없음)" };
+            var push = new Button(StartPush) { text = pending.Count > 0 && updates.Count == 0 ? "기록 정리(쓸 칸 없음)" : "시트에 반영" };
             push.style.height = 24;
-            push.SetEnabled(_task == null && (updates.Count == 0 || _config.HasEndpoint));
+            push.SetEnabled(_task == null && reasons.Count == 0);
             _root.Add(push);
 
-            if (!_config.HasEndpoint)
-                _root.Add(Note("시트에 쓰려면 웹 앱 주소와 토큰이 필요하다."));
+            if (reasons.Count > 0)
+                _root.Add(Note("누를 수 없음: " + string.Join(" ", reasons)));
+
+            if (!_config.HasEndpoint && updates.Count == 0)
+                _root.Add(Note("웹 앱 주소와 토큰이 아직 없다. 시트에 쓰기 전에 위 \"시트 웹 앱\"에서 저장한다."));
         }
 
         private void StartPush()
