@@ -1,0 +1,13 @@
+{
+  "name": "qa-node-first",
+  "category": "QA/노드/기준",
+  "note": "첨부 UpgradeStats의 기본값과 게임 기본 에셋을 대조하는 기준 판.",
+  "expected": "노드 없음; 12초 기본 시간; 소행성 시작 공급 20; 결산과 재시작 확인",
+  "growthStage": 0,
+  "gold": 0,
+  "nodes": [],
+  "autoBuyBudget": 0,
+  "startLevel": 0,
+  "seed": 20261011,
+  "freezeTime": false
+}

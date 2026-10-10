@@ -1,0 +1,13 @@
+{
+  "name": "qa-budget-zone03",
+  "category": "QA/예산",
+  "note": "구역 한정 구매가 아님. 모든 드러난 노드 중 최저가를 구매. 콘텐츠가 바뀌면 결과도 바뀌는 레시피.",
+  "expected": "예산 24,732: 전역 최저가 순서에서 electricAsteroid.spawnChance-01 Rank1이 처음 포함되는 지점. 생성 후 Rank 목록 비교.",
+  "growthStage": 0,
+  "gold": 0,
+  "nodes": [],
+  "autoBuyBudget": 24732,
+  "startLevel": 0,
+  "seed": 20261011,
+  "freezeTime": false
+}

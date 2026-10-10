@@ -1,0 +1,118 @@
+{
+  "name": "qa-zone05-on",
+  "category": "QA/구역5/단일비교",
+  "note": "이미지 구역5: 행성 공급·혜성 비. off/on은 comet.rainChance-02 Rank1 하나만 다름. 연결용 노드 포함; 시간 고정은 관찰용.",
+  "expected": "혜성 비 확률과 주기 출현 확인. 시간 고정 상태에서도 주기는 흐름; 확률 검증은 여러 시드로 별도 실시.",
+  "growthStage": 2,
+  "gold": 0,
+  "nodes": [
+    {
+      "nodeId": "asteroid.massScale-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-06",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-07",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-08",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-09",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.size-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.size-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.critChance-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-05",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.radius-06",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.speed-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "comet.rainChance-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "comet.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.chain-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.chain-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.damage-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.damage-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.rewardScale-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "growth.asteroids-03",
+      "rank": 1
+    },
+    {
+      "nodeId": "timer-01",
+      "rank": 1
+    }
+  ],
+  "autoBuyBudget": 0,
+  "startLevel": 0,
+  "seed": 20261011,
+  "freezeTime": true
+}

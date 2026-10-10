@@ -1,0 +1,13 @@
+{
+  "name": "qa-zone03-off",
+  "category": "QA/구역3/단일비교",
+  "note": "이미지 구역3: 전기 소행성·공급 증폭. off/on은 electricAsteroid.spawnChance-01 Rank1 하나만 다름. 연결용 노드 포함; 시간 고정은 관찰용.",
+  "expected": "전기 소행성 확률 증가와 사망 효과 확인. 확률 미발동과 기능 오류를 구분.",
+  "growthStage": 0,
+  "gold": 0,
+  "nodes": [],
+  "autoBuyBudget": 0,
+  "startLevel": 0,
+  "seed": 20261011,
+  "freezeTime": true
+}

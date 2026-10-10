@@ -45,3 +45,9 @@ JSON의 autoBuyBudget > 0은 현재 가격으로 매번 생성하는 레시피�
 `dotnet run --project Tests/QA/QA.csproj` (.NET 8). 게임 Core 전체와 세팅 실행 코드를 직접 컴파일한다.
 동가 노드 구매 순서·Gold 처리·스냅샷·잘못된 ID/Rank·샘플 JSON을 검사한다.
 JsonUtility는 테스트용 shim이므로 Unity 직렬화·에디터 UI 검증을 대신하지 않는다.
+
+## 첨부 데이터 기준 노드 검수
+
+[분석과 근거](NodeSuite/ANALYSIS.md), [실제 테스트 순서](NodeSuite/TESTING.md), [구역 소속 지도](NodeSuite/zone-map.svg).
+39개 세팅: 기준1·구역 단일비교16·구역 최대8·예산8·이정표 전후6.
+BlackHole > QA > Validate Node Suite로 현재 Unity 에셋의 판 조립을 검사하고 목록을 모은다.

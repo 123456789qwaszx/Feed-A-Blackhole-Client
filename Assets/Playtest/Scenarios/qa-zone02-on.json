@@ -1,0 +1,134 @@
+{
+  "name": "qa-zone02-on",
+  "category": "QA/구역2/단일비교",
+  "note": "이미지 구역2: 중앙 후반 증폭. off/on은 electricStar.critBonus-02 Rank1 하나만 다름. 연결용 노드 포함; 시간 고정은 관찰용.",
+  "expected": "전기 별 치명타 배율 변화. 별·전기 성질 공급은 off/on 공통; F1 강제 소환은 별도 기록.",
+  "growthStage": 3,
+  "gold": 0,
+  "nodes": [
+    {
+      "nodeId": "asteroid.massScale-06",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-07",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-08",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-09",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-10",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.toPlanet-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-12",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-20",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.radius-06",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.radius-07",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.radius-09",
+      "rank": 1
+    },
+    {
+      "nodeId": "comet.rainChance-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.chain-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.chain-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.damage-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.damage-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricStar.critChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricStar.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.rewardScale-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "growth.asteroids-03",
+      "rank": 1
+    },
+    {
+      "nodeId": "growth.planets-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "planet.massScale-08",
+      "rank": 1
+    },
+    {
+      "nodeId": "planet.timeChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "planet.toStar-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "timer-01",
+      "rank": 1
+    }
+  ],
+  "autoBuyBudget": 0,
+  "startLevel": 0,
+  "seed": 20261011,
+  "freezeTime": true
+}

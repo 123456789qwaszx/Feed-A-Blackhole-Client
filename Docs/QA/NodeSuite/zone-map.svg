@@ -1,0 +1,615 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7400 2250" width="7400" height="2250">
+<rect width="100%" height="100%" fill="#101827"/>
+<text x="60" y="65" fill="white" font-size="35">Node zones — explicit interpretation of screenshot / 247 nodes</text>
+<line x1="4580" y1="825" x2="4580" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="825" x2="4580" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="635" x2="4025" y2="635" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="540" x2="4210" y2="635" stroke="#556176" stroke-width="2"/>
+<line x1="4580" y1="1015" x2="4580" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="730" x2="4765" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="1395" x2="4025" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="6430" y1="920" x2="6245" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6430" y1="825" x2="6430" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1965" x2="5875" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="635" x2="4025" y2="635" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="540" x2="3840" y2="635" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="825" x2="5135" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="1965" x2="5875" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="2060" x2="5875" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="5505" y1="1965" x2="5690" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="2545" y1="1395" x2="2545" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="4580" y1="445" x2="4580" y2="350" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="350" x2="4580" y2="350" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="730" x2="4765" y2="730" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="730" x2="5135" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="730" x2="4950" y2="730" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="1110" x2="4765" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="1110" x2="5135" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="1490" x2="5135" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="1490" x2="4950" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="2060" x2="3655" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="2060" x2="3655" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="695" y1="1205" x2="880" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="445" x2="4210" y2="540" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="445" x2="4025" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="540" x2="4210" y2="540" stroke="#556176" stroke-width="2"/>
+<line x1="5320" y1="350" x2="5135" y2="350" stroke="#556176" stroke-width="2"/>
+<line x1="5320" y1="350" x2="5320" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="255" x2="5135" y2="350" stroke="#556176" stroke-width="2"/>
+<line x1="510" y1="1395" x2="695" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="510" y1="1395" x2="325" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="695" y1="1110" x2="695" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="1015" x2="5875" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="730" x2="6060" y2="730" stroke="#556176" stroke-width="2"/>
+<line x1="6245" y1="825" x2="6245" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6245" y1="825" x2="6430" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="2545" y1="1300" x2="2545" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="540" x2="4025" y2="635" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="540" x2="4210" y2="540" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="540" x2="3840" y2="540" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="540" x2="4025" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="445" x2="3840" y2="540" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="445" x2="4025" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="1870" x2="5690" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="2060" x2="5690" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="2060" x2="5875" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="445" x2="4580" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="445" x2="4210" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="445" x2="4395" y2="540" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="445" x2="4580" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="445" x2="4765" y2="350" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="445" x2="5135" y2="350" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="445" x2="5320" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="445" x2="4765" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="5320" y1="255" x2="5320" y2="350" stroke="#556176" stroke-width="2"/>
+<line x1="5320" y1="255" x2="5135" y2="255" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="825" x2="4765" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="825" x2="5135" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="825" x2="4950" y2="730" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="1015" x2="4950" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="1395" x2="4950" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="1395" x2="5135" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="1395" x2="4950" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="5320" y1="1395" x2="5135" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1585" x2="5875" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1585" x2="6245" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="6430" y1="1585" x2="6245" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="920" x2="4580" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="920" x2="4765" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="920" x2="5135" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="920" x2="4950" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="920" x2="4950" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="4950" y1="920" x2="4765" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="1015" x2="4580" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="1015" x2="4765" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="1015" x2="4950" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="1015" x2="4765" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="1015" x2="5135" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="1015" x2="5135" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="5135" y1="1015" x2="4950" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="1490" x2="4950" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="4765" y1="1490" x2="4765" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="1490" x2="2545" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="1490" x2="2360" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="2545" y1="1585" x2="2545" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="2545" y1="1585" x2="2360" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="6430" y1="1205" x2="6430" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="6430" y1="1205" x2="6430" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="920" x2="5135" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="920" x2="5875" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6615" y1="825" x2="6430" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="3655" y1="1965" x2="3655" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="1110" x2="2360" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="1990" y1="1110" x2="1990" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="825" x2="3840" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="1205" x2="4025" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="1205" x2="3840" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="1205" x2="4025" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="1300" x2="4025" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="1300" x2="4210" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="6985" y1="1395" x2="6800" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="1300" x2="4025" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="1300" x2="3840" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="6985" y1="1490" x2="6985" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="1300" x2="4210" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="1395" x2="4765" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="1395" x2="4395" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="1395" x2="4025" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="1395" x2="4210" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="1395" x2="4395" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="1490" x2="4210" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="1490" x2="4395" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="1490" x2="4210" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="6985" y1="1585" x2="6800" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="6985" y1="1585" x2="6985" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="1395" x2="5690" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="1395" x2="5320" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="1490" x2="5690" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1490" x2="6060" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="6615" y1="1395" x2="6800" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="1395" x2="5690" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="6245" y1="1680" x2="6245" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="1490" x2="5875" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="1490" x2="5690" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="1490" x2="6060" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="1490" x2="5875" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1680" x2="6060" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1680" x2="6245" y2="1680" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1205" x2="6985" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1205" x2="6800" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="6985" y1="1300" x2="6985" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="6985" y1="1300" x2="6985" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="6430" y1="1015" x2="6430" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6430" y1="1015" x2="6430" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="825" x2="5875" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="825" x2="5875" y2="730" stroke="#556176" stroke-width="2"/>
+<line x1="6615" y1="1015" x2="6430" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="1015" x2="5875" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="1015" x2="5690" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="1965" x2="3470" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="1965" x2="3470" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="1965" x2="3655" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="6245" y1="1015" x2="6245" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6245" y1="1015" x2="6430" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="825" x2="5690" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="825" x2="5875" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="2060" x2="6060" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="2060" x2="5875" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="5505" y1="2060" x2="5505" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="5505" y1="2060" x2="5320" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="5505" y1="2060" x2="5690" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1680" x2="3470" y2="1680" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1680" x2="3285" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="920" x2="3285" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="3100" y1="1015" x2="3100" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="3100" y1="1015" x2="3285" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="920" x2="6245" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="920" x2="5875" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="635" x2="6060" y2="730" stroke="#556176" stroke-width="2"/>
+<line x1="6985" y1="1110" x2="6985" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="6985" y1="1110" x2="6800" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="510" y1="1490" x2="510" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1300" x2="880" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1015" x2="5875" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1015" x2="6245" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1015" x2="6060" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="635" x2="5690" y2="540" stroke="#556176" stroke-width="2"/>
+<line x1="6615" y1="920" x2="6430" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6615" y1="920" x2="6615" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="6615" y1="920" x2="6800" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6615" y1="920" x2="6615" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="6245" y1="730" x2="6060" y2="730" stroke="#556176" stroke-width="2"/>
+<line x1="6245" y1="730" x2="6245" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="1870" x2="5875" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="1870" x2="5690" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1490" x2="2360" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1490" x2="1990" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="730" x2="5875" y2="730" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="730" x2="5690" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="730" x2="5690" y2="635" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="825" x2="6060" y2="730" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="825" x2="6245" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="825" x2="5875" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="825" x2="6060" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="635" x2="5875" y2="730" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="635" x2="6060" y2="635" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="635" x2="5690" y2="635" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1015" x2="6800" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1015" x2="6800" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1015" x2="6615" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1300" x2="6800" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1300" x2="6800" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1300" x2="6985" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1490" x2="6800" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1490" x2="6800" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1490" x2="6985" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="6800" y1="1870" x2="6800" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="5320" y1="1965" x2="5505" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="5320" y1="1965" x2="5320" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="5320" y1="1965" x2="5320" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="5320" y1="1965" x2="4580" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="1965" x2="4395" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="1965" x2="4395" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="4395" y1="1965" x2="4580" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="2545" y1="1015" x2="2360" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="445" x2="5320" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="445" x2="5690" y2="540" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1395" x2="2175" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1015" x2="1990" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1015" x2="2175" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1015" x2="2360" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="5690" y1="350" x2="5690" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="5875" y1="445" x2="5690" y2="445" stroke="#556176" stroke-width="2"/>
+<line x1="6985" y1="1015" x2="6985" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="6985" y1="1015" x2="6800" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1870" x2="6060" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1870" x2="6060" y2="1680" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1870" x2="5875" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="6060" y1="1870" x2="6800" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="5505" y1="1870" x2="5505" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="5505" y1="1870" x2="5320" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="5505" y1="1870" x2="5690" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="1775" x2="3470" y2="1680" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="1775" x2="3470" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="4580" y1="1870" x2="4395" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="4580" y1="1870" x2="4580" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1870" x2="3470" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1585" x2="2360" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1585" x2="2175" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="1395" x2="2545" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="1395" x2="2360" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="1395" x2="2175" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="4580" y1="2060" x2="4395" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="4580" y1="2060" x2="4580" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1110" x2="2360" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1110" x2="1990" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1110" x2="2175" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="3655" y1="1870" x2="3470" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="3655" y1="1870" x2="3655" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="1585" x2="3470" y2="1680" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="1585" x2="3285" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="1585" x2="3470" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="1015" x2="4210" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="1015" x2="4025" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1965" x2="3470" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1965" x2="3285" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1775" x2="3285" y2="1680" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1775" x2="3470" y2="1775" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1775" x2="3285" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1490" x2="2545" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1490" x2="3285" y2="1585" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1490" x2="3470" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="1990" y1="1395" x2="1990" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="1990" y1="1395" x2="2175" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1065" y1="1300" x2="1250" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="1065" y1="1300" x2="1065" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1065" y1="1300" x2="880" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="510" y1="1110" x2="695" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="1250" y1="1015" x2="1990" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="1250" y1="1015" x2="1065" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="2545" y1="920" x2="2545" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="1015" x2="3285" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="1015" x2="3840" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="1015" x2="4025" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="1965" x2="4395" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="1870" x2="4025" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="1300" x2="2545" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="1300" x2="2360" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="2060" x2="3840" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="2060" x2="4025" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="1965" x2="3840" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="1965" x2="3655" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="1965" x2="4025" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="2060" x2="3470" y2="2060" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="2060" x2="3285" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1395" x2="1065" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1395" x2="695" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1395" x2="880" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="1870" x2="3655" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="1870" x2="4025" y2="1870" stroke="#556176" stroke-width="2"/>
+<line x1="3840" y1="1870" x2="3840" y2="1965" stroke="#556176" stroke-width="2"/>
+<line x1="695" y1="1490" x2="695" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="695" y1="1490" x2="510" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="325" y1="1490" x2="325" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="325" y1="1490" x2="510" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1300" x2="2175" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="2175" y1="1300" x2="2360" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="825" x2="4025" y2="635" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="825" x2="4210" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="4025" y1="825" x2="3840" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="1805" y1="1395" x2="1990" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1805" y1="1300" x2="1805" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1435" y1="1300" x2="1250" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1490" x2="880" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1490" x2="695" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="695" y1="1300" x2="695" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="695" y1="1300" x2="695" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="695" y1="1300" x2="880" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="510" y1="1205" x2="695" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="510" y1="1205" x2="510" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="2545" y1="1110" x2="2360" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="2545" y1="1110" x2="2545" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="3100" y1="920" x2="3100" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="3100" y1="920" x2="3285" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="3100" y1="920" x2="3100" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="3100" y1="920" x2="2545" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="920" x2="4580" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="920" x2="4210" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="4210" y1="920" x2="4210" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="1620" y1="1395" x2="1805" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1620" y1="1300" x2="1805" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="1620" y1="1300" x2="1435" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="1620" y1="1300" x2="1620" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1620" y1="1490" x2="1620" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1250" y1="1395" x2="1250" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="1250" y1="1395" x2="1065" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1250" y1="1395" x2="1250" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="1065" y1="1490" x2="1065" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1065" y1="1490" x2="1250" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="1065" y1="1490" x2="880" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="510" y1="1300" x2="510" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="510" y1="1300" x2="695" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="510" y1="1300" x2="510" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="1990" y1="920" x2="1990" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="1990" y1="920" x2="2175" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="1435" y1="1490" x2="1250" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="1435" y1="1490" x2="1620" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="1435" y1="1395" x2="1435" y2="1300" stroke="#556176" stroke-width="2"/>
+<line x1="1435" y1="1395" x2="1620" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1435" y1="1395" x2="1250" y2="1395" stroke="#556176" stroke-width="2"/>
+<line x1="1435" y1="1395" x2="1435" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="920" x2="2175" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="920" x2="2360" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="2360" y1="920" x2="2545" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1110" x2="880" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1110" x2="695" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="1065" y1="920" x2="1065" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1205" x2="3285" y2="1490" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="1110" x2="3470" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="1065" y1="1110" x2="1065" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="1065" y1="1110" x2="880" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="920" x2="1065" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="1250" y1="1110" x2="1250" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="1250" y1="1110" x2="1065" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="825" x2="3100" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="825" x2="3285" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="825" x2="3470" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1110" x2="3100" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1110" x2="3285" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1110" x2="3285" y2="1205" stroke="#556176" stroke-width="2"/>
+<line x1="3285" y1="1110" x2="3470" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="920" x2="3840" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="920" x2="3285" y2="920" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="920" x2="3470" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="3470" y1="920" x2="3470" y2="825" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1015" x2="1065" y2="1015" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1015" x2="880" y2="1110" stroke="#556176" stroke-width="2"/>
+<line x1="880" y1="1015" x2="880" y2="920" stroke="#556176" stroke-width="2"/>
+<g><title>Zone 1 / timer-01 / grid (0,3)</title><rect x="3945" y="615" width="174" height="51" rx="7" fill="#3c82f6" stroke="white" stroke-width="3"/><text x="3950" y="633" fill="white" font-size="11">timer-01</text><text x="3950" y="653" fill="white" font-size="12">zone 1 / (0,3) START</text></g>
+<g><title>Zone 7 / timer-02 / grid (-8,-6)</title><rect x="2465" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2470" y="1488" fill="white" font-size="11">timer-02</text><text x="2470" y="1508" fill="white" font-size="12">zone 7 / (-8,-6) </text></g>
+<g><title>Zone 8 / timer-03 / grid (-11,-1)</title><rect x="1910" y="995" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="1915" y="1013" fill="white" font-size="11">timer-03</text><text x="1915" y="1033" fill="white" font-size="12">zone 8 / (-11,-1) </text></g>
+<g><title>Zone 8 / timer-04 / grid (-5,1)</title><rect x="3020" y="805" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3025" y="823" fill="white" font-size="11">timer-04</text><text x="3025" y="843" fill="white" font-size="12">zone 8 / (-5,1) </text></g>
+<g><title>Zone 4 / growth.time-01 / grid (3,0)</title><rect x="4500" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="white" stroke-width="3"/><text x="4505" y="918" fill="white" font-size="11">growth.time-01</text><text x="4505" y="938" fill="white" font-size="12">zone 4 / (3,0) START</text></g>
+<g><title>Zone 4 / growth.asteroids-01 / grid (3,1)</title><rect x="4500" y="805" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4505" y="823" fill="white" font-size="11">growth.asteroids-01</text><text x="4505" y="843" fill="white" font-size="12">zone 4 / (3,1) </text></g>
+<g><title>Zone 4 / growth.asteroids-02 / grid (4,1)</title><rect x="4685" y="805" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4690" y="823" fill="white" font-size="11">growth.asteroids-02</text><text x="4690" y="843" fill="white" font-size="12">zone 4 / (4,1) </text></g>
+<g><title>Zone 4 / growth.asteroids-03 / grid (10,-7)</title><rect x="5795" y="1565" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5800" y="1583" fill="white" font-size="11">growth.asteroids-03</text><text x="5800" y="1603" fill="white" font-size="12">zone 4 / (10,-7) </text></g>
+<g><title>Zone 4 / growth.planets-01 / grid (12,0)</title><rect x="6165" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6170" y="918" fill="white" font-size="11">growth.planets-01</text><text x="6170" y="938" fill="white" font-size="12">zone 4 / (12,0) </text></g>
+<g><title>Zone 5 / growth.planets-02 / grid (10,-11)</title><rect x="5795" y="1945" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5800" y="1963" fill="white" font-size="11">growth.planets-02</text><text x="5800" y="1983" fill="white" font-size="12">zone 5 / (10,-11) </text></g>
+<g><title>Zone 6 / growth.stars-01 / grid (2,-12)</title><rect x="4315" y="2040" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="4320" y="2058" fill="white" font-size="11">growth.stars-01</text><text x="4320" y="2078" fill="white" font-size="12">zone 6 / (2,-12) </text></g>
+<g><title>Zone 1 / breaker.damage-01 / grid (1,3)</title><rect x="4130" y="615" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="4135" y="633" fill="white" font-size="11">breaker.damage-01</text><text x="4135" y="653" fill="white" font-size="12">zone 1 / (1,3) </text></g>
+<g><title>Zone 1 / breaker.damage-02 / grid (1,4)</title><rect x="4130" y="520" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="4135" y="538" fill="white" font-size="11">breaker.damage-02</text><text x="4135" y="558" fill="white" font-size="12">zone 1 / (1,4) </text></g>
+<g><title>Zone 1 / breaker.damage-03 / grid (3,6)</title><rect x="4500" y="330" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="4505" y="348" fill="white" font-size="11">breaker.damage-03</text><text x="4505" y="368" fill="white" font-size="12">zone 1 / (3,6) </text></g>
+<g><title>Zone 1 / breaker.damage-04 / grid (6,6)</title><rect x="5055" y="330" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="5060" y="348" fill="white" font-size="11">breaker.damage-04</text><text x="5060" y="368" fill="white" font-size="12">zone 1 / (6,6) </text></g>
+<g><title>Zone 1 / breaker.damage-05 / grid (7,5)</title><rect x="5240" y="425" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="5245" y="443" fill="white" font-size="11">breaker.damage-05</text><text x="5245" y="463" fill="white" font-size="12">zone 1 / (7,5) </text></g>
+<g><title>Zone 4 / breaker.damage-06 / grid (3,-1)</title><rect x="4500" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4505" y="1013" fill="white" font-size="11">breaker.damage-06</text><text x="4505" y="1033" fill="white" font-size="12">zone 4 / (3,-1) </text></g>
+<g><title>Zone 4 / breaker.damage-07 / grid (4,2)</title><rect x="4685" y="710" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4690" y="728" fill="white" font-size="11">breaker.damage-07</text><text x="4690" y="748" fill="white" font-size="12">zone 4 / (4,2) </text></g>
+<g><title>Zone 4 / breaker.damage-08 / grid (6,0)</title><rect x="5055" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5060" y="918" fill="white" font-size="11">breaker.damage-08</text><text x="5060" y="938" fill="white" font-size="12">zone 4 / (6,0) </text></g>
+<g><title>Zone 3 / breaker.damage-09 / grid (0,-4)</title><rect x="3945" y="1280" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="3950" y="1298" fill="white" font-size="11">breaker.damage-09</text><text x="3950" y="1318" fill="white" font-size="12">zone 3 / (0,-4) </text></g>
+<g><title>Zone 3 / breaker.damage-10 / grid (0,-5)</title><rect x="3945" y="1375" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="3950" y="1393" fill="white" font-size="11">breaker.damage-10</text><text x="3950" y="1413" fill="white" font-size="12">zone 3 / (0,-5) </text></g>
+<g><title>Zone 3 / breaker.damage-11 / grid (6,-6)</title><rect x="5055" y="1470" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="5060" y="1488" fill="white" font-size="11">breaker.damage-11</text><text x="5060" y="1508" fill="white" font-size="12">zone 3 / (6,-6) </text></g>
+<g><title>Zone 4 / breaker.damage-12 / grid (12,-7)</title><rect x="6165" y="1565" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6170" y="1583" fill="white" font-size="11">breaker.damage-12</text><text x="6170" y="1603" fill="white" font-size="12">zone 4 / (12,-7) </text></g>
+<g><title>Zone 4 / breaker.damage-13 / grid (13,0)</title><rect x="6350" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6355" y="918" fill="white" font-size="11">breaker.damage-13</text><text x="6355" y="938" fill="white" font-size="12">zone 4 / (13,0) </text></g>
+<g><title>Zone 4 / breaker.damage-14 / grid (10,0)</title><rect x="5795" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5800" y="918" fill="white" font-size="11">breaker.damage-14</text><text x="5800" y="938" fill="white" font-size="12">zone 4 / (10,0) </text></g>
+<g><title>Zone 4 / breaker.damage-15 / grid (11,2)</title><rect x="5980" y="710" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5985" y="728" fill="white" font-size="11">breaker.damage-15</text><text x="5985" y="748" fill="white" font-size="12">zone 4 / (11,2) </text></g>
+<g><title>Zone 4 / breaker.damage-16 / grid (13,1)</title><rect x="6350" y="805" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6355" y="823" fill="white" font-size="11">breaker.damage-16</text><text x="6355" y="843" fill="white" font-size="12">zone 4 / (13,1) </text></g>
+<g><title>Zone 4 / breaker.damage-17 / grid (16,-3)</title><rect x="6905" y="1185" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6910" y="1203" fill="white" font-size="11">breaker.damage-17</text><text x="6910" y="1223" fill="white" font-size="12">zone 4 / (16,-3) </text></g>
+<g><title>Zone 4 / breaker.damage-18 / grid (15,-5)</title><rect x="6720" y="1375" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6725" y="1393" fill="white" font-size="11">breaker.damage-18</text><text x="6725" y="1413" fill="white" font-size="12">zone 4 / (15,-5) </text></g>
+<g><title>Zone 4 / breaker.damage-19 / grid (15,-7)</title><rect x="6720" y="1565" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6725" y="1583" fill="white" font-size="11">breaker.damage-19</text><text x="6725" y="1603" fill="white" font-size="12">zone 4 / (15,-7) </text></g>
+<g><title>Zone 5 / breaker.damage-20 / grid (11,-11)</title><rect x="5980" y="1945" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5985" y="1963" fill="white" font-size="11">breaker.damage-20</text><text x="5985" y="1983" fill="white" font-size="12">zone 5 / (11,-11) </text></g>
+<g><title>Zone 6 / breaker.damage-21 / grid (2,-10)</title><rect x="4315" y="1850" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="4320" y="1868" fill="white" font-size="11">breaker.damage-21</text><text x="4320" y="1888" fill="white" font-size="12">zone 6 / (2,-10) </text></g>
+<g><title>Zone 6 / breaker.damage-22 / grid (-3,-8)</title><rect x="3390" y="1660" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3395" y="1678" fill="white" font-size="11">breaker.damage-22</text><text x="3395" y="1698" fill="white" font-size="12">zone 6 / (-3,-8) </text></g>
+<g><title>Zone 6 / breaker.damage-23 / grid (-4,-7)</title><rect x="3205" y="1565" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3210" y="1583" fill="white" font-size="11">breaker.damage-23</text><text x="3210" y="1603" fill="white" font-size="12">zone 6 / (-4,-7) </text></g>
+<g><title>Zone 6 / breaker.damage-24 / grid (-3,-6)</title><rect x="3390" y="1470" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3395" y="1488" fill="white" font-size="11">breaker.damage-24</text><text x="3395" y="1508" fill="white" font-size="12">zone 6 / (-3,-6) </text></g>
+<g><title>Zone 7 / breaker.damage-25 / grid (-15,-4)</title><rect x="1170" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1175" y="1298" fill="white" font-size="11">breaker.damage-25</text><text x="1175" y="1318" fill="white" font-size="12">zone 7 / (-15,-4) </text></g>
+<g><title>Zone 7 / breaker.damage-26 / grid (-16,-5)</title><rect x="985" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="990" y="1393" fill="white" font-size="11">breaker.damage-26</text><text x="990" y="1413" fill="white" font-size="12">zone 7 / (-16,-5) </text></g>
+<g><title>Zone 8 / breaker.damage-27 / grid (-17,-3)</title><rect x="800" y="1185" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="805" y="1203" fill="white" font-size="11">breaker.damage-27</text><text x="805" y="1223" fill="white" font-size="12">zone 8 / (-17,-3) </text></g>
+<g><title>Zone 8 / breaker.damage-28 / grid (-10,0)</title><rect x="2095" y="900" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="2100" y="918" fill="white" font-size="11">breaker.damage-28</text><text x="2100" y="938" fill="white" font-size="12">zone 8 / (-10,0) </text></g>
+<g><title>Zone 1 / breaker.radius-01 / grid (-1,3)</title><rect x="3760" y="615" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="3765" y="633" fill="white" font-size="11">breaker.radius-01</text><text x="3765" y="653" fill="white" font-size="12">zone 1 / (-1,3) </text></g>
+<g><title>Zone 1 / breaker.radius-02 / grid (-1,4)</title><rect x="3760" y="520" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="3765" y="538" fill="white" font-size="11">breaker.radius-02</text><text x="3765" y="558" fill="white" font-size="12">zone 1 / (-1,4) </text></g>
+<g><title>Zone 4 / breaker.radius-03 / grid (4,-2)</title><rect x="4685" y="1090" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4690" y="1108" fill="white" font-size="11">breaker.radius-03</text><text x="4690" y="1128" fill="white" font-size="12">zone 4 / (4,-2) </text></g>
+<g><title>Zone 4 / breaker.radius-04 / grid (6,1)</title><rect x="5055" y="805" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5060" y="823" fill="white" font-size="11">breaker.radius-04</text><text x="5060" y="843" fill="white" font-size="12">zone 4 / (6,1) </text></g>
+<g><title>Zone 4 / breaker.radius-05 / grid (6,-2)</title><rect x="5055" y="1090" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5060" y="1108" fill="white" font-size="11">breaker.radius-05</text><text x="5060" y="1128" fill="white" font-size="12">zone 4 / (6,-2) </text></g>
+<g><title>Zone 3 / breaker.radius-06 / grid (5,-5)</title><rect x="4870" y="1375" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4875" y="1393" fill="white" font-size="11">breaker.radius-06</text><text x="4875" y="1413" fill="white" font-size="12">zone 3 / (5,-5) </text></g>
+<g><title>Zone 5 / breaker.radius-07 / grid (9,-11)</title><rect x="5610" y="1945" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5615" y="1963" fill="white" font-size="11">breaker.radius-07</text><text x="5615" y="1983" fill="white" font-size="12">zone 5 / (9,-11) </text></g>
+<g><title>Zone 5 / breaker.radius-08 / grid (10,-12)</title><rect x="5795" y="2040" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5800" y="2058" fill="white" font-size="11">breaker.radius-08</text><text x="5800" y="2078" fill="white" font-size="12">zone 5 / (10,-12) </text></g>
+<g><title>Zone 5 / breaker.radius-09 / grid (8,-11)</title><rect x="5425" y="1945" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5430" y="1963" fill="white" font-size="11">breaker.radius-09</text><text x="5430" y="1983" fill="white" font-size="12">zone 5 / (8,-11) </text></g>
+<g><title>Zone 6 / breaker.radius-10 / grid (-2,-12)</title><rect x="3575" y="2040" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3580" y="2058" fill="white" font-size="11">breaker.radius-10</text><text x="3580" y="2078" fill="white" font-size="12">zone 6 / (-2,-12) </text></g>
+<g><title>Zone 7 / breaker.radius-11 / grid (-8,-5)</title><rect x="2465" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2470" y="1393" fill="white" font-size="11">breaker.radius-11</text><text x="2470" y="1413" fill="white" font-size="12">zone 7 / (-8,-5) </text></g>
+<g><title>Zone 7 / breaker.radius-12 / grid (-9,-7)</title><rect x="2280" y="1565" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2285" y="1583" fill="white" font-size="11">breaker.radius-12</text><text x="2285" y="1603" fill="white" font-size="12">zone 7 / (-9,-7) </text></g>
+<g><title>Zone 7 / breaker.radius-13 / grid (-18,-5)</title><rect x="615" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="620" y="1393" fill="white" font-size="11">breaker.radius-13</text><text x="620" y="1413" fill="white" font-size="12">zone 7 / (-18,-5) </text></g>
+<g><title>Zone 1 / breaker.speed-01 / grid (0,5)</title><rect x="3945" y="425" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="3950" y="443" fill="white" font-size="11">breaker.speed-01</text><text x="3950" y="463" fill="white" font-size="12">zone 1 / (0,5) </text></g>
+<g><title>Zone 1 / breaker.speed-02 / grid (3,5)</title><rect x="4500" y="425" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="4505" y="443" fill="white" font-size="11">breaker.speed-02</text><text x="4505" y="463" fill="white" font-size="12">zone 1 / (3,5) </text></g>
+<g><title>Zone 1 / breaker.speed-03 / grid (4,6)</title><rect x="4685" y="330" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="4690" y="348" fill="white" font-size="11">breaker.speed-03</text><text x="4690" y="368" fill="white" font-size="12">zone 1 / (4,6) </text></g>
+<g><title>Zone 4 / breaker.speed-04 / grid (5,2)</title><rect x="4870" y="710" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4875" y="728" fill="white" font-size="11">breaker.speed-04</text><text x="4875" y="748" fill="white" font-size="12">zone 4 / (5,2) </text></g>
+<g><title>Zone 4 / breaker.speed-05 / grid (6,2)</title><rect x="5055" y="710" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5060" y="728" fill="white" font-size="11">breaker.speed-05</text><text x="5060" y="748" fill="white" font-size="12">zone 4 / (6,2) </text></g>
+<g><title>Zone 4 / breaker.speed-06 / grid (5,-2)</title><rect x="4870" y="1090" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4875" y="1108" fill="white" font-size="11">breaker.speed-06</text><text x="4875" y="1128" fill="white" font-size="12">zone 4 / (5,-2) </text></g>
+<g><title>Zone 3 / breaker.speed-07 / grid (5,-6)</title><rect x="4870" y="1470" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4875" y="1488" fill="white" font-size="11">breaker.speed-07</text><text x="4875" y="1508" fill="white" font-size="12">zone 3 / (5,-6) </text></g>
+<g><title>Zone 6 / breaker.speed-08 / grid (-1,-12)</title><rect x="3760" y="2040" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3765" y="2058" fill="white" font-size="11">breaker.speed-08</text><text x="3765" y="2078" fill="white" font-size="12">zone 6 / (-1,-12) </text></g>
+<g><title>Zone 6 / breaker.speed-09 / grid (-3,-12)</title><rect x="3390" y="2040" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3395" y="2058" fill="white" font-size="11">breaker.speed-09</text><text x="3395" y="2078" fill="white" font-size="12">zone 6 / (-3,-12) </text></g>
+<g><title>Zone 8 / breaker.speed-10 / grid (-18,-3)</title><rect x="615" y="1185" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="620" y="1203" fill="white" font-size="11">breaker.speed-10</text><text x="620" y="1223" fill="white" font-size="12">zone 8 / (-18,-3) </text></g>
+<g><title>Zone 7 / breaker.speed-11 / grid (-20,-5)</title><rect x="245" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="250" y="1393" fill="white" font-size="11">breaker.speed-11</text><text x="250" y="1413" fill="white" font-size="12">zone 7 / (-20,-5) </text></g>
+<g><title>Zone 2 / breaker.speed-12 / grid (1,-1)</title><rect x="4130" y="995" width="174" height="51" rx="7" fill="#e87826" stroke="#e87826" stroke-width="3"/><text x="4135" y="1013" fill="white" font-size="11">breaker.speed-12</text><text x="4135" y="1033" fill="white" font-size="12">zone 2 / (1,-1) </text></g>
+<g><title>Zone 1 / breaker.critChance-01 / grid (1,5)</title><rect x="4130" y="425" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="4135" y="443" fill="white" font-size="11">breaker.critChance-01</text><text x="4135" y="463" fill="white" font-size="12">zone 1 / (1,5) </text></g>
+<g><title>Zone 1 / breaker.critChance-02 / grid (2,4)</title><rect x="4315" y="520" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="4320" y="538" fill="white" font-size="11">breaker.critChance-02</text><text x="4320" y="558" fill="white" font-size="12">zone 1 / (2,4) </text></g>
+<g><title>Zone 1 / breaker.critChance-03 / grid (7,6)</title><rect x="5240" y="330" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="5245" y="348" fill="white" font-size="11">breaker.critChance-03</text><text x="5245" y="368" fill="white" font-size="12">zone 1 / (7,6) </text></g>
+<g><title>Zone 5 / breaker.critChance-04 / grid (7,-10)</title><rect x="5240" y="1850" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5245" y="1868" fill="white" font-size="11">breaker.critChance-04</text><text x="5245" y="1888" fill="white" font-size="12">zone 5 / (7,-10) </text></g>
+<g><title>Zone 5 / breaker.critChance-05 / grid (7,-12)</title><rect x="5240" y="2040" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5245" y="2058" fill="white" font-size="11">breaker.critChance-05</text><text x="5245" y="2078" fill="white" font-size="12">zone 5 / (7,-12) </text></g>
+<g><title>Zone 1 / breaker.critBonus-01 / grid (6,7)</title><rect x="5055" y="235" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="5060" y="253" fill="white" font-size="11">breaker.critBonus-01</text><text x="5060" y="273" fill="white" font-size="12">zone 1 / (6,7) </text></g>
+<g><title>Zone 7 / breaker.critBonus-02 / grid (-19,-5)</title><rect x="430" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="435" y="1393" fill="white" font-size="11">breaker.critBonus-02</text><text x="435" y="1413" fill="white" font-size="12">zone 7 / (-19,-5) </text></g>
+<g><title>Zone 8 / breaker.critBonus-03 / grid (-18,-2)</title><rect x="615" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="620" y="1108" fill="white" font-size="11">breaker.critBonus-03</text><text x="620" y="1128" fill="white" font-size="12">zone 8 / (-18,-2) </text></g>
+<g><title>Zone 8 / breaker.critBonus-04 / grid (-9,-1)</title><rect x="2280" y="995" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="2285" y="1013" fill="white" font-size="11">breaker.critBonus-04</text><text x="2285" y="1033" fill="white" font-size="12">zone 8 / (-9,-1) </text></g>
+<g><title>Zone 2 / breaker.critBonus-05 / grid (1,1)</title><rect x="4130" y="805" width="174" height="51" rx="7" fill="#e87826" stroke="#e87826" stroke-width="3"/><text x="4135" y="823" fill="white" font-size="11">breaker.critBonus-05</text><text x="4135" y="843" fill="white" font-size="12">zone 2 / (1,1) </text></g>
+<g><title>Zone 4 / breaker.planetBonus-01 / grid (13,-2)</title><rect x="6350" y="1090" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6355" y="1108" fill="white" font-size="11">breaker.planetBonus-01</text><text x="6355" y="1128" fill="white" font-size="12">zone 4 / (13,-2) </text></g>
+<g><title>Zone 4 / breaker.planetBonus-02 / grid (10,-1)</title><rect x="5795" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5800" y="1013" fill="white" font-size="11">breaker.planetBonus-02</text><text x="5800" y="1033" fill="white" font-size="12">zone 4 / (10,-1) </text></g>
+<g><title>Zone 4 / breaker.planetBonus-03 / grid (10,2)</title><rect x="5795" y="710" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5800" y="728" fill="white" font-size="11">breaker.planetBonus-03</text><text x="5800" y="748" fill="white" font-size="12">zone 4 / (10,2) </text></g>
+<g><title>Zone 4 / breaker.planetBonus-04 / grid (12,1)</title><rect x="6165" y="805" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6170" y="823" fill="white" font-size="11">breaker.planetBonus-04</text><text x="6170" y="843" fill="white" font-size="12">zone 4 / (12,1) </text></g>
+<g><title>Zone 6 / breaker.starBonus-01 / grid (-3,-10)</title><rect x="3390" y="1850" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3395" y="1868" fill="white" font-size="11">breaker.starBonus-01</text><text x="3395" y="1888" fill="white" font-size="12">zone 6 / (-3,-10) </text></g>
+<g><title>Zone 7 / breaker.starBonus-02 / grid (-8,-4)</title><rect x="2465" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2470" y="1298" fill="white" font-size="11">breaker.starBonus-02</text><text x="2470" y="1318" fill="white" font-size="12">zone 7 / (-8,-4) </text></g>
+<g><title>Zone 1 / asteroid.count-01 / grid (0,4)</title><rect x="3945" y="520" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="3950" y="538" fill="white" font-size="11">asteroid.count-01</text><text x="3950" y="558" fill="white" font-size="12">zone 1 / (0,4) </text></g>
+<g><title>Zone 1 / asteroid.count-02 / grid (-1,5)</title><rect x="3760" y="425" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="3765" y="443" fill="white" font-size="11">asteroid.count-02</text><text x="3765" y="463" fill="white" font-size="12">zone 1 / (-1,5) </text></g>
+<g><title>Zone 4 / asteroid.count-03 / grid (9,-4)</title><rect x="5610" y="1280" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="1298" fill="white" font-size="11">asteroid.count-03</text><text x="5615" y="1318" fill="white" font-size="12">zone 4 / (9,-4) </text></g>
+<g><title>Zone 5 / asteroid.count-04 / grid (9,-10)</title><rect x="5610" y="1850" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5615" y="1868" fill="white" font-size="11">asteroid.count-04</text><text x="5615" y="1888" fill="white" font-size="12">zone 5 / (9,-10) </text></g>
+<g><title>Zone 5 / asteroid.count-05 / grid (9,-12)</title><rect x="5610" y="2040" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5615" y="2058" fill="white" font-size="11">asteroid.count-05</text><text x="5615" y="2078" fill="white" font-size="12">zone 5 / (9,-12) </text></g>
+<g><title>Zone 1 / asteroid.size-01 / grid (2,5)</title><rect x="4315" y="425" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="4320" y="443" fill="white" font-size="11">asteroid.size-01</text><text x="4320" y="463" fill="white" font-size="12">zone 1 / (2,5) </text></g>
+<g><title>Zone 1 / asteroid.size-02 / grid (4,5)</title><rect x="4685" y="425" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="4690" y="443" fill="white" font-size="11">asteroid.size-02</text><text x="4690" y="463" fill="white" font-size="12">zone 1 / (4,5) </text></g>
+<g><title>Zone 1 / asteroid.massScale-01 / grid (6,5)</title><rect x="5055" y="425" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="5060" y="443" fill="white" font-size="11">asteroid.massScale-01</text><text x="5060" y="463" fill="white" font-size="12">zone 1 / (6,5) </text></g>
+<g><title>Zone 1 / asteroid.massScale-02 / grid (7,7)</title><rect x="5240" y="235" width="174" height="51" rx="7" fill="#3c82f6" stroke="#3c82f6" stroke-width="3"/><text x="5245" y="253" fill="white" font-size="11">asteroid.massScale-02</text><text x="5245" y="273" fill="white" font-size="12">zone 1 / (7,7) </text></g>
+<g><title>Zone 4 / asteroid.massScale-03 / grid (5,1)</title><rect x="4870" y="805" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4875" y="823" fill="white" font-size="11">asteroid.massScale-03</text><text x="4875" y="843" fill="white" font-size="12">zone 4 / (5,1) </text></g>
+<g><title>Zone 4 / asteroid.massScale-04 / grid (5,-1)</title><rect x="4870" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4875" y="1013" fill="white" font-size="11">asteroid.massScale-04</text><text x="4875" y="1033" fill="white" font-size="12">zone 4 / (5,-1) </text></g>
+<g><title>Zone 3 / asteroid.massScale-05 / grid (-1,-3)</title><rect x="3760" y="1185" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="3765" y="1203" fill="white" font-size="11">asteroid.massScale-05</text><text x="3765" y="1223" fill="white" font-size="12">zone 3 / (-1,-3) </text></g>
+<g><title>Zone 3 / asteroid.massScale-06 / grid (4,-5)</title><rect x="4685" y="1375" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4690" y="1393" fill="white" font-size="11">asteroid.massScale-06</text><text x="4690" y="1413" fill="white" font-size="12">zone 3 / (4,-5) </text></g>
+<g><title>Zone 3 / asteroid.massScale-07 / grid (6,-5)</title><rect x="5055" y="1375" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="5060" y="1393" fill="white" font-size="11">asteroid.massScale-07</text><text x="5060" y="1413" fill="white" font-size="12">zone 3 / (6,-5) </text></g>
+<g><title>Zone 3 / asteroid.massScale-08 / grid (7,-5)</title><rect x="5240" y="1375" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="5245" y="1393" fill="white" font-size="11">asteroid.massScale-08</text><text x="5245" y="1413" fill="white" font-size="12">zone 3 / (7,-5) </text></g>
+<g><title>Zone 4 / asteroid.massScale-09 / grid (11,-7)</title><rect x="5980" y="1565" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5985" y="1583" fill="white" font-size="11">asteroid.massScale-09</text><text x="5985" y="1603" fill="white" font-size="12">zone 4 / (11,-7) </text></g>
+<g><title>Zone 4 / asteroid.massScale-10 / grid (13,-7)</title><rect x="6350" y="1565" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6355" y="1583" fill="white" font-size="11">asteroid.massScale-10</text><text x="6355" y="1603" fill="white" font-size="12">zone 4 / (13,-7) </text></g>
+<g><title>Zone 4 / asteroid.timeChance-01 / grid (4,0)</title><rect x="4685" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4690" y="918" fill="white" font-size="11">asteroid.timeChance-01</text><text x="4690" y="938" fill="white" font-size="12">zone 4 / (4,0) </text></g>
+<g><title>Zone 4 / asteroid.timeChance-02 / grid (5,0)</title><rect x="4870" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4875" y="918" fill="white" font-size="11">asteroid.timeChance-02</text><text x="4875" y="938" fill="white" font-size="12">zone 4 / (5,0) </text></g>
+<g><title>Zone 4 / asteroid.respawnChance-01 / grid (4,-1)</title><rect x="4685" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="4690" y="1013" fill="white" font-size="11">asteroid.respawnChance-01</text><text x="4690" y="1033" fill="white" font-size="12">zone 4 / (4,-1) </text></g>
+<g><title>Zone 4 / asteroid.respawnChance-02 / grid (6,-1)</title><rect x="5055" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5060" y="1013" fill="white" font-size="11">asteroid.respawnChance-02</text><text x="5060" y="1033" fill="white" font-size="12">zone 4 / (6,-1) </text></g>
+<g><title>Zone 3 / asteroid.respawnChance-03 / grid (4,-6)</title><rect x="4685" y="1470" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4690" y="1488" fill="white" font-size="11">asteroid.respawnChance-03</text><text x="4690" y="1508" fill="white" font-size="12">zone 3 / (4,-6) </text></g>
+<g><title>Zone 7 / asteroid.respawnChance-04 / grid (-9,-6)</title><rect x="2280" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2285" y="1488" fill="white" font-size="11">asteroid.respawnChance-04</text><text x="2285" y="1508" fill="white" font-size="12">zone 7 / (-9,-6) </text></g>
+<g><title>Zone 7 / asteroid.respawnChance-05 / grid (-8,-7)</title><rect x="2465" y="1565" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2470" y="1583" fill="white" font-size="11">asteroid.respawnChance-05</text><text x="2470" y="1603" fill="white" font-size="12">zone 7 / (-8,-7) </text></g>
+<g><title>Zone 4 / asteroid.toPlanet-01 / grid (13,-3)</title><rect x="6350" y="1185" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6355" y="1203" fill="white" font-size="11">asteroid.toPlanet-01</text><text x="6355" y="1223" fill="white" font-size="12">zone 4 / (13,-3) </text></g>
+<g><title>Zone 4 / asteroid.toPlanet-02 / grid (9,0)</title><rect x="5610" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="918" fill="white" font-size="11">asteroid.toPlanet-02</text><text x="5615" y="938" fill="white" font-size="12">zone 4 / (9,0) </text></g>
+<g><title>Zone 4 / asteroid.toPlanet-03 / grid (14,1)</title><rect x="6535" y="805" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6540" y="823" fill="white" font-size="11">asteroid.toPlanet-03</text><text x="6540" y="843" fill="white" font-size="12">zone 4 / (14,1) </text></g>
+<g><title>Zone 6 / asteroid.toPlanet-04 / grid (-2,-11)</title><rect x="3575" y="1945" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3580" y="1963" fill="white" font-size="11">asteroid.toPlanet-04</text><text x="3580" y="1983" fill="white" font-size="12">zone 6 / (-2,-11) </text></g>
+<g><title>Zone 2 / asteroid.toPlanet-05 / grid (-1,0)</title><rect x="3760" y="900" width="174" height="51" rx="7" fill="#e87826" stroke="#e87826" stroke-width="3"/><text x="3765" y="918" fill="white" font-size="11">asteroid.toPlanet-05</text><text x="3765" y="938" fill="white" font-size="12">zone 2 / (-1,0) </text></g>
+<g><title>Zone 6 / planet.toStar-01 / grid (3,-11)</title><rect x="4500" y="1945" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="4505" y="1963" fill="white" font-size="11">planet.toStar-01</text><text x="4505" y="1983" fill="white" font-size="12">zone 6 / (3,-11) </text></g>
+<g><title>Zone 7 / planet.toStar-02 / grid (-11,-6)</title><rect x="1910" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1915" y="1488" fill="white" font-size="11">planet.toStar-02</text><text x="1915" y="1508" fill="white" font-size="12">zone 7 / (-11,-6) </text></g>
+<g><title>Zone 8 / planet.toStar-03 / grid (-9,-2)</title><rect x="2280" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="2285" y="1108" fill="white" font-size="11">planet.toStar-03</text><text x="2285" y="1128" fill="white" font-size="12">zone 8 / (-9,-2) </text></g>
+<g><title>Zone 8 / planet.toStar-04 / grid (-11,-2)</title><rect x="1910" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="1915" y="1108" fill="white" font-size="11">planet.toStar-04</text><text x="1915" y="1128" fill="white" font-size="12">zone 8 / (-11,-2) </text></g>
+<g><title>Zone 8 / planet.toStar-05 / grid (-5,-2)</title><rect x="3020" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3025" y="1108" fill="white" font-size="11">planet.toStar-05</text><text x="3025" y="1128" fill="white" font-size="12">zone 8 / (-5,-2) </text></g>
+<g><title>Zone 2 / planet.toStar-06 / grid (-1,1)</title><rect x="3760" y="805" width="174" height="51" rx="7" fill="#e87826" stroke="#e87826" stroke-width="3"/><text x="3765" y="823" fill="white" font-size="11">planet.toStar-06</text><text x="3765" y="843" fill="white" font-size="12">zone 2 / (-1,1) </text></g>
+<g><title>Zone 3 / electricAsteroid.spawnChance-01 / grid (0,-3)</title><rect x="3945" y="1185" width="174" height="51" rx="7" fill="#16a085" stroke="white" stroke-width="3"/><text x="3950" y="1203" fill="white" font-size="11">electricAsteroid.spawnChance-01</text><text x="3950" y="1223" fill="white" font-size="12">zone 3 / (0,-3) START</text></g>
+<g><title>Zone 3 / electricAsteroid.damage-01 / grid (1,-3)</title><rect x="4130" y="1185" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4135" y="1203" fill="white" font-size="11">electricAsteroid.damage-01</text><text x="4135" y="1223" fill="white" font-size="12">zone 3 / (1,-3) </text></g>
+<g><title>Zone 3 / electricAsteroid.damage-02 / grid (1,-4)</title><rect x="4130" y="1280" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4135" y="1298" fill="white" font-size="11">electricAsteroid.damage-02</text><text x="4135" y="1318" fill="white" font-size="12">zone 3 / (1,-4) </text></g>
+<g><title>Zone 4 / electricAsteroid.damage-03 / grid (16,-5)</title><rect x="6905" y="1375" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6910" y="1393" fill="white" font-size="11">electricAsteroid.damage-03</text><text x="6910" y="1413" fill="white" font-size="12">zone 4 / (16,-5) </text></g>
+<g><title>Zone 3 / electricAsteroid.critChance-01 / grid (-1,-4)</title><rect x="3760" y="1280" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="3765" y="1298" fill="white" font-size="11">electricAsteroid.critChance-01</text><text x="3765" y="1318" fill="white" font-size="12">zone 3 / (-1,-4) </text></g>
+<g><title>Zone 4 / electricAsteroid.critChance-02 / grid (16,-6)</title><rect x="6905" y="1470" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6910" y="1488" fill="white" font-size="11">electricAsteroid.critChance-02</text><text x="6910" y="1508" fill="white" font-size="12">zone 4 / (16,-6) </text></g>
+<g><title>Zone 3 / electricAsteroid.chain-01 / grid (2,-4)</title><rect x="4315" y="1280" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4320" y="1298" fill="white" font-size="11">electricAsteroid.chain-01</text><text x="4320" y="1318" fill="white" font-size="12">zone 3 / (2,-4) </text></g>
+<g><title>Zone 3 / electricAsteroid.chain-02 / grid (2,-5)</title><rect x="4315" y="1375" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4320" y="1393" fill="white" font-size="11">electricAsteroid.chain-02</text><text x="4320" y="1413" fill="white" font-size="12">zone 3 / (2,-5) </text></g>
+<g><title>Zone 3 / electricAsteroid.splitChance-01 / grid (1,-5)</title><rect x="4130" y="1375" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4135" y="1393" fill="white" font-size="11">electricAsteroid.splitChance-01</text><text x="4135" y="1413" fill="white" font-size="12">zone 3 / (1,-5) </text></g>
+<g><title>Zone 3 / electricAsteroid.splitChance-02 / grid (1,-6)</title><rect x="4130" y="1470" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4135" y="1488" fill="white" font-size="11">electricAsteroid.splitChance-02</text><text x="4135" y="1508" fill="white" font-size="12">zone 3 / (1,-6) </text></g>
+<g><title>Zone 3 / electricAsteroid.critBonus-01 / grid (2,-6)</title><rect x="4315" y="1470" width="174" height="51" rx="7" fill="#16a085" stroke="#16a085" stroke-width="3"/><text x="4320" y="1488" fill="white" font-size="11">electricAsteroid.critBonus-01</text><text x="4320" y="1508" fill="white" font-size="12">zone 3 / (2,-6) </text></g>
+<g><title>Zone 4 / electricAsteroid.critBonus-02 / grid (16,-7)</title><rect x="6905" y="1565" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6910" y="1583" fill="white" font-size="11">electricAsteroid.critBonus-02</text><text x="6910" y="1603" fill="white" font-size="12">zone 4 / (16,-7) </text></g>
+<g><title>Zone 4 / goldenAsteroid.spawnChance-01 / grid (9,-5)</title><rect x="5610" y="1375" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="1393" fill="white" font-size="11">goldenAsteroid.spawnChance-01</text><text x="5615" y="1413" fill="white" font-size="12">zone 4 / (9,-5) </text></g>
+<g><title>Zone 4 / goldenAsteroid.rewardScale-01 / grid (9,-6)</title><rect x="5610" y="1470" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="1488" fill="white" font-size="11">goldenAsteroid.rewardScale-01</text><text x="5615" y="1508" fill="white" font-size="12">zone 4 / (9,-6) </text></g>
+<g><title>Zone 4 / goldenAsteroid.rewardScale-02 / grid (11,-6)</title><rect x="5980" y="1470" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5985" y="1488" fill="white" font-size="11">goldenAsteroid.rewardScale-02</text><text x="5985" y="1508" fill="white" font-size="12">zone 4 / (11,-6) </text></g>
+<g><title>Zone 4 / goldenAsteroid.rewardScale-03 / grid (9,4)</title><rect x="5610" y="520" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="538" fill="white" font-size="11">goldenAsteroid.rewardScale-03</text><text x="5615" y="558" fill="white" font-size="12">zone 4 / (9,4) </text></g>
+<g><title>Zone 4 / goldenAsteroid.rewardScale-04 / grid (15,0)</title><rect x="6720" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6725" y="918" fill="white" font-size="11">goldenAsteroid.rewardScale-04</text><text x="6725" y="938" fill="white" font-size="12">zone 4 / (15,0) </text></g>
+<g><title>Zone 4 / goldenAsteroid.rewardScale-05 / grid (14,-5)</title><rect x="6535" y="1375" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6540" y="1393" fill="white" font-size="11">goldenAsteroid.rewardScale-05</text><text x="6540" y="1413" fill="white" font-size="12">zone 4 / (14,-5) </text></g>
+<g><title>Zone 4 / goldenAsteroid.critChance-01 / grid (10,-5)</title><rect x="5795" y="1375" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5800" y="1393" fill="white" font-size="11">goldenAsteroid.critChance-01</text><text x="5800" y="1413" fill="white" font-size="12">zone 4 / (10,-5) </text></g>
+<g><title>Zone 4 / goldenAsteroid.critChance-02 / grid (12,-8)</title><rect x="6165" y="1660" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6170" y="1678" fill="white" font-size="11">goldenAsteroid.critChance-02</text><text x="6170" y="1698" fill="white" font-size="12">zone 4 / (12,-8) </text></g>
+<g><title>Zone 4 / goldenAsteroid.critChance-03 / grid (15,-2)</title><rect x="6720" y="1090" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6725" y="1108" fill="white" font-size="11">goldenAsteroid.critChance-03</text><text x="6725" y="1128" fill="white" font-size="12">zone 4 / (15,-2) </text></g>
+<g><title>Zone 4 / goldenAsteroid.critRewardScale-01 / grid (10,-6)</title><rect x="5795" y="1470" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5800" y="1488" fill="white" font-size="11">goldenAsteroid.critRewardScale-01</text><text x="5800" y="1508" fill="white" font-size="12">zone 4 / (10,-6) </text></g>
+<g><title>Zone 4 / goldenAsteroid.critRewardScale-02 / grid (11,-8)</title><rect x="5980" y="1660" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5985" y="1678" fill="white" font-size="11">goldenAsteroid.critRewardScale-02</text><text x="5985" y="1698" fill="white" font-size="12">zone 4 / (11,-8) </text></g>
+<g><title>Zone 4 / goldenAsteroid.critRewardScale-03 / grid (15,-3)</title><rect x="6720" y="1185" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6725" y="1203" fill="white" font-size="11">goldenAsteroid.critRewardScale-03</text><text x="6725" y="1223" fill="white" font-size="12">zone 4 / (15,-3) </text></g>
+<g><title>Zone 4 / goldenAsteroid.critRewardScale-04 / grid (16,-4)</title><rect x="6905" y="1280" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6910" y="1298" fill="white" font-size="11">goldenAsteroid.critRewardScale-04</text><text x="6910" y="1318" fill="white" font-size="12">zone 4 / (16,-4) </text></g>
+<g><title>Zone 4 / moonPlanet.spawnChance-01 / grid (13,-1)</title><rect x="6350" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6355" y="1013" fill="white" font-size="11">moonPlanet.spawnChance-01</text><text x="6355" y="1033" fill="white" font-size="12">zone 4 / (13,-1) </text></g>
+<g><title>Zone 4 / moonPlanet.spawnChance-02 / grid (10,1)</title><rect x="5795" y="805" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5800" y="823" fill="white" font-size="11">moonPlanet.spawnChance-02</text><text x="5800" y="843" fill="white" font-size="12">zone 4 / (10,1) </text></g>
+<g><title>Zone 4 / moonPlanet.speedScale-01 / grid (14,-1)</title><rect x="6535" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6540" y="1013" fill="white" font-size="11">moonPlanet.speedScale-01</text><text x="6540" y="1033" fill="white" font-size="12">zone 4 / (14,-1) </text></g>
+<g><title>Zone 4 / moonPlanet.speedScale-02 / grid (9,-1)</title><rect x="5610" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="1013" fill="white" font-size="11">moonPlanet.speedScale-02</text><text x="5615" y="1033" fill="white" font-size="12">zone 4 / (9,-1) </text></g>
+<g><title>Zone 6 / moonPlanet.speedScale-03 / grid (-3,-11)</title><rect x="3390" y="1945" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3395" y="1963" fill="white" font-size="11">moonPlanet.speedScale-03</text><text x="3395" y="1983" fill="white" font-size="12">zone 6 / (-3,-11) </text></g>
+<g><title>Zone 8 / moonPlanet.speedScale-04 / grid (-4,-1)</title><rect x="3205" y="995" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3210" y="1013" fill="white" font-size="11">moonPlanet.speedScale-04</text><text x="3210" y="1033" fill="white" font-size="12">zone 8 / (-4,-1) </text></g>
+<g><title>Zone 4 / moonPlanet.rangeScale-01 / grid (12,-1)</title><rect x="6165" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6170" y="1013" fill="white" font-size="11">moonPlanet.rangeScale-01</text><text x="6170" y="1033" fill="white" font-size="12">zone 4 / (12,-1) </text></g>
+<g><title>Zone 4 / moonPlanet.rangeScale-02 / grid (9,1)</title><rect x="5610" y="805" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="823" fill="white" font-size="11">moonPlanet.rangeScale-02</text><text x="5615" y="843" fill="white" font-size="12">zone 4 / (9,1) </text></g>
+<g><title>Zone 5 / moonPlanet.rangeScale-03 / grid (11,-12)</title><rect x="5980" y="2040" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5985" y="2058" fill="white" font-size="11">moonPlanet.rangeScale-03</text><text x="5985" y="2078" fill="white" font-size="12">zone 5 / (11,-12) </text></g>
+<g><title>Zone 5 / moonPlanet.rangeScale-04 / grid (8,-12)</title><rect x="5425" y="2040" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5430" y="2058" fill="white" font-size="11">moonPlanet.rangeScale-04</text><text x="5430" y="2078" fill="white" font-size="12">zone 5 / (8,-12) </text></g>
+<g><title>Zone 6 / moonPlanet.rangeScale-05 / grid (-4,-8)</title><rect x="3205" y="1660" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3210" y="1678" fill="white" font-size="11">moonPlanet.rangeScale-05</text><text x="3210" y="1698" fill="white" font-size="12">zone 6 / (-4,-8) </text></g>
+<g><title>Zone 8 / moonPlanet.rangeScale-06 / grid (-4,0)</title><rect x="3205" y="900" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3210" y="918" fill="white" font-size="11">moonPlanet.rangeScale-06</text><text x="3210" y="938" fill="white" font-size="12">zone 8 / (-4,0) </text></g>
+<g><title>Zone 8 / moonPlanet.rangeScale-07 / grid (-5,-1)</title><rect x="3020" y="995" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3025" y="1013" fill="white" font-size="11">moonPlanet.rangeScale-07</text><text x="3025" y="1033" fill="white" font-size="12">zone 8 / (-5,-1) </text></g>
+<g><title>Zone 4 / moonPlanet.duration-01 / grid (11,0)</title><rect x="5980" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5985" y="918" fill="white" font-size="11">moonPlanet.duration-01</text><text x="5985" y="938" fill="white" font-size="12">zone 4 / (11,0) </text></g>
+<g><title>Zone 4 / moonPlanet.duration-02 / grid (11,3)</title><rect x="5980" y="615" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5985" y="633" fill="white" font-size="11">moonPlanet.duration-02</text><text x="5985" y="653" fill="white" font-size="12">zone 4 / (11,3) </text></g>
+<g><title>Zone 4 / moonPlanet.duration-03 / grid (16,-2)</title><rect x="6905" y="1090" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6910" y="1108" fill="white" font-size="11">moonPlanet.duration-03</text><text x="6910" y="1128" fill="white" font-size="12">zone 4 / (16,-2) </text></g>
+<g><title>Zone 7 / moonPlanet.duration-04 / grid (-19,-6)</title><rect x="430" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="435" y="1488" fill="white" font-size="11">moonPlanet.duration-04</text><text x="435" y="1508" fill="white" font-size="12">zone 7 / (-19,-6) </text></g>
+<g><title>Zone 7 / moonPlanet.maxCount-01 / grid (-17,-4)</title><rect x="800" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="805" y="1298" fill="white" font-size="11">moonPlanet.maxCount-01</text><text x="805" y="1318" fill="white" font-size="12">zone 7 / (-17,-4) </text></g>
+<g><title>Zone 4 / planet.size-01 / grid (11,-1)</title><rect x="5980" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5985" y="1013" fill="white" font-size="11">planet.size-01</text><text x="5985" y="1033" fill="white" font-size="12">zone 4 / (11,-1) </text></g>
+<g><title>Zone 4 / planet.size-02 / grid (9,3)</title><rect x="5610" y="615" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="633" fill="white" font-size="11">planet.size-02</text><text x="5615" y="653" fill="white" font-size="12">zone 4 / (9,3) </text></g>
+<g><title>Zone 4 / planet.respawnChance-01 / grid (14,0)</title><rect x="6535" y="900" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6540" y="918" fill="white" font-size="11">planet.respawnChance-01</text><text x="6540" y="938" fill="white" font-size="12">zone 4 / (14,0) </text></g>
+<g><title>Zone 4 / planet.respawnChance-02 / grid (12,2)</title><rect x="6165" y="710" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6170" y="728" fill="white" font-size="11">planet.respawnChance-02</text><text x="6170" y="748" fill="white" font-size="12">zone 4 / (12,2) </text></g>
+<g><title>Zone 5 / planet.respawnChance-03 / grid (10,-10)</title><rect x="5795" y="1850" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5800" y="1868" fill="white" font-size="11">planet.respawnChance-03</text><text x="5800" y="1888" fill="white" font-size="12">zone 5 / (10,-10) </text></g>
+<g><title>Zone 7 / planet.respawnChance-04 / grid (-10,-6)</title><rect x="2095" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2100" y="1488" fill="white" font-size="11">planet.respawnChance-04</text><text x="2100" y="1508" fill="white" font-size="12">zone 7 / (-10,-6) </text></g>
+<g><title>Zone 4 / planet.massScale-01 / grid (9,2)</title><rect x="5610" y="710" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="728" fill="white" font-size="11">planet.massScale-01</text><text x="5615" y="748" fill="white" font-size="12">zone 4 / (9,2) </text></g>
+<g><title>Zone 4 / planet.massScale-02 / grid (11,1)</title><rect x="5980" y="805" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5985" y="823" fill="white" font-size="11">planet.massScale-02</text><text x="5985" y="843" fill="white" font-size="12">zone 4 / (11,1) </text></g>
+<g><title>Zone 4 / planet.massScale-03 / grid (10,3)</title><rect x="5795" y="615" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5800" y="633" fill="white" font-size="11">planet.massScale-03</text><text x="5800" y="653" fill="white" font-size="12">zone 4 / (10,3) </text></g>
+<g><title>Zone 4 / planet.massScale-04 / grid (15,-1)</title><rect x="6720" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6725" y="1013" fill="white" font-size="11">planet.massScale-04</text><text x="6725" y="1033" fill="white" font-size="12">zone 4 / (15,-1) </text></g>
+<g><title>Zone 4 / planet.massScale-05 / grid (15,-4)</title><rect x="6720" y="1280" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6725" y="1298" fill="white" font-size="11">planet.massScale-05</text><text x="6725" y="1318" fill="white" font-size="12">zone 4 / (15,-4) </text></g>
+<g><title>Zone 4 / planet.massScale-06 / grid (15,-6)</title><rect x="6720" y="1470" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6725" y="1488" fill="white" font-size="11">planet.massScale-06</text><text x="6725" y="1508" fill="white" font-size="12">zone 4 / (15,-6) </text></g>
+<g><title>Zone 5 / planet.massScale-07 / grid (15,-10)</title><rect x="6720" y="1850" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="6725" y="1868" fill="white" font-size="11">planet.massScale-07</text><text x="6725" y="1888" fill="white" font-size="12">zone 5 / (15,-10) </text></g>
+<g><title>Zone 5 / planet.massScale-08 / grid (7,-11)</title><rect x="5240" y="1945" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5245" y="1963" fill="white" font-size="11">planet.massScale-08</text><text x="5245" y="1983" fill="white" font-size="12">zone 5 / (7,-11) </text></g>
+<g><title>Zone 6 / planet.timeChance-01 / grid (2,-11)</title><rect x="4315" y="1945" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="4320" y="1963" fill="white" font-size="11">planet.timeChance-01</text><text x="4320" y="1983" fill="white" font-size="12">zone 6 / (2,-11) </text></g>
+<g><title>Zone 8 / planet.timeChance-02 / grid (-8,-1)</title><rect x="2465" y="995" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="2470" y="1013" fill="white" font-size="11">planet.timeChance-02</text><text x="2470" y="1033" fill="white" font-size="12">zone 8 / (-8,-1) </text></g>
+<g><title>Zone 4 / comet.spawnChance-01 / grid (9,5)</title><rect x="5610" y="425" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="443" fill="white" font-size="11">comet.spawnChance-01</text><text x="5615" y="463" fill="white" font-size="12">zone 4 / (9,5) </text></g>
+<g><title>Zone 7 / comet.spawnChance-02 / grid (-10,-5)</title><rect x="2095" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2100" y="1393" fill="white" font-size="11">comet.spawnChance-02</text><text x="2100" y="1413" fill="white" font-size="12">zone 7 / (-10,-5) </text></g>
+<g><title>Zone 8 / comet.spawnChance-03 / grid (-16,-1)</title><rect x="985" y="995" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="990" y="1013" fill="white" font-size="11">comet.spawnChance-03</text><text x="990" y="1033" fill="white" font-size="12">zone 8 / (-16,-1) </text></g>
+<g><title>Zone 8 / comet.spawnChance-04 / grid (-10,-1)</title><rect x="2095" y="995" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="2100" y="1013" fill="white" font-size="11">comet.spawnChance-04</text><text x="2100" y="1033" fill="white" font-size="12">zone 8 / (-10,-1) </text></g>
+<g><title>Zone 4 / comet.duration-01 / grid (9,6)</title><rect x="5610" y="330" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5615" y="348" fill="white" font-size="11">comet.duration-01</text><text x="5615" y="368" fill="white" font-size="12">zone 4 / (9,6) </text></g>
+<g><title>Zone 4 / comet.critBonus-01 / grid (10,5)</title><rect x="5795" y="425" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="5800" y="443" fill="white" font-size="11">comet.critBonus-01</text><text x="5800" y="463" fill="white" font-size="12">zone 4 / (10,5) </text></g>
+<g><title>Zone 4 / comet.rainChance-01 / grid (16,-1)</title><rect x="6905" y="995" width="174" height="51" rx="7" fill="#8c64d6" stroke="#8c64d6" stroke-width="3"/><text x="6910" y="1013" fill="white" font-size="11">comet.rainChance-01</text><text x="6910" y="1033" fill="white" font-size="12">zone 4 / (16,-1) </text></g>
+<g><title>Zone 5 / comet.rainChance-02 / grid (11,-10)</title><rect x="5980" y="1850" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5985" y="1868" fill="white" font-size="11">comet.rainChance-02</text><text x="5985" y="1888" fill="white" font-size="12">zone 5 / (11,-10) </text></g>
+<g><title>Zone 5 / comet.rainChance-03 / grid (8,-10)</title><rect x="5425" y="1850" width="174" height="51" rx="7" fill="#c69c1e" stroke="#c69c1e" stroke-width="3"/><text x="5430" y="1868" fill="white" font-size="11">comet.rainChance-03</text><text x="5430" y="1888" fill="white" font-size="12">zone 5 / (8,-10) </text></g>
+<g><title>Zone 6 / comet.rainChance-04 / grid (-3,-9)</title><rect x="3390" y="1755" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3395" y="1773" fill="white" font-size="11">comet.rainChance-04</text><text x="3395" y="1793" fill="white" font-size="12">zone 6 / (-3,-9) </text></g>
+<g><title>Zone 6 / star.respawnChance-01 / grid (3,-10)</title><rect x="4500" y="1850" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="4505" y="1868" fill="white" font-size="11">star.respawnChance-01</text><text x="4505" y="1888" fill="white" font-size="12">zone 6 / (3,-10) </text></g>
+<g><title>Zone 6 / star.respawnChance-02 / grid (-4,-10)</title><rect x="3205" y="1850" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3210" y="1868" fill="white" font-size="11">star.respawnChance-02</text><text x="3210" y="1888" fill="white" font-size="12">zone 6 / (-4,-10) </text></g>
+<g><title>Zone 7 / star.respawnChance-03 / grid (-10,-7)</title><rect x="2095" y="1565" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2100" y="1583" fill="white" font-size="11">star.respawnChance-03</text><text x="2100" y="1603" fill="white" font-size="12">zone 7 / (-10,-7) </text></g>
+<g><title>Zone 7 / star.respawnChance-04 / grid (-9,-5)</title><rect x="2280" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2285" y="1393" fill="white" font-size="11">star.respawnChance-04</text><text x="2285" y="1413" fill="white" font-size="12">zone 7 / (-9,-5) </text></g>
+<g><title>Zone 6 / star.timeChance-01 / grid (3,-12)</title><rect x="4500" y="2040" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="4505" y="2058" fill="white" font-size="11">star.timeChance-01</text><text x="4505" y="2078" fill="white" font-size="12">zone 6 / (3,-12) </text></g>
+<g><title>Zone 8 / star.timeChance-02 / grid (-10,-2)</title><rect x="2095" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="2100" y="1108" fill="white" font-size="11">star.timeChance-02</text><text x="2100" y="1128" fill="white" font-size="12">zone 8 / (-10,-2) </text></g>
+<g><title>Zone 6 / star.size-01 / grid (-2,-10)</title><rect x="3575" y="1850" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3580" y="1868" fill="white" font-size="11">star.size-01</text><text x="3580" y="1888" fill="white" font-size="12">zone 6 / (-2,-10) </text></g>
+<g><title>Zone 6 / star.size-02 / grid (-3,-7)</title><rect x="3390" y="1565" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3395" y="1583" fill="white" font-size="11">star.size-02</text><text x="3395" y="1603" fill="white" font-size="12">zone 6 / (-3,-7) </text></g>
+<g><title>Zone 2 / star.size-03 / grid (0,-1)</title><rect x="3945" y="995" width="174" height="51" rx="7" fill="#e87826" stroke="#e87826" stroke-width="3"/><text x="3950" y="1013" fill="white" font-size="11">star.size-03</text><text x="3950" y="1033" fill="white" font-size="12">zone 2 / (0,-1) </text></g>
+<g><title>Zone 6 / star.massScale-01 / grid (-4,-11)</title><rect x="3205" y="1945" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3210" y="1963" fill="white" font-size="11">star.massScale-01</text><text x="3210" y="1983" fill="white" font-size="12">zone 6 / (-4,-11) </text></g>
+<g><title>Zone 6 / star.massScale-02 / grid (-4,-9)</title><rect x="3205" y="1755" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3210" y="1773" fill="white" font-size="11">star.massScale-02</text><text x="3210" y="1793" fill="white" font-size="12">zone 6 / (-4,-9) </text></g>
+<g><title>Zone 6 / star.massScale-03 / grid (-4,-6)</title><rect x="3205" y="1470" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3210" y="1488" fill="white" font-size="11">star.massScale-03</text><text x="3210" y="1508" fill="white" font-size="12">zone 6 / (-4,-6) </text></g>
+<g><title>Zone 7 / star.massScale-04 / grid (-11,-5)</title><rect x="1910" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1915" y="1393" fill="white" font-size="11">star.massScale-04</text><text x="1915" y="1413" fill="white" font-size="12">zone 7 / (-11,-5) </text></g>
+<g><title>Zone 7 / star.massScale-05 / grid (-16,-4)</title><rect x="985" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="990" y="1298" fill="white" font-size="11">star.massScale-05</text><text x="990" y="1318" fill="white" font-size="12">zone 7 / (-16,-4) </text></g>
+<g><title>Zone 8 / star.massScale-06 / grid (-19,-2)</title><rect x="430" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="435" y="1108" fill="white" font-size="11">star.massScale-06</text><text x="435" y="1128" fill="white" font-size="12">zone 8 / (-19,-2) </text></g>
+<g><title>Zone 8 / star.massScale-07 / grid (-15,-1)</title><rect x="1170" y="995" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="1175" y="1013" fill="white" font-size="11">star.massScale-07</text><text x="1175" y="1033" fill="white" font-size="12">zone 8 / (-15,-1) </text></g>
+<g><title>Zone 8 / star.massScale-08 / grid (-8,0)</title><rect x="2465" y="900" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="2470" y="918" fill="white" font-size="11">star.massScale-08</text><text x="2470" y="938" fill="white" font-size="12">zone 8 / (-8,0) </text></g>
+<g><title>Zone 8 / star.massScale-09 / grid (-3,-1)</title><rect x="3390" y="995" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3395" y="1013" fill="white" font-size="11">star.massScale-09</text><text x="3395" y="1033" fill="white" font-size="12">zone 8 / (-3,-1) </text></g>
+<g><title>Zone 2 / star.massScale-10 / grid (-1,-1)</title><rect x="3760" y="995" width="174" height="51" rx="7" fill="#e87826" stroke="#e87826" stroke-width="3"/><text x="3765" y="1013" fill="white" font-size="11">star.massScale-10</text><text x="3765" y="1033" fill="white" font-size="12">zone 2 / (-1,-1) </text></g>
+<g><title>Zone 6 / electricStar.spawnChance-01 / grid (0,-11)</title><rect x="3945" y="1945" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3950" y="1963" fill="white" font-size="11">electricStar.spawnChance-01</text><text x="3950" y="1983" fill="white" font-size="12">zone 6 / (0,-11) </text></g>
+<g><title>Zone 6 / electricStar.damage-01 / grid (0,-10)</title><rect x="3945" y="1850" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3950" y="1868" fill="white" font-size="11">electricStar.damage-01</text><text x="3950" y="1888" fill="white" font-size="12">zone 6 / (0,-10) </text></g>
+<g><title>Zone 7 / electricStar.damage-02 / grid (-9,-4)</title><rect x="2280" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2285" y="1298" fill="white" font-size="11">electricStar.damage-02</text><text x="2285" y="1318" fill="white" font-size="12">zone 7 / (-9,-4) </text></g>
+<g><title>Zone 6 / electricStar.critChance-01 / grid (0,-12)</title><rect x="3945" y="2040" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3950" y="2058" fill="white" font-size="11">electricStar.critChance-01</text><text x="3950" y="2078" fill="white" font-size="12">zone 6 / (0,-12) </text></g>
+<g><title>Zone 6 / electricStar.chain-01 / grid (-1,-11)</title><rect x="3760" y="1945" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3765" y="1963" fill="white" font-size="11">electricStar.chain-01</text><text x="3765" y="1983" fill="white" font-size="12">zone 6 / (-1,-11) </text></g>
+<g><title>Zone 6 / electricStar.chain-02 / grid (-4,-12)</title><rect x="3205" y="2040" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3210" y="2058" fill="white" font-size="11">electricStar.chain-02</text><text x="3210" y="2078" fill="white" font-size="12">zone 6 / (-4,-12) </text></g>
+<g><title>Zone 7 / electricStar.chain-03 / grid (-17,-5)</title><rect x="800" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="805" y="1393" fill="white" font-size="11">electricStar.chain-03</text><text x="805" y="1413" fill="white" font-size="12">zone 7 / (-17,-5) </text></g>
+<g><title>Zone 6 / electricStar.splitChance-01 / grid (-1,-10)</title><rect x="3760" y="1850" width="174" height="51" rx="7" fill="#de577b" stroke="#de577b" stroke-width="3"/><text x="3765" y="1868" fill="white" font-size="11">electricStar.splitChance-01</text><text x="3765" y="1888" fill="white" font-size="12">zone 6 / (-1,-10) </text></g>
+<g><title>Zone 7 / electricStar.splitChance-02 / grid (-18,-6)</title><rect x="615" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="620" y="1488" fill="white" font-size="11">electricStar.splitChance-02</text><text x="620" y="1508" fill="white" font-size="12">zone 7 / (-18,-6) </text></g>
+<g><title>Zone 7 / electricStar.splitChance-03 / grid (-20,-6)</title><rect x="245" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="250" y="1488" fill="white" font-size="11">electricStar.splitChance-03</text><text x="250" y="1508" fill="white" font-size="12">zone 7 / (-20,-6) </text></g>
+<g><title>Zone 7 / electricStar.critBonus-01 / grid (-10,-4)</title><rect x="2095" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="2100" y="1298" fill="white" font-size="11">electricStar.critBonus-01</text><text x="2100" y="1318" fill="white" font-size="12">zone 7 / (-10,-4) </text></g>
+<g><title>Zone 2 / electricStar.critBonus-02 / grid (0,1)</title><rect x="3945" y="805" width="174" height="51" rx="7" fill="#e87826" stroke="#e87826" stroke-width="3"/><text x="3950" y="823" fill="white" font-size="11">electricStar.critBonus-02</text><text x="3950" y="843" fill="white" font-size="12">zone 2 / (0,1) </text></g>
+<g><title>Zone 7 / laserStar.spawnChance-01 / grid (-12,-5)</title><rect x="1725" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1730" y="1393" fill="white" font-size="11">laserStar.spawnChance-01</text><text x="1730" y="1413" fill="white" font-size="12">zone 7 / (-12,-5) </text></g>
+<g><title>Zone 7 / laserStar.width-01 / grid (-12,-4)</title><rect x="1725" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1730" y="1298" fill="white" font-size="11">laserStar.width-01</text><text x="1730" y="1318" fill="white" font-size="12">zone 7 / (-12,-4) </text></g>
+<g><title>Zone 7 / laserStar.width-02 / grid (-14,-4)</title><rect x="1355" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1360" y="1298" fill="white" font-size="11">laserStar.width-02</text><text x="1360" y="1318" fill="white" font-size="12">zone 7 / (-14,-4) </text></g>
+<g><title>Zone 7 / laserStar.width-03 / grid (-15,-6)</title><rect x="1170" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1175" y="1488" fill="white" font-size="11">laserStar.width-03</text><text x="1175" y="1508" fill="white" font-size="12">zone 7 / (-15,-6) </text></g>
+<g><title>Zone 7 / laserStar.width-04 / grid (-17,-6)</title><rect x="800" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="805" y="1488" fill="white" font-size="11">laserStar.width-04</text><text x="805" y="1508" fill="white" font-size="12">zone 7 / (-17,-6) </text></g>
+<g><title>Zone 7 / laserStar.width-05 / grid (-18,-4)</title><rect x="615" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="620" y="1298" fill="white" font-size="11">laserStar.width-05</text><text x="620" y="1318" fill="white" font-size="12">zone 7 / (-18,-4) </text></g>
+<g><title>Zone 8 / laserStar.width-06 / grid (-19,-3)</title><rect x="430" y="1185" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="435" y="1203" fill="white" font-size="11">laserStar.width-06</text><text x="435" y="1223" fill="white" font-size="12">zone 8 / (-19,-3) </text></g>
+<g><title>Zone 8 / laserStar.width-07 / grid (-8,-2)</title><rect x="2465" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="2470" y="1108" fill="white" font-size="11">laserStar.width-07</text><text x="2470" y="1128" fill="white" font-size="12">zone 8 / (-8,-2) </text></g>
+<g><title>Zone 8 / laserStar.width-08 / grid (-5,0)</title><rect x="3020" y="900" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3025" y="918" fill="white" font-size="11">laserStar.width-08</text><text x="3025" y="938" fill="white" font-size="12">zone 8 / (-5,0) </text></g>
+<g><title>Zone 8 / laserStar.width-09 / grid (-3,1)</title><rect x="3390" y="805" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3395" y="823" fill="white" font-size="11">laserStar.width-09</text><text x="3395" y="843" fill="white" font-size="12">zone 8 / (-3,1) </text></g>
+<g><title>Zone 2 / laserStar.width-10 / grid (1,0)</title><rect x="4130" y="900" width="174" height="51" rx="7" fill="#e87826" stroke="#e87826" stroke-width="3"/><text x="4135" y="918" fill="white" font-size="11">laserStar.width-10</text><text x="4135" y="938" fill="white" font-size="12">zone 2 / (1,0) </text></g>
+<g><title>Zone 7 / laserStar.critChance-01 / grid (-13,-5)</title><rect x="1540" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1545" y="1393" fill="white" font-size="11">laserStar.critChance-01</text><text x="1545" y="1413" fill="white" font-size="12">zone 7 / (-13,-5) </text></g>
+<g><title>Zone 7 / laserStar.damage-01 / grid (-13,-4)</title><rect x="1540" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1545" y="1298" fill="white" font-size="11">laserStar.damage-01</text><text x="1545" y="1318" fill="white" font-size="12">zone 7 / (-13,-4) </text></g>
+<g><title>Zone 7 / laserStar.damage-02 / grid (-13,-6)</title><rect x="1540" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1545" y="1488" fill="white" font-size="11">laserStar.damage-02</text><text x="1545" y="1508" fill="white" font-size="12">zone 7 / (-13,-6) </text></g>
+<g><title>Zone 7 / laserStar.damage-03 / grid (-15,-5)</title><rect x="1170" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1175" y="1393" fill="white" font-size="11">laserStar.damage-03</text><text x="1175" y="1413" fill="white" font-size="12">zone 7 / (-15,-5) </text></g>
+<g><title>Zone 7 / laserStar.damage-04 / grid (-16,-6)</title><rect x="985" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="990" y="1488" fill="white" font-size="11">laserStar.damage-04</text><text x="990" y="1508" fill="white" font-size="12">zone 7 / (-16,-6) </text></g>
+<g><title>Zone 7 / laserStar.damage-05 / grid (-19,-4)</title><rect x="430" y="1280" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="435" y="1298" fill="white" font-size="11">laserStar.damage-05</text><text x="435" y="1318" fill="white" font-size="12">zone 7 / (-19,-4) </text></g>
+<g><title>Zone 8 / laserStar.damage-06 / grid (-11,0)</title><rect x="1910" y="900" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="1915" y="918" fill="white" font-size="11">laserStar.damage-06</text><text x="1915" y="938" fill="white" font-size="12">zone 8 / (-11,0) </text></g>
+<g><title>Zone 7 / laserStar.critBonus-01 / grid (-14,-6)</title><rect x="1355" y="1470" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1360" y="1488" fill="white" font-size="11">laserStar.critBonus-01</text><text x="1360" y="1508" fill="white" font-size="12">zone 7 / (-14,-6) </text></g>
+<g><title>Zone 7 / laserStar.critBonus-02 / grid (-14,-5)</title><rect x="1355" y="1375" width="174" height="51" rx="7" fill="#35a7b0" stroke="#35a7b0" stroke-width="3"/><text x="1360" y="1393" fill="white" font-size="11">laserStar.critBonus-02</text><text x="1360" y="1413" fill="white" font-size="12">zone 7 / (-14,-5) </text></g>
+<g><title>Zone 8 / laserStar.critBonus-03 / grid (-9,0)</title><rect x="2280" y="900" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="2285" y="918" fill="white" font-size="11">laserStar.critBonus-03</text><text x="2285" y="938" fill="white" font-size="12">zone 8 / (-9,0) </text></g>
+<g><title>Zone 8 / supernovaStar.range-01 / grid (-17,-2)</title><rect x="800" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="805" y="1108" fill="white" font-size="11">supernovaStar.range-01</text><text x="805" y="1128" fill="white" font-size="12">zone 8 / (-17,-2) </text></g>
+<g><title>Zone 8 / supernovaStar.range-02 / grid (-16,0)</title><rect x="985" y="900" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="990" y="918" fill="white" font-size="11">supernovaStar.range-02</text><text x="990" y="938" fill="white" font-size="12">zone 8 / (-16,0) </text></g>
+<g><title>Zone 8 / supernovaStar.range-03 / grid (-4,-3)</title><rect x="3205" y="1185" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3210" y="1203" fill="white" font-size="11">supernovaStar.range-03</text><text x="3210" y="1223" fill="white" font-size="12">zone 8 / (-4,-3) </text></g>
+<g><title>Zone 8 / supernovaStar.range-04 / grid (-3,-2)</title><rect x="3390" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3395" y="1108" fill="white" font-size="11">supernovaStar.range-04</text><text x="3395" y="1128" fill="white" font-size="12">zone 8 / (-3,-2) </text></g>
+<g><title>Zone 8 / supernovaStar.hpDamage-01 / grid (-16,-2)</title><rect x="985" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="990" y="1108" fill="white" font-size="11">supernovaStar.hpDamage-01</text><text x="990" y="1128" fill="white" font-size="12">zone 8 / (-16,-2) </text></g>
+<g><title>Zone 8 / supernovaStar.hpDamage-02 / grid (-17,0)</title><rect x="800" y="900" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="805" y="918" fill="white" font-size="11">supernovaStar.hpDamage-02</text><text x="805" y="938" fill="white" font-size="12">zone 8 / (-17,0) </text></g>
+<g><title>Zone 8 / supernovaStar.hpDamage-03 / grid (-15,-2)</title><rect x="1170" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="1175" y="1108" fill="white" font-size="11">supernovaStar.hpDamage-03</text><text x="1175" y="1128" fill="white" font-size="12">zone 8 / (-15,-2) </text></g>
+<g><title>Zone 8 / supernovaStar.hpDamage-04 / grid (-4,1)</title><rect x="3205" y="805" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3210" y="823" fill="white" font-size="11">supernovaStar.hpDamage-04</text><text x="3210" y="843" fill="white" font-size="12">zone 8 / (-4,1) </text></g>
+<g><title>Zone 8 / supernovaStar.hpDamage-05 / grid (-4,-2)</title><rect x="3205" y="1090" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="3210" y="1108" fill="white" font-size="11">supernovaStar.hpDamage-05</text><text x="3210" y="1128" fill="white" font-size="12">zone 8 / (-4,-2) </text></g>
+<g><title>Zone 8 / supernovaStar.hpDamage-06 / grid (-3,0)</title><rect x="3390" y="900" width="174" height="51" rx="7" fill="#a56b3b" stroke="white" stroke-width="3"/><text x="3395" y="918" fill="white" font-size="11">supernovaStar.hpDamage-06</text><text x="3395" y="938" fill="white" font-size="12">zone 8 / (-3,0) START</text></g>
+<g><title>Zone 8 / supernovaStar.spawnChance-01 / grid (-17,-1)</title><rect x="800" y="995" width="174" height="51" rx="7" fill="#a56b3b" stroke="#a56b3b" stroke-width="3"/><text x="805" y="1013" fill="white" font-size="11">supernovaStar.spawnChance-01</text><text x="805" y="1033" fill="white" font-size="12">zone 8 / (-17,-1) </text></g>
+</svg>

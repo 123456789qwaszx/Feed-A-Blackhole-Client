@@ -1,0 +1,90 @@
+{
+  "name": "qa-zone03-full",
+  "category": "QA/구역3/최대",
+  "note": "구역3 최대 기능 부하. 다른 구역의 연결 노드는 Rank1만 포함. 단계3은 이정표 자동 종료를 피하기 위한 관찰 조건이며 자연 도달 시점을 뜻하지 않음.",
+  "expected": "구역 내 모든 Rank 적용; 확정 정보·효과 중첩·화면·사운드·프레임을 확인. 재미와 자연 진행 판정에는 사용하지 않음.",
+  "growthStage": 3,
+  "gold": 0,
+  "nodes": [
+    {
+      "nodeId": "asteroid.massScale-05",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-06",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-07",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-08",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.respawnChance-03",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-09",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-10",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-11",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.radius-06",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.speed-07",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.chain-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.chain-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.critBonus-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.critChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.damage-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.damage-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.splitChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.splitChance-02",
+      "rank": 1
+    }
+  ],
+  "autoBuyBudget": 0,
+  "startLevel": 0,
+  "seed": 20261011,
+  "freezeTime": true
+}

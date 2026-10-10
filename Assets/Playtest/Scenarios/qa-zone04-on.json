@@ -1,0 +1,82 @@
+{
+  "name": "qa-zone04-on",
+  "category": "QA/구역4/단일비교",
+  "note": "이미지 구역4: 성장 공급·행성·달·혜성. off/on은 asteroid.toPlanet-01 Rank1 하나만 다름. 연결용 노드 포함; 시간 고정은 관찰용.",
+  "expected": "변환 수(Flat)의 증가와 시작 공급의 소행성→행성 변환 확인. 이 값은 확률이나 비율이 아닌 마리 수이며 시작 공급 수로 제한됨.",
+  "growthStage": 1,
+  "gold": 0,
+  "nodes": [
+    {
+      "nodeId": "asteroid.massScale-06",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-07",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-08",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-09",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-10",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.toPlanet-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-12",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.radius-06",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.chain-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.chain-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.damage-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.damage-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.rewardScale-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "growth.asteroids-03",
+      "rank": 1
+    }
+  ],
+  "autoBuyBudget": 0,
+  "startLevel": 0,
+  "seed": 20261011,
+  "freezeTime": true
+}

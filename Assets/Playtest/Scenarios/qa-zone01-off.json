@@ -1,0 +1,18 @@
+{
+  "name": "qa-zone01-off",
+  "category": "QA/구역1/단일비교",
+  "note": "이미지 구역1: 초반 소행성·브레이커. off/on은 asteroid.count-01 Rank1 하나만 다름. 연결용 노드 포함; 시간 고정은 관찰용.",
+  "expected": "off/on의 asteroid.count가 20→50; 시작 공급과 화면 밀도 증가 확인.",
+  "growthStage": 0,
+  "gold": 0,
+  "nodes": [
+    {
+      "nodeId": "timer-01",
+      "rank": 1
+    }
+  ],
+  "autoBuyBudget": 0,
+  "startLevel": 0,
+  "seed": 20261011,
+  "freezeTime": true
+}

@@ -1,0 +1,214 @@
+{
+  "name": "qa-zone08-off",
+  "category": "QA/구역8/단일비교",
+  "note": "이미지 구역8: 슈퍼노바·후반 증폭. off/on은 supernovaStar.spawnChance-01 Rank1 하나만 다름. 연결용 노드 포함; 시간 고정은 관찰용.",
+  "expected": "슈퍼노바 성질 확률, 범위·현재 HP 비례 피해·시각·사운드 확인. 최대 HP 비례로 판정하지 않음.",
+  "growthStage": 3,
+  "gold": 0,
+  "nodes": [
+    {
+      "nodeId": "asteroid.massScale-06",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-07",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-08",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-09",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-10",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.respawnChance-04",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.toPlanet-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "asteroid.toPlanet-04",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-12",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-20",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-22",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-23",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-25",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.damage-27",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.radius-06",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.radius-07",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.radius-09",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.starBonus-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "comet.rainChance-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "comet.rainChance-04",
+      "rank": 1
+    },
+    {
+      "nodeId": "comet.spawnChance-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.chain-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.chain-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.damage-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.damage-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricAsteroid.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricStar.chain-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "electricStar.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.rewardScale-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "goldenAsteroid.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "growth.asteroids-03",
+      "rank": 1
+    },
+    {
+      "nodeId": "growth.planets-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "laserStar.critBonus-02",
+      "rank": 1
+    },
+    {
+      "nodeId": "laserStar.critChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "laserStar.damage-03",
+      "rank": 1
+    },
+    {
+      "nodeId": "laserStar.spawnChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "moonPlanet.maxCount-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "moonPlanet.rangeScale-05",
+      "rank": 1
+    },
+    {
+      "nodeId": "planet.massScale-08",
+      "rank": 1
+    },
+    {
+      "nodeId": "planet.respawnChance-04",
+      "rank": 1
+    },
+    {
+      "nodeId": "planet.timeChance-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "planet.toStar-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "star.massScale-03",
+      "rank": 1
+    },
+    {
+      "nodeId": "star.massScale-04",
+      "rank": 1
+    },
+    {
+      "nodeId": "star.massScale-05",
+      "rank": 1
+    },
+    {
+      "nodeId": "star.size-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "supernovaStar.range-01",
+      "rank": 1
+    },
+    {
+      "nodeId": "timer-02",
+      "rank": 1
+    }
+  ],
+  "autoBuyBudget": 0,
+  "startLevel": 0,
+  "seed": 20261011,
+  "freezeTime": true
+}

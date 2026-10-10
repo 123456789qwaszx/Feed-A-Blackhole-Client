@@ -1,0 +1,8336 @@
+{
+  "schema": 1,
+  "sourceInputs": {
+    "Nodes.csv": {
+      "sha256": "63fceea69229c6d74bfc3734cc80be9a5c8435b66c9e4967b30872998015509d",
+      "rows": 247
+    },
+    "NodeCost.csv": {
+      "sha256": "16572587fae6f44077bf2b9c18a3e87f7238ca3fd1c10daf4a09d86659398f6f",
+      "rows": 319
+    },
+    "NodeEffects.csv": {
+      "sha256": "55545cea1e13e74effd446ea006cba33211af243fa89918b6e8902b3c643bd03",
+      "rows": 319
+    },
+    "UpgradeStats.csv": {
+      "sha256": "faa638aa7e44a31e78d1720dbbfb8058a2e7632910cc8416175c53de507dd683",
+      "rows": 60
+    },
+    "NodeCatalog.asset": {
+      "sha256": "dcc372e39dcd27f75e4b31893302850380d51afa0dab8fff42fdc9906305d5aa",
+      "rows": 247
+    },
+    "HqGrowthSetup.asset": {
+      "sha256": "fd487639141f9abe7f0472c39d62681e440fae2a5e08193074609ecb1431712f",
+      "note": "첨부에 없어 게임 레포에서 추가로 확인한 성장 에셋"
+    }
+  },
+  "counts": {
+    "nodes": 247,
+    "ranks": 319,
+    "stats": 60,
+    "edges": 364
+  },
+  "starts": [
+    "electricAsteroid.spawnChance-01",
+    "growth.time-01",
+    "supernovaStar.hpDamage-06",
+    "timer-01"
+  ],
+  "totalPurchaseCost": 47326272937772307,
+  "zones": [
+    {
+      "id": 1,
+      "title": "초반 소행성·브레이커",
+      "nodeCount": 21,
+      "rankCount": 21,
+      "zoneCost": 757,
+      "focus": "asteroid.count-01",
+      "focusCost": 7,
+      "focusEffects": [
+        {
+          "NodeId": "asteroid.count-01",
+          "Rank": "1",
+          "StatId": "asteroid.count",
+          "Value": "30",
+          "단위": "Flat",
+          "표시": "+30"
+        }
+      ],
+      "offCost": 2,
+      "onCost": 9,
+      "fullCost": 757,
+      "bounds": {
+        "minX": -1,
+        "maxX": 7,
+        "minY": 3,
+        "maxY": 7
+      }
+    },
+    {
+      "id": 2,
+      "title": "중앙 후반 증폭",
+      "nodeCount": 8,
+      "rankCount": 80,
+      "zoneCost": 40000000000000000,
+      "focus": "electricStar.critBonus-02",
+      "focusCost": 500000000000000,
+      "focusEffects": [
+        {
+          "NodeId": "electricStar.critBonus-02",
+          "Rank": "1",
+          "StatId": "electricStar.critBonus",
+          "Value": "100",
+          "단위": "Percent",
+          "표시": "+100%"
+        }
+      ],
+      "offCost": 5040064795527,
+      "onCost": 505040064795527,
+      "fullCost": 40005040064795527,
+      "bounds": {
+        "minX": -1,
+        "maxX": 1,
+        "minY": -1,
+        "maxY": 1
+      }
+    },
+    {
+      "id": 3,
+      "title": "전기 소행성·공급 증폭",
+      "nodeCount": 19,
+      "rankCount": 19,
+      "zoneCost": 1037575,
+      "focus": "electricAsteroid.spawnChance-01",
+      "focusCost": 10000,
+      "focusEffects": [
+        {
+          "NodeId": "electricAsteroid.spawnChance-01",
+          "Rank": "1",
+          "StatId": "electricAsteroid.spawnChance",
+          "Value": "10",
+          "단위": "Percent",
+          "표시": "+10%"
+        }
+      ],
+      "offCost": 0,
+      "onCost": 10000,
+      "fullCost": 1037575,
+      "bounds": {
+        "minX": -1,
+        "maxX": 7,
+        "minY": -6,
+        "maxY": -3
+      }
+    },
+    {
+      "id": 4,
+      "title": "성장 공급·행성·달·혜성",
+      "nodeCount": 77,
+      "rankCount": 77,
+      "zoneCost": 112936733975,
+      "focus": "asteroid.toPlanet-01",
+      "focusCost": 25000000,
+      "focusEffects": [
+        {
+          "NodeId": "asteroid.toPlanet-01",
+          "Rank": "1",
+          "StatId": "asteroid.toPlanet",
+          "Value": "52",
+          "단위": "Flat",
+          "표시": "+52"
+        }
+      ],
+      "offCost": 29795525,
+      "onCost": 54795525,
+      "fullCost": 112937314801,
+      "bounds": {
+        "minX": 3,
+        "maxX": 16,
+        "minY": -8,
+        "maxY": 6
+      }
+    },
+    {
+      "id": 5,
+      "title": "행성 공급·혜성 비",
+      "nodeCount": 16,
+      "rankCount": 16,
+      "zoneCost": 1360000000000,
+      "focus": "comet.rainChance-02",
+      "focusCost": 60000000000,
+      "focusEffects": [
+        {
+          "NodeId": "comet.rainChance-02",
+          "Rank": "1",
+          "StatId": "comet.rainChance",
+          "Value": "10",
+          "단위": "Percent",
+          "표시": "+10%"
+        }
+      ],
+      "offCost": 1013295826,
+      "onCost": 61013295826,
+      "fullCost": 1361013295826,
+      "bounds": {
+        "minX": 7,
+        "maxX": 15,
+        "minY": -12,
+        "maxY": -10
+      }
+    },
+    {
+      "id": 6,
+      "title": "별·전기 별",
+      "nodeCount": 29,
+      "rankCount": 29,
+      "zoneCost": 30500000000000,
+      "focus": "electricStar.spawnChance-01",
+      "focusCost": 1300000000000,
+      "focusEffects": [
+        {
+          "NodeId": "electricStar.spawnChance-01",
+          "Rank": "1",
+          "StatId": "electricStar.spawnChance",
+          "Value": "10",
+          "단위": "Percent",
+          "표시": "+10%"
+        }
+      ],
+      "offCost": 2740064795525,
+      "onCost": 4040064795525,
+      "fullCost": 31140064795525,
+      "bounds": {
+        "minX": -4,
+        "maxX": 3,
+        "minY": -12,
+        "maxY": -6
+      }
+    },
+    {
+      "id": 7,
+      "title": "레이저 별",
+      "nodeCount": 39,
+      "rankCount": 39,
+      "zoneCost": 309300000000000,
+      "focus": "laserStar.spawnChance-01",
+      "focusCost": 7500000000000,
+      "focusEffects": [
+        {
+          "NodeId": "laserStar.spawnChance-01",
+          "Rank": "1",
+          "StatId": "laserStar.spawnChance",
+          "Value": "20",
+          "단위": "Percent",
+          "표시": "+20%"
+        }
+      ],
+      "offCost": 30640064795525,
+      "onCost": 38140064795525,
+      "fullCost": 323640064795525,
+      "bounds": {
+        "minX": -20,
+        "maxX": -8,
+        "minY": -7,
+        "maxY": -4
+      }
+    },
+    {
+      "id": 8,
+      "title": "슈퍼노바·후반 증폭",
+      "nodeCount": 38,
+      "rankCount": 38,
+      "zoneCost": 6985000000000000,
+      "focus": "supernovaStar.spawnChance-01",
+      "focusCost": 45000000000000,
+      "focusEffects": [
+        {
+          "NodeId": "supernovaStar.spawnChance-01",
+          "Rank": "1",
+          "StatId": "supernovaStar.spawnChance",
+          "Value": "10",
+          "단위": "Percent",
+          "표시": "+10%"
+        }
+      ],
+      "offCost": 153140064795525,
+      "onCost": 198140064795525,
+      "fullCost": 7098140064795525,
+      "bounds": {
+        "minX": -19,
+        "maxX": -3,
+        "minY": -3,
+        "maxY": 1
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "level": 10,
+      "targetGold": 690000,
+      "fieldScale": 1.68
+    },
+    {
+      "level": 20,
+      "targetGold": 5600000,
+      "fieldScale": 2.27
+    },
+    {
+      "level": 30,
+      "targetGold": 420000000,
+      "fieldScale": 2.83
+    }
+  ],
+  "runtimeStatReferences": {
+    "timer": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Time/TimeLimitDefinition.cs",
+        "line": 26,
+        "code": "float duration = Duration + upgrades.GainOf(UpgradeStat.Timer);"
+      }
+    ],
+    "growth.time": [
+      {
+        "file": "Assets/Scripts/Core/Hq/HqUpgradeStats.cs",
+        "line": 8,
+        "code": "// 판 Level업마다 이 판의 제한 시간에 더하는 초(UpgradeStat.GrowthTime, 기본 0 — 성장 노드를 사기 전에는 시간이 늘지 않는다)."
+      },
+      {
+        "file": "Assets/Scripts/Core/Hq/HqUpgradeStats.cs",
+        "line": 12,
+        "code": "float seconds = upgrades.GainOf(UpgradeStat.GrowthTime);"
+      }
+    ],
+    "growth.asteroids": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 36,
+        "code": "EnemyType.Asteroid => UpgradeStat.GrowthAsteroids,"
+      }
+    ],
+    "growth.planets": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 37,
+        "code": "EnemyType.Planet => UpgradeStat.GrowthPlanets,"
+      }
+    ],
+    "growth.stars": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 38,
+        "code": "EnemyType.Star => UpgradeStat.GrowthStars,"
+      }
+    ],
+    "breaker.damage": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 68,
+        "code": "Damage + upgrades.GainOf(UpgradeStat.BreakerDamage),"
+      }
+    ],
+    "breaker.radius": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 70,
+        "code": "Radius * (1 + upgrades.GainOf(UpgradeStat.BreakerRadius) / 100),"
+      }
+    ],
+    "breaker.speed": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 61,
+        "code": "float speed = 1 + upgrades.GainOf(UpgradeStat.BreakerSpeed) / 100;"
+      }
+    ],
+    "breaker.critChance": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 71,
+        "code": "Math.Min(1, CritChance + upgrades.GainOf(UpgradeStat.BreakerCritChance) / 100),"
+      }
+    ],
+    "breaker.critBonus": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 72,
+        "code": "CritDamage + upgrades.GainOf(UpgradeStat.BreakerCritBonus) / 100,"
+      }
+    ],
+    "breaker.planetBonusDamage": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 78,
+        "code": "PlanetBonusDamage + upgrades.GainOf(UpgradeStat.BreakerPlanetBonusDamage),"
+      }
+    ],
+    "breaker.starBonusDamage": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 79,
+        "code": "StarBonusDamage + upgrades.GainOf(UpgradeStat.BreakerStarBonusDamage));"
+      }
+    ],
+    "asteroid.count": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 28,
+        "code": "EnemyType.Asteroid => UpgradeStat.AsteroidCount,"
+      }
+    ],
+    "asteroid.size": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 19,
+        "code": "EnemyType.Asteroid => UpgradeStat.AsteroidSize,"
+      }
+    ],
+    "asteroid.massScale": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 10,
+        "code": "EnemyType.Asteroid => UpgradeStat.AsteroidMassScale,"
+      }
+    ],
+    "asteroid.timeChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 77,
+        "code": "EnemyType.Asteroid => UpgradeStat.AsteroidTimeChance,"
+      }
+    ],
+    "asteroid.respawnChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 68,
+        "code": "EnemyType.Asteroid => UpgradeStat.AsteroidRespawnChance,"
+      }
+    ],
+    "asteroid.toPlanet": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 46,
+        "code": "EnemyType.Asteroid => UpgradeStat.AsteroidToPlanet,"
+      }
+    ],
+    "planet.toStar": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 47,
+        "code": "EnemyType.Planet => UpgradeStat.PlanetToStar,"
+      }
+    ],
+    "electricAsteroid.spawnChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 87,
+        "code": "(EnemyType.Asteroid, EnemyTraitType.Electric) => UpgradeStat.ElectricAsteroidSpawnChance,"
+      }
+    ],
+    "electricAsteroid.damage": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 119,
+        "code": "(EnemyType.Asteroid, EnemyTraitType.Electric) => UpgradeStat.ElectricAsteroidDamage,"
+      }
+    ],
+    "electricAsteroid.critChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 129,
+        "code": "(EnemyType.Asteroid, EnemyTraitType.Electric) => UpgradeStat.ElectricAsteroidCritChance,"
+      }
+    ],
+    "electricAsteroid.chain": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 147,
+        "code": "(EnemyType.Asteroid, EnemyTraitType.Electric) => UpgradeStat.ElectricAsteroidChain,"
+      }
+    ],
+    "electricAsteroid.splitChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 155,
+        "code": "(EnemyType.Asteroid, EnemyTraitType.Electric) => UpgradeStat.ElectricAsteroidSplitChance,"
+      }
+    ],
+    "electricAsteroid.critBonus": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 138,
+        "code": "(EnemyType.Asteroid, EnemyTraitType.Electric) => UpgradeStat.ElectricAsteroidCritBonus,"
+      }
+    ],
+    "goldenAsteroid.spawnChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 86,
+        "code": "(EnemyType.Asteroid, EnemyTraitType.Golden) => UpgradeStat.GoldenAsteroidSpawnChance,"
+      }
+    ],
+    "goldenAsteroid.rewardScale": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 105,
+        "code": "(EnemyType.Asteroid, EnemyTraitType.Golden) => UpgradeStat.GoldenAsteroidRewardScale,"
+      }
+    ],
+    "goldenAsteroid.critChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 128,
+        "code": "(EnemyType.Asteroid, EnemyTraitType.Golden) => UpgradeStat.GoldenAsteroidCritChance,"
+      }
+    ],
+    "goldenAsteroid.critRewardScale": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 112,
+        "code": "(EnemyType.Asteroid, EnemyTraitType.Golden) => UpgradeStat.GoldenAsteroidCritRewardScale,"
+      }
+    ],
+    "moonPlanet.spawnChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 88,
+        "code": "(EnemyType.Planet, EnemyTraitType.Moon) => UpgradeStat.MoonPlanetSpawnChance,"
+      }
+    ],
+    "moonPlanet.speedScale": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 74,
+        "code": "MoonSpeedBonus + upgrades.GainOf(UpgradeStat.MoonPlanetSpeedScale) / 100,"
+      }
+    ],
+    "moonPlanet.rangeScale": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 75,
+        "code": "MoonRadiusBonus + upgrades.GainOf(UpgradeStat.MoonPlanetRangeScale) / 100,"
+      }
+    ],
+    "moonPlanet.duration": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 73,
+        "code": "MoonDuration + upgrades.GainOf(UpgradeStat.MoonPlanetDuration),"
+      }
+    ],
+    "moonPlanet.maxCount": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 98,
+        "code": "(EnemyType.Planet, EnemyTraitType.Moon) => UpgradeStat.MoonPlanetMaxCount,"
+      }
+    ],
+    "planet.size": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 20,
+        "code": "EnemyType.Planet => UpgradeStat.PlanetSize,"
+      }
+    ],
+    "planet.respawnChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 69,
+        "code": "EnemyType.Planet => UpgradeStat.PlanetRespawnChance,"
+      }
+    ],
+    "planet.massScale": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 11,
+        "code": "EnemyType.Planet => UpgradeStat.PlanetMassScale,"
+      }
+    ],
+    "planet.timeChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 78,
+        "code": "EnemyType.Planet => UpgradeStat.PlanetTimeChance,"
+      }
+    ],
+    "comet.spawnChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 54,
+        "code": "EnemyType.Comet => UpgradeStat.CometSpawnChance,"
+      }
+    ],
+    "comet.duration": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 76,
+        "code": "CometDuration + upgrades.GainOf(UpgradeStat.CometDuration),"
+      }
+    ],
+    "comet.critBonus": [
+      {
+        "file": "Assets/Scripts/Core/Battle/Skills/BreakerDefinition.cs",
+        "line": 77,
+        "code": "CometCritDamageBonus + upgrades.GainOf(UpgradeStat.CometCritBonus) / 100,"
+      }
+    ],
+    "comet.rainChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 61,
+        "code": "EnemyType.Comet => UpgradeStat.CometRainChance,"
+      }
+    ],
+    "star.respawnChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 70,
+        "code": "EnemyType.Star => UpgradeStat.StarRespawnChance,"
+      }
+    ],
+    "star.timeChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 79,
+        "code": "EnemyType.Star => UpgradeStat.StarTimeChance,"
+      }
+    ],
+    "star.size": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 21,
+        "code": "EnemyType.Star => UpgradeStat.StarSize,"
+      }
+    ],
+    "star.massScale": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 12,
+        "code": "EnemyType.Star => UpgradeStat.StarMassScale,"
+      }
+    ],
+    "electricStar.spawnChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 89,
+        "code": "(EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarSpawnChance,"
+      }
+    ],
+    "electricStar.damage": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 120,
+        "code": "(EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarDamage,"
+      }
+    ],
+    "electricStar.critChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 130,
+        "code": "(EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarCritChance,"
+      }
+    ],
+    "electricStar.chain": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 148,
+        "code": "(EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarChain,"
+      }
+    ],
+    "electricStar.splitChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 156,
+        "code": "(EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarSplitChance,"
+      }
+    ],
+    "electricStar.critBonus": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 139,
+        "code": "(EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarCritBonus,"
+      }
+    ],
+    "laserStar.spawnChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 90,
+        "code": "(EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarSpawnChance,"
+      }
+    ],
+    "laserStar.width": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 163,
+        "code": "(EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarWidth,"
+      }
+    ],
+    "laserStar.critChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 131,
+        "code": "(EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarCritChance,"
+      }
+    ],
+    "laserStar.damage": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 121,
+        "code": "(EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarDamage,"
+      }
+    ],
+    "laserStar.critBonus": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 140,
+        "code": "(EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarCritBonus,"
+      }
+    ],
+    "supernovaStar.range": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 170,
+        "code": "(EnemyType.Star, EnemyTraitType.Supernova) => UpgradeStat.SupernovaStarRange,"
+      }
+    ],
+    "supernovaStar.hpDamage": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 177,
+        "code": "(EnemyType.Star, EnemyTraitType.Supernova) => UpgradeStat.SupernovaStarHpDamage,"
+      }
+    ],
+    "supernovaStar.spawnChance": [
+      {
+        "file": "Assets/Scripts/Core/Enemies/Composition/EnemyUpgradeStats.cs",
+        "line": 91,
+        "code": "(EnemyType.Star, EnemyTraitType.Supernova) => UpgradeStat.SupernovaStarSpawnChance,"
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "qa-node-first",
+      "category": "QA/노드/기준",
+      "ownedCount": 0,
+      "rankCount": 0,
+      "purchaseCost": 0,
+      "stage": 0,
+      "level": 0,
+      "freezeTime": false,
+      "budget": 0,
+      "gold": 0
+    },
+    {
+      "name": "qa-zone01-off",
+      "category": "QA/구역1/단일비교",
+      "ownedCount": 1,
+      "rankCount": 1,
+      "purchaseCost": 2,
+      "stage": 0,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "asteroid.count-01",
+      "purchaseOrder": [
+        "timer-01"
+      ]
+    },
+    {
+      "name": "qa-zone01-on",
+      "category": "QA/구역1/단일비교",
+      "ownedCount": 2,
+      "rankCount": 2,
+      "purchaseCost": 9,
+      "stage": 0,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "asteroid.count-01",
+      "purchaseOrder": [
+        "timer-01",
+        "asteroid.count-01"
+      ]
+    },
+    {
+      "name": "qa-zone01-full",
+      "category": "QA/구역1/최대",
+      "ownedCount": 21,
+      "rankCount": 21,
+      "purchaseCost": 757,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "zoneNodes": [
+        "asteroid.count-01",
+        "asteroid.count-02",
+        "asteroid.massScale-01",
+        "asteroid.massScale-02",
+        "asteroid.size-01",
+        "asteroid.size-02",
+        "breaker.critBonus-01",
+        "breaker.critChance-01",
+        "breaker.critChance-02",
+        "breaker.critChance-03",
+        "breaker.damage-01",
+        "breaker.damage-02",
+        "breaker.damage-03",
+        "breaker.damage-04",
+        "breaker.damage-05",
+        "breaker.radius-01",
+        "breaker.radius-02",
+        "breaker.speed-01",
+        "breaker.speed-02",
+        "breaker.speed-03",
+        "timer-01"
+      ],
+      "connectors": []
+    },
+    {
+      "name": "qa-zone02-off",
+      "category": "QA/구역2/단일비교",
+      "ownedCount": 29,
+      "rankCount": 29,
+      "purchaseCost": 5040064795527,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "electricStar.critBonus-02",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "breaker.damage-12",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "goldenAsteroid.critRewardScale-02",
+        "comet.rainChance-02",
+        "breaker.damage-20",
+        "growth.planets-02",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "planet.massScale-08",
+        "planet.toStar-01",
+        "planet.timeChance-01",
+        "electricStar.spawnChance-01",
+        "electricStar.critChance-01",
+        "timer-01"
+      ]
+    },
+    {
+      "name": "qa-zone02-on",
+      "category": "QA/구역2/단일비교",
+      "ownedCount": 30,
+      "rankCount": 30,
+      "purchaseCost": 505040064795527,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "electricStar.critBonus-02",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "breaker.damage-12",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "goldenAsteroid.critRewardScale-02",
+        "comet.rainChance-02",
+        "breaker.damage-20",
+        "growth.planets-02",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "planet.massScale-08",
+        "planet.toStar-01",
+        "planet.timeChance-01",
+        "electricStar.spawnChance-01",
+        "electricStar.critChance-01",
+        "timer-01",
+        "electricStar.critBonus-02"
+      ]
+    },
+    {
+      "name": "qa-zone02-full",
+      "category": "QA/구역2/최대",
+      "ownedCount": 37,
+      "rankCount": 109,
+      "purchaseCost": 40005040064795527,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "zoneNodes": [
+        "asteroid.toPlanet-05",
+        "breaker.critBonus-05",
+        "breaker.speed-12",
+        "electricStar.critBonus-02",
+        "laserStar.width-10",
+        "planet.toStar-06",
+        "star.massScale-10",
+        "star.size-03"
+      ],
+      "connectors": [
+        "asteroid.massScale-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "asteroid.massScale-09",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "breaker.damage-12",
+        "breaker.damage-20",
+        "breaker.radius-06",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "comet.rainChance-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.spawnChance-01",
+        "electricStar.critChance-01",
+        "electricStar.spawnChance-01",
+        "goldenAsteroid.critRewardScale-01",
+        "goldenAsteroid.critRewardScale-02",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.spawnChance-01",
+        "growth.asteroids-03",
+        "growth.planets-02",
+        "planet.massScale-08",
+        "planet.timeChance-01",
+        "planet.toStar-01",
+        "timer-01"
+      ]
+    },
+    {
+      "name": "qa-zone03-off",
+      "category": "QA/구역3/단일비교",
+      "ownedCount": 0,
+      "rankCount": 0,
+      "purchaseCost": 0,
+      "stage": 0,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "electricAsteroid.spawnChance-01",
+      "purchaseOrder": []
+    },
+    {
+      "name": "qa-zone03-on",
+      "category": "QA/구역3/단일비교",
+      "ownedCount": 1,
+      "rankCount": 1,
+      "purchaseCost": 10000,
+      "stage": 0,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "electricAsteroid.spawnChance-01",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01"
+      ]
+    },
+    {
+      "name": "qa-zone03-full",
+      "category": "QA/구역3/최대",
+      "ownedCount": 19,
+      "rankCount": 19,
+      "purchaseCost": 1037575,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "zoneNodes": [
+        "asteroid.massScale-05",
+        "asteroid.massScale-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "asteroid.respawnChance-03",
+        "breaker.damage-09",
+        "breaker.damage-10",
+        "breaker.damage-11",
+        "breaker.radius-06",
+        "breaker.speed-07",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "electricAsteroid.critBonus-01",
+        "electricAsteroid.critChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.splitChance-01",
+        "electricAsteroid.splitChance-02"
+      ],
+      "connectors": []
+    },
+    {
+      "name": "qa-zone04-off",
+      "category": "QA/구역4/단일비교",
+      "ownedCount": 16,
+      "rankCount": 16,
+      "purchaseCost": 29795525,
+      "stage": 1,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "asteroid.toPlanet-01",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "breaker.damage-12",
+        "asteroid.massScale-10"
+      ]
+    },
+    {
+      "name": "qa-zone04-on",
+      "category": "QA/구역4/단일비교",
+      "ownedCount": 17,
+      "rankCount": 17,
+      "purchaseCost": 54795525,
+      "stage": 1,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "asteroid.toPlanet-01",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "breaker.damage-12",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01"
+      ]
+    },
+    {
+      "name": "qa-zone04-full",
+      "category": "QA/구역4/최대",
+      "ownedCount": 95,
+      "rankCount": 95,
+      "purchaseCost": 112937314801,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "zoneNodes": [
+        "asteroid.count-03",
+        "asteroid.massScale-03",
+        "asteroid.massScale-04",
+        "asteroid.massScale-09",
+        "asteroid.massScale-10",
+        "asteroid.respawnChance-01",
+        "asteroid.respawnChance-02",
+        "asteroid.timeChance-01",
+        "asteroid.timeChance-02",
+        "asteroid.toPlanet-01",
+        "asteroid.toPlanet-02",
+        "asteroid.toPlanet-03",
+        "breaker.damage-06",
+        "breaker.damage-07",
+        "breaker.damage-08",
+        "breaker.damage-12",
+        "breaker.damage-13",
+        "breaker.damage-14",
+        "breaker.damage-15",
+        "breaker.damage-16",
+        "breaker.damage-17",
+        "breaker.damage-18",
+        "breaker.damage-19",
+        "breaker.planetBonus-01",
+        "breaker.planetBonus-02",
+        "breaker.planetBonus-03",
+        "breaker.planetBonus-04",
+        "breaker.radius-03",
+        "breaker.radius-04",
+        "breaker.radius-05",
+        "breaker.speed-04",
+        "breaker.speed-05",
+        "breaker.speed-06",
+        "comet.critBonus-01",
+        "comet.duration-01",
+        "comet.rainChance-01",
+        "comet.spawnChance-01",
+        "electricAsteroid.critBonus-02",
+        "electricAsteroid.critChance-02",
+        "electricAsteroid.damage-03",
+        "goldenAsteroid.critChance-01",
+        "goldenAsteroid.critChance-02",
+        "goldenAsteroid.critChance-03",
+        "goldenAsteroid.critRewardScale-01",
+        "goldenAsteroid.critRewardScale-02",
+        "goldenAsteroid.critRewardScale-03",
+        "goldenAsteroid.critRewardScale-04",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.rewardScale-02",
+        "goldenAsteroid.rewardScale-03",
+        "goldenAsteroid.rewardScale-04",
+        "goldenAsteroid.rewardScale-05",
+        "goldenAsteroid.spawnChance-01",
+        "growth.asteroids-01",
+        "growth.asteroids-02",
+        "growth.asteroids-03",
+        "growth.planets-01",
+        "growth.time-01",
+        "moonPlanet.duration-01",
+        "moonPlanet.duration-02",
+        "moonPlanet.duration-03",
+        "moonPlanet.rangeScale-01",
+        "moonPlanet.rangeScale-02",
+        "moonPlanet.spawnChance-01",
+        "moonPlanet.spawnChance-02",
+        "moonPlanet.speedScale-01",
+        "moonPlanet.speedScale-02",
+        "planet.massScale-01",
+        "planet.massScale-02",
+        "planet.massScale-03",
+        "planet.massScale-04",
+        "planet.massScale-05",
+        "planet.massScale-06",
+        "planet.respawnChance-01",
+        "planet.respawnChance-02",
+        "planet.size-01",
+        "planet.size-02"
+      ],
+      "connectors": [
+        "asteroid.massScale-01",
+        "asteroid.massScale-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "asteroid.size-01",
+        "asteroid.size-02",
+        "breaker.critChance-02",
+        "breaker.damage-01",
+        "breaker.damage-02",
+        "breaker.damage-05",
+        "breaker.radius-06",
+        "breaker.speed-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.spawnChance-01",
+        "timer-01"
+      ]
+    },
+    {
+      "name": "qa-zone05-off",
+      "category": "QA/구역5/단일비교",
+      "ownedCount": 25,
+      "rankCount": 25,
+      "purchaseCost": 1013295826,
+      "stage": 2,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "comet.rainChance-02",
+      "purchaseOrder": [
+        "timer-01",
+        "breaker.damage-01",
+        "breaker.damage-02",
+        "breaker.critChance-02",
+        "asteroid.size-01",
+        "breaker.speed-02",
+        "asteroid.size-02",
+        "asteroid.massScale-01",
+        "breaker.damage-05",
+        "comet.spawnChance-01",
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "goldenAsteroid.critRewardScale-02"
+      ]
+    },
+    {
+      "name": "qa-zone05-on",
+      "category": "QA/구역5/단일비교",
+      "ownedCount": 26,
+      "rankCount": 26,
+      "purchaseCost": 61013295826,
+      "stage": 2,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "comet.rainChance-02",
+      "purchaseOrder": [
+        "timer-01",
+        "breaker.damage-01",
+        "breaker.damage-02",
+        "breaker.critChance-02",
+        "asteroid.size-01",
+        "breaker.speed-02",
+        "asteroid.size-02",
+        "asteroid.massScale-01",
+        "breaker.damage-05",
+        "comet.spawnChance-01",
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "goldenAsteroid.critRewardScale-02",
+        "comet.rainChance-02"
+      ]
+    },
+    {
+      "name": "qa-zone05-full",
+      "category": "QA/구역5/최대",
+      "ownedCount": 41,
+      "rankCount": 41,
+      "purchaseCost": 1361013295826,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "zoneNodes": [
+        "asteroid.count-04",
+        "asteroid.count-05",
+        "breaker.critChance-04",
+        "breaker.critChance-05",
+        "breaker.damage-20",
+        "breaker.radius-07",
+        "breaker.radius-08",
+        "breaker.radius-09",
+        "comet.rainChance-02",
+        "comet.rainChance-03",
+        "growth.planets-02",
+        "moonPlanet.rangeScale-03",
+        "moonPlanet.rangeScale-04",
+        "planet.massScale-07",
+        "planet.massScale-08",
+        "planet.respawnChance-03"
+      ],
+      "connectors": [
+        "asteroid.massScale-01",
+        "asteroid.massScale-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "asteroid.massScale-09",
+        "asteroid.size-01",
+        "asteroid.size-02",
+        "breaker.critChance-02",
+        "breaker.damage-01",
+        "breaker.damage-02",
+        "breaker.damage-05",
+        "breaker.radius-06",
+        "breaker.speed-02",
+        "comet.spawnChance-01",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.spawnChance-01",
+        "goldenAsteroid.critRewardScale-01",
+        "goldenAsteroid.critRewardScale-02",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.spawnChance-01",
+        "growth.asteroids-03",
+        "timer-01"
+      ]
+    },
+    {
+      "name": "qa-zone06-off",
+      "category": "QA/구역6/단일비교",
+      "ownedCount": 26,
+      "rankCount": 26,
+      "purchaseCost": 2740064795525,
+      "stage": 2,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "electricStar.spawnChance-01",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "breaker.damage-12",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "goldenAsteroid.critRewardScale-02",
+        "comet.rainChance-02",
+        "breaker.damage-20",
+        "growth.planets-02",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "planet.massScale-08",
+        "planet.toStar-01",
+        "planet.timeChance-01"
+      ]
+    },
+    {
+      "name": "qa-zone06-on",
+      "category": "QA/구역6/단일비교",
+      "ownedCount": 27,
+      "rankCount": 27,
+      "purchaseCost": 4040064795525,
+      "stage": 2,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "electricStar.spawnChance-01",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "breaker.damage-12",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "goldenAsteroid.critRewardScale-02",
+        "comet.rainChance-02",
+        "breaker.damage-20",
+        "growth.planets-02",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "planet.massScale-08",
+        "planet.toStar-01",
+        "planet.timeChance-01",
+        "electricStar.spawnChance-01"
+      ]
+    },
+    {
+      "name": "qa-zone06-full",
+      "category": "QA/구역6/최대",
+      "ownedCount": 53,
+      "rankCount": 53,
+      "purchaseCost": 31140064795525,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "zoneNodes": [
+        "asteroid.toPlanet-04",
+        "breaker.damage-21",
+        "breaker.damage-22",
+        "breaker.damage-23",
+        "breaker.damage-24",
+        "breaker.radius-10",
+        "breaker.speed-08",
+        "breaker.speed-09",
+        "breaker.starBonus-01",
+        "comet.rainChance-04",
+        "electricStar.chain-01",
+        "electricStar.chain-02",
+        "electricStar.critChance-01",
+        "electricStar.damage-01",
+        "electricStar.spawnChance-01",
+        "electricStar.splitChance-01",
+        "growth.stars-01",
+        "moonPlanet.rangeScale-05",
+        "moonPlanet.speedScale-03",
+        "planet.timeChance-01",
+        "planet.toStar-01",
+        "star.massScale-01",
+        "star.massScale-02",
+        "star.massScale-03",
+        "star.respawnChance-01",
+        "star.respawnChance-02",
+        "star.size-01",
+        "star.size-02",
+        "star.timeChance-01"
+      ],
+      "connectors": [
+        "asteroid.massScale-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "asteroid.massScale-09",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "breaker.damage-12",
+        "breaker.damage-20",
+        "breaker.radius-06",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "comet.rainChance-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.spawnChance-01",
+        "goldenAsteroid.critRewardScale-01",
+        "goldenAsteroid.critRewardScale-02",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.spawnChance-01",
+        "growth.asteroids-03",
+        "growth.planets-02",
+        "planet.massScale-08"
+      ]
+    },
+    {
+      "name": "qa-zone07-off",
+      "category": "QA/구역7/단일비교",
+      "ownedCount": 41,
+      "rankCount": 41,
+      "purchaseCost": 30640064795525,
+      "stage": 2,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "laserStar.spawnChance-01",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "breaker.damage-12",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "goldenAsteroid.critRewardScale-02",
+        "comet.rainChance-02",
+        "breaker.damage-20",
+        "growth.planets-02",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "planet.massScale-08",
+        "planet.toStar-01",
+        "planet.timeChance-01",
+        "electricStar.spawnChance-01",
+        "electricStar.chain-01",
+        "asteroid.toPlanet-04",
+        "star.size-01",
+        "breaker.starBonus-01",
+        "comet.rainChance-04",
+        "breaker.damage-22",
+        "moonPlanet.rangeScale-05",
+        "breaker.damage-23",
+        "star.massScale-03",
+        "timer-02",
+        "asteroid.respawnChance-04",
+        "planet.respawnChance-04",
+        "comet.spawnChance-02",
+        "star.massScale-04"
+      ]
+    },
+    {
+      "name": "qa-zone07-on",
+      "category": "QA/구역7/단일비교",
+      "ownedCount": 42,
+      "rankCount": 42,
+      "purchaseCost": 38140064795525,
+      "stage": 2,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "laserStar.spawnChance-01",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "breaker.damage-12",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "goldenAsteroid.critRewardScale-02",
+        "comet.rainChance-02",
+        "breaker.damage-20",
+        "growth.planets-02",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "planet.massScale-08",
+        "planet.toStar-01",
+        "planet.timeChance-01",
+        "electricStar.spawnChance-01",
+        "electricStar.chain-01",
+        "asteroid.toPlanet-04",
+        "star.size-01",
+        "breaker.starBonus-01",
+        "comet.rainChance-04",
+        "breaker.damage-22",
+        "moonPlanet.rangeScale-05",
+        "breaker.damage-23",
+        "star.massScale-03",
+        "timer-02",
+        "asteroid.respawnChance-04",
+        "planet.respawnChance-04",
+        "comet.spawnChance-02",
+        "star.massScale-04",
+        "laserStar.spawnChance-01"
+      ]
+    },
+    {
+      "name": "qa-zone07-full",
+      "category": "QA/구역7/최대",
+      "ownedCount": 75,
+      "rankCount": 75,
+      "purchaseCost": 323640064795525,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "zoneNodes": [
+        "asteroid.respawnChance-04",
+        "asteroid.respawnChance-05",
+        "breaker.critBonus-02",
+        "breaker.damage-25",
+        "breaker.damage-26",
+        "breaker.radius-11",
+        "breaker.radius-12",
+        "breaker.radius-13",
+        "breaker.speed-11",
+        "breaker.starBonus-02",
+        "comet.spawnChance-02",
+        "electricStar.chain-03",
+        "electricStar.critBonus-01",
+        "electricStar.damage-02",
+        "electricStar.splitChance-02",
+        "electricStar.splitChance-03",
+        "laserStar.critBonus-01",
+        "laserStar.critBonus-02",
+        "laserStar.critChance-01",
+        "laserStar.damage-01",
+        "laserStar.damage-02",
+        "laserStar.damage-03",
+        "laserStar.damage-04",
+        "laserStar.damage-05",
+        "laserStar.spawnChance-01",
+        "laserStar.width-01",
+        "laserStar.width-02",
+        "laserStar.width-03",
+        "laserStar.width-04",
+        "laserStar.width-05",
+        "moonPlanet.duration-04",
+        "moonPlanet.maxCount-01",
+        "planet.respawnChance-04",
+        "planet.toStar-02",
+        "star.massScale-04",
+        "star.massScale-05",
+        "star.respawnChance-03",
+        "star.respawnChance-04",
+        "timer-02"
+      ],
+      "connectors": [
+        "asteroid.massScale-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "asteroid.massScale-09",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "asteroid.toPlanet-04",
+        "breaker.damage-12",
+        "breaker.damage-20",
+        "breaker.damage-22",
+        "breaker.damage-23",
+        "breaker.radius-06",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "breaker.starBonus-01",
+        "comet.rainChance-02",
+        "comet.rainChance-04",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.spawnChance-01",
+        "electricStar.chain-01",
+        "electricStar.spawnChance-01",
+        "goldenAsteroid.critRewardScale-01",
+        "goldenAsteroid.critRewardScale-02",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.spawnChance-01",
+        "growth.asteroids-03",
+        "growth.planets-02",
+        "moonPlanet.rangeScale-05",
+        "planet.massScale-08",
+        "planet.timeChance-01",
+        "planet.toStar-01",
+        "star.massScale-03",
+        "star.size-01"
+      ]
+    },
+    {
+      "name": "qa-zone08-off",
+      "category": "QA/구역8/단일비교",
+      "ownedCount": 50,
+      "rankCount": 50,
+      "purchaseCost": 153140064795525,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "supernovaStar.spawnChance-01",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "breaker.damage-12",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "goldenAsteroid.critRewardScale-02",
+        "comet.rainChance-02",
+        "breaker.damage-20",
+        "growth.planets-02",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "planet.massScale-08",
+        "planet.toStar-01",
+        "planet.timeChance-01",
+        "electricStar.spawnChance-01",
+        "electricStar.chain-01",
+        "asteroid.toPlanet-04",
+        "star.size-01",
+        "breaker.starBonus-01",
+        "comet.rainChance-04",
+        "breaker.damage-22",
+        "moonPlanet.rangeScale-05",
+        "breaker.damage-23",
+        "star.massScale-03",
+        "timer-02",
+        "asteroid.respawnChance-04",
+        "planet.respawnChance-04",
+        "comet.spawnChance-02",
+        "star.massScale-04",
+        "laserStar.spawnChance-01",
+        "laserStar.critChance-01",
+        "laserStar.critBonus-02",
+        "laserStar.damage-03",
+        "breaker.damage-25",
+        "star.massScale-05",
+        "moonPlanet.maxCount-01",
+        "breaker.damage-27",
+        "supernovaStar.range-01"
+      ]
+    },
+    {
+      "name": "qa-zone08-on",
+      "category": "QA/구역8/단일비교",
+      "ownedCount": 51,
+      "rankCount": 51,
+      "purchaseCost": 198140064795525,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "focus": "supernovaStar.spawnChance-01",
+      "purchaseOrder": [
+        "electricAsteroid.spawnChance-01",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "asteroid.massScale-06",
+        "breaker.radius-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "goldenAsteroid.spawnChance-01",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.critRewardScale-01",
+        "growth.asteroids-03",
+        "asteroid.massScale-09",
+        "breaker.damage-12",
+        "asteroid.massScale-10",
+        "asteroid.toPlanet-01",
+        "goldenAsteroid.critRewardScale-02",
+        "comet.rainChance-02",
+        "breaker.damage-20",
+        "growth.planets-02",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "planet.massScale-08",
+        "planet.toStar-01",
+        "planet.timeChance-01",
+        "electricStar.spawnChance-01",
+        "electricStar.chain-01",
+        "asteroid.toPlanet-04",
+        "star.size-01",
+        "breaker.starBonus-01",
+        "comet.rainChance-04",
+        "breaker.damage-22",
+        "moonPlanet.rangeScale-05",
+        "breaker.damage-23",
+        "star.massScale-03",
+        "timer-02",
+        "asteroid.respawnChance-04",
+        "planet.respawnChance-04",
+        "comet.spawnChance-02",
+        "star.massScale-04",
+        "laserStar.spawnChance-01",
+        "laserStar.critChance-01",
+        "laserStar.critBonus-02",
+        "laserStar.damage-03",
+        "breaker.damage-25",
+        "star.massScale-05",
+        "moonPlanet.maxCount-01",
+        "breaker.damage-27",
+        "supernovaStar.range-01",
+        "supernovaStar.spawnChance-01"
+      ]
+    },
+    {
+      "name": "qa-zone08-full",
+      "category": "QA/구역8/최대",
+      "ownedCount": 87,
+      "rankCount": 87,
+      "purchaseCost": 7098140064795525,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": true,
+      "budget": 0,
+      "gold": 0,
+      "zoneNodes": [
+        "breaker.critBonus-03",
+        "breaker.critBonus-04",
+        "breaker.damage-27",
+        "breaker.damage-28",
+        "breaker.speed-10",
+        "comet.spawnChance-03",
+        "comet.spawnChance-04",
+        "laserStar.critBonus-03",
+        "laserStar.damage-06",
+        "laserStar.width-06",
+        "laserStar.width-07",
+        "laserStar.width-08",
+        "laserStar.width-09",
+        "moonPlanet.rangeScale-06",
+        "moonPlanet.rangeScale-07",
+        "moonPlanet.speedScale-04",
+        "planet.timeChance-02",
+        "planet.toStar-03",
+        "planet.toStar-04",
+        "planet.toStar-05",
+        "star.massScale-06",
+        "star.massScale-07",
+        "star.massScale-08",
+        "star.massScale-09",
+        "star.timeChance-02",
+        "supernovaStar.hpDamage-01",
+        "supernovaStar.hpDamage-02",
+        "supernovaStar.hpDamage-03",
+        "supernovaStar.hpDamage-04",
+        "supernovaStar.hpDamage-05",
+        "supernovaStar.hpDamage-06",
+        "supernovaStar.range-01",
+        "supernovaStar.range-02",
+        "supernovaStar.range-03",
+        "supernovaStar.range-04",
+        "supernovaStar.spawnChance-01",
+        "timer-03",
+        "timer-04"
+      ],
+      "connectors": [
+        "asteroid.massScale-06",
+        "asteroid.massScale-07",
+        "asteroid.massScale-08",
+        "asteroid.massScale-09",
+        "asteroid.massScale-10",
+        "asteroid.respawnChance-04",
+        "asteroid.toPlanet-01",
+        "asteroid.toPlanet-04",
+        "breaker.damage-12",
+        "breaker.damage-20",
+        "breaker.damage-22",
+        "breaker.damage-23",
+        "breaker.damage-25",
+        "breaker.radius-06",
+        "breaker.radius-07",
+        "breaker.radius-09",
+        "breaker.starBonus-01",
+        "comet.rainChance-02",
+        "comet.rainChance-04",
+        "comet.spawnChance-02",
+        "electricAsteroid.chain-01",
+        "electricAsteroid.chain-02",
+        "electricAsteroid.damage-01",
+        "electricAsteroid.damage-02",
+        "electricAsteroid.spawnChance-01",
+        "electricStar.chain-01",
+        "electricStar.spawnChance-01",
+        "goldenAsteroid.critRewardScale-01",
+        "goldenAsteroid.critRewardScale-02",
+        "goldenAsteroid.rewardScale-01",
+        "goldenAsteroid.spawnChance-01",
+        "growth.asteroids-03",
+        "growth.planets-02",
+        "laserStar.critBonus-02",
+        "laserStar.critChance-01",
+        "laserStar.damage-03",
+        "laserStar.spawnChance-01",
+        "laserStar.width-05",
+        "moonPlanet.maxCount-01",
+        "moonPlanet.rangeScale-05",
+        "planet.massScale-08",
+        "planet.respawnChance-04",
+        "planet.timeChance-01",
+        "planet.toStar-01",
+        "star.massScale-03",
+        "star.massScale-04",
+        "star.massScale-05",
+        "star.size-01",
+        "timer-02"
+      ]
+    },
+    {
+      "name": "qa-budget-zone01",
+      "category": "QA/예산",
+      "ownedCount": 0,
+      "rankCount": 0,
+      "purchaseCost": 0,
+      "stage": 0,
+      "level": 0,
+      "freezeTime": false,
+      "budget": 17,
+      "gold": 0,
+      "resolvedNodes": [
+        {
+          "nodeId": "asteroid.count-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-01",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "name": "qa-budget-zone02",
+      "category": "QA/예산",
+      "ownedCount": 0,
+      "rankCount": 0,
+      "purchaseCost": 0,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": false,
+      "budget": 4426272937772307,
+      "gold": 0,
+      "resolvedNodes": [
+        {
+          "nodeId": "asteroid.count-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-12",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-13",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-14",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-15",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-16",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-17",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-18",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-19",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-20",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-21",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-22",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-23",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-24",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-25",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-26",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-27",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-28",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-12",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-13",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.starBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.starBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.duration-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.chain-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.chain-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.chain-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.critBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.splitChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.splitChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.splitChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.planets-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.planets-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.stars-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.time-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.critBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.critBonus-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.maxCount-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.spawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.timeChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.toStar-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.toStar-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.toStar-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.toStar-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.timeChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.hpDamage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.hpDamage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.hpDamage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.hpDamage-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.hpDamage-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.range-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.range-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.range-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.range-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-03",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "name": "qa-budget-zone03",
+      "category": "QA/예산",
+      "ownedCount": 0,
+      "rankCount": 0,
+      "purchaseCost": 0,
+      "stage": 0,
+      "level": 0,
+      "freezeTime": false,
+      "budget": 24732,
+      "gold": 0,
+      "resolvedNodes": [
+        {
+          "nodeId": "asteroid.count-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.time-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-01",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "name": "qa-budget-zone04",
+      "category": "QA/예산",
+      "ownedCount": 0,
+      "rankCount": 0,
+      "purchaseCost": 0,
+      "stage": 1,
+      "level": 0,
+      "freezeTime": false,
+      "budget": 76772307,
+      "gold": 0,
+      "resolvedNodes": [
+        {
+          "nodeId": "asteroid.count-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-12",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.time-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-01",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "name": "qa-budget-zone05",
+      "category": "QA/예산",
+      "ownedCount": 0,
+      "rankCount": 0,
+      "purchaseCost": 0,
+      "stage": 2,
+      "level": 0,
+      "freezeTime": false,
+      "budget": 212937772307,
+      "gold": 0,
+      "resolvedNodes": [
+        {
+          "nodeId": "asteroid.count-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-12",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-13",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-14",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-15",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-16",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-17",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-18",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-19",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.duration-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.planets-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.time-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.spawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-01",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "name": "qa-budget-zone06",
+      "category": "QA/예산",
+      "ownedCount": 0,
+      "rankCount": 0,
+      "purchaseCost": 0,
+      "stage": 2,
+      "level": 0,
+      "freezeTime": false,
+      "budget": 9072937772307,
+      "gold": 0,
+      "resolvedNodes": [
+        {
+          "nodeId": "asteroid.count-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-12",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-13",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-14",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-15",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-16",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-17",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-18",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-19",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-20",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-21",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.duration-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.planets-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.planets-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.stars-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.time-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.spawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.toStar-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-01",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "name": "qa-budget-zone07",
+      "category": "QA/예산",
+      "ownedCount": 0,
+      "rankCount": 0,
+      "purchaseCost": 0,
+      "stage": 2,
+      "level": 0,
+      "freezeTime": false,
+      "budget": 74772937772307,
+      "gold": 0,
+      "resolvedNodes": [
+        {
+          "nodeId": "asteroid.count-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-12",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-13",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-14",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-15",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-16",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-17",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-18",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-19",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-20",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-21",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-22",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-23",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-24",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-12",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.starBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.starBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.duration-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.chain-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.chain-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.splitChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.planets-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.planets-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.stars-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.time-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.spawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.toStar-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.toStar-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-02",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "name": "qa-budget-zone08",
+      "category": "QA/예산",
+      "ownedCount": 0,
+      "rankCount": 0,
+      "purchaseCost": 0,
+      "stage": 3,
+      "level": 0,
+      "freezeTime": false,
+      "budget": 741272937772307,
+      "gold": 0,
+      "resolvedNodes": [
+        {
+          "nodeId": "asteroid.count-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.count-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.massScale-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.respawnChance-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.timeChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "asteroid.toPlanet-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critBonus-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.critChance-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-12",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-13",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-14",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-15",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-16",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-17",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-18",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-19",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-20",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-21",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-22",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-23",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-24",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-25",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-26",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.damage-27",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.planetBonus-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-12",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.radius-13",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-09",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-10",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.speed-11",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.starBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "breaker.starBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.duration-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.rainChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "comet.spawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.chain-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricAsteroid.splitChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.chain-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.chain-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.chain-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.splitChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.splitChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "electricStar.splitChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.critRewardScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.rewardScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "goldenAsteroid.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.asteroids-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.planets-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.planets-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.stars-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "growth.time-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.critBonus-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.critBonus-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.critChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.damage-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "laserStar.width-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.duration-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.maxCount-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.rangeScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.spawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "moonPlanet.speedScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-07",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.massScale-08",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.respawnChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.toStar-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "planet.toStar-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-05",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.massScale-06",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.respawnChance-04",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.size-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.size-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "star.timeChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.hpDamage-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.hpDamage-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.hpDamage-03",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.range-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.range-02",
+          "rank": 1
+        },
+        {
+          "nodeId": "supernovaStar.spawnChance-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-01",
+          "rank": 1
+        },
+        {
+          "nodeId": "timer-02",
+          "rank": 1
+        }
+      ]
+    },
+    {
+      "name": "qa-mark10-before",
+      "category": "QA/이정표/동일노드",
+      "ownedCount": 55,
+      "rankCount": 55,
+      "purchaseCost": 602307,
+      "stage": 0,
+      "level": 9,
+      "freezeTime": false,
+      "budget": 0,
+      "gold": 0,
+      "nodeBudgetAssumption": 690000,
+      "targetGold": 690000,
+      "nextFieldScale": 1.68
+    },
+    {
+      "name": "qa-mark10-after",
+      "category": "QA/이정표/동일노드",
+      "ownedCount": 55,
+      "rankCount": 55,
+      "purchaseCost": 602307,
+      "stage": 1,
+      "level": 10,
+      "freezeTime": false,
+      "budget": 0,
+      "gold": 0,
+      "nodeBudgetAssumption": 690000,
+      "targetGold": 690000,
+      "nextFieldScale": 1.68
+    },
+    {
+      "name": "qa-mark20-before",
+      "category": "QA/이정표/동일노드",
+      "ownedCount": 66,
+      "rankCount": 66,
+      "purchaseCost": 5272307,
+      "stage": 1,
+      "level": 19,
+      "freezeTime": false,
+      "budget": 0,
+      "gold": 0,
+      "nodeBudgetAssumption": 5600000,
+      "targetGold": 5600000,
+      "nextFieldScale": 2.27
+    },
+    {
+      "name": "qa-mark20-after",
+      "category": "QA/이정표/동일노드",
+      "ownedCount": 66,
+      "rankCount": 66,
+      "purchaseCost": 5272307,
+      "stage": 2,
+      "level": 20,
+      "freezeTime": false,
+      "budget": 0,
+      "gold": 0,
+      "nodeBudgetAssumption": 5600000,
+      "targetGold": 5600000,
+      "nextFieldScale": 2.27
+    },
+    {
+      "name": "qa-mark30-before",
+      "category": "QA/이정표/동일노드",
+      "ownedCount": 82,
+      "rankCount": 82,
+      "purchaseCost": 376772307,
+      "stage": 2,
+      "level": 29,
+      "freezeTime": false,
+      "budget": 0,
+      "gold": 0,
+      "nodeBudgetAssumption": 420000000,
+      "targetGold": 420000000,
+      "nextFieldScale": 2.83
+    },
+    {
+      "name": "qa-mark30-after",
+      "category": "QA/이정표/동일노드",
+      "ownedCount": 82,
+      "rankCount": 82,
+      "purchaseCost": 376772307,
+      "stage": 3,
+      "level": 30,
+      "freezeTime": false,
+      "budget": 0,
+      "gold": 0,
+      "nodeBudgetAssumption": 420000000,
+      "targetGold": 420000000,
+      "nextFieldScale": 2.83
+    }
+  ],
+  "cheapestPurchaseRoute": [
+    {
+      "nodeId": "timer-01",
+      "rank": 1,
+      "cost": 2,
+      "spent": 2,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.radius-01",
+      "rank": 1,
+      "cost": 2,
+      "spent": 4,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.damage-01",
+      "rank": 1,
+      "cost": 6,
+      "spent": 10,
+      "zone": 1
+    },
+    {
+      "nodeId": "asteroid.count-01",
+      "rank": 1,
+      "cost": 7,
+      "spent": 17,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.radius-02",
+      "rank": 1,
+      "cost": 7,
+      "spent": 24,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.damage-02",
+      "rank": 1,
+      "cost": 18,
+      "spent": 42,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.critChance-02",
+      "rank": 1,
+      "cost": 15,
+      "spent": 57,
+      "zone": 1
+    },
+    {
+      "nodeId": "asteroid.size-01",
+      "rank": 1,
+      "cost": 20,
+      "spent": 77,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.critChance-01",
+      "rank": 1,
+      "cost": 20,
+      "spent": 97,
+      "zone": 1
+    },
+    {
+      "nodeId": "asteroid.count-02",
+      "rank": 1,
+      "cost": 25,
+      "spent": 122,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.speed-01",
+      "rank": 1,
+      "cost": 30,
+      "spent": 152,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.speed-02",
+      "rank": 1,
+      "cost": 40,
+      "spent": 192,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.damage-03",
+      "rank": 1,
+      "cost": 50,
+      "spent": 242,
+      "zone": 1
+    },
+    {
+      "nodeId": "asteroid.size-02",
+      "rank": 1,
+      "cost": 60,
+      "spent": 302,
+      "zone": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-01",
+      "rank": 1,
+      "cost": 60,
+      "spent": 362,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.damage-04",
+      "rank": 1,
+      "cost": 60,
+      "spent": 422,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.critChance-03",
+      "rank": 1,
+      "cost": 60,
+      "spent": 482,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.speed-03",
+      "rank": 1,
+      "cost": 60,
+      "spent": 542,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.critBonus-01",
+      "rank": 1,
+      "cost": 65,
+      "spent": 607,
+      "zone": 1
+    },
+    {
+      "nodeId": "asteroid.massScale-02",
+      "rank": 1,
+      "cost": 70,
+      "spent": 677,
+      "zone": 1
+    },
+    {
+      "nodeId": "breaker.damage-05",
+      "rank": 1,
+      "cost": 80,
+      "spent": 757,
+      "zone": 1
+    },
+    {
+      "nodeId": "growth.time-01",
+      "rank": 1,
+      "cost": 300,
+      "spent": 1057,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.timeChance-01",
+      "rank": 1,
+      "cost": 350,
+      "spent": 1407,
+      "zone": 4
+    },
+    {
+      "nodeId": "growth.asteroids-01",
+      "rank": 1,
+      "cost": 350,
+      "spent": 1757,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-06",
+      "rank": 1,
+      "cost": 400,
+      "spent": 2157,
+      "zone": 4
+    },
+    {
+      "nodeId": "growth.asteroids-02",
+      "rank": 1,
+      "cost": 425,
+      "spent": 2582,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.massScale-03",
+      "rank": 1,
+      "cost": 425,
+      "spent": 3007,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.timeChance-02",
+      "rank": 1,
+      "cost": 450,
+      "spent": 3457,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.massScale-04",
+      "rank": 1,
+      "cost": 425,
+      "spent": 3882,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-07",
+      "rank": 1,
+      "cost": 475,
+      "spent": 4357,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.respawnChance-01",
+      "rank": 1,
+      "cost": 600,
+      "spent": 4957,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.radius-03",
+      "rank": 1,
+      "cost": 900,
+      "spent": 5857,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.speed-04",
+      "rank": 1,
+      "cost": 900,
+      "spent": 6757,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.radius-04",
+      "rank": 1,
+      "cost": 1000,
+      "spent": 7757,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.speed-06",
+      "rank": 1,
+      "cost": 1000,
+      "spent": 8757,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.radius-05",
+      "rank": 1,
+      "cost": 1050,
+      "spent": 9807,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.speed-05",
+      "rank": 1,
+      "cost": 1050,
+      "spent": 10857,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-08",
+      "rank": 1,
+      "cost": 1875,
+      "spent": 12732,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.respawnChance-02",
+      "rank": 1,
+      "cost": 2000,
+      "spent": 14732,
+      "zone": 4
+    },
+    {
+      "nodeId": "electricAsteroid.spawnChance-01",
+      "rank": 1,
+      "cost": 10000,
+      "spent": 24732,
+      "zone": 3
+    },
+    {
+      "nodeId": "asteroid.massScale-05",
+      "rank": 1,
+      "cost": 10050,
+      "spent": 34782,
+      "zone": 3
+    },
+    {
+      "nodeId": "electricAsteroid.damage-01",
+      "rank": 1,
+      "cost": 10050,
+      "spent": 44832,
+      "zone": 3
+    },
+    {
+      "nodeId": "electricAsteroid.critChance-01",
+      "rank": 1,
+      "cost": 20000,
+      "spent": 64832,
+      "zone": 3
+    },
+    {
+      "nodeId": "electricAsteroid.damage-02",
+      "rank": 1,
+      "cost": 20475,
+      "spent": 85307,
+      "zone": 3
+    },
+    {
+      "nodeId": "breaker.damage-09",
+      "rank": 1,
+      "cost": 22000,
+      "spent": 107307,
+      "zone": 3
+    },
+    {
+      "nodeId": "electricAsteroid.chain-01",
+      "rank": 1,
+      "cost": 25000,
+      "spent": 132307,
+      "zone": 3
+    },
+    {
+      "nodeId": "breaker.damage-10",
+      "rank": 1,
+      "cost": 30000,
+      "spent": 162307,
+      "zone": 3
+    },
+    {
+      "nodeId": "electricAsteroid.chain-02",
+      "rank": 1,
+      "cost": 30000,
+      "spent": 192307,
+      "zone": 3
+    },
+    {
+      "nodeId": "electricAsteroid.splitChance-01",
+      "rank": 1,
+      "cost": 30000,
+      "spent": 222307,
+      "zone": 3
+    },
+    {
+      "nodeId": "electricAsteroid.critBonus-01",
+      "rank": 1,
+      "cost": 40000,
+      "spent": 262307,
+      "zone": 3
+    },
+    {
+      "nodeId": "electricAsteroid.splitChance-02",
+      "rank": 1,
+      "cost": 40000,
+      "spent": 302307,
+      "zone": 3
+    },
+    {
+      "nodeId": "asteroid.massScale-06",
+      "rank": 1,
+      "cost": 60000,
+      "spent": 362307,
+      "zone": 3
+    },
+    {
+      "nodeId": "breaker.radius-06",
+      "rank": 1,
+      "cost": 75000,
+      "spent": 437307,
+      "zone": 3
+    },
+    {
+      "nodeId": "asteroid.respawnChance-03",
+      "rank": 1,
+      "cost": 80000,
+      "spent": 517307,
+      "zone": 3
+    },
+    {
+      "nodeId": "breaker.speed-07",
+      "rank": 1,
+      "cost": 85000,
+      "spent": 602307,
+      "zone": 3
+    },
+    {
+      "nodeId": "asteroid.massScale-07",
+      "rank": 1,
+      "cost": 100000,
+      "spent": 702307,
+      "zone": 3
+    },
+    {
+      "nodeId": "breaker.damage-11",
+      "rank": 1,
+      "cost": 100000,
+      "spent": 802307,
+      "zone": 3
+    },
+    {
+      "nodeId": "asteroid.massScale-08",
+      "rank": 1,
+      "cost": 250000,
+      "spent": 1052307,
+      "zone": 3
+    },
+    {
+      "nodeId": "goldenAsteroid.spawnChance-01",
+      "rank": 1,
+      "cost": 450000,
+      "spent": 1502307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.rewardScale-01",
+      "rank": 1,
+      "cost": 405000,
+      "spent": 1907307,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.count-03",
+      "rank": 1,
+      "cost": 425000,
+      "spent": 2332307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.critChance-01",
+      "rank": 1,
+      "cost": 450000,
+      "spent": 2782307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-01",
+      "rank": 1,
+      "cost": 540000,
+      "spent": 3322307,
+      "zone": 4
+    },
+    {
+      "nodeId": "growth.asteroids-03",
+      "rank": 1,
+      "cost": 545000,
+      "spent": 3867307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.rewardScale-02",
+      "rank": 1,
+      "cost": 630000,
+      "spent": 4497307,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.massScale-09",
+      "rank": 1,
+      "cost": 775000,
+      "spent": 5272307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-12",
+      "rank": 1,
+      "cost": 6500000,
+      "spent": 11772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.critChance-02",
+      "rank": 1,
+      "cost": 10000000,
+      "spent": 21772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-02",
+      "rank": 1,
+      "cost": 10000000,
+      "spent": 31772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.massScale-10",
+      "rank": 1,
+      "cost": 20000000,
+      "spent": 51772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.toPlanet-01",
+      "rank": 1,
+      "cost": 25000000,
+      "spent": 76772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.planetBonus-01",
+      "rank": 1,
+      "cost": 27000000,
+      "spent": 103772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "moonPlanet.spawnChance-01",
+      "rank": 1,
+      "cost": 28000000,
+      "spent": 131772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-13",
+      "rank": 1,
+      "cost": 25000000,
+      "spent": 156772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "growth.planets-01",
+      "rank": 1,
+      "cost": 25000000,
+      "spent": 181772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "moonPlanet.duration-01",
+      "rank": 1,
+      "cost": 25000000,
+      "spent": 206772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "moonPlanet.rangeScale-01",
+      "rank": 1,
+      "cost": 25000000,
+      "spent": 231772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "moonPlanet.speedScale-01",
+      "rank": 1,
+      "cost": 25000000,
+      "spent": 256772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.respawnChance-01",
+      "rank": 1,
+      "cost": 25000000,
+      "spent": 281772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.size-01",
+      "rank": 1,
+      "cost": 25000000,
+      "spent": 306772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.planetBonus-02",
+      "rank": 1,
+      "cost": 30000000,
+      "spent": 336772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "moonPlanet.speedScale-02",
+      "rank": 1,
+      "cost": 40000000,
+      "spent": 376772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-14",
+      "rank": 1,
+      "cost": 50000000,
+      "spent": 426772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.toPlanet-02",
+      "rank": 1,
+      "cost": 101000000,
+      "spent": 527772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "moonPlanet.rangeScale-02",
+      "rank": 1,
+      "cost": 50000000,
+      "spent": 577772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.massScale-01",
+      "rank": 1,
+      "cost": 100000000,
+      "spent": 677772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.size-02",
+      "rank": 1,
+      "cost": 110000000,
+      "spent": 787772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.planetBonus-03",
+      "rank": 1,
+      "cost": 135000000,
+      "spent": 922772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "moonPlanet.spawnChance-02",
+      "rank": 1,
+      "cost": 135000000,
+      "spent": 1057772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-15",
+      "rank": 1,
+      "cost": 160000000,
+      "spent": 1217772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.respawnChance-02",
+      "rank": 1,
+      "cost": 160000000,
+      "spent": 1377772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.planetBonus-04",
+      "rank": 1,
+      "cost": 280000000,
+      "spent": 1657772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.rewardScale-03",
+      "rank": 1,
+      "cost": 280000000,
+      "spent": 1937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "moonPlanet.duration-02",
+      "rank": 1,
+      "cost": 280000000,
+      "spent": 2217772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.massScale-02",
+      "rank": 1,
+      "cost": 420000000,
+      "spent": 2637772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.massScale-03",
+      "rank": 1,
+      "cost": 700000000,
+      "spent": 3337772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "comet.spawnChance-01",
+      "rank": 1,
+      "cost": 1000000000,
+      "spent": 4337772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "comet.critBonus-01",
+      "rank": 1,
+      "cost": 700000000,
+      "spent": 5037772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "comet.duration-01",
+      "rank": 1,
+      "cost": 700000000,
+      "spent": 5737772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.massScale-04",
+      "rank": 1,
+      "cost": 1800000000,
+      "spent": 7537772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "asteroid.toPlanet-03",
+      "rank": 1,
+      "cost": 1900000000,
+      "spent": 9437772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-16",
+      "rank": 1,
+      "cost": 1900000000,
+      "spent": 11337772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "comet.rainChance-01",
+      "rank": 1,
+      "cost": 1900000000,
+      "spent": 13237772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.critChance-03",
+      "rank": 1,
+      "cost": 1900000000,
+      "spent": 15137772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.rewardScale-04",
+      "rank": 1,
+      "cost": 1900000000,
+      "spent": 17037772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "moonPlanet.duration-03",
+      "rank": 1,
+      "cost": 1900000000,
+      "spent": 18937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-03",
+      "rank": 1,
+      "cost": 4000000000,
+      "spent": 22937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-17",
+      "rank": 1,
+      "cost": 6000000000,
+      "spent": 28937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.critRewardScale-04",
+      "rank": 1,
+      "cost": 6000000000,
+      "spent": 34937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.massScale-05",
+      "rank": 1,
+      "cost": 6000000000,
+      "spent": 40937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-18",
+      "rank": 1,
+      "cost": 6000000000,
+      "spent": 46937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "goldenAsteroid.rewardScale-05",
+      "rank": 1,
+      "cost": 6000000000,
+      "spent": 52937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "electricAsteroid.damage-03",
+      "rank": 1,
+      "cost": 10000000000,
+      "spent": 62937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "electricAsteroid.critChance-02",
+      "rank": 1,
+      "cost": 10000000000,
+      "spent": 72937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "electricAsteroid.critBonus-02",
+      "rank": 1,
+      "cost": 10000000000,
+      "spent": 82937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.massScale-06",
+      "rank": 1,
+      "cost": 10000000000,
+      "spent": 92937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "breaker.damage-19",
+      "rank": 1,
+      "cost": 20000000000,
+      "spent": 112937772307,
+      "zone": 4
+    },
+    {
+      "nodeId": "planet.massScale-07",
+      "rank": 1,
+      "cost": 40000000000,
+      "spent": 152937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "comet.rainChance-02",
+      "rank": 1,
+      "cost": 60000000000,
+      "spent": 212937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "breaker.damage-20",
+      "rank": 1,
+      "cost": 60000000000,
+      "spent": 272937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "growth.planets-02",
+      "rank": 1,
+      "cost": 60000000000,
+      "spent": 332937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "breaker.radius-08",
+      "rank": 1,
+      "cost": 60000000000,
+      "spent": 392937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "moonPlanet.rangeScale-03",
+      "rank": 1,
+      "cost": 60000000000,
+      "spent": 452937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "planet.respawnChance-03",
+      "rank": 1,
+      "cost": 60000000000,
+      "spent": 512937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "asteroid.count-04",
+      "rank": 1,
+      "cost": 70000000000,
+      "spent": 582937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "asteroid.count-05",
+      "rank": 1,
+      "cost": 70000000000,
+      "spent": 652937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "breaker.radius-07",
+      "rank": 1,
+      "cost": 70000000000,
+      "spent": 722937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "breaker.radius-09",
+      "rank": 1,
+      "cost": 90000000000,
+      "spent": 812937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "comet.rainChance-03",
+      "rank": 1,
+      "cost": 90000000000,
+      "spent": 902937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "breaker.critChance-04",
+      "rank": 1,
+      "cost": 90000000000,
+      "spent": 992937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "moonPlanet.rangeScale-04",
+      "rank": 1,
+      "cost": 90000000000,
+      "spent": 1082937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "breaker.critChance-05",
+      "rank": 1,
+      "cost": 90000000000,
+      "spent": 1172937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "planet.massScale-08",
+      "rank": 1,
+      "cost": 300000000000,
+      "spent": 1472937772307,
+      "zone": 5
+    },
+    {
+      "nodeId": "planet.toStar-01",
+      "rank": 1,
+      "cost": 1000000000000,
+      "spent": 2472937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "star.respawnChance-01",
+      "rank": 1,
+      "cost": 1000000000000,
+      "spent": 3472937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "star.timeChance-01",
+      "rank": 1,
+      "cost": 1000000000000,
+      "spent": 4472937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "breaker.damage-21",
+      "rank": 1,
+      "cost": 1100000000000,
+      "spent": 5572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "growth.stars-01",
+      "rank": 1,
+      "cost": 1100000000000,
+      "spent": 6672937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "planet.timeChance-01",
+      "rank": 1,
+      "cost": 1100000000000,
+      "spent": 7772937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "electricStar.spawnChance-01",
+      "rank": 1,
+      "cost": 1300000000000,
+      "spent": 9072937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "electricStar.chain-01",
+      "rank": 1,
+      "cost": 500000000000,
+      "spent": 9572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "breaker.speed-08",
+      "rank": 1,
+      "cost": 500000000000,
+      "spent": 10072937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "electricStar.damage-01",
+      "rank": 1,
+      "cost": 500000000000,
+      "spent": 10572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "asteroid.toPlanet-04",
+      "rank": 1,
+      "cost": 1000000000000,
+      "spent": 11572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "breaker.radius-10",
+      "rank": 1,
+      "cost": 1000000000000,
+      "spent": 12572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "breaker.speed-09",
+      "rank": 1,
+      "cost": 500000000000,
+      "spent": 13072937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "electricStar.chain-02",
+      "rank": 1,
+      "cost": 500000000000,
+      "spent": 13572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "electricStar.critChance-01",
+      "rank": 1,
+      "cost": 1000000000000,
+      "spent": 14572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "electricStar.splitChance-01",
+      "rank": 1,
+      "cost": 1000000000000,
+      "spent": 15572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "star.size-01",
+      "rank": 1,
+      "cost": 1000000000000,
+      "spent": 16572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "breaker.starBonus-01",
+      "rank": 1,
+      "cost": 1200000000000,
+      "spent": 17772937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "comet.rainChance-04",
+      "rank": 1,
+      "cost": 1200000000000,
+      "spent": 18972937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "breaker.damage-22",
+      "rank": 1,
+      "cost": 900000000000,
+      "spent": 19872937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "moonPlanet.rangeScale-05",
+      "rank": 1,
+      "cost": 1200000000000,
+      "spent": 21072937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "breaker.damage-23",
+      "rank": 1,
+      "cost": 900000000000,
+      "spent": 21972937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "moonPlanet.speedScale-03",
+      "rank": 1,
+      "cost": 1200000000000,
+      "spent": 23172937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "star.massScale-02",
+      "rank": 1,
+      "cost": 1200000000000,
+      "spent": 24372937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "star.respawnChance-02",
+      "rank": 1,
+      "cost": 1200000000000,
+      "spent": 25572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "star.massScale-01",
+      "rank": 1,
+      "cost": 1400000000000,
+      "spent": 26972937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "star.size-02",
+      "rank": 1,
+      "cost": 1700000000000,
+      "spent": 28672937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "breaker.damage-24",
+      "rank": 1,
+      "cost": 900000000000,
+      "spent": 29572937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "star.massScale-03",
+      "rank": 1,
+      "cost": 2400000000000,
+      "spent": 31972937772307,
+      "zone": 6
+    },
+    {
+      "nodeId": "timer-02",
+      "rank": 1,
+      "cost": 2600000000000,
+      "spent": 34572937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "asteroid.respawnChance-04",
+      "rank": 1,
+      "cost": 1500000000000,
+      "spent": 36072937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "asteroid.respawnChance-05",
+      "rank": 1,
+      "cost": 1500000000000,
+      "spent": 37572937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "breaker.radius-11",
+      "rank": 1,
+      "cost": 1500000000000,
+      "spent": 39072937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "breaker.radius-12",
+      "rank": 1,
+      "cost": 1500000000000,
+      "spent": 40572937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "star.respawnChance-03",
+      "rank": 1,
+      "cost": 1500000000000,
+      "spent": 42072937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "breaker.starBonus-02",
+      "rank": 1,
+      "cost": 2600000000000,
+      "spent": 44672937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "electricStar.damage-02",
+      "rank": 1,
+      "cost": 2600000000000,
+      "spent": 47272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "electricStar.critBonus-01",
+      "rank": 1,
+      "cost": 2600000000000,
+      "spent": 49872937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "comet.spawnChance-02",
+      "rank": 1,
+      "cost": 2600000000000,
+      "spent": 52472937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "planet.respawnChance-04",
+      "rank": 1,
+      "cost": 2600000000000,
+      "spent": 55072937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "planet.toStar-02",
+      "rank": 1,
+      "cost": 2600000000000,
+      "spent": 57672937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "star.respawnChance-04",
+      "rank": 1,
+      "cost": 2600000000000,
+      "spent": 60272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "star.massScale-04",
+      "rank": 1,
+      "cost": 7000000000000,
+      "spent": 67272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.spawnChance-01",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 74772937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.critChance-01",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 82272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.critBonus-02",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 89772937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.critBonus-01",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 97272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.damage-01",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 104772937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.damage-02",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 112272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.damage-03",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 119772937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "breaker.damage-25",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 127272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "breaker.damage-26",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 134772937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.damage-04",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 142272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.width-01",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 149772937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.width-02",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 157272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.width-03",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 164772937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.width-04",
+      "rank": 1,
+      "cost": 7500000000000,
+      "spent": 172272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "electricStar.splitChance-02",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 187272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "breaker.radius-13",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 202272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "breaker.critBonus-02",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 217272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "breaker.speed-11",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 232272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "electricStar.splitChance-03",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 247272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.width-05",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 262272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "breaker.speed-10",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 277272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "breaker.critBonus-03",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 292272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "laserStar.width-06",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 307272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "moonPlanet.duration-04",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 322272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "moonPlanet.maxCount-01",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 337272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "star.massScale-05",
+      "rank": 1,
+      "cost": 15000000000000,
+      "spent": 352272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "electricStar.chain-03",
+      "rank": 1,
+      "cost": 17000000000000,
+      "spent": 369272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "laserStar.damage-05",
+      "rank": 1,
+      "cost": 17000000000000,
+      "spent": 386272937772307,
+      "zone": 7
+    },
+    {
+      "nodeId": "supernovaStar.range-01",
+      "rank": 1,
+      "cost": 25000000000000,
+      "spent": 411272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "breaker.damage-27",
+      "rank": 1,
+      "cost": 30000000000000,
+      "spent": 441272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "star.massScale-06",
+      "rank": 1,
+      "cost": 30000000000000,
+      "spent": 471272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "supernovaStar.hpDamage-01",
+      "rank": 1,
+      "cost": 45000000000000,
+      "spent": 516272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "comet.spawnChance-03",
+      "rank": 1,
+      "cost": 45000000000000,
+      "spent": 561272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "supernovaStar.hpDamage-03",
+      "rank": 1,
+      "cost": 45000000000000,
+      "spent": 606272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "supernovaStar.range-02",
+      "rank": 1,
+      "cost": 45000000000000,
+      "spent": 651272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "supernovaStar.hpDamage-02",
+      "rank": 1,
+      "cost": 45000000000000,
+      "spent": 696272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "supernovaStar.spawnChance-01",
+      "rank": 1,
+      "cost": 45000000000000,
+      "spent": 741272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "star.massScale-07",
+      "rank": 1,
+      "cost": 50000000000000,
+      "spent": 791272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "timer-03",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 846272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "comet.spawnChance-04",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 901272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "breaker.critBonus-04",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 956272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "breaker.damage-28",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 1011272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "laserStar.critBonus-03",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 1066272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "laserStar.damage-06",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 1121272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "planet.timeChance-02",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 1176272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "laserStar.width-07",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 1231272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "planet.toStar-03",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 1286272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "planet.toStar-04",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 1341272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "star.timeChance-02",
+      "rank": 1,
+      "cost": 55000000000000,
+      "spent": 1396272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "star.massScale-08",
+      "rank": 1,
+      "cost": 130000000000000,
+      "spent": 1526272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "laserStar.width-08",
+      "rank": 1,
+      "cost": 300000000000000,
+      "spent": 1826272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "moonPlanet.rangeScale-06",
+      "rank": 1,
+      "cost": 300000000000000,
+      "spent": 2126272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "moonPlanet.rangeScale-07",
+      "rank": 1,
+      "cost": 300000000000000,
+      "spent": 2426272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "moonPlanet.speedScale-04",
+      "rank": 1,
+      "cost": 300000000000000,
+      "spent": 2726272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "supernovaStar.hpDamage-04",
+      "rank": 1,
+      "cost": 300000000000000,
+      "spent": 3026272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "supernovaStar.hpDamage-05",
+      "rank": 1,
+      "cost": 300000000000000,
+      "spent": 3326272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "supernovaStar.range-03",
+      "rank": 1,
+      "cost": 300000000000000,
+      "spent": 3626272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "supernovaStar.range-04",
+      "rank": 1,
+      "cost": 300000000000000,
+      "spent": 3926272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 1,
+      "cost": 500000000000000,
+      "spent": 4426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.critBonus-05",
+      "rank": 1,
+      "cost": 500000000000000,
+      "spent": 4926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.critBonus-05",
+      "rank": 2,
+      "cost": 500000000000000,
+      "spent": 5426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.critBonus-05",
+      "rank": 3,
+      "cost": 500000000000000,
+      "spent": 5926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.critBonus-05",
+      "rank": 4,
+      "cost": 500000000000000,
+      "spent": 6426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.critBonus-05",
+      "rank": 5,
+      "cost": 500000000000000,
+      "spent": 6926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.critBonus-05",
+      "rank": 6,
+      "cost": 500000000000000,
+      "spent": 7426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.critBonus-05",
+      "rank": 7,
+      "cost": 500000000000000,
+      "spent": 7926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.critBonus-05",
+      "rank": 8,
+      "cost": 500000000000000,
+      "spent": 8426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.critBonus-05",
+      "rank": 9,
+      "cost": 500000000000000,
+      "spent": 8926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.critBonus-05",
+      "rank": 10,
+      "cost": 500000000000000,
+      "spent": 9426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 2,
+      "cost": 500000000000000,
+      "spent": 9926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 3,
+      "cost": 500000000000000,
+      "spent": 10426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 4,
+      "cost": 500000000000000,
+      "spent": 10926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 5,
+      "cost": 500000000000000,
+      "spent": 11426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 6,
+      "cost": 500000000000000,
+      "spent": 11926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 7,
+      "cost": 500000000000000,
+      "spent": 12426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 8,
+      "cost": 500000000000000,
+      "spent": 12926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 9,
+      "cost": 500000000000000,
+      "spent": 13426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "electricStar.critBonus-02",
+      "rank": 10,
+      "cost": 500000000000000,
+      "spent": 13926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "laserStar.width-10",
+      "rank": 1,
+      "cost": 500000000000000,
+      "spent": 14426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.speed-12",
+      "rank": 1,
+      "cost": 500000000000000,
+      "spent": 14926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.speed-12",
+      "rank": 2,
+      "cost": 500000000000000,
+      "spent": 15426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.speed-12",
+      "rank": 3,
+      "cost": 500000000000000,
+      "spent": 15926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.speed-12",
+      "rank": 4,
+      "cost": 500000000000000,
+      "spent": 16426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.speed-12",
+      "rank": 5,
+      "cost": 500000000000000,
+      "spent": 16926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.speed-12",
+      "rank": 6,
+      "cost": 500000000000000,
+      "spent": 17426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.speed-12",
+      "rank": 7,
+      "cost": 500000000000000,
+      "spent": 17926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.speed-12",
+      "rank": 8,
+      "cost": 500000000000000,
+      "spent": 18426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.speed-12",
+      "rank": 9,
+      "cost": 500000000000000,
+      "spent": 18926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "breaker.speed-12",
+      "rank": 10,
+      "cost": 500000000000000,
+      "spent": 19426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "laserStar.width-10",
+      "rank": 2,
+      "cost": 500000000000000,
+      "spent": 19926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "laserStar.width-10",
+      "rank": 3,
+      "cost": 500000000000000,
+      "spent": 20426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "laserStar.width-10",
+      "rank": 4,
+      "cost": 500000000000000,
+      "spent": 20926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "laserStar.width-10",
+      "rank": 5,
+      "cost": 500000000000000,
+      "spent": 21426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "laserStar.width-10",
+      "rank": 6,
+      "cost": 500000000000000,
+      "spent": 21926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "laserStar.width-10",
+      "rank": 7,
+      "cost": 500000000000000,
+      "spent": 22426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "laserStar.width-10",
+      "rank": 8,
+      "cost": 500000000000000,
+      "spent": 22926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "laserStar.width-10",
+      "rank": 9,
+      "cost": 500000000000000,
+      "spent": 23426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "laserStar.width-10",
+      "rank": 10,
+      "cost": 500000000000000,
+      "spent": 23926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "planet.toStar-05",
+      "rank": 1,
+      "cost": 500000000000000,
+      "spent": 24426272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "planet.toStar-06",
+      "rank": 1,
+      "cost": 500000000000000,
+      "spent": 24926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "asteroid.toPlanet-05",
+      "rank": 1,
+      "cost": 500000000000000,
+      "spent": 25426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "asteroid.toPlanet-05",
+      "rank": 2,
+      "cost": 500000000000000,
+      "spent": 25926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "asteroid.toPlanet-05",
+      "rank": 3,
+      "cost": 500000000000000,
+      "spent": 26426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "asteroid.toPlanet-05",
+      "rank": 4,
+      "cost": 500000000000000,
+      "spent": 26926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "asteroid.toPlanet-05",
+      "rank": 5,
+      "cost": 500000000000000,
+      "spent": 27426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "asteroid.toPlanet-05",
+      "rank": 6,
+      "cost": 500000000000000,
+      "spent": 27926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "asteroid.toPlanet-05",
+      "rank": 7,
+      "cost": 500000000000000,
+      "spent": 28426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "asteroid.toPlanet-05",
+      "rank": 8,
+      "cost": 500000000000000,
+      "spent": 28926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "asteroid.toPlanet-05",
+      "rank": 9,
+      "cost": 500000000000000,
+      "spent": 29426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "asteroid.toPlanet-05",
+      "rank": 10,
+      "cost": 500000000000000,
+      "spent": 29926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "planet.toStar-06",
+      "rank": 2,
+      "cost": 500000000000000,
+      "spent": 30426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "planet.toStar-06",
+      "rank": 3,
+      "cost": 500000000000000,
+      "spent": 30926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "planet.toStar-06",
+      "rank": 4,
+      "cost": 500000000000000,
+      "spent": 31426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "planet.toStar-06",
+      "rank": 5,
+      "cost": 500000000000000,
+      "spent": 31926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "planet.toStar-06",
+      "rank": 6,
+      "cost": 500000000000000,
+      "spent": 32426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "planet.toStar-06",
+      "rank": 7,
+      "cost": 500000000000000,
+      "spent": 32926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "planet.toStar-06",
+      "rank": 8,
+      "cost": 500000000000000,
+      "spent": 33426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "planet.toStar-06",
+      "rank": 9,
+      "cost": 500000000000000,
+      "spent": 33926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "planet.toStar-06",
+      "rank": 10,
+      "cost": 500000000000000,
+      "spent": 34426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.massScale-10",
+      "rank": 1,
+      "cost": 500000000000000,
+      "spent": 34926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.massScale-10",
+      "rank": 2,
+      "cost": 500000000000000,
+      "spent": 35426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.massScale-10",
+      "rank": 3,
+      "cost": 500000000000000,
+      "spent": 35926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.massScale-10",
+      "rank": 4,
+      "cost": 500000000000000,
+      "spent": 36426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.massScale-10",
+      "rank": 5,
+      "cost": 500000000000000,
+      "spent": 36926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.massScale-10",
+      "rank": 6,
+      "cost": 500000000000000,
+      "spent": 37426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.massScale-10",
+      "rank": 7,
+      "cost": 500000000000000,
+      "spent": 37926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.massScale-10",
+      "rank": 8,
+      "cost": 500000000000000,
+      "spent": 38426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.massScale-10",
+      "rank": 9,
+      "cost": 500000000000000,
+      "spent": 38926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.massScale-10",
+      "rank": 10,
+      "cost": 500000000000000,
+      "spent": 39426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.size-03",
+      "rank": 1,
+      "cost": 500000000000000,
+      "spent": 39926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.size-03",
+      "rank": 2,
+      "cost": 500000000000000,
+      "spent": 40426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.size-03",
+      "rank": 3,
+      "cost": 500000000000000,
+      "spent": 40926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.size-03",
+      "rank": 4,
+      "cost": 500000000000000,
+      "spent": 41426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.size-03",
+      "rank": 5,
+      "cost": 500000000000000,
+      "spent": 41926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.size-03",
+      "rank": 6,
+      "cost": 500000000000000,
+      "spent": 42426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.size-03",
+      "rank": 7,
+      "cost": 500000000000000,
+      "spent": 42926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.size-03",
+      "rank": 8,
+      "cost": 500000000000000,
+      "spent": 43426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.size-03",
+      "rank": 9,
+      "cost": 500000000000000,
+      "spent": 43926272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "star.size-03",
+      "rank": 10,
+      "cost": 500000000000000,
+      "spent": 44426272937772307,
+      "zone": 2
+    },
+    {
+      "nodeId": "timer-04",
+      "rank": 1,
+      "cost": 500000000000000,
+      "spent": 44926272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "laserStar.width-09",
+      "rank": 1,
+      "cost": 700000000000000,
+      "spent": 45626272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "star.massScale-09",
+      "rank": 1,
+      "cost": 700000000000000,
+      "spent": 46326272937772307,
+      "zone": 8
+    },
+    {
+      "nodeId": "supernovaStar.hpDamage-06",
+      "rank": 1,
+      "cost": 1000000000000000,
+      "spent": 47326272937772307,
+      "zone": 8
+    }
+  ]
+}
