@@ -42,8 +42,9 @@ namespace BlackHole.Unity
 
         public string Text { get; private set; } = "";
 
-        // LateUpdate마다 부른다(판이 이번 프레임에 Step을 마친 뒤). unscaledDelta는 글을 다시 만드는 간격에만 쓴다.
-        public void Update(GameSession session, ContentTag tag, float timeScale, float unscaledDelta)
+        // LateUpdate마다 부른다(판이 이번 프레임에 Step을 마친 뒤). setupName은 마지막으로 넣은 시나리오·세팅(없으면 null).
+        // unscaledDelta는 글을 다시 만드는 간격에만 쓴다.
+        public void Update(GameSession session, ContentTag tag, string setupName, float timeScale, float unscaledDelta)
         {
             if (session == null)
             {
@@ -71,7 +72,7 @@ namespace BlackHole.Unity
                 return;
 
             _sinceRefresh = 0;
-            Text = Build(session, tag, timeScale);
+            Text = Build(session, tag, setupName, timeScale);
         }
 
         private void Reset(GameSession session)
@@ -101,11 +102,14 @@ namespace BlackHole.Unity
             }
         }
 
-        private string Build(GameSession session, ContentTag tag, float timeScale)
+        private string Build(GameSession session, ContentTag tag, string setupName, float timeScale)
         {
             World world = session.World;
             Hq hq = world.Hq;
             _text.Clear();
+
+            if (!string.IsNullOrEmpty(setupName))
+                _text.Append($"세팅 {setupName} · ");
 
             string version = tag.ContentVersion.Length > 0 ? tag.ContentVersion : "원본";
             _text.Append(version);

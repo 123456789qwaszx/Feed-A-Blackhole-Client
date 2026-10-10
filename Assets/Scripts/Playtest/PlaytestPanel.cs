@@ -53,8 +53,12 @@ namespace BlackHole.Unity
         private string _status = "";
 
         // 시나리오
-        private ScenarioOption _lastScenario;
-        private ScenarioOption _checkedScenario;
+        // 마지막으로 넣은 시나리오(파일이거나 테스트 세팅 창에서 넘긴 세팅). 같은 시드로 다시와 HUD가 쓴다.
+        private PlaytestScenario _lastScenario;
+        private PlaytestScenario _checkedScenario;
+        // 테스트 세팅 창이 플레이를 시작하며 맡긴 세팅. 첫 Update에서 판을 시작한다(에디터만).
+        private PlaytestScenario _pendingLaunch;
+        private ProgressState _progress;
         private readonly List<string> _scenarioErrors = new();
         private readonly List<string> _scenarioWarnings = new();
 
@@ -85,13 +89,18 @@ namespace BlackHole.Unity
             BattleSystem battle,
             ScreenFlow screens,
             GameContent content,
+            ProgressState progress,
             BattleAnalytics analytics)
         {
             _session = session;
             _battle = battle;
             _screens = screens;
             _content = content;
+            _progress = progress;
             _analytics = analytics;
+#if UNITY_EDITOR
+            _pendingLaunch = TestSetupLaunch.Take();
+#endif
 
             IReadOnlyList<EnemyDefinition> kinds = content.Enemies.Enemies;
             _kindNames = new string[kinds.Count];
@@ -106,6 +115,15 @@ namespace BlackHole.Unity
         {
             if (_session == null)
                 return;
+
+            if (_pendingLaunch != null)
+            {
+                PlaytestScenario launch = _pendingLaunch;
+                _pendingLaunch = null;
+
+                if (!RunScenario(launch, true, null))
+                    Debug.LogError($"[테스트] 세팅 '{launch.name}'을 넣지 못했다.\n  {string.Join("\n  ", _scenarioErrors)}");
+            }
 
             if (TogglePressed())
                 SetOpen(!_open);
@@ -125,7 +143,7 @@ namespace BlackHole.Unity
         private void LateUpdate()
         {
             if (_session != null)
-                _hud.Update(_battle.Session, _session.Tag, Time.timeScale, Time.unscaledDeltaTime);
+                _hud.Update(_battle.Session, _session.Tag, _lastScenario?.name, Time.timeScale, Time.unscaledDeltaTime);
         }
 
         private void OnDisable()
@@ -340,12 +358,12 @@ namespace BlackHole.Unity
 
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("판 시작"))
-                    RunScenario(option, true, null);
+                    RunScenario(scenario, true, null);
                 if (GUILayout.Button("업그레이드 화면으로"))
-                    RunScenario(option, false, null);
+                    RunScenario(scenario, false, null);
                 GUILayout.EndHorizontal();
 
-                if (option == _checkedScenario)
+                if (scenario == _checkedScenario)
                 {
                     foreach (string error in _scenarioErrors)
                         GUILayout.Label("오류: " + error, _error);
@@ -385,10 +403,22 @@ namespace BlackHole.Unity
             return string.Join(" · ", parts);
         }
 
-        private void RunScenario(ScenarioOption option, bool startBattle, int? seed)
+        // 테스트 세팅 창(에디터)이 부른다: 세팅을 검사하고, 맞으면 판을 시작한다(startBattle이 false면 업그레이드 화면).
+        // 틀리면 지금 판·진행을 건드리지 않고 errors에 이유를 더한다.
+        internal bool RunSetup(PlaytestScenario setup, bool startBattle, List<string> errors)
         {
-            PlaytestScenario scenario = option.Scenario;
-            _checkedScenario = option;
+            bool started = RunScenario(setup, startBattle, null);
+            errors?.AddRange(_scenarioErrors);
+            return started;
+        }
+
+        // 지금 진행 상태(성장도·Gold·산 노드)와 진행 중인 판의 Level. 테스트 세팅 창이 "지금 게임에서 가져오기"로 읽는다.
+        internal ProgressState Progress => _progress;
+        internal int? BattleLevel => _battle.Session?.World.Hq.Level;
+
+        private bool RunScenario(PlaytestScenario scenario, bool startBattle, int? seed)
+        {
+            _checkedScenario = scenario;
             _scenarioErrors.Clear();
             _scenarioWarnings.Clear();
 
@@ -396,11 +426,11 @@ namespace BlackHole.Unity
             if (!_screens.CheckScenario(scenario, _scenarioErrors, _scenarioWarnings))
             {
                 _status = $"시나리오 '{scenario.name}'에 오류가 있어 시작하지 않았다.";
-                return;
+                return false;
             }
 
             _session.Tag.MarkTestSession();
-            _lastScenario = option;
+            _lastScenario = scenario;
 
             int? useSeed = seed ?? (scenario.seed != 0 ? scenario.seed : (int?)null);
             Action<GameSession> afterStart = startBattle ? battle => AfterScenarioStart(battle, scenario) : null;
@@ -408,6 +438,7 @@ namespace BlackHole.Unity
 
             _status = $"시나리오 '{scenario.name}'" + (startBattle ? "로 판을 시작한다." : "의 진행 상태로 업그레이드 화면에 간다.");
             SetOpen(false, resume: false);
+            return true;
         }
 
         private void AfterScenarioStart(GameSession battle, PlaytestScenario scenario)
@@ -526,9 +557,14 @@ namespace BlackHole.Unity
         private void Refresh()
         {
             _session.Refresh();
-            _lastScenario = _lastScenario?.Scenario == null
+
+            // 마지막 시나리오가 파일에 있으면 새로 읽은 것으로 바꾼다(테스트 세팅 창이 넘긴 세팅은 그대로).
+            ScenarioOption fresh = _lastScenario == null
                 ? null
-                : _session.Scenarios.Find(option => option.Scenario != null && option.Scenario.name == _lastScenario.Scenario.name);
+                : _session.Scenarios.Find(option => option.Scenario != null && option.Scenario.name == _lastScenario.name);
+            if (fresh != null)
+                _lastScenario = fresh.Scenario;
+
             _checkedScenario = null;
             _status = $"프로필 {_session.Profiles.Count}개, 시나리오 {_session.Scenarios.Count}개를 읽었다.";
         }
@@ -619,14 +655,14 @@ namespace BlackHole.Unity
             if (_battle.LastSeed == 0 && _lastScenario == null)
                 return;
 
-            string from = _lastScenario?.Scenario != null ? $"시나리오 '{_lastScenario.Scenario.name}'부터" : "지금 진행 상태로";
+            string from = _lastScenario != null ? $"시나리오 '{_lastScenario.name}'부터" : "지금 진행 상태로";
 
             if (!GUILayout.Button($"같은 시드({_battle.LastSeed})로 다시 · {from}"))
                 return;
 
             int seed = _battle.LastSeed;
 
-            if (_lastScenario?.Scenario != null)
+            if (_lastScenario != null)
             {
                 RunScenario(_lastScenario, true, seed);
                 return;
