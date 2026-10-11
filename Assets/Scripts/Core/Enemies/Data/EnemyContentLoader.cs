@@ -139,7 +139,7 @@ namespace BlackHole.Core
         }
 
         // 성질 종류가 사망 효과를 정한다: 황금 → Golden, 전기 → 연쇄 번개, 달 → 달 버프, 레이저 → 레이저, 슈퍼노바 → 폭발, 혜성 → 혜성 버프,
-        // 중력 → 중력장, 굴절 → 중력 굴절광.
+        // 중력 → 중력장.
         private static DeathEffectDefinition LoadDeathEffect(EnemyTraitType type, DeathEffectData item, string at, List<ContentDiagnostic> into)
         {
             if (item == null)
@@ -165,8 +165,6 @@ namespace BlackHole.Core
                     return new CometBuffDefinition();
                 case EnemyTraitType.Gravity:
                     return Guard(at, into, () => new GravityFieldDefinition(item.Radius, item.Force, item.Duration));
-                case EnemyTraitType.Lensing:
-                    return Guard(at, into, () => new LensingLightDefinition(item.Damage, item.Width, item.Length, item.Count));
                 default:
                     into.Add(new ContentDiagnostic(at, $"알 수 없는 성질 종류 {(int)type}."));
                     return null;

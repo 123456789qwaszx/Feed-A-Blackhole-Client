@@ -16,7 +16,7 @@ namespace BlackHole.Unity
     // - 색 등급: 같은 윤곽(스프라이트)에 색마다 색·HP·Gold·EXP가 다르다. 공급되는 종류는 6색(빨주노초파보), 픽업은 한 줄이다.
     // - 어떤 색이 나오는지는 그 종류의 질량(노드 asteroid.massScale 등, MassRule), 어떤 크기가 나오는지는 그 종류의 크기
     //   (노드 asteroid.size 등, SizeRule)가 정한다. 둘 다 종류마다 따로이고 이 에셋에는 칸이 없다.
-    // - 특수 성질: 황금·전기·달·레이저·슈퍼노바·중력장·굴절광은 종류가 아니라 출현 때 한 마리에 붙는 성질이다(최대 하나, 배타).
+    // - 특수 성질: 황금·전기·달·레이저·슈퍼노바·중력장은 종류가 아니라 출현 때 한 마리에 붙는 성질이다(최대 하나, 배타).
     //   성질 종류(EnemyTraitType)가 사망 효과를 정하고, 성질마다 효과 수치와 표식 색이 있다. 붙는 확률은 노드(electricAsteroid.spawnChance 등)가 정하고 기본 0%다.
     //   성질이 붙은 적(특수 적)은 사망 효과의 피해를 받지 않는다.
     // - 출현 주기: 0보다 크면 공급되지 않는 픽업(혜성)이다. 주기마다 등장 확률(노드 comet.spawnChance)로 나오고, 성질 하나가 언제나 붙는다.
@@ -26,7 +26,7 @@ namespace BlackHole.Unity
         [Serializable]
         public struct Trait
         {
-            [Tooltip("성질 종류(종류 안에서 유일). 사망 효과를 정한다: Golden 황금, Electric 연쇄 번개, Moon 달 버프, Laser 레이저, Supernova 폭발, Comet 혜성 버프, Gravity 중력장, Lensing 중력 굴절광.")]
+            [Tooltip("성질 종류(종류 안에서 유일). 사망 효과를 정한다: Golden 황금, Electric 연쇄 번개, Moon 달 버프, Laser 레이저, Supernova 폭발, Comet 혜성 버프, Gravity 중력장.")]
             public EnemyTraitType type;
             [Tooltip("이 성질이 붙은 적의 표식 색. Core는 모른다.")]
             public Color color;
@@ -34,9 +34,9 @@ namespace BlackHole.Unity
             public float multiplier;
             [Tooltip("Golden: 치명타 Gold 배율.")]
             public float critRewardScale;
-            [Tooltip("Electric·Laser·Lensing: 피해.")]
+            [Tooltip("Electric·Laser: 피해.")]
             public float damage;
-            [Tooltip("Electric: 번개가 한 번 옮겨 가는 최대 거리. Supernova: 폭발 반경. Gravity: 끌어들이는 범위. 폭발·중력장 반경은 크기 1 기준이고 죽은 적의 크기 배율만큼 넓어진다.")]
+            [Tooltip("Electric: 번개가 한 번 옮겨 가는 최대 거리. Supernova: 폭발 반경(크기 1 기준, 죽은 별의 크기 배율만큼 넓어진다). Gravity: 끌어들이는 범위(은하 크기와 무관).")]
             public float radius;
             [Tooltip("Electric: 한 줄기가 옮겨 가는 최대 횟수.")]
             public int maxTargets;
@@ -48,7 +48,7 @@ namespace BlackHole.Unity
             public float critMultiplier;
             [Tooltip("Supernova: 맞는 순간 대상의 현재 HP에 대한 피해 비율(0 ~ 1). 올림, 최소 1.")]
             public float healthFraction;
-            [Tooltip("Laser: 레이저 너비. Lensing: 빛무리 판정 너비.")]
+            [Tooltip("Laser: 레이저 너비.")]
             public float width;
             [Tooltip("이 성질의 동시 상한: 살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩. 0이면 상한 없음. 다 찼으면 뽑혀도 붙지 않는다(원작 달 최대 개수, 노드 moonPlanet.maxCount).")]
             public int maxActive;
@@ -56,10 +56,6 @@ namespace BlackHole.Unity
             public float force;
             [Tooltip("Gravity: 중력장 지속 시간(초). 끝나면 끌려간 자리에서 다시 공전한다.")]
             public float duration;
-            [Tooltip("Lensing: 블랙홀 반대쪽으로 뻗는 길이(곡선 조절점까지의 거리). 길수록 크게 돌아 블랙홀로 들어간다.")]
-            public float length;
-            [Tooltip("Lensing: 한 번에 나가는 빛무리 수(1 이상). 빛무리 하나는 같은 적을 한 번만 맞힌다.")]
-            public int count;
         }
 
         [Serializable]
@@ -154,8 +150,6 @@ namespace BlackHole.Unity
                         Width = trait.width,
                         Force = trait.force,
                         Duration = trait.duration,
-                        Length = trait.length,
-                        Count = trait.count,
                     },
                 });
             }

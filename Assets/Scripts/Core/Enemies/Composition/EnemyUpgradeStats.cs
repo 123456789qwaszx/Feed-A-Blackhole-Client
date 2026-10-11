@@ -95,7 +95,6 @@ namespace BlackHole.Core
             (EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarSpawnChance,
             (EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarSpawnChance,
             (EnemyType.Star, EnemyTraitType.Supernova) => UpgradeStat.SupernovaStarSpawnChance,
-            (EnemyType.Star, EnemyTraitType.Lensing) => UpgradeStat.LensingStarSpawnChance,
             (EnemyType.Galaxy, EnemyTraitType.Gravity) => UpgradeStat.GravityGalaxySpawnChance,
             _ => null,
         };
@@ -121,13 +120,12 @@ namespace BlackHole.Core
             _ => null,
         };
 
-        // 피해(번개·레이저·굴절광). 더한다.
+        // 피해(번개·레이저). 더한다.
         public static UpgradeStat? TraitDamage(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
         {
             (EnemyType.Asteroid, EnemyTraitType.Electric) => UpgradeStat.ElectricAsteroidDamage,
             (EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarDamage,
             (EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarDamage,
-            (EnemyType.Star, EnemyTraitType.Lensing) => UpgradeStat.LensingStarDamage,
             _ => null,
         };
 
@@ -166,11 +164,10 @@ namespace BlackHole.Core
             _ => null,
         };
 
-        // 레이저·굴절광 너비(시트 기본 100%). (1 + 늘어난 %p ÷ 100)배.
+        // 레이저 너비(시트 기본 100%). (1 + 늘어난 %p ÷ 100)배.
         public static UpgradeStat? TraitWidth(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
         {
             (EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarWidth,
-            (EnemyType.Star, EnemyTraitType.Lensing) => UpgradeStat.LensingStarWidth,
             _ => null,
         };
 
@@ -193,20 +190,6 @@ namespace BlackHole.Core
         public static UpgradeStat? TraitDuration(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
         {
             (EnemyType.Galaxy, EnemyTraitType.Gravity) => UpgradeStat.GravityGalaxyDuration,
-            _ => null,
-        };
-
-        // 굴절광이 바깥쪽으로 뻗는 길이(시트 기본 100%). (1 + 늘어난 %p ÷ 100)배.
-        public static UpgradeStat? TraitLength(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
-        {
-            (EnemyType.Star, EnemyTraitType.Lensing) => UpgradeStat.LensingStarLength,
-            _ => null,
-        };
-
-        // 굴절광 빛무리 수. 더한다.
-        public static UpgradeStat? TraitCount(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
-        {
-            (EnemyType.Star, EnemyTraitType.Lensing) => UpgradeStat.LensingStarCount,
             _ => null,
         };
 

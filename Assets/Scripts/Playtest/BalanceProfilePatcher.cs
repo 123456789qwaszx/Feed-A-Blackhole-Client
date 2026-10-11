@@ -17,7 +17,7 @@ namespace BlackHole.Unity
     //   placement/<minDistance|maxDistance>           적 출현 띠(HQ로부터 거리, 전장 배율 1 기준)
     //   enemy/<종류>/<moveSpeed|radius|radiusStep|spawnPeriod|rainCount>
     //   enemy/<종류>/tier/<색 등급, 1부터>/<hp|gold|exp>
-    //   enemy/<종류>/trait/<성질>/<multiplier|critRewardScale|damage|radius|maxTargets|branchChance|critChance|critMultiplier|healthFraction|width|force|duration|length|count|maxActive>
+    //   enemy/<종류>/trait/<성질>/<multiplier|critRewardScale|damage|radius|maxTargets|branchChance|critChance|critMultiplier|healthFraction|width|force|duration|maxActive>
     //   supply/<종류>/count                       시작 공급에 없는 종류면 더한다(없는 종류의 지금 값은 0)
     //   growth/levelExp/<Level, 1부터>             그 Level에 닿는 누적 EXP
     //   growth/milestone/<번호, 1부터>/<level|targetGold|fieldScale>
@@ -52,7 +52,6 @@ namespace BlackHole.Unity
             { EnemyTraitType.Moon, Array.Empty<string>() },
             { EnemyTraitType.Comet, Array.Empty<string>() },
             { EnemyTraitType.Gravity, new[] { "radius", "force", "duration" } },
-            { EnemyTraitType.Lensing, new[] { "damage", "width", "length", "count" } },
         };
 
         private static readonly string[] BattleFields = { "timeLimit", "killTimeBonus" };
@@ -392,8 +391,6 @@ namespace BlackHole.Unity
                     case "width": return Real(() => effect.Width, v => effect.Width = v, out error);
                     case "force": return Real(() => effect.Force, v => effect.Force = v, out error);
                     case "duration": return Real(() => effect.Duration, v => effect.Duration = v, out error);
-                    case "length": return Real(() => effect.Length, v => effect.Length = v, out error);
-                    case "count": return Int(() => effect.Count, v => effect.Count = v, out error);
                     default: return Unknown(path[4], out error);
                 }
             }

@@ -5,14 +5,13 @@ using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 사망 효과의 화면. 매 프레임 판의 효과 기록을 읽어 번개·폭발·레이저를 그리고, 판의 지금 상태를 읽어 굴절광 빛무리와 중력장을 그린다.
+    // 사망 효과의 화면. 매 프레임 판의 효과 기록을 읽어 번개·폭발·레이저를 그리고, 판의 지금 상태를 읽어 중력장을 그린다.
     // 게임 상태를 바꾸지 않고, 피해를 다시 계산하지 않는다
     internal sealed class DeathEffectView : IDisposable
     {
         private readonly LightningBolts _lightning;
         private readonly ExplosionRings _explosions;
         private readonly LaserBeams _lasers;
-        private readonly LensingTrails _lensing;
         private readonly GravityFieldRings _gravity;
 
         private long _drawn; // 그린 기록의 가장 큰 번호. 번개·폭발·레이저는 같은 번호 줄을 쓴다.
@@ -22,7 +21,6 @@ namespace BlackHole.Unity
             _lightning = new LightningBolts(parent, lightningLook);
             _explosions = new ExplosionRings(parent, explosionLook);
             _lasers = new LaserBeams(parent);
-            _lensing = new LensingTrails(parent);
             _gravity = new GravityFieldRings(parent);
         }
 
@@ -80,10 +78,7 @@ namespace BlackHole.Unity
             _drawn = drawn;
             _lasers.ShowTelegraphs(world.DeathEffects.LaserTelegraphs);
 
-            // 굴절광·중력장은 한 번 일어나는 기록이 아니라 지금 상태라, 번호로 거르지 않고 매 프레임 목록 그대로 넘긴다.
-            if (_lensing.Show(world.DeathEffects.LensingBeams, paused, delta) > 0)
-                SoundManager.Instance?.PlayLazer();
-
+            // 중력장은 한 번 일어나는 기록이 아니라 지금 상태라, 번호로 거르지 않고 매 프레임 목록 그대로 넘긴다.
             _gravity.Show(world.DeathEffects.GravityFields, paused, delta);
         }
 
@@ -92,7 +87,6 @@ namespace BlackHole.Unity
             _lightning.Reset();
             _explosions.Reset();
             _lasers.Reset();
-            _lensing.Reset();
             _gravity.Reset();
             _drawn = 0;
         }
@@ -102,7 +96,6 @@ namespace BlackHole.Unity
             _lightning.Dispose();
             _explosions.Dispose();
             _lasers.Dispose();
-            _lensing.Dispose();
             _gravity.Dispose();
         }
     }

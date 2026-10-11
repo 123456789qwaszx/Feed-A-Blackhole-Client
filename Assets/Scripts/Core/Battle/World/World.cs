@@ -19,7 +19,7 @@ namespace BlackHole.Core
         public IReadOnlyList<HitRecord> Hits => _enemies.Hits;
         public IReadOnlyList<DeathRecord> Deaths => _enemies.Deaths;
 
-        // 사망 효과의 대기열과 이번 Step의 효과 기록(번개 이동, 폭발, 레이저), 날아가는 굴절광 빛무리와 켜진 중력장.
+        // 사망 효과의 대기열과 이번 Step의 효과 기록(번개 이동, 폭발, 레이저), 켜진 중력장.
         public DeathEffects DeathEffects { get; }
 
         // 블랙홀.

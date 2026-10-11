@@ -10,6 +10,5 @@ namespace BlackHole.Core
         MoonBuff,
         CometBuff,
         GravityField,
-        LensingLight,
     }
 }

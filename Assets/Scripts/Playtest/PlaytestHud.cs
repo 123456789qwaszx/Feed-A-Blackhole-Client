@@ -264,7 +264,6 @@ namespace BlackHole.Unity
             EnemyTraitType.Supernova => "초신성",
             EnemyTraitType.Comet => "혜성",
             EnemyTraitType.Gravity => "중력장",
-            EnemyTraitType.Lensing => "굴절광",
             _ => type.ToString(),
         };
     }

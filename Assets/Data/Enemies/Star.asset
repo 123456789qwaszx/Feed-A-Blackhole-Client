@@ -77,21 +77,4 @@ MonoBehaviour:
     critMultiplier: 0
     healthFraction: 0.2
     width: 0
-  - type: 7
-    color: {r: 0.75, g: 0.95, b: 1, a: 1}
-    multiplier: 0
-    critRewardScale: 0
-    damage: 5000
-    radius: 0
-    maxTargets: 0
-    branchChance: 0
-    critChance: 0
-    critMultiplier: 0
-    healthFraction: 0
-    width: 1.5
-    maxActive: 0
-    force: 0
-    duration: 0
-    length: 12
-    count: 1
   sprite: {fileID: 0}

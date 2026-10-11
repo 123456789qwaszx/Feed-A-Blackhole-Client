@@ -8,6 +8,5 @@ namespace BlackHole.Core
         ChainLightning,
         Explosion,
         LaserBurst,
-        LensingLight,
     }
 }
