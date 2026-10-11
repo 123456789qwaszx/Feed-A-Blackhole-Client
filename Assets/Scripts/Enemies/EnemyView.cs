@@ -11,6 +11,7 @@ namespace BlackHole.Unity
     // 특수 성질이 붙었으면 그 색의 윤곽 안에 성질의 표식 색으로 속을 한 겹 더 그린다(황금이면 노란 속, 임시 표식). 스프라이트가 없는 종류는 적 ID에 맞는 다각형으로 그린다.
     // 달 성질이 붙은 적은 Breaker 달과 같은 모양의 달 하나가 주위를 공전한다. 크기·위상·속도는 출현 때 정해진다(일시정지 중에는 멈춘다).
     // 은하는 중심과 세 팔이 하나의 실루엣으로 자전하고(공전과 별개, 화면에서만), 죽으면 나선이 중심으로 말려 들어가며 사라진다(GalaxyCollapses).
+    // 혜성을 뺀 적은 출현할 때 점에서 시작해 제 크기보다 살짝 커졌다가 제 크기로 돌아온다(AdvanceSpawn). 일시정지 중에는 멈춘다.
     // 픽업(혜성)은 CometView가 통째로 맡는다(스프라이트가 아니라 셰이더). 사망 파편·골드·피해량 텍스트도 없다 — 한 방에 부서지는 버프 아이템이라 필요 없다.
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다.
     // 피격·사망 연출(흔들림·파편·피해량·Gold 텍스트·파괴음)은 Step이 끝난 뒤 판의 피격 기록(World.Hits)과 사망 기록(World.Deaths)을 읽어 낸다.
@@ -32,7 +33,17 @@ namespace BlackHole.Unity
             public Transform Arms;
             // 나선팔 자전 속도(도/초, 음수 = 시계방향). 출현 때 한 번 정해진다.
             public float ArmSpin;
+            // 출현 연출이 끝났을 때의 크기(적 스프라이트·달). 연출 중에는 여기에 배율을 곱해 키운다.
+            public Vector3 BaseScale;
+            public Vector3 MoonBaseScale;
+            // 출현 연출이 흐른 시간(초). SpawnSeconds에 닿으면 연출이 끝난다.
+            public float SpawnElapsed;
         }
+
+        // 출현 연출 [임시]: SpawnSeconds 동안 크기 0(점)에서 제 크기로 키운다. OutBack 곡선이라 도중에 제 크기를 살짝 넘었다가 돌아온다.
+        private const float SpawnSeconds = 0.35f;
+        // OutBack 곡선의 넘침 정도. 1.70158이면 가장 클 때 제 크기의 약 1.1배다. 키우면 더 크게 튀었다가 돌아온다.
+        private const float SpawnOvershoot = 1.70158f;
 
         // 은하 나선팔의 자전 속도(도/초)와 적마다의 배율 범위 [임시]. 팔이 반시계로 감겨 있어 시계방향으로 돌면 팔이 뒤로 끌린다(EnemyLooks).
         private const float GalaxySpin = 40f;
@@ -128,6 +139,10 @@ namespace BlackHole.Unity
                 }
 
                 visual.Renderer.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
+
+                // 일시정지 중에는 연출을 멈춘다. 다만 일시정지 중에 새로 생긴 적(테스트 도구 소환)은 크기 0으로 숨어 있지 않게 바로 제 크기로 보인다.
+                if (visual.SpawnElapsed < SpawnSeconds)
+                    AdvanceSpawn(visual, paused ? (visual.SpawnElapsed == 0 ? SpawnSeconds : 0) : delta);
 
                 if (visual.Moon != null)
                     AdvanceMoon(visual, enemy, paused, delta);
@@ -302,7 +317,39 @@ namespace BlackHole.Unity
             if (kind == EnemyType.Galaxy)
                 CreateGalaxyArms(visual, enemy);
 
+            // 출현 연출은 점에서 시작한다(AdvanceSpawn). 자식(성질 표식·은하 실루엣)은 부모 크기를 따라 함께 커진다.
+            visual.BaseScale = view.transform.localScale;
+            view.transform.localScale = Vector3.zero;
+
+            if (visual.Moon != null)
+            {
+                visual.MoonBaseScale = visual.Moon.transform.localScale;
+                visual.Moon.transform.localScale = new Vector3(0, 0, visual.MoonBaseScale.z);
+            }
+
             return visual;
+        }
+
+        // 출현 연출을 delta만큼 진행한다. 끝나면 정확히 제 크기가 된다(OutBack(1) = 1).
+        // 피격 흔들림은 회전만 바꾸므로 겹쳐도 된다. 연출 중에 죽은 은하는 그때 크기에서 붕괴를 시작한다(GalaxyCollapses).
+        private static void AdvanceSpawn(EnemyVisual visual, float delta)
+        {
+            visual.SpawnElapsed = Mathf.Min(SpawnSeconds, visual.SpawnElapsed + delta);
+            float scale = OutBack(visual.SpawnElapsed / SpawnSeconds);
+            visual.Renderer.transform.localScale = visual.BaseScale * scale;
+
+            if (visual.Moon != null)
+            {
+                Vector3 moon = visual.MoonBaseScale;
+                visual.Moon.transform.localScale = new Vector3(moon.x * scale, moon.y * scale, moon.z);
+            }
+        }
+
+        // 0 → 1로 가며 끝 무렵 1을 살짝 넘었다가 1에서 멈추는 곡선.
+        private static float OutBack(float t)
+        {
+            float u = t - 1;
+            return 1 + (SpawnOvershoot + 1) * u * u * u + SpawnOvershoot * u * u;
         }
 
         // 은하의 완성 실루엣: 중심과 팔을 함께 돌린다. 별도 중심 원이 윤곽을 덮지 않으며 성질 표식만 위에 겹친다.
