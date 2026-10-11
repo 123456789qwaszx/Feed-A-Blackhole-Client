@@ -12,7 +12,7 @@ namespace BlackHole.Unity
 {
     // 개발 패널(에디터·개발 빌드). F1 또는 세 손가락 터치로 열고 닫는다. GameBootstrap이 붙인다.
     // 탭: 시나리오(정해 둔 시점에서 시작) / 프로필(밸런스 값 고르기) / 판(시간·Level·배속·끝내기) / 적(소환·치우기·멈추기) / 메모(느낌 기록).
-    // HUD는 패널과 따로 켜고 끈다(판이 있을 때만 보인다).
+    // HUD는 패널과 따로 켜고 끈다. 처음에는 꺼져 있고 F2나 '판' 탭의 HUD 토글로 켠다(판이 있을 때만 보인다).
     // 판을 조작하면(배속 1이 아님 포함) 그 판의 전투 요약에 테스트 표시(+test)가 붙는다(ContentTag).
     // 패널이 열려 있는 동안 게임 UI 입력(EventSystem)을 막고, 고른 경우 판도 멈춘다.
     internal sealed class PlaytestPanel : MonoBehaviour
@@ -31,6 +31,18 @@ namespace BlackHole.Unity
         private const float Margin = 8f;
         private const int ToggleFingers = 3;
 
+        // HUD 켜짐·위치. 플레이를 시작할 때마다 꺼진 상태로 돌아가고, 플레이 중에 장면을 다시 불러도(새 수치로 다시 시작) 그대로다.
+        // 이 프로젝트는 플레이에 들어갈 때 도메인을 다시 불러오지 않아 static이 남으므로 ResetHudState가 되돌린다.
+        private static bool _showHud;
+        private static int _hudCorner;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetHudState()
+        {
+            _showHud = false;
+            _hudCorner = 0;
+        }
+
         private PlaytestSession _session;
         private BattleSystem _battle;
         private ScreenFlow _screens;
@@ -45,8 +57,6 @@ namespace BlackHole.Unity
         private Tab _tab = Tab.Scenario;
         private Vector2 _scroll;
         private bool _pauseOnOpen = true;
-        private bool _showHud = true;
-        private int _hudCorner;
         private float _timeScale = 1f;
         private GameSession _pausedByPanel;
         private EventSystem _blockedEventSystem;
@@ -185,6 +195,9 @@ namespace BlackHole.Unity
             if (TogglePressed())
                 SetOpen(!_open);
 
+            if (HudTogglePressed())
+                _showHud = !_showHud;
+
             // 배속은 판에만 건다. 판이 없으면(결산·업그레이드 화면) 원래 속도다.
             GameSession session = _battle.Session;
             float wanted = session != null ? _timeScale : 1f;
@@ -290,6 +303,13 @@ namespace BlackHole.Unity
                 setup.nodes.Add(new PlaytestScenario.Node { nodeId = id, rank = _progress.RankOf(id) });
 
             return setup;
+        }
+
+        // F2: 패널을 열지 않고 HUD만 켜고 끈다.
+        private static bool HudTogglePressed()
+        {
+            Keyboard keyboard = Keyboard.current;
+            return keyboard != null && keyboard.f2Key.wasPressedThisFrame;
         }
 
         private bool TogglePressed()
@@ -754,7 +774,7 @@ namespace BlackHole.Unity
 #endif
 
             GUILayout.BeginHorizontal();
-            _showHud = GUILayout.Toggle(_showHud, " HUD");
+            _showHud = GUILayout.Toggle(_showHud, " HUD (F2)");
             if (GUILayout.Button("HUD 위치 바꾸기"))
                 _hudCorner = (_hudCorner + 1) % 4;
             GUILayout.EndHorizontal();
