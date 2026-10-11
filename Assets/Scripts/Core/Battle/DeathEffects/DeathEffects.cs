@@ -11,7 +11,10 @@ namespace BlackHole.Core
     // 효과의 피해는 특수 적(성질이 붙은 적, 픽업 포함)에게 가지 않는다 — 효과가 효과를 부르지 않는다.
     public sealed class DeathEffects
     {
-        private const float LaserReach = 45f;
+        // 레이저가 죽은 자리에서 양쪽으로 뻗는 길이(판정도 이 길이 전체). 양 끝이 늘 화면 밖에 있도록 어떤 화면보다 훨씬 길게 둔다:
+        // 가장 넓은 전장(배율 2.83)에서 별은 원점에서 약 27 안, 화면 반대각선은 16:9에서 약 58, 세로 화면(9:16)에서도 약 103이다.
+        // (이전 45는 전장 끝의 별이 원점 쪽으로 쏘면 반대쪽 끝이 화면 안에 보였고, 전장 반대편 끝의 적에 닿지 않기도 했다.)
+        private const float LaserReach = 300f;
         // 레이저 별의 예고 시간(초).
         private const float LaserTelegraphSeconds = 0.4f;
         private const float TimeEpsilon = 1e-5f;
