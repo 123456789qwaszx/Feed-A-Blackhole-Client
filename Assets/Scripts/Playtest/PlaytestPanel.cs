@@ -329,7 +329,7 @@ namespace BlackHole.Unity
 
             if (open)
             {
-                if (_pauseOnOpen && _battle.IsRunning)
+                if (_pauseOnOpen && _battle.CanPause)
                 {
                     _battle.SetPaused(true);
                     _pausedByPanel = _battle.Session;

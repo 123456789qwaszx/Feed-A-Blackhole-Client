@@ -12,6 +12,7 @@ namespace BlackHole.Unity
     // 달 성질이 붙은 적은 Breaker 달과 같은 모양의 달 하나가 주위를 공전한다. 크기·위상·속도는 출현 때 정해진다(일시정지 중에는 멈춘다).
     // 은하는 중심과 세 팔이 하나의 실루엣으로 자전하고(공전과 별개, 화면에서만), 죽으면 나선이 중심으로 말려 들어가며 사라진다(GalaxyCollapses).
     // 혜성을 뺀 적은 출현할 때 점에서 시작해 제 크기보다 살짝 커졌다가 제 크기로 돌아온다(AdvanceSpawn). 일시정지 중에는 멈춘다.
+    // 판 시작 연출 동안에는 원점에서 RevealRadius 안의 적만 화면을 만든다. 반경이 넓어지면 바깥 적이 그때 출현 연출과 함께 나타난다(BattleSystem).
     // 픽업(혜성)은 CometView가 통째로 맡는다(스프라이트가 아니라 셰이더). 사망 파편·골드·피해량 텍스트도 없다 — 한 방에 부서지는 버프 아이템이라 필요 없다.
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다.
     // 피격·사망 연출(흔들림·파편·피해량·Gold 텍스트·파괴음)은 Step이 끝난 뒤 판의 피격 기록(World.Hits)과 사망 기록(World.Deaths)을 읽어 낸다.
@@ -95,6 +96,10 @@ namespace BlackHole.Unity
         private long _lastHitSequence;
         private long _lastDeathSequence;
 
+        // 원점(HQ)에서 적 중심까지 이 거리보다 먼 적은 아직 화면을 만들지 않는다(월드 단위, 기본은 무한 = 모두 보임).
+        // 판 시작 연출이 0에서 넓힌다(BattleSystem). 한 번 보인 적은 다시 숨기지 않는다. 연출 동안 판이 멈춰 있어 숨은 적의 피격·사망은 없다.
+        public float RevealRadius { get; set; } = float.PositiveInfinity;
+
         // breakerLook: 달의 외형(머티리얼·색·간격·기본 공전 속도)을 Breaker 달과 같게 맞추려고 받는다.
         // cometLook: 혜성(픽업)의 외형. 혜성의 화면은 CometView가 맡는다.
         public EnemyView(Transform parent, EnemyLooks looks, BreakerLook breakerLook, CometLook cometLook)
@@ -128,12 +133,17 @@ namespace BlackHole.Unity
 
                 if (enemy.Definition.IsPickup)
                 {
-                    _comets.Show(enemy, paused, delta);
+                    if (IsRevealed(enemy))
+                        _comets.Show(enemy, paused, delta);
+
                     continue;
                 }
 
                 if (!_visuals.TryGetValue(enemy.Id, out EnemyVisual visual))
                 {
+                    if (!IsRevealed(enemy))
+                        continue;
+
                     visual = Create(enemy);
                     _visuals.Add(enemy.Id, visual);
                 }
@@ -253,6 +263,7 @@ namespace BlackHole.Unity
             _hitParticles.Clear();
             _goldText.Reset();
             _damageText.Reset();
+            RevealRadius = float.PositiveInfinity;
 
             // 새 판의 기록 번호는 1부터 다시 시작하므로 함께 되돌린다. 빠뜨리면 다음 판에서 연출이 나지 않는다.
             _lastHitSequence = 0;
@@ -265,6 +276,13 @@ namespace BlackHole.Unity
             _comets.Dispose();
             Object.Destroy(_root.gameObject);
             Object.Destroy(_quad);
+        }
+
+        private bool IsRevealed(Enemy enemy)
+        {
+            float x = enemy.Position.X;
+            float y = enemy.Position.Y;
+            return x * x + y * y <= RevealRadius * RevealRadius;
         }
 
         // 스프라이트·달을 지운다. _visuals에서 빼는 것은 호출자가 한다.
