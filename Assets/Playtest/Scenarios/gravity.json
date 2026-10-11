@@ -3,7 +3,7 @@
     "note": "노드 1~8단계를 모두 산 상태(구매 비용 합계 7,326,272,937,772,307 Gold). 성장 단계는 이 금액이 넘은 이정표 목표 잔액 수로 추정.",
     "category": "QA/노드 단계",
     "expected": "8단계에서 새로 열리는 것: 슈퍼노바 범위·피해, 레이저 너비·피해 후반, 행성→별 변환 추가. 확정 정보의 수치와 실제 화면·피해·사운드가 맞는지 확인.",
-    "contentFingerprint": "5740e522",
+    "contentFingerprint": "ba92ccd1",
     "growthStage": 3,
     "gold": 0,
     "nodes": [
@@ -961,6 +961,82 @@
         },
         {
             "nodeId": "supernovaStar.spawnChance-01",
+            "rank": 1
+        },
+        {
+            "nodeId": "star.toGalaxy-01",
+            "rank": 1
+        },
+        {
+            "nodeId": "galaxy.massScale-01",
+            "rank": 1
+        },
+        {
+            "nodeId": "growth.galaxies-01",
+            "rank": 1
+        },
+        {
+            "nodeId": "galaxy.size-01",
+            "rank": 1
+        },
+        {
+            "nodeId": "galaxy.timeChance-01",
+            "rank": 1
+        },
+        {
+            "nodeId": "star.toGalaxy-02",
+            "rank": 1
+        },
+        {
+            "nodeId": "breaker.galaxyBonusDamage-01",
+            "rank": 1
+        },
+        {
+            "nodeId": "galaxy.size-02",
+            "rank": 1
+        },
+        {
+            "nodeId": "galaxy.massScale-02",
+            "rank": 1
+        },
+        {
+            "nodeId": "galaxy.respawnChance-01",
+            "rank": 1
+        },
+        {
+            "nodeId": "breaker.galaxyBonusDamage-02",
+            "rank": 1
+        },
+        {
+            "nodeId": "star.toGalaxy-03",
+            "rank": 1
+        },
+        {
+            "nodeId": "galaxy.massScale-03",
+            "rank": 1
+        },
+        {
+            "nodeId": "galaxy.size-03",
+            "rank": 1
+        },
+        {
+            "nodeId": "galaxy.respawnChance-02",
+            "rank": 1
+        },
+        {
+            "nodeId": "galaxy.massScale-04",
+            "rank": 1
+        },
+        {
+            "nodeId": "breaker.galaxyBonusDamage-03",
+            "rank": 1
+        },
+        {
+            "nodeId": "gravityGalaxy.spawnChance-01",
+            "rank": 1
+        },
+        {
+            "nodeId": "gravityGalaxy.radius-01",
             "rank": 1
         }
     ],
