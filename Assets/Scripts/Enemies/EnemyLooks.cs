@@ -9,16 +9,17 @@ namespace BlackHole.Unity
     // 적 종류의 외형 조회: 종류 → 스프라이트, (종류, 색 등급) → 색. 외형은 적 종류 에셋(EnemyKind)이 가진다.
     // 스프라이트가 없는 종류와 목록에 없는 종류는 임시 다각형(흰색)이다. 적 화면과 조종 콘솔이 같은 외형을 쓴다.
     // 혜성(픽업)은 일반 적과 성격이 달라 여기서 다루지 않는다. 스프라이트가 아니라 셰이더로 그리며, 외형은 CometLook이 가진다.
-    // 은하는 단색 중심(GalaxyCore)과 자전하는 두 나선팔(SpriteOf)로 그린다. 에셋 스프라이트가 있으면 나선팔 대신 쓴다.
+    // 은하는 단색 중심(GalaxyCore)과 자전하는 세 나선팔(SpriteOf)로 그린다. 에셋 스프라이트가 있으면 나선팔 대신 쓴다.
     internal sealed class EnemyLooks : IDisposable
     {
         private const int ShapePixels = 64;
         // 은하 나선팔의 곡선을 위해 해상도를 두 배로 그린다. 단위당 픽셀도 같이 두 배라 크기(1 단위)는 다른 도형과 같다.
         private const int GalaxyPixels = 128;
-        // 나선팔은 반 바퀴 정도 감기고, 끝으로 갈수록 가늘어진다.
-        private const float GalaxyWinding = 0.55f;
+        // 큰 중심 몸체에 짧고 굵은 세 팔이 붙는다. 팔은 약 80도 휘고 끝으로 갈수록 가늘어진다.
+        private const float GalaxyWinding = 0.22f;
+        private const int GalaxyArmCount = 3;
         private const int GalaxyArmSamples = 96;
-        private const float GalaxyCoreRadius = 0.28f;
+        private const float GalaxyCoreRadius = 0.65f;
         private static readonly Vector2[][] ShapeVertices =
         {
             new[] { new Vector2(-0.47f, 0.16f), new Vector2(-0.18f, 0.49f), new Vector2(0.43f, 0.36f), new Vector2(0.34f, -0.27f), new Vector2(-0.32f, -0.45f) },
@@ -236,7 +237,7 @@ namespace BlackHole.Unity
             return texture;
         }
 
-        // 단색으로 채운 두 나선팔. 작은 원들을 겹쳐 둥근 곡선을 만들고 윤곽 한 픽셀만 부드럽게 한다.
+        // 단색으로 채운 세 나선팔. 작은 원들을 겹쳐 둥근 곡선을 만들고 윤곽 한 픽셀만 부드럽게 한다.
         // 텍스처는 EnemyLooks 생성 때 한 번 만들고 모든 은하가 공유한다.
         private static Texture2D CreateGalaxyArms()
         {
@@ -253,14 +254,14 @@ namespace BlackHole.Unity
             for (int i = 0; i < pixels.Length; i++)
                 pixels[i] = new Color32(255, 255, 255, 0);
 
-            for (int arm = 0; arm < 2; arm++)
+            for (int arm = 0; arm < GalaxyArmCount; arm++)
             {
                 for (int sample = 0; sample <= GalaxyArmSamples; sample++)
                 {
                     float t = sample / (float)GalaxyArmSamples;
-                    float angle = arm * Mathf.PI + t * GalaxyWinding * 2 * Mathf.PI;
-                    float radius = Mathf.Lerp(0.12f, 0.94f, t) * edge;
-                    float width = Mathf.Lerp(0.20f, 0.04f, t) * edge;
+                    float angle = arm * (2 * Mathf.PI / GalaxyArmCount) + t * GalaxyWinding * 2 * Mathf.PI;
+                    float radius = Mathf.Lerp(0.48f, 0.94f, t) * edge;
+                    float width = Mathf.Lerp(0.30f, 0.04f, t) * edge;
                     float cx = center + Mathf.Cos(angle) * radius;
                     float cy = center + Mathf.Sin(angle) * radius;
                     int minX = Mathf.Max(0, Mathf.FloorToInt(cx - width - 0.5f));
