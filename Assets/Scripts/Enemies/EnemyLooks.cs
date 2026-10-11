@@ -9,15 +9,16 @@ namespace BlackHole.Unity
     // 적 종류의 외형 조회: 종류 → 스프라이트, (종류, 색 등급) → 색. 외형은 적 종류 에셋(EnemyKind)이 가진다.
     // 스프라이트가 없는 종류와 목록에 없는 종류는 임시 다각형(흰색)이다. 적 화면과 조종 콘솔이 같은 외형을 쓴다.
     // 혜성(픽업)은 일반 적과 성격이 달라 여기서 다루지 않는다. 스프라이트가 아니라 셰이더로 그리며, 외형은 CometLook이 가진다.
-    // 은하는 두 겹이다: 빛나는 중심(GalaxyCore, 적 스프라이트 자리)과 그 위에서 자전하는 나선팔(SpriteOf, 에셋 스프라이트가 있으면 그것) [임시 도형].
+    // 은하는 단색 중심(GalaxyCore)과 자전하는 두 나선팔(SpriteOf)로 그린다. 에셋 스프라이트가 있으면 나선팔 대신 쓴다.
     internal sealed class EnemyLooks : IDisposable
     {
         private const int ShapePixels = 64;
-        // 은하 나선팔은 가는 선이 많아 해상도를 두 배로 그린다. 단위당 픽셀도 같이 두 배라 크기(1 단위)는 다른 도형과 같다.
+        // 은하 나선팔의 곡선을 위해 해상도를 두 배로 그린다. 단위당 픽셀도 같이 두 배라 크기(1 단위)는 다른 도형과 같다.
         private const int GalaxyPixels = 128;
-        // 나선팔이 감기는 정도(중심에서 가장자리까지 도는 바퀴 수)와 팔의 날카로움 [임시].
-        private const float GalaxyWinding = 0.9f;
-        private const float GalaxyArmSharpness = 3f;
+        // 나선팔은 반 바퀴 정도 감기고, 끝으로 갈수록 가늘어진다.
+        private const float GalaxyWinding = 0.55f;
+        private const int GalaxyArmSamples = 96;
+        private const float GalaxyCoreRadius = 0.28f;
         private static readonly Vector2[][] ShapeVertices =
         {
             new[] { new Vector2(-0.47f, 0.16f), new Vector2(-0.18f, 0.49f), new Vector2(0.43f, 0.36f), new Vector2(0.34f, -0.27f), new Vector2(-0.32f, -0.45f) },
@@ -71,7 +72,7 @@ namespace BlackHole.Unity
             _galaxyCoreShape = Sprite.Create(_galaxyCoreTexture, new Rect(0, 0, GalaxyPixels, GalaxyPixels), new Vector2(0.5f, 0.5f), GalaxyPixels);
         }
 
-        // 은하의 빛나는 중심. 적 스프라이트 자리에 그리고, 나선팔(SpriteOf)은 그 위에서 따로 돈다(EnemyView). 크기는 다른 도형과 같은 1 단위다.
+        // 은하의 불투명한 원형 중심. 적 스프라이트 자리에 그리고, 나선팔(SpriteOf)은 그 위에서 따로 돈다(EnemyView). 크기는 다른 도형과 같은 1 단위다.
         public Sprite GalaxyCore => _galaxyCoreShape;
 
         public Sprite SpriteOf(EnemyType type, int enemyId)
@@ -235,8 +236,8 @@ namespace BlackHole.Unity
             return texture;
         }
 
-        // 은하 나선팔(흰색, 알파만): 두 팔이 중심에서 바깥으로 GalaxyWinding 바퀴 감기며 가장자리로 갈수록 옅어진다.
-        // 팔은 반지름이 커질수록 반시계로 감긴다 — 시계방향으로 자전하면 팔이 뒤로 끌리는 모양이 된다(EnemyView).
+        // 단색으로 채운 두 나선팔. 작은 원들을 겹쳐 둥근 곡선을 만들고 윤곽 한 픽셀만 부드럽게 한다.
+        // 텍스처는 EnemyLooks 생성 때 한 번 만들고 모든 은하가 공유한다.
         private static Texture2D CreateGalaxyArms()
         {
             var texture = new Texture2D(GalaxyPixels, GalaxyPixels, TextureFormat.RGBA32, false)
@@ -249,29 +250,35 @@ namespace BlackHole.Unity
             float center = (GalaxyPixels - 1) / 2f;
             float edge = GalaxyPixels * 0.49f;
             var pixels = new Color32[GalaxyPixels * GalaxyPixels];
+            for (int i = 0; i < pixels.Length; i++)
+                pixels[i] = new Color32(255, 255, 255, 0);
 
-            for (int y = 0; y < GalaxyPixels; y++)
+            for (int arm = 0; arm < 2; arm++)
             {
-                for (int x = 0; x < GalaxyPixels; x++)
+                for (int sample = 0; sample <= GalaxyArmSamples; sample++)
                 {
-                    float dx = x - center;
-                    float dy = y - center;
-                    float r = Mathf.Sqrt(dx * dx + dy * dy) / edge;
+                    float t = sample / (float)GalaxyArmSamples;
+                    float angle = arm * Mathf.PI + t * GalaxyWinding * 2 * Mathf.PI;
+                    float radius = Mathf.Lerp(0.12f, 0.94f, t) * edge;
+                    float width = Mathf.Lerp(0.20f, 0.04f, t) * edge;
+                    float cx = center + Mathf.Cos(angle) * radius;
+                    float cy = center + Mathf.Sin(angle) * radius;
+                    int minX = Mathf.Max(0, Mathf.FloorToInt(cx - width - 0.5f));
+                    int maxX = Mathf.Min(GalaxyPixels - 1, Mathf.CeilToInt(cx + width + 0.5f));
+                    int minY = Mathf.Max(0, Mathf.FloorToInt(cy - width - 0.5f));
+                    int maxY = Mathf.Min(GalaxyPixels - 1, Mathf.CeilToInt(cy + width + 0.5f));
 
-                    if (r >= 1)
+                    for (int y = minY; y <= maxY; y++)
                     {
-                        pixels[y * GalaxyPixels + x] = new Color32(255, 255, 255, 0);
-                        continue;
+                        for (int x = minX; x <= maxX; x++)
+                        {
+                            float distance = width - new Vector2(x - cx, y - cy).magnitude;
+                            byte alpha = (byte)(Mathf.Clamp01(distance + 0.5f) * 255);
+                            int index = y * GalaxyPixels + x;
+                            if (alpha > pixels[index].a)
+                                pixels[index] = new Color32(255, 255, 255, alpha);
+                        }
                     }
-
-                    float angle = Mathf.Atan2(dy, dx);
-                    // 두 팔: cos(2 × (각 − 감김)) — 팔 사이가 반 바퀴.
-                    float phase = angle - GalaxyWinding * 2 * Mathf.PI * Mathf.Sqrt(r);
-                    float arm = Mathf.Pow(0.5f + 0.5f * Mathf.Cos(2 * phase), GalaxyArmSharpness);
-                    float fade = Mathf.Pow(1 - r, 0.7f);
-                    float haze = 0.18f * (1 - r);
-                    float alpha = Mathf.Clamp01((arm * 0.9f + haze) * fade);
-                    pixels[y * GalaxyPixels + x] = new Color32(255, 255, 255, (byte)(alpha * 255));
                 }
             }
 
@@ -280,7 +287,7 @@ namespace BlackHole.Unity
             return texture;
         }
 
-        // 은하의 중심 빛(흰색, 알파만): 가운데가 가장 밝고 반지름 0.4 언저리에서 사라진다.
+        // 다른 천체와 같은 단색 원. 중심 크기만큼 채우고 윤곽 한 픽셀만 부드럽게 한다.
         private static Texture2D CreateGalaxyCore()
         {
             var texture = new Texture2D(GalaxyPixels, GalaxyPixels, TextureFormat.RGBA32, false)
@@ -298,8 +305,8 @@ namespace BlackHole.Unity
             {
                 for (int x = 0; x < GalaxyPixels; x++)
                 {
-                    float r = new Vector2(x - center, y - center).magnitude / edge;
-                    float alpha = Mathf.Clamp01(Mathf.Exp(-(r * r) / (0.18f * 0.18f)) + 0.25f * Mathf.Clamp01(1 - r / 0.4f));
+                    float distance = edge * GalaxyCoreRadius - new Vector2(x - center, y - center).magnitude;
+                    float alpha = Mathf.Clamp01(distance + 0.5f);
                     pixels[y * GalaxyPixels + x] = new Color32(255, 255, 255, (byte)(alpha * 255));
                 }
             }

@@ -10,7 +10,7 @@ namespace BlackHole.Unity
     // 게임 상태를 바꾸지 않는다. 외형은 적 종류 에셋이 가진다(EnemyLooks). 색은 적의 색 등급으로, 크기는 적의 수치로 정한다.
     // 특수 성질이 붙었으면 그 색의 윤곽 안에 성질의 표식 색으로 속을 한 겹 더 그린다(황금이면 노란 속, 임시 표식). 스프라이트가 없는 종류는 적 ID에 맞는 다각형으로 그린다.
     // 달 성질이 붙은 적은 Breaker 달과 같은 모양의 달 하나가 주위를 공전한다. 크기·위상·속도는 출현 때 정해진다(일시정지 중에는 멈춘다).
-    // 은하는 빛나는 중심 위에서 나선팔이 자전하고(공전과 별개, 화면에서만), 죽으면 나선이 중심으로 말려 들어가며 사라진다(GalaxyCollapses).
+    // 은하는 단색 중심 위에서 나선팔이 자전하고(공전과 별개, 화면에서만), 죽으면 나선이 중심으로 말려 들어가며 사라진다(GalaxyCollapses).
     // 픽업(혜성)은 CometView가 통째로 맡는다(스프라이트가 아니라 셰이더). 사망 파편·골드·피해량 텍스트도 없다 — 한 방에 부서지는 버프 아이템이라 필요 없다.
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다.
     // 피격·사망 연출(흔들림·파편·피해량·Gold 텍스트·파괴음)은 Step이 끝난 뒤 판의 피격 기록(World.Hits)과 사망 기록(World.Deaths)을 읽어 낸다.
@@ -270,7 +270,7 @@ namespace BlackHole.Unity
             view.transform.SetParent(_root, false);
 
             var renderer = view.AddComponent<SpriteRenderer>();
-            // 은하는 빛나는 중심을 적 스프라이트로 쓰고, 나선팔은 아래 자식으로 따로 그린다(CreateGalaxyArms).
+            // 은하는 단색 중심을 적 스프라이트로 쓰고, 나선팔은 아래 자식으로 따로 그린다(CreateGalaxyArms).
             renderer.sprite = kind == EnemyType.Galaxy ? _looks.GalaxyCore : _looks.SpriteOf(kind, enemy.Id.Value);
             renderer.color = _looks.ColorOf(kind, enemy.Tier);
 
@@ -304,7 +304,7 @@ namespace BlackHole.Unity
             return visual;
         }
 
-        // 은하의 나선팔: 중심 스프라이트의 자식으로, 중심과 같은 색·크기 틀로 그린다. 중심(0)보다 한 칸 아래에 그려 중심 빛이 팔 위에 겹친다.
+        // 은하의 나선팔: 중심 스프라이트의 자식으로, 중심과 같은 색·크기 틀로 그린다. 중심(0)보다 한 칸 아래에 그려 중심이 팔 위에 겹친다.
         // 피격 흔들림은 부모(중심)를 돌리므로 팔도 함께 흔들리고, 자전은 팔만 돈다.
         private void CreateGalaxyArms(EnemyVisual visual, Enemy enemy)
         {
