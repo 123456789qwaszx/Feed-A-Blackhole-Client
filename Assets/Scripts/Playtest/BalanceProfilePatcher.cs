@@ -13,11 +13,11 @@ namespace BlackHole.Unity
     //
     // 경로는 슬래시로 나눈다. 종류·성질은 계약 ID처럼 열거형 이름의 첫 글자만 소문자다(asteroid, golden).
     //   battle/<timeLimit|killTimeBonus>
-    //   breaker/<damage|interval|radius|critChance|critDamage|moonDuration|moonSpeedBonus|moonRadiusBonus|cometDuration|cometCritDamageBonus|planetBonusDamage|starBonusDamage>
+    //   breaker/<damage|interval|radius|critChance|critDamage|moonDuration|moonSpeedBonus|moonRadiusBonus|cometDuration|cometCritDamageBonus|planetBonusDamage|starBonusDamage|galaxyBonusDamage>
     //   placement/<minDistance|maxDistance>           적 출현 띠(HQ로부터 거리, 전장 배율 1 기준)
     //   enemy/<종류>/<moveSpeed|radius|radiusStep|spawnPeriod|rainCount>
     //   enemy/<종류>/tier/<색 등급, 1부터>/<hp|gold|exp>
-    //   enemy/<종류>/trait/<성질>/<multiplier|critRewardScale|damage|radius|maxTargets|branchChance|critChance|critMultiplier|healthFraction|width|maxActive>
+    //   enemy/<종류>/trait/<성질>/<multiplier|critRewardScale|damage|radius|maxTargets|branchChance|critChance|critMultiplier|healthFraction|width|force|duration|length|count|maxActive>
     //   supply/<종류>/count                       시작 공급에 없는 종류면 더한다(없는 종류의 지금 값은 0)
     //   growth/levelExp/<Level, 1부터>             그 Level에 닿는 누적 EXP
     //   growth/milestone/<번호, 1부터>/<level|targetGold|fieldScale>
@@ -51,6 +51,8 @@ namespace BlackHole.Unity
             { EnemyTraitType.Laser, new[] { "damage", "width", "critChance", "critMultiplier" } },
             { EnemyTraitType.Moon, Array.Empty<string>() },
             { EnemyTraitType.Comet, Array.Empty<string>() },
+            { EnemyTraitType.Gravity, new[] { "radius", "force", "duration" } },
+            { EnemyTraitType.Lensing, new[] { "damage", "width", "length", "count" } },
         };
 
         private static readonly string[] BattleFields = { "timeLimit", "killTimeBonus" };
@@ -58,7 +60,7 @@ namespace BlackHole.Unity
         private static readonly string[] BreakerFields =
         {
             "damage", "interval", "radius", "critChance", "critDamage", "moonDuration", "moonSpeedBonus", "moonRadiusBonus",
-            "cometDuration", "cometCritDamageBonus", "planetBonusDamage", "starBonusDamage",
+            "cometDuration", "cometCritDamageBonus", "planetBonusDamage", "starBonusDamage", "galaxyBonusDamage",
         };
 
         private static readonly string[] PlacementFields = { "minDistance", "maxDistance" };
@@ -290,6 +292,7 @@ namespace BlackHole.Unity
                 case "cometCritDamageBonus": return Real(() => breaker.CometCritDamageBonus, v => breaker.CometCritDamageBonus = v, out error);
                 case "planetBonusDamage": return Real(() => breaker.PlanetBonusDamage, v => breaker.PlanetBonusDamage = v, out error);
                 case "starBonusDamage": return Real(() => breaker.StarBonusDamage, v => breaker.StarBonusDamage = v, out error);
+                case "galaxyBonusDamage": return Real(() => breaker.GalaxyBonusDamage, v => breaker.GalaxyBonusDamage = v, out error);
                 default: return Unknown(field, out error);
             }
         }
@@ -387,6 +390,10 @@ namespace BlackHole.Unity
                     case "critMultiplier": return Real(() => effect.CritMultiplier, v => effect.CritMultiplier = v, out error);
                     case "healthFraction": return Real(() => effect.HealthFraction, v => effect.HealthFraction = v, out error);
                     case "width": return Real(() => effect.Width, v => effect.Width = v, out error);
+                    case "force": return Real(() => effect.Force, v => effect.Force = v, out error);
+                    case "duration": return Real(() => effect.Duration, v => effect.Duration = v, out error);
+                    case "length": return Real(() => effect.Length, v => effect.Length = v, out error);
+                    case "count": return Int(() => effect.Count, v => effect.Count = v, out error);
                     default: return Unknown(path[4], out error);
                 }
             }

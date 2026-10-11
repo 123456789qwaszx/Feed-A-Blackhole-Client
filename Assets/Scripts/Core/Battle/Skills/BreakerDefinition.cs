@@ -16,6 +16,7 @@ namespace BlackHole.Core
         public float CometCritDamageBonus { get; }
         public float PlanetBonusDamage { get; } // 행성 보너스 피해
         public float StarBonusDamage { get; } // 별 보너스 피해
+        public float GalaxyBonusDamage { get; } // 은하 보너스 피해
 
         public BreakerDefinition(
             float damage,
@@ -29,7 +30,8 @@ namespace BlackHole.Core
             float cometDuration,
             float cometCritDamageBonus,
             float planetBonusDamage,
-            float starBonusDamage)
+            float starBonusDamage,
+            float galaxyBonusDamage)
         {
             Damage = DefinitionGuard.Positive(damage, nameof(damage));
             Interval = DefinitionGuard.Positive(interval, nameof(interval));
@@ -47,6 +49,7 @@ namespace BlackHole.Core
             CometCritDamageBonus = NotNegative(cometCritDamageBonus, nameof(cometCritDamageBonus));
             PlanetBonusDamage = NotNegative(planetBonusDamage, nameof(planetBonusDamage));
             StarBonusDamage = NotNegative(starBonusDamage, nameof(starBonusDamage));
+            GalaxyBonusDamage = NotNegative(galaxyBonusDamage, nameof(galaxyBonusDamage));
         }
 
         private static float NotNegative(float value, string name)
@@ -76,7 +79,8 @@ namespace BlackHole.Core
                 CometDuration + upgrades.GainOf(UpgradeStat.CometDuration),
                 CometCritDamageBonus + upgrades.GainOf(UpgradeStat.CometCritBonus) / 100,
                 PlanetBonusDamage + upgrades.GainOf(UpgradeStat.BreakerPlanetBonusDamage),
-                StarBonusDamage + upgrades.GainOf(UpgradeStat.BreakerStarBonusDamage));
+                StarBonusDamage + upgrades.GainOf(UpgradeStat.BreakerStarBonusDamage),
+                GalaxyBonusDamage + upgrades.GainOf(UpgradeStat.BreakerGalaxyBonusDamage));
         }
     }
 }

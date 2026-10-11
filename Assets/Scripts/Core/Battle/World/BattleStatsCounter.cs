@@ -12,6 +12,7 @@ namespace BlackHole.Core
         private double _electricStarDamage;
         private double _laserDamage;
         private double _supernovaDamage;
+        private double _lensingDamage;
         private long _goldenAsteroidGold;
         private int _collectedMoons;
         private int _collectedComets;
@@ -36,6 +37,7 @@ namespace BlackHole.Core
                 _electricStarDamage,
                 _laserDamage,
                 _supernovaDamage,
+                _lensingDamage,
                 _goldenAsteroidGold,
                 _collectedMoons,
                 _collectedComets,
@@ -64,6 +66,9 @@ namespace BlackHole.Core
                     break;
                 case DamageSource.Explosion:
                     _supernovaDamage += hit.Amount;
+                    break;
+                case DamageSource.LensingLight:
+                    _lensingDamage += hit.Amount;
                     break;
             }
         }

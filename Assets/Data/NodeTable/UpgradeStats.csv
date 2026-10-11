@@ -59,3 +59,19 @@ laserStar.critBonus,Float,Percent,200,Add,0,,TRUE,,레이저 치명타 보너스
 supernovaStar.range,Float,Percent,100,Add,0,,TRUE,,슈퍼노바 범위,%,100,4,[2]동일한것,4,OK
 supernovaStar.hpDamage,Float,Percent,20,Add,0,100,TRUE,,현재체력 비례 슈퍼노바 대미지,%,20,6,[2]동일한것,6,OK
 supernovaStar.spawnChance,Float,Percent,0,Add,0,100,TRUE,,슈퍼노바 별 생성 확률,%,0,1,[2]동일한것,1,OK
+growth.galaxies,Float,Percent,0,Add,0,,TRUE,신규,블랙홀 성장 시 생성되는 은하 수,%,,,[신규],0,
+star.toGalaxy,Float,Flat,0,Add,0,,TRUE,신규,별을 은하로 업그레이드,값,,,[신규],0,
+galaxy.size,Int,Flat,1,Add,0,,TRUE,신규,은하 크기,값,,,[신규],0,
+galaxy.massScale,Float,Percent,100,Add,0,,TRUE,신규,은하 질량,%,,,[신규],0,
+galaxy.respawnChance,Float,Percent,0,Add,0,100,TRUE,신규,은하가 파괴될 때 새로운 은하를 생성할 확률,%,,,[신규],0,
+galaxy.timeChance,Float,Percent,0,Add,0,100,TRUE,신규,은하가 파괴될 때 시간이 추가될 확률,%,,,[신규],0,
+breaker.galaxyBonusDamage,Float,Flat,0,Add,0,,TRUE,신규,은하에 대한 브레이커의 보너스 피해,값,,,[신규],0,
+gravityGalaxy.spawnChance,Float,Percent,0,Add,0,100,TRUE,신규,중력장 은하 생성 확률,%,,,[신규],0,
+gravityGalaxy.radius,Float,Percent,100,Add,0,,TRUE,신규,중력장 범위,%,,,[신규],0,
+gravityGalaxy.force,Float,Percent,100,Add,0,,TRUE,신규,중력장이 적을 끌어당기는 힘,%,,,[신규],0,
+gravityGalaxy.duration,Float,Flat,3,Add,0,,TRUE,신규,중력장 지속 시간,값,,,[신규],0,
+lensingStar.spawnChance,Float,Percent,0,Add,0,100,TRUE,신규,굴절광 별 생성 확률,%,,,[신규],0,
+lensingStar.damage,Float,Flat,5000,Add,0,,TRUE,신규,굴절광 피해,값,,,[신규],0,
+lensingStar.width,Float,Percent,100,Add,0,,TRUE,신규,굴절광 너비,%,,,[신규],0,
+lensingStar.length,Float,Percent,100,Add,0,,TRUE,신규,굴절광 길이,%,,,[신규],0,
+lensingStar.count,Int,Flat,1,Add,1,,TRUE,신규,굴절광 빛무리 수,값,,,[신규],0,

@@ -251,6 +251,7 @@ namespace BlackHole.Unity
             EnemyType.Planet => "행성",
             EnemyType.Star => "별",
             EnemyType.Comet => "혜성",
+            EnemyType.Galaxy => "은하",
             _ => type.ToString(),
         };
 
@@ -262,6 +263,8 @@ namespace BlackHole.Unity
             EnemyTraitType.Laser => "레이저",
             EnemyTraitType.Supernova => "초신성",
             EnemyTraitType.Comet => "혜성",
+            EnemyTraitType.Gravity => "중력장",
+            EnemyTraitType.Lensing => "굴절광",
             _ => type.ToString(),
         };
     }

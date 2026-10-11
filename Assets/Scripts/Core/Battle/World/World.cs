@@ -19,7 +19,7 @@ namespace BlackHole.Core
         public IReadOnlyList<HitRecord> Hits => _enemies.Hits;
         public IReadOnlyList<DeathRecord> Deaths => _enemies.Deaths;
 
-        // 사망 효과의 대기열과 이번 Step의 효과 기록(번개 이동, 폭발, 레이저).
+        // 사망 효과의 대기열과 이번 Step의 효과 기록(번개 이동, 폭발, 레이저), 날아가는 굴절광 빛무리와 켜진 중력장.
         public DeathEffects DeathEffects { get; }
 
         // 블랙홀.
@@ -118,8 +118,11 @@ namespace BlackHole.Core
             Breaker.BeginStep();
 
             // 1. Enemy Action. 이동 배율 0(테스트 도구의 멈춤)이면 위치를 다시 계산하지 않는다 — 각도 재계산의 반올림으로 조금씩 밀리지 않게.
+            //    켜진 중력장이 있으면 그 범위 안의 적은 공전 대신 중력장 중심으로 끌린다. 중력장의 시간은 이동 배율과 무관하게 흐른다.
             if (EnemyMoveScale > 0)
-                _enemies.Move(delta * EnemyMoveScale);
+                MoveEnemies(delta * EnemyMoveScale);
+
+            DeathEffects.AgeFields(delta);
 
             // 2. Passive Attack: (DealDamage).
             Breaker.Advance(delta, this);
@@ -145,6 +148,25 @@ namespace BlackHole.Core
             // 7. Periodic Spawn: 주기 출현(혜성)의 등장 판정 진행.
             _supply.AdvancePeriodicSpawns(delta);
             return raised;
+        }
+
+        // 적 이동: 중력장 범위 안의 적은 그 중심으로 끌리고(DeathEffects.TryPull), 나머지는 공전한다.
+        private void MoveEnemies(float delta)
+        {
+            if (!DeathEffects.HasGravityFields)
+            {
+                _enemies.Move(delta);
+                return;
+            }
+
+            DeathEffects.BeginPull();
+            IReadOnlyList<Enemy> enemies = _enemies.Alive;
+
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                if (!DeathEffects.TryPull(enemies[i], delta))
+                    enemies[i].Move(delta);
+            }
         }
 
         // 이 성질이 지금 판에 있는 수: 살아 있는 그 성질 적 + 그 성질이 준 버프 중 Breaker에 남은 중첩(달).

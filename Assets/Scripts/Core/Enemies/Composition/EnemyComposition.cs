@@ -227,7 +227,8 @@ namespace BlackHole.Core
         }
 
         // 노드가 반영된 사망 효과. 수치가 하나도 바뀌지 않았으면 null이다.
-        // 피해·횟수는 늘어난 양을, 확률·배율은 늘어난 %p ÷ 100을 더하고, 너비·폭발 반지름은 (1 + 늘어난 %p ÷ 100)배 한다.
+        // 피해·횟수·시간은 늘어난 양을, 확률·배율은 늘어난 %p ÷ 100을 더하고,
+        // 너비·길이·폭발과 중력장 반지름·중력장 힘은 (1 + 늘어난 %p ÷ 100)배 한다.
         // 확률·비율은 1을 넘지 않게 자른다. 그 밖의 한계 밖 값(0 이하의 피해·너비·반지름 등)은 효과 정의의 예외다 — UpgradeContentCheck가 로드 때 찾는다.
         private static DeathEffectDefinition UpgradedEffect(EnemyDefinition kind, EnemyTraitDefinition trait, UpgradeStatValues upgrades)
         {
@@ -282,6 +283,25 @@ namespace BlackHole.Core
 
                     bool same = fraction == explosion.HealthFraction && radius == explosion.Radius;
                     return same ? null : new ExplosionDefinition(fraction, radius);
+                }
+                case GravityFieldDefinition gravity:
+                {
+                    float radius = Scale(EnemyUpgradeStats.TraitRadius, gravity.Radius);
+                    float force = Scale(EnemyUpgradeStats.TraitForce, gravity.Force);
+                    float duration = Add(EnemyUpgradeStats.TraitDuration, gravity.Duration);
+
+                    bool same = radius == gravity.Radius && force == gravity.Force && duration == gravity.Duration;
+                    return same ? null : new GravityFieldDefinition(radius, force, duration);
+                }
+                case LensingLightDefinition lensing:
+                {
+                    float damage = Add(EnemyUpgradeStats.TraitDamage, lensing.Damage);
+                    float width = Scale(EnemyUpgradeStats.TraitWidth, lensing.Width);
+                    float length = Scale(EnemyUpgradeStats.TraitLength, lensing.Length);
+                    int count = Whole(Add(EnemyUpgradeStats.TraitCount, lensing.Count));
+
+                    bool same = damage == lensing.Damage && width == lensing.Width && length == lensing.Length && count == lensing.Count;
+                    return same ? null : new LensingLightDefinition(damage, width, length, count);
                 }
                 default:
                     return null;

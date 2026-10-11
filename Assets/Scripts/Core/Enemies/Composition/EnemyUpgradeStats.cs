@@ -10,6 +10,7 @@ namespace BlackHole.Core
             EnemyType.Asteroid => UpgradeStat.AsteroidMassScale,
             EnemyType.Planet => UpgradeStat.PlanetMassScale,
             EnemyType.Star => UpgradeStat.StarMassScale,
+            EnemyType.Galaxy => UpgradeStat.GalaxyMassScale,
             _ => null,
         };
 
@@ -19,6 +20,7 @@ namespace BlackHole.Core
             EnemyType.Asteroid => UpgradeStat.AsteroidSize,
             EnemyType.Planet => UpgradeStat.PlanetSize,
             EnemyType.Star => UpgradeStat.StarSize,
+            EnemyType.Galaxy => UpgradeStat.GalaxySize,
             _ => null,
         };
 
@@ -36,6 +38,7 @@ namespace BlackHole.Core
             EnemyType.Asteroid => UpgradeStat.GrowthAsteroids,
             EnemyType.Planet => UpgradeStat.GrowthPlanets,
             EnemyType.Star => UpgradeStat.GrowthStars,
+            EnemyType.Galaxy => UpgradeStat.GrowthGalaxies,
             _ => null,
         };
 
@@ -45,6 +48,7 @@ namespace BlackHole.Core
         {
             EnemyType.Asteroid => UpgradeStat.AsteroidToPlanet,
             EnemyType.Planet => UpgradeStat.PlanetToStar,
+            EnemyType.Star => UpgradeStat.StarToGalaxy,
             _ => null,
         };
 
@@ -68,6 +72,7 @@ namespace BlackHole.Core
             EnemyType.Asteroid => UpgradeStat.AsteroidRespawnChance,
             EnemyType.Planet => UpgradeStat.PlanetRespawnChance,
             EnemyType.Star => UpgradeStat.StarRespawnChance,
+            EnemyType.Galaxy => UpgradeStat.GalaxyRespawnChance,
             _ => null,
         };
 
@@ -77,6 +82,7 @@ namespace BlackHole.Core
             EnemyType.Asteroid => UpgradeStat.AsteroidTimeChance,
             EnemyType.Planet => UpgradeStat.PlanetTimeChance,
             EnemyType.Star => UpgradeStat.StarTimeChance,
+            EnemyType.Galaxy => UpgradeStat.GalaxyTimeChance,
             _ => null,
         };
 
@@ -89,6 +95,8 @@ namespace BlackHole.Core
             (EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarSpawnChance,
             (EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarSpawnChance,
             (EnemyType.Star, EnemyTraitType.Supernova) => UpgradeStat.SupernovaStarSpawnChance,
+            (EnemyType.Star, EnemyTraitType.Lensing) => UpgradeStat.LensingStarSpawnChance,
+            (EnemyType.Galaxy, EnemyTraitType.Gravity) => UpgradeStat.GravityGalaxySpawnChance,
             _ => null,
         };
 
@@ -113,12 +121,13 @@ namespace BlackHole.Core
             _ => null,
         };
 
-        // 피해(번개·레이저). 더한다.
+        // 피해(번개·레이저·굴절광). 더한다.
         public static UpgradeStat? TraitDamage(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
         {
             (EnemyType.Asteroid, EnemyTraitType.Electric) => UpgradeStat.ElectricAsteroidDamage,
             (EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarDamage,
             (EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarDamage,
+            (EnemyType.Star, EnemyTraitType.Lensing) => UpgradeStat.LensingStarDamage,
             _ => null,
         };
 
@@ -157,17 +166,47 @@ namespace BlackHole.Core
             _ => null,
         };
 
-        // 레이저 너비(시트 기본 100%). (1 + 늘어난 %p ÷ 100)배.
+        // 레이저·굴절광 너비(시트 기본 100%). (1 + 늘어난 %p ÷ 100)배.
         public static UpgradeStat? TraitWidth(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
         {
             (EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarWidth,
+            (EnemyType.Star, EnemyTraitType.Lensing) => UpgradeStat.LensingStarWidth,
             _ => null,
         };
 
-        // 폭발 반지름(시트 기본 100%). (1 + 늘어난 %p ÷ 100)배. 번개가 옮겨 가는 거리에는 수치가 없다.
+        // 폭발·중력장 반지름(시트 기본 100%). (1 + 늘어난 %p ÷ 100)배. 번개가 옮겨 가는 거리에는 수치가 없다.
         public static UpgradeStat? TraitRadius(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
         {
             (EnemyType.Star, EnemyTraitType.Supernova) => UpgradeStat.SupernovaStarRange,
+            (EnemyType.Galaxy, EnemyTraitType.Gravity) => UpgradeStat.GravityGalaxyRadius,
+            _ => null,
+        };
+
+        // 중력장이 끌어당기는 힘(끌리는 속도, 시트 기본 100%). (1 + 늘어난 %p ÷ 100)배.
+        public static UpgradeStat? TraitForce(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
+        {
+            (EnemyType.Galaxy, EnemyTraitType.Gravity) => UpgradeStat.GravityGalaxyForce,
+            _ => null,
+        };
+
+        // 중력장 지속 시간(초). 더한다.
+        public static UpgradeStat? TraitDuration(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
+        {
+            (EnemyType.Galaxy, EnemyTraitType.Gravity) => UpgradeStat.GravityGalaxyDuration,
+            _ => null,
+        };
+
+        // 굴절광이 바깥쪽으로 뻗는 길이(시트 기본 100%). (1 + 늘어난 %p ÷ 100)배.
+        public static UpgradeStat? TraitLength(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
+        {
+            (EnemyType.Star, EnemyTraitType.Lensing) => UpgradeStat.LensingStarLength,
+            _ => null,
+        };
+
+        // 굴절광 빛무리 수. 더한다.
+        public static UpgradeStat? TraitCount(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
+        {
+            (EnemyType.Star, EnemyTraitType.Lensing) => UpgradeStat.LensingStarCount,
             _ => null,
         };
 

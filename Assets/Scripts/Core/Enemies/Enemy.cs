@@ -66,6 +66,12 @@ namespace BlackHole.Core
             Position = EnemyBehaviors.NextPosition(Position, Stats, delta);
         }
 
+        // 공전이 아닌 힘(중력장)이 옮긴 자리. 공전은 위치만 보고 돌므로 다음 공전은 이 자리에서 이어진다.
+        internal void MoveTo(Point2 position)
+        {
+            Position = position;
+        }
+
         internal bool ApplyDamage(Damage damage)
         {
             if (!IsAlive)

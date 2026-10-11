@@ -25,6 +25,9 @@ namespace BlackHole.Core
         // 초신성 별의 폭발 피해.
         public double SupernovaDamage { get; }
 
+        // 굴절광 별의 빛무리 피해.
+        public double LensingDamage { get; }
+
         // 황금 소행성의 처치 보상 합(황금 치명타 보너스 포함). 판이 번 Gold(EarnedGold)에 들어 있다.
         public long GoldenAsteroidGold { get; }
 
@@ -44,6 +47,7 @@ namespace BlackHole.Core
             double electricStarDamage,
             double laserDamage,
             double supernovaDamage,
+            double lensingDamage,
             long goldenAsteroidGold,
             int collectedMoons,
             int collectedComets,
@@ -56,6 +60,7 @@ namespace BlackHole.Core
             ElectricStarDamage = electricStarDamage;
             LaserDamage = laserDamage;
             SupernovaDamage = supernovaDamage;
+            LensingDamage = lensingDamage;
             GoldenAsteroidGold = goldenAsteroidGold;
             CollectedMoons = collectedMoons;
             CollectedComets = collectedComets;

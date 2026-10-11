@@ -174,7 +174,7 @@ namespace BlackHole.Unity
             }
         }
 
-        // 적 종류별 흡입 속도 배율(소행성 > 행성 > 별 순으로 빠름). Advance·EmitDeath 양쪽에서 스월·당김
+        // 적 종류별 흡입 속도 배율(소행성 > 행성 > 별 > 은하 순으로 빠름). Advance·EmitDeath 양쪽에서 스월·당김
         // 성분에 동일하게 곱해 쓰므로 회전각(궤적 모양)은 유지됨.
         private static float SuctionSpeedMultiplierOf(EnemyType type)
         {
@@ -184,6 +184,8 @@ namespace BlackHole.Unity
                     return 1f;
                 case EnemyType.Star:
                     return 0.5f;
+                case EnemyType.Galaxy:
+                    return 0.35f;
                 case EnemyType.Planet:
                 default:
                     return 0.7f;

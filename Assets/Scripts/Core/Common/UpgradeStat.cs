@@ -65,5 +65,23 @@ namespace BlackHole.Core
         SupernovaStarRange, // supernovaStar.range · 슈퍼노바 범위
         SupernovaStarHpDamage, // supernovaStar.hpDamage · 현재체력 비례 슈퍼노바 대미지
         SupernovaStarSpawnChance, // supernovaStar.spawnChance · 슈퍼노바 별 생성 확률
+
+        // 신규(원작에 없음): 은하, 중력장 은하, 중력 굴절광 별.
+        GrowthGalaxies, // growth.galaxies · 블랙홀 성장 시 생성되는 은하 수
+        StarToGalaxy, // star.toGalaxy · 별을 은하로 업그레이드
+        GalaxySize, // galaxy.size · 은하 크기
+        GalaxyMassScale, // galaxy.massScale · 은하 질량
+        GalaxyRespawnChance, // galaxy.respawnChance · 은하가 파괴될 때 새로운 은하를 생성할 확률
+        GalaxyTimeChance, // galaxy.timeChance · 은하가 파괴될 때 시간이 추가될 확률
+        BreakerGalaxyBonusDamage, // breaker.galaxyBonusDamage · 은하에 대한 브레이커의 보너스 피해
+        GravityGalaxySpawnChance, // gravityGalaxy.spawnChance · 중력장 은하 생성 확률
+        GravityGalaxyRadius, // gravityGalaxy.radius · 중력장 범위
+        GravityGalaxyForce, // gravityGalaxy.force · 중력장이 적을 끌어당기는 힘
+        GravityGalaxyDuration, // gravityGalaxy.duration · 중력장 지속 시간
+        LensingStarSpawnChance, // lensingStar.spawnChance · 굴절광 별 생성 확률
+        LensingStarDamage, // lensingStar.damage · 굴절광 피해
+        LensingStarWidth, // lensingStar.width · 굴절광 너비
+        LensingStarLength, // lensingStar.length · 굴절광 길이
+        LensingStarCount, // lensingStar.count · 굴절광 빛무리 수
     }
 }
