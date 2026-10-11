@@ -7,7 +7,7 @@ namespace BlackHole.Core
     // 대기열: 특수 적(성질이 붙은 적)이 죽는 순간(World.DealDamage) 그 성질의 효과·죽은 자리를 넣음.
     // 처리: 넣은 순서(사망 순서)대로 효과를 실행하고 대기열을 비움.
     // 레이저 별은 죽는 순간 경로를 정해 예고를 시작하고, 예고 시간이 지난 Step에 쏜다(피해는 그때 준다).
-    // 중력장 은하는 죽는 순간 그 자리에 중력장을 연다. 중력장은 다음 Step의 이동부터 범위 안의 적을 끈다(World.Step 1, TryPull).
+    // 중력장 은하는 죽는 순간 그 자리에 중력장을 연다. 중력장은 다음 Step의 이동부터 범위 안의 적을 나선으로 끌어 작은 원반에 머물게 한다(World.Step 1, Pull·GravityPull).
     // 효과의 피해는 특수 적(성질이 붙은 적, 픽업 포함)에게 가지 않는다 — 효과가 효과를 부르지 않는다.
     public sealed class DeathEffects
     {
@@ -15,9 +15,6 @@ namespace BlackHole.Core
         // 레이저 별의 예고 시간(초).
         private const float LaserTelegraphSeconds = 0.4f;
         private const float TimeEpsilon = 1e-5f;
-
-        // 중력장 중심에 닿았다고 보는 거리(끌리는 적의 반지름 대비). 이 안에 들면 더 끌지 않고 그 자리에 둔다.
-        private const float GravityHoldScale = 0.5f;
 
         private readonly List<Pending> _pending = new();
         private readonly List<LightningHit> _lightningHits = new();
@@ -163,13 +160,13 @@ namespace BlackHole.Core
             RefreshFields();
         }
 
-        // 이동(World.Step 1)에서 적마다 부른다. 이 적이 켜진 중력장(연 순서로 처음 닿는 것) 범위 안이면 그 중심으로 끌고 true를 돌려준다 —
-        // 끌린 적은 이번 이동에서 공전하지 않는다. 범위 밖이거나 픽업이면 false(평소처럼 공전).
-        // 중심에서 적 반지름의 GravityHoldScale배 안에 들면 더 끌지 않고 그 자리에 둔다. 중력장이 꺼지면 그 자리에서 다시 공전한다.
-        internal bool TryPull(Enemy enemy, float delta)
+        // 이동(World.Step 1)에서 적마다 부른다. 이 적이 켜진 중력장(연 순서로 처음 닿는 것) 범위 안이면 그 중력장이 끌어 옮기고(GravityPull),
+        // 끌린 정도(0 ~ 1)를 돌려준다 — 부르는 쪽은 나머지(1 - 끌린 정도)만큼 평소처럼 공전시킨다.
+        // 범위 밖이거나 픽업이면 0(평소처럼 공전). 중력장이 꺼지면 그 자리에서 다시 공전한다.
+        internal float Pull(Enemy enemy, float delta)
         {
             if (enemy.Definition.IsPickup)
-                return false;
+                return 0;
 
             for (int i = 0; i < _openFields.Count; i++)
             {
@@ -178,22 +175,18 @@ namespace BlackHole.Core
                 if (!enemy.IsWithin(field.Center, field.Radius))
                     continue;
 
+                float strength = GravityPull.Strength(field.Duration - field.Remaining, field.Remaining);
+                float weight = GravityPull.Weight(enemy, field.Center, field.Radius, strength);
+
+                if (weight <= 0)
+                    return 0;
+
                 field.Captured++;
-                float dx = enemy.Position.X - field.Center.X;
-                float dy = enemy.Position.Y - field.Center.Y;
-                float distance = (float)Math.Sqrt(dx * dx + dy * dy);
-                float hold = enemy.Stats.Radius * GravityHoldScale;
-
-                if (distance > hold)
-                {
-                    float ratio = Math.Max(hold, distance - field.Force * delta) / distance;
-                    enemy.MoveTo(new Point2(field.Center.X + dx * ratio, field.Center.Y + dy * ratio));
-                }
-
-                return true;
+                GravityPull.Move(enemy, field.Center, field.Radius, field.Force, field.Sequence, weight, delta);
+                return weight;
             }
 
-            return false;
+            return 0;
         }
 
         // 이동 전에 부른다: 중력장마다 이번 이동에서 끈 적의 수를 새로 센다.

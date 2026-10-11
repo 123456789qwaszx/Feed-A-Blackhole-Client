@@ -150,7 +150,8 @@ namespace BlackHole.Core
             return raised;
         }
 
-        // 적 이동: 중력장 범위 안의 적은 그 중심으로 끌리고(DeathEffects.TryPull), 나머지는 공전한다.
+        // 적 이동: 중력장 범위 안의 적은 그 중력장에 끌리고(DeathEffects.Pull), 끌린 정도의 나머지만큼 공전한다.
+        // 중력장이 켜지고 꺼지는 순간과 범위 가장자리에서는 둘이 섞여 움직임이 끊기지 않는다.
         private void MoveEnemies(float delta)
         {
             if (!DeathEffects.HasGravityFields)
@@ -164,8 +165,10 @@ namespace BlackHole.Core
 
             for (int i = 0; i < enemies.Count; i++)
             {
-                if (!DeathEffects.TryPull(enemies[i], delta))
-                    enemies[i].Move(delta);
+                float pulled = DeathEffects.Pull(enemies[i], delta);
+
+                if (pulled < 1)
+                    enemies[i].Move(delta * (1 - pulled));
             }
         }
 
