@@ -1,6 +1,57 @@
 # 판 시뮬레이션
 
-사람 대신 봇이 조준해 판을 돌린다. Unity 없이 게임 Core를 그대로 쓴다. 코드는 `Assets/Scripts/Simulation`(어셈블리 `BlackHole.Simulation`, 에디터·개발 빌드에서만 컴파일)이다.
+사람 대신 봇이 조준해 판을 돌린다. Unity 없이 게임 Core를 그대로 쓴다.
+
+- 봇·판 실행·전체 루프: `Assets/Scripts/Simulation`(어셈블리 `BlackHole.Simulation`, 에디터·개발 빌드에서만 컴파일, Core만 참조).
+- 실행기: `Tools/Simulation`(.NET 8 콘솔). 레포의 실제 에셋(GameContentSetup과 그 아래 에셋, 노드 CSV·배치)을 읽어 게임과 같은 정의를 만든다.
+
+## 실행
+
+레포 맨 위에서(.NET 8 SDK):
+
+```
+dotnet run -c Release --project Tools/Simulation -- campaign
+dotnet run -c Release --project Tools/Simulation -- campaign --runs 10
+dotnet run -c Release --project Tools/Simulation -- battle --bot both --scenario Assets/Playtest/Scenarios/qa-nodes-8.json
+```
+
+| 명령 | 하는 일 | 주요 옵션 |
+| --- | --- | --- |
+| `campaign` | 처음부터 클리어까지 전체 루프 | `--bot greedy\|circle`, `--seed N`, `--runs N`(시드를 1씩 올리며 N번), `--max-battles`(5000), `--stall`(300), `--max-seconds`(판 하나 상한 3600), `--fps`(60), `--out 폴더` |
+| `battle` | 고정한 세팅으로 판 몇 개 | `--bot greedy\|circle\|both`, `--nodes none\|all`, `--scenario 세팅 JSON`, `--stage N`, `--seeds N`(3), `--max-seconds`(600) |
+
+결과는 기본으로 `PlaytestData/sim/<시각>-<봇>-s<시드>/`에 쓴다(`PlaytestData/`는 git 무시). 10번 돌리는 데 약 40초 걸린다(클라우드 기준).
+
+## 전체 루프 규칙(`CampaignRunner`)
+
+1. 빈 진행 상태(Gold 0, 성장도 0, 노드 없음)에서 시작한다.
+2. 판: 산 노드의 수치로 판을 만들고 봇이 끝까지 조준한다. 실제 게임(`BattleSystem`)과 같은 순서로 끝내고 결산한다. 이정표 판은 결산이 잔액을 목표 Gold까지 채운다(그 판에서 번 Gold는 버린다 — 게임 규칙).
+3. 구매(`CheapestFirstBuyer`): 지금 살 수 있는 노드 중 다음 Rank가 가장 싼 것부터 살 수 없을 때까지 산다. 값이 같으면 노드 ID 순서(테스트 세팅의 자동 구매와 같다).
+4. 마지막 이정표에 닿으면(클리어) 멈춘다. 판 상한, 또는 `--stall`판 연속으로 아무것도 못 사고 이정표에도 못 닿으면(막힘) 멈춘다.
+- 판마다의 시드는 실행 시드와 판 번호로 정한다. 같은 콘텐츠·시드면 결과가 같다.
+- 판 시간만 센다. 업그레이드 화면, 판 시작 연출, 결산 화면에서 보내는 시간은 없다.
+- 판이 제한 시간·이정표로 끝나지 않으면(시간 추가가 흐르는 시간보다 빠름) `--max-seconds`에서 끊고 `capped`로 남긴다.
+
+## 결과 파일
+
+| 파일 | 내용 |
+| --- | --- |
+| `summary.md` | 결과(클리어·막힘·상한), 판 수, 판 시간 합, 이정표마다 닿은 판·시간, 성장도별 판 길이·번 Gold 중앙값·산 Rank, 처음 10판 |
+| `battles.csv` | 판마다 한 줄: 성장도, 시작·목표·닿은 Level, 이정표, 판 시간·누적 시간, 번 Gold·결산 Gold·잔액, 산 Rank 수·쓴 Gold·남은 Gold·보유 Rank·다음으로 싼 값, 종류별 처치, 출처별 피해, Breaker 공격 수, 달·혜성, 늘어난 시간 |
+| `purchases.csv` | 산 Rank마다 한 줄: 판 번호, 순서, 노드, Rank, 수치 이름, 값, 남은 Gold, 성장도 |
+| `runs.csv`, `runs.md` | `--runs`일 때: 실행마다 한 줄(시드, 결과, 판 수, 시간, 이정표마다 판·시간), 이정표까지 판 수·시간의 최소/중앙/최대. 실행마다의 파일은 `run-s<시드>/` |
+
+## 현재 결과 (2026-10-11, 탐욕 봇, 시드 1~10)
+
+| 지점 | 판 수 최소 / 중앙 / 최대 | 판 시간 합 최소 / 중앙 / 최대 |
+| --- | --- | --- |
+| 이정표 1 (Level 10) | 37 / 39 / 39 | 14분 41초 / 15분 44초 / 16분 50초 |
+| 이정표 2 (Level 20) | 53 / 57 / 59 | 28분 48초 / 30분 31초 / 31분 43초 |
+| 이정표 3 (Level 30, 클리어) | 55 / 62 / 66 | 30분 29초 / 33분 2초 / 34분 19초 |
+
+- 10번 모두 클리어. 끝났을 때 노드 Rank 118~128 / 348.
+- 원 궤도 봇은 첫 판부터 Gold를 거의 못 벌어(Breaker 원이 작다) 300판 동안 아무것도 못 사고 막힌다.
+- 마지막 이정표 뒤(성장도 3)에 1~8단계 노드를 가진 판은 시간 추가가 흐르는 시간보다 빨라 끝나지 않는다(`battle --scenario qa-nodes-8.json`이 상한에서 끊긴다).
 
 ## 조준 봇
 
