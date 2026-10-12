@@ -17,7 +17,8 @@ namespace BlackHole.Unity
     //   Look이 비어 있으면 예전처럼 상태 색 칸에 ID·가격을 쓴다.
     // Rank: Rank가 둘 이상인 노드는 오른쪽 위에 "산 Rank/최대 Rank" 딱지를 단다. 일부만 산 노드는 산 색을 엷게 섞는다.
     //   선 색은 Rank를 하나라도 산 노드를 산 것으로 본다(이웃이 드러나는 기준과 같다).
-    // 조작: 빈 곳이나 노드 위를 끌면 이동, 휠은 커서를 중심으로 확대·축소.
+    // 조작: 빈 곳이나 노드 위를 끌면 이동. 휠(커서 중심)이나 두 손가락 벌리기·오므리기(손가락 사이 가운데 중심)로 확대·축소.
+    // 열 때: 전체 대신 지금 살 수 있는 노드 쪽을 읽기 좋은 배율로 확대해 둔다(FrameFocus).
     // 올림: 포인터 아래의 노드가 바뀌면 NodeHovered·NodeLeft로 알린다(툴팁은 호스트가 띄운다).
     //   노드마다 입력 컴포넌트를 붙이지 않고 트리 영역이 포인터 이동을 받아 찾는다 — UI_EventHandler를 노드에 붙이면
     //   노드 위에서 시작한 끌기를 그것이 가져가 트리가 움직이지 않는다. 끌기·휠이 시작되면 올림을 푼다.
@@ -27,7 +28,7 @@ namespace BlackHole.Unity
     // 이 컴포넌트는 트리 영역(보이는 창)에 붙고, 그 영역은 호스트의 PageRoot 바로 아래 자식.
     //
     // 영역은 가운데 기준(pivot 0.5)이어야 확대 계산이 맞음.
-    public sealed class NodeTreeView : UIPage<NodeTreeView.Refs>, IBeginDragHandler, IDragHandler, IScrollHandler,
+    public sealed class NodeTreeView : UIPage<NodeTreeView.Refs>, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler,
         IPointerMoveHandler, IPointerExitHandler
     {
         public enum Refs { }
@@ -48,6 +49,13 @@ namespace BlackHole.Unity
         private const float MinZoom = 0.3f;
         private const float MaxZoom = 2.5f;
         private const float FitZoomLimit = 1.5f;
+        // 열 때의 배율: 노드가 화면에서 이만큼(mm)은 되게 한다. 큰 화면(PC)에서는 FocusMinZoom 아래로 내리지 않는다. [임시]
+        private const float FocusNodeMillimeters = 9;
+        private const float FocusMinZoom = 1;
+        // 열 때 화면 가장자리에 남길 여백(트리 공간, 양쪽 합).
+        private const float FocusMargin = CellSize * 2;
+        // 두 손가락 사이가 이보다 가까우면(트리 영역 단위) 배율은 두고 이동만 한다.
+        private const float MinPinchDistance = 20;
 
         private static readonly Color OwnedColor = new Color(0.22f, 0.58f, 0.32f);
         private static readonly Color PurchasableColor = new Color(0.85f, 0.66f, 0.18f);
@@ -69,6 +77,8 @@ namespace BlackHole.Unity
         private Canvas _canvas;
         private float _zoom = 1;
         private bool _framePending;
+        // 끄는 중인 포인터(손가락)와 화면 위치. 둘 이상이면 앞의 둘로 핀치한다.
+        private readonly List<(int Id, Vector2 Position)> _drags = new List<(int Id, Vector2 Position)>(2);
 
         public event Action<string> NodeClicked;
 
@@ -186,20 +196,120 @@ namespace BlackHole.Unity
             _content.anchoredPosition = -(min + max) * 0.5f * _zoom;
         }
 
+        // 열 때 보여 줄 곳: 지금 살 수 있는 노드 쪽을 FocusZoom() 배율로 가운데에 둔다.
+        // 대상 = 살 수 있는 노드, 없으면 드러났지만 Gold가 모자란 노드. 둘 다 없으면(다 샀다) 전체 맞춤.
+        // 기준 = 대상 가운데 다음 Rank가 가장 싼 노드(다음에 살 가능성이 가장 높다). 기준에서 그 배율의 한 화면(여백 뺌) 안에 드는
+        // 대상만 모아 그 범위의 가운데를 화면 가운데에 둔다 — 기준 노드와 모은 노드는 늘 화면 안이다.
+        public void FrameFocus()
+        {
+            Rect view = _viewport.rect;
+            NodeVisual anchor = CheapestIn(NodeState.Purchasable) ?? CheapestIn(NodeState.Revealed);
+
+            if (anchor == null || view.width <= 0 || view.height <= 0)
+            {
+                FrameAll();
+                return;
+            }
+
+            float zoom = FocusZoom();
+            Vector2 reach = new Vector2(
+                Mathf.Max(0, view.width / zoom - FocusMargin),
+                Mathf.Max(0, view.height / zoom - FocusMargin)) * 0.5f;
+            Vector2 min = anchor.Position;
+            Vector2 max = anchor.Position;
+
+            foreach (NodeVisual node in _nodes.Values)
+            {
+                if (node.State != anchor.State)
+                    continue;
+
+                Vector2 offset = node.Position - anchor.Position;
+
+                if (Mathf.Abs(offset.x) > reach.x || Mathf.Abs(offset.y) > reach.y)
+                    continue;
+
+                min = Vector2.Min(min, node.Position);
+                max = Vector2.Max(max, node.Position);
+            }
+
+            SetZoom(zoom);
+            _content.anchoredPosition = -(min + max) * 0.5f * _zoom;
+        }
+
+        // 노드가 화면에서 FocusNodeMillimeters쯤 되는 배율(휴대폰은 1배보다 크다). 화면 밀도를 모르면 FocusMinZoom.
+        private float FocusZoom()
+        {
+            float dpi = Screen.dpi;
+
+            if (dpi <= 0)
+                return FocusMinZoom;
+
+            float nodeMillimeters = NodeSize * ScaleFactor() / dpi * 25.4f;
+            return Mathf.Clamp(FocusNodeMillimeters / nodeMillimeters, FocusMinZoom, MaxZoom);
+        }
+
+        // 그 상태의 노드 가운데 다음 Rank가 가장 싼 것. 값이 같으면 ID 순서. 없으면 null.
+        private NodeVisual CheapestIn(NodeState state)
+        {
+            NodeVisual best = null;
+
+            foreach (NodeVisual node in _nodes.Values)
+            {
+                if (node.State != state)
+                    continue;
+
+                if (best == null || node.Price < best.Price ||
+                    (node.Price == best.Price && string.CompareOrdinal(node.Id, best.Id) < 0))
+                    best = node;
+            }
+
+            return best;
+        }
+
         // 화면이 열린 직후에는 영역 크기가 아직 0일 수 있다. 크기가 생긴 뒤 한 번 맞춤.
+        // Build와 Show(노드 상태)는 화면을 여는 같은 프레임에 끝나 있다(ScreenFlow.ShowUpgrade).
         private void LateUpdate()
         {
             if (_framePending && _viewport.rect.width > 0)
             {
                 _framePending = false;
-                FrameAll();
+                FrameFocus();
             }
         }
 
-        public void OnBeginDrag(PointerEventData eventData) => SetHovered(null);
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            SetHovered(null);
+            RemoveDrag(eventData.pointerId);
+            _drags.Add((eventData.pointerId, eventData.position));
+        }
 
-        public void OnDrag(PointerEventData eventData) =>
+        // 한 손가락(마우스)은 이동. 두 손가락이면 앞의 둘로 핀치하고, 셋째부터의 움직임은 쓰지 않는다.
+        // 손가락마다 따로 불리므로, 움직인 손가락 하나의 이전·지금 위치와 다른 손가락의 위치로 계산한다.
+        public void OnDrag(PointerEventData eventData)
+        {
+            int index = DragIndex(eventData.pointerId);
+
+            if (index >= 0 && _drags.Count >= 2)
+            {
+                Vector2 a = _drags[0].Position;
+                Vector2 b = _drags[1].Position;
+                _drags[index] = (eventData.pointerId, eventData.position);
+
+                if (index < 2)
+                    Pinch(a, b, _drags[0].Position, _drags[1].Position, eventData.pressEventCamera);
+
+                return;
+            }
+
+            if (index >= 0)
+                _drags[index] = (eventData.pointerId, eventData.position);
+
             _content.anchoredPosition += eventData.delta / ScaleFactor();
+        }
+
+        // 한 손가락을 떼면 남은 손가락은 이어서 이동한다(이동은 delta라 튀지 않는다).
+        public void OnEndDrag(PointerEventData eventData) => RemoveDrag(eventData.pointerId);
 
         // 커서 아래의 점이 그대로 있도록 확대.
         public void OnScroll(PointerEventData eventData)
@@ -209,12 +319,53 @@ namespace BlackHole.Unity
             if (Mathf.Approximately(eventData.scrollDelta.y, 0))
                 return;
 
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(_viewport, eventData.position, eventData.enterEventCamera, out Vector2 cursor))
+            if (!ToViewport(eventData.position, eventData.enterEventCamera, out Vector2 cursor))
                 return;
 
+            ZoomAround(cursor, cursor, _zoom * (eventData.scrollDelta.y > 0 ? 1.1f : 1 / 1.1f));
+        }
+
+        // 두 손가락의 이전 위치(a0, b0)와 지금 위치(a1, b1, 화면 좌표). 손가락 사이가 벌어진 만큼 확대하고,
+        // 손가락 사이 가운데 아래에 있던 점이 가운데를 따라가게 한다.
+        private void Pinch(Vector2 a0, Vector2 b0, Vector2 a1, Vector2 b1, Camera eventCamera)
+        {
+            if (!ToViewport(a0, eventCamera, out Vector2 localA0) || !ToViewport(b0, eventCamera, out Vector2 localB0) ||
+                !ToViewport(a1, eventCamera, out Vector2 localA1) || !ToViewport(b1, eventCamera, out Vector2 localB1))
+                return;
+
+            float before = Vector2.Distance(localA0, localB0);
+            float zoom = before >= MinPinchDistance ? _zoom * Vector2.Distance(localA1, localB1) / before : _zoom;
+            ZoomAround((localA0 + localB0) * 0.5f, (localA1 + localB1) * 0.5f, zoom);
+        }
+
+        // 트리 영역 좌표 from 아래에 있던 점이 to로 오도록 배율을 zoom(범위 안으로 자름)으로 바꾼다.
+        private void ZoomAround(Vector2 from, Vector2 to, float zoom)
+        {
             float before = _zoom;
-            SetZoom(Mathf.Clamp(_zoom * (eventData.scrollDelta.y > 0 ? 1.1f : 1 / 1.1f), MinZoom, MaxZoom));
-            _content.anchoredPosition = cursor - (cursor - _content.anchoredPosition) * (_zoom / before);
+            SetZoom(Mathf.Clamp(zoom, MinZoom, MaxZoom));
+            _content.anchoredPosition = to - (from - _content.anchoredPosition) * (_zoom / before);
+        }
+
+        private bool ToViewport(Vector2 screen, Camera eventCamera, out Vector2 local) =>
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_viewport, screen, eventCamera, out local);
+
+        private int DragIndex(int pointerId)
+        {
+            for (int i = 0; i < _drags.Count; i++)
+            {
+                if (_drags[i].Id == pointerId)
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private void RemoveDrag(int pointerId)
+        {
+            int index = DragIndex(pointerId);
+
+            if (index >= 0)
+                _drags.RemoveAt(index);
         }
 
         // 포인터 아래의 노드(레이캐스트를 받는 것은 노드 칸뿐이다). 끄는 중에는 바꾸지 않는다.
@@ -235,8 +386,12 @@ namespace BlackHole.Unity
                 SetHovered(null);
         }
 
-        // 페이지가 닫히면(비활성) 올림을 푼다. 다시 열 때 남아 있지 않게 한다.
-        private void OnDisable() => SetHovered(null);
+        // 페이지가 닫히면(비활성) 올림과 끄는 손가락을 푼다. 다시 열 때 남아 있지 않게 한다.
+        private void OnDisable()
+        {
+            SetHovered(null);
+            _drags.Clear();
+        }
 
         private void SetHovered(NodeVisual node)
         {
