@@ -68,9 +68,9 @@ namespace BlackHole.Unity
         private static readonly string[] FpsLimitOptions = { "30", "60", "120" };
         private static readonly int[] FpsLimitValues = { 30, 60, 120 };
         private const int DefaultFpsLimitIndex = 1;
-        // 퍼센트 단계: 50% ~ 200%, 10%씩. 100%가 기본.
+        // 퍼센트 단계(글자 크기): 50% ~ 150%, 10%씩. 100%가 기본(원작과 같은 범위). 예전에 160% 이상을 고른 값은 150%로 읽힌다.
         private const int PercentMin = 50;
-        private const int PercentMax = 200;
+        private const int PercentMax = 150;
         private const int PercentStep = 10;
         private static readonly string[] PercentOptions = Percents();
         private const int DefaultPercentIndex = (100 - PercentMin) / PercentStep;
@@ -127,6 +127,9 @@ namespace BlackHole.Unity
 
         // 퍼센트 단계(Text Size)의 배율. 100%면 1이다.
         public float PercentOf(string id) => (PercentMin + IndexOf(id) * PercentStep) / 100f;
+
+        // 글자 크기 배율(Text Size). 100%면 1이다.
+        public float TextScale => PercentOf(TextSize);
 
         public void SetOn(string id, bool on) => Set(id, on ? 1 : 0);
         public void SetLevel(string id, float level) => Set(id, level);

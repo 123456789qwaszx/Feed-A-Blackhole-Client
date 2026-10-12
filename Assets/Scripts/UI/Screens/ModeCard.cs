@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,6 +18,17 @@ namespace BlackHole.Unity
             TitleText,
             DescriptionText,
             RecordText,
+        }
+
+        // 글자 크기 설정을 받는 글자. 모드 선택 창이 카드를 만들 때 ScaledTexts에 넣는다.
+        public IEnumerable<TMP_Text> ScaledTexts
+        {
+            get
+            {
+                yield return View.Text(Refs.TitleText);
+                yield return View.Text(Refs.DescriptionText);
+                yield return View.Text(Refs.RecordText);
+            }
         }
 
         public event Action Clicked;

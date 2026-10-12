@@ -64,6 +64,7 @@ namespace BlackHole.Unity
         private GameSettings _settings;
         private BattleAnalytics _analytics;
         private ViewTexts _viewTexts;
+        private UISettingsSync _uiSettings;
         private FrameRateLimiter _frameRate;
         private GameHost _host;
 
@@ -127,6 +128,8 @@ namespace BlackHole.Unity
             UIManager ui = CreateUI();
             // 화면을 등록한 뒤에 프리팹 글자를 지금 언어로 바꾼다. 언어가 바뀌면 다시 바꾼다.
             _viewTexts = new ViewTexts(_views, localizer);
+            // 언어·글자 크기 설정을 UIContext와 화면 글자에 넣는다. 설정이 바뀌면 다시 넣는다.
+            _uiSettings = new UISettingsSync(ui, _views, _settings);
             ScreenTransition transition = CreateScreenTransition();
             KeyInput keyInput = GetOrAdd<KeyInput>(gameObject);
 
@@ -208,14 +211,14 @@ namespace BlackHole.Unity
         {
             _frameRate?.Dispose();
             _viewTexts?.Dispose();
+            _uiSettings?.Dispose();
             _host?.Dispose();
         }
 
         private UIManager CreateUI()
         {
-            // 언어는 시작할 때의 설정 값이다. 실행 중에 바꾼 언어는 아직 UIContext에 넣지 않는다 —
-            // 언어별 Presentation 변형(글꼴·배치·그림)이 생기면 그때 바꿔 끼우고 다시 적용한다. 글자 번역은 Localizer가 따로 한다.
-            UIContext uiContext = new(Theme.ToId(), _settings.LanguageLocale.ToId());
+            // 시작할 때의 테마·언어·글자 배율. 실행 중에 바뀌면 UISettingsSync가 새 UIContext로 바꿔 끼운다.
+            UIContext uiContext = UISettingsSync.ContextFor(Theme, _settings);
             UIResolver uiResolver = new(uiContext);
             UIPresentationApplier presentationApplier = new();
 

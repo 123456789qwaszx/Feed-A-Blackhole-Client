@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class SettlementScreen : UIRoot<SettlementScreen.Refs>, ILocalizedView
+    public sealed class SettlementScreen : UIRoot<SettlementScreen.Refs>, ILocalizedView, ITextScaleView
     {
         public enum Refs
         {
@@ -185,6 +185,7 @@ namespace BlackHole.Unity
 
         // 언어가 바뀌면 다시 쓸 마지막 값. 아직 보이지 않았으면 null.
         private Localizer _localizer;
+        private readonly ScaledTexts _scaled = new();
         private bool? _shownMilestone;
         private (int Stage, int NextStage, int MaxStage)? _shownStage;
         private bool? _shownReward;
@@ -249,6 +250,15 @@ namespace BlackHole.Unity
             _tooltip = View.Rect(Refs.Tooltip_Image);
             _tooltipText = View.Text(Refs.Tooltip_Text);
             HideTooltip();
+
+            _scaled.Add(_totalGold);
+            _scaled.Add(_tooltipText);
+            _scaled.Add(View.Text(Refs.DestroyedCaption_Text));
+            _scaled.Add(View.Text(Refs.AsteroidName_Text));
+            _scaled.Add(View.Text(Refs.PlanetName_Text));
+            _scaled.Add(View.Text(Refs.StarName_Text));
+            _scaled.Add(View.Text(Refs.GoldCaption_Text));
+            _scaled.Add(View.Text(Refs.GrowthCaption_Text));
 
             _asteroidRow = View.Button(Refs.AsteroidRow_Button);
             _planetRow = View.Button(Refs.PlanetRow_Button);
@@ -359,6 +369,7 @@ namespace BlackHole.Unity
         private StatCell BindStat(Refs button, Refs value, string labelKey)
         {
             StatCell cell = new(View.Button(button), View.Text(value), labelKey);
+            _scaled.Add(cell.Value);
 
             BindEvent(cell.Button, _ => HoverStat(cell), ETouchEvent.PointerEnter);
             BindEvent(cell.Button, _ => LeaveStat(cell), ETouchEvent.PointerExit);
@@ -566,6 +577,9 @@ namespace BlackHole.Unity
             if (_shownPurchasable is int purchasable)
                 ShowUpgradeCount(purchasable);
         }
+
+        // 글자 크기 설정. TextBindings에 등록되지 않은 글자만 여기서 맞춘다(등록된 글자는 Theme가 맞춘다).
+        public void ApplyTextScale(float scale) => _scaled.SetScale(scale);
 
         private string Localized(string key, params object[] args) =>
             _localizer != null ? _localizer.Format(key, args) : key;

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class SettingsPanel : UIPanel<SettingsPanel.Refs>
+    public sealed class SettingsPanel : UIPanel<SettingsPanel.Refs>, ITextScaleView
     {
         public enum Refs
         {
@@ -55,6 +55,9 @@ namespace BlackHole.Unity
 
         private readonly List<SettingRow> _rows = new List<SettingRow>();
         private readonly List<Button> _options = new List<Button>();
+        // 글자 크기 설정. 행과 펼침 목록은 복제로 만들므로 만들 때 넣고 지울 때 비운다(틀은 넣지 않는다).
+        private readonly ScaledTexts _rowTexts = new ScaledTexts();
+        private readonly ScaledTexts _optionTexts = new ScaledTexts();
         private readonly Dictionary<GameSettings.Kind, SettingRow> _templates = new Dictionary<GameSettings.Kind, SettingRow>();
         private readonly Vector3[] _corners = new Vector3[4];
 
@@ -133,6 +136,13 @@ namespace BlackHole.Unity
                     break;
                 }
             }
+        }
+
+        // 글자 크기 설정. 창 제목은 TextBindings에 있어 Theme가 맞춘다.
+        public void ApplyTextScale(float scale)
+        {
+            _rowTexts.SetScale(scale);
+            _optionTexts.SetScale(scale);
         }
 
         // 패널이 닫힐 때(비활성) 펼침 목록도 닫는다.
@@ -227,6 +237,7 @@ namespace BlackHole.Unity
             }
 
             _options.Clear();
+            _optionTexts.Clear();
             _choiceRow = null;
             SetVisible(_blocker, false);
             SetVisible(_popup, false);
@@ -239,7 +250,10 @@ namespace BlackHole.Unity
 
             TMP_Text label = option.GetComponentInChildren<TMP_Text>(true);
             if (label != null)
+            {
                 label.text = text;
+                _optionTexts.Add(label);
+            }
 
             if (selected && option.targetGraphic != null)
                 option.targetGraphic.color = SelectedOptionColor;
@@ -259,6 +273,9 @@ namespace BlackHole.Unity
             row.Show(item.Id, item.Label, item.Kind, item.Value, item.Options);
             row.Changed += HandleRowChanged;
             row.ChoiceClicked += OpenChoice;
+
+            foreach (TMP_Text text in row.ScaledTexts)
+                _rowTexts.Add(text);
             row.gameObject.SetActive(true);
             return row;
         }
@@ -272,6 +289,7 @@ namespace BlackHole.Unity
             }
 
             _rows.Clear();
+            _rowTexts.Clear();
         }
 
         private void AddTemplate(GameSettings.Kind kind, Refs key)

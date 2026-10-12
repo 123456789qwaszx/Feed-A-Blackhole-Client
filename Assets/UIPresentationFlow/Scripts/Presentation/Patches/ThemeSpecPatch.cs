@@ -5,13 +5,16 @@ public sealed class ThemeSpecPatch : IUIPatch
 {
     private readonly ThemeSpec _theme;
     private readonly UITextBindingCatalog _textBindings;
+    private readonly float _textScale;
 
     public ThemeSpecPatch(
         ThemeSpec theme,
-        UITextBindingCatalog textBindings)
+        UITextBindingCatalog textBindings,
+        float textScale = 1f)
     {
         _theme = theme;
         _textBindings = textBindings;
+        _textScale = textScale > 0f ? textScale : 1f;
     }
 
     public void Apply(IUIPresentationRefProvider refs)
@@ -53,11 +56,13 @@ public sealed class ThemeSpecPatch : IUIPatch
                 continue;
             }
 
-            ApplyTextTheme(text, entry.role);
+            ApplyTextTheme(text, entry.role, entry.fixedSize ? 1f : _textScale);
         }
     }
 
-    private void ApplyTextTheme(TMP_Text text, UITextRole role)
+    // The size is always computed from the role size, so re-applying never compounds the scale.
+    // Auto-sized texts take the size as their maximum: they grow with the scale and shrink to fit their rect.
+    private void ApplyTextTheme(TMP_Text text, UITextRole role, float scale)
     {
         if (_theme.mainFont != null)
             text.font = _theme.mainFont;
@@ -65,19 +70,27 @@ public sealed class ThemeSpecPatch : IUIPatch
         switch (role)
         {
             case UITextRole.Title:
-                text.fontSize = _theme.titleSize;
+                SetSize(text, _theme.titleSize * scale);
                 text.color = _theme.textMainColor;
                 break;
 
             case UITextRole.Body:
-                text.fontSize = _theme.bodySize;
+                SetSize(text, _theme.bodySize * scale);
                 text.color = _theme.textMainColor;
                 break;
 
             case UITextRole.Caption:
-                text.fontSize = _theme.captionSize;
+                SetSize(text, _theme.captionSize * scale);
                 text.color = _theme.textWeakColor;
                 break;
         }
+    }
+
+    private static void SetSize(TMP_Text text, float size)
+    {
+        if (text.enableAutoSizing)
+            text.fontSizeMax = size;
+
+        text.fontSize = size;
     }
 }

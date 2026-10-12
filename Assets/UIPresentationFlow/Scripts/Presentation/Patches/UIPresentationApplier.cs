@@ -306,6 +306,7 @@ public sealed class UIPresentationApplier
 
         private bool _hasFontSize;
         private float _fontSize;
+        private float _fontSizeMax;
         private bool _ownsFontSize;
 
         private bool _hasColor;
@@ -328,6 +329,7 @@ public sealed class UIPresentationApplier
             if (!_hasFontSize)
             {
                 _fontSize = text.fontSize;
+                _fontSizeMax = text.fontSizeMax;
                 _hasFontSize = true;
             }
 
@@ -348,7 +350,10 @@ public sealed class UIPresentationApplier
                 text.font = _font;
 
             if (_ownsFontSize && _hasFontSize)
+            {
                 text.fontSize = _fontSize;
+                text.fontSizeMax = _fontSizeMax;
+            }
 
             if (_ownsColor && _hasColor)
                 text.color = _color;

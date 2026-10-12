@@ -15,13 +15,15 @@ public class ThemeSpec : ScriptableObject
     public int bodySize = 16;
     public int captionSize = 13;
 
+    // textScale: user text size multiplier applied to the role sizes (UIContext.TextScale).
     public void BuildPatches(
         List<IUIPatch> patches,
-        UITextBindingCatalog textBindings)
+        UITextBindingCatalog textBindings,
+        float textScale = 1f)
     {
         if (textBindings == null)
             return;
 
-        patches.Add(new ThemeSpecPatch(this, textBindings));
+        patches.Add(new ThemeSpecPatch(this, textBindings, textScale));
     }
 }

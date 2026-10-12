@@ -46,6 +46,16 @@ namespace BlackHole.Unity
         // 펼침 목록이 붙을 자리.
         public RectTransform ChoiceBox => View.Rect(Refs.Choice_Button);
 
+        // 글자 크기 설정을 받는 글자(이름, 선택지·단계 값). 설정 창이 행을 만들 때 ScaledTexts에 넣는다.
+        public IEnumerable<TMP_Text> ScaledTexts
+        {
+            get
+            {
+                yield return View.Text(Refs.LabelText);
+                yield return View.Text(Refs.ValueText);
+            }
+        }
+
         public event Action<SettingRow> Changed;
         public event Action<SettingRow> ChoiceClicked;
 
