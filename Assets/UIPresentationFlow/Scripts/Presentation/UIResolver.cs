@@ -41,7 +41,8 @@ public sealed class UIResolver
             patches,
             resolved.TextBindings,
             _context.TextScale,
-            _context.LocaleId);
+            _context.LocaleId,
+            _context.ThemeId);
         resolved.Layout?.BuildPatches(patches);
         resolved.ImageTheme?.BuildPatches(patches);
         trace.Add($"[Patches] {patches.Count}");

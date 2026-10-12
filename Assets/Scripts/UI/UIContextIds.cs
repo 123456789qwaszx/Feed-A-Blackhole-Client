@@ -6,6 +6,7 @@ namespace BlackHole.Unity
     public enum UITheme
     {
         Light,
+        Dark,
     }
 
     // UI 언어. UIContext.LocaleId(BCP 47 글자)로 바꿔 쓴다. UI 글자 표(UIText.csv)의 열 이름도 같은 글자다.
@@ -22,6 +23,7 @@ namespace BlackHole.Unity
         public static string ToId(this UITheme theme) => theme switch
         {
             UITheme.Light => "Light",
+            UITheme.Dark => "Dark",
             _ => throw new ArgumentOutOfRangeException(nameof(theme), theme, null),
         };
 

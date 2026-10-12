@@ -66,8 +66,6 @@ namespace BlackHole.Unity
             typeof(ConfirmPanel),
         };
 
-        private const UITheme Theme = UITheme.Light;
-
         private ProgressState _progress;
         private ProgressStore _progressStore;
         private GameSettings _settings;
@@ -231,7 +229,7 @@ namespace BlackHole.Unity
         private UIManager CreateUI()
         {
             // 시작할 때의 테마·언어·글자 배율. 실행 중에 바뀌면 UISettingsSync가 새 UIContext로 바꿔 끼운다.
-            UIContext uiContext = UISettingsSync.ContextFor(Theme, _settings);
+            UIContext uiContext = UISettingsSync.ContextFor(_settings);
             UIResolver uiResolver = new(uiContext);
             UIPresentationApplier presentationApplier = new();
 
