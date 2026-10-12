@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using BlackHole.Core;
-using PrimeTween;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -21,14 +20,8 @@ namespace BlackHole.Unity
         // 적 하나의 화면 상태: 스프라이트와, 그 스프라이트에 적용되는 짧은 피격 흔들림 연출.
         private sealed class EnemyVisual
         {
-            // 위치를 맡는 바깥 트랜스폼. Renderer(스프라이트)는 이 안의 자식이라, 피격 흔들림(Hit)과
-            // 자전 회전이 같은 트랜스폼을 두고 다투지 않는다.
-            public Transform Container;
             public SpriteRenderer Renderer;
             public EnemyHitAnimation Hit;
-            // 자전(자체 회전) 애니메이션. PrimeTween의 무한 반복 LocalRotation으로 구동 — 출현 때 한 번 만들어
-            // 계속 돌고, 일시정지 중에는 isPaused로 멈춘다.
-            public Tween SpinTween;
             // 달 성질이 붙은 적만 가진다(없으면 null). 적 스프라이트의 형제라 피격 흔들림·배율의 영향을 받지 않는다.
             public MeshRenderer Moon;
             // 달 공전의 위상(바퀴)과 속도(바퀴/초, 시계방향). 적마다 출현 때 한 번 정해진다.
@@ -42,11 +35,6 @@ namespace BlackHole.Unity
         // 공전 속도 배율의 범위. 기본 속도(BreakerLook.OrbitSpeed)에 곱해 적마다 다르게 돈다.
         private const float MoonSpeedMin = 0.8f;
         private const float MoonSpeedMax = 1.2f;
-
-        // 소행성/행성/별의 자전 속도 범위(바퀴/초). 공전(이동)과 별개로 제자리에서 천천히 도는 연출 — 방향은
-        // 적마다 무작위(부호).
-        private const float SpinSpeedMin = 0.03f;
-        private const float SpinSpeedMax = 0.08f;
         // 달은 적 스프라이트(0)와 성질 속 채움(1) 위, Breaker 링 계열(5 ~ 11) 아래에 그린다.
         private const int MoonSortingOrder = 2;
 
@@ -126,8 +114,7 @@ namespace BlackHole.Unity
                     _visuals.Add(enemy.Id, visual);
                 }
 
-                visual.Container.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
-                visual.SpinTween.isPaused = paused;
+                visual.Renderer.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
 
                 if (visual.Moon != null)
                     AdvanceMoon(visual, enemy, paused, delta);
@@ -238,8 +225,7 @@ namespace BlackHole.Unity
         // 혜성은 여기에 없다 — 화면은 CometView가 지운다(Retain·Reset).
         private void Release(EnemyVisual visual)
         {
-            visual.SpinTween.Stop();
-            Object.Destroy(visual.Container.gameObject);
+            Object.Destroy(visual.Renderer.gameObject);
 
             if (visual.Moon != null)
                 Object.Destroy(visual.Moon.gameObject);
@@ -249,15 +235,8 @@ namespace BlackHole.Unity
         {
             EnemyType kind = enemy.Definition.Type;
             EnemyTraitType? trait = enemy.Trait?.Type;
-            string name = trait != null ? $"{kind} #{enemy.Id.Value} ({trait})" : $"{kind} #{enemy.Id.Value}";
-
-            // Container(바깥): 위치·자전 담당. view(안쪽 자식): 스프라이트와 피격 흔들림(Hit) 담당 — 자전이
-            // 매 프레임 덮어쓰는 트랜스폼과 분리해 둘이 같은 값을 두고 다투지 않게 한다.
-            var container = new GameObject(name);
-            container.transform.SetParent(_root, false);
-
-            var view = new GameObject("Sprite");
-            view.transform.SetParent(container.transform, false);
+            var view = new GameObject(trait != null ? $"{kind} #{enemy.Id.Value} ({trait})" : $"{kind} #{enemy.Id.Value}");
+            view.transform.SetParent(_root, false);
 
             var renderer = view.AddComponent<SpriteRenderer>();
             renderer.sprite = _looks.SpriteOf(kind, enemy.Id.Value);
@@ -282,21 +261,7 @@ namespace BlackHole.Unity
                 fillRenderer.sortingOrder = renderer.sortingOrder + 1;
             }
 
-            // 자전: 무작위 시작 각도에서 무작위 속도·방향으로 한 바퀴(360도) 돌고 처음 각도로 돌아가
-            // 다시 반복한다(Ease.Linear + 무한 반복이라 등속으로 매끄럽게 이어짐).
-            float spinAngle = UnityEngine.Random.value * 360f;
-            float spinDirection = UnityEngine.Random.value < 0.5f ? -1f : 1f;
-            float spinSpeed = UnityEngine.Random.Range(SpinSpeedMin, SpinSpeedMax);
-            var startRotation = new Vector3(0, 0, spinAngle);
-            var endRotation = startRotation + new Vector3(0, 0, 360f * spinDirection);
-
-            var visual = new EnemyVisual
-            {
-                Container = container.transform,
-                Renderer = renderer,
-                Hit = new EnemyHitAnimation(renderer.transform),
-                SpinTween = Tween.LocalRotation(container.transform, startRotation, endRotation, 1f / spinSpeed, Ease.Linear, cycles: -1),
-            };
+            var visual = new EnemyVisual { Renderer = renderer, Hit = new EnemyHitAnimation(renderer.transform) };
 
             if (trait == EnemyTraitType.Moon)
                 CreateMoon(visual, enemy);
