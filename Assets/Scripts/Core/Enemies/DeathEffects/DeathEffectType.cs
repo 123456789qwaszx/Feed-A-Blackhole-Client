@@ -9,5 +9,6 @@ namespace BlackHole.Core
         LaserBurst,
         MoonBuff,
         CometBuff,
+        GravityField,
     }
 }

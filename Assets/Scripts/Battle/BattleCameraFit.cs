@@ -9,7 +9,8 @@ namespace BlackHole.Unity
     //   적·Breaker·블랙홀은 월드 크기라 그만큼 작아 보이고, 화면 크기가 고정인 표시(달·떠오르는 숫자)는 각 화면이 같은 배율을 곱한다.
     // - 화면비: 기준 화면비(16:9)가 보여 주는 가로 폭을 좁은 화면에서도 보장한다.
     //   기준보다 넓은 화면(20:9 등)은 크기 그대로(세로는 같고 옆이 더 보인다), 좁은 화면(4:3 등)은 가로 폭이 기준과 같아지도록 키운다(세로가 더 보인다).
-    // 화면 크기나 전장 배율이 바뀐 때만 크기를 고친다. 카메라 위치는 건드리지 않는다(카메라 흔들림 등과 함께 쓸 수 있다).
+    // - 연출 배율(SetZoom): 1이면 전장 전체, 1보다 작으면 원점(블랙홀) 쪽으로 다가간다. 판 시작 연출(BattleSystem)만 쓴다.
+    // 화면 크기나 전장 배율·연출 배율이 바뀐 때만 크기를 고친다. 카메라 위치는 건드리지 않는다(카메라 흔들림 등과 함께 쓸 수 있다).
     // 전투 카메라(Main Camera)에 붙인다. 씬에 없으면 GameBootstrap이 붙인다.
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Camera))]
@@ -22,6 +23,8 @@ namespace BlackHole.Unity
         private float _authoredSize;
         // 판의 전장 배율. 첫 판 전에는 1이다.
         private float _fieldScale = HqGrowthDefinition.StartFieldScale;
+        // 연출 배율. 연출이 없으면 1이다.
+        private float _zoom = 1;
         private int _width;
         private int _height;
 
@@ -44,8 +47,25 @@ namespace BlackHole.Unity
                 return;
 
             _fieldScale = fieldScale;
+            Refit();
+        }
 
-            // 화면 크기가 그대로여도 다음 맞춤이 크기를 다시 계산하게 한다. Awake 전이면 Awake의 맞춤이 이 배율을 쓴다.
+        // 연출 배율을 정한다(양수, 1 = 전장 전체). 바뀌면 곧바로 크기를 다시 맞춘다.
+        public void SetZoom(float zoom)
+        {
+            if (float.IsNaN(zoom) || float.IsInfinity(zoom) || zoom <= 0)
+                throw new ArgumentOutOfRangeException(nameof(zoom), $"양의 유한한 값이 필요하다. 받은 값: {zoom}.");
+
+            if (zoom == _zoom)
+                return;
+
+            _zoom = zoom;
+            Refit();
+        }
+
+        // 화면 크기가 그대로여도 다음 맞춤이 크기를 다시 계산하게 한다. Awake 전이면 Awake의 맞춤이 지금 배율을 쓴다.
+        private void Refit()
+        {
             _width = 0;
 
             if (_camera != null)
@@ -65,7 +85,7 @@ namespace BlackHole.Unity
 
             _width = width;
             _height = height;
-            _camera.orthographicSize = SizeFor(_authoredSize * _fieldScale, (float)width / height);
+            _camera.orthographicSize = SizeFor(_authoredSize * _fieldScale * _zoom, (float)width / height);
         }
 
         // 화면비 aspect(가로/세로)에서의 카메라 크기.

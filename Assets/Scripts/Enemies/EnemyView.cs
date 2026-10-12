@@ -10,6 +10,9 @@ namespace BlackHole.Unity
     // 게임 상태를 바꾸지 않는다. 외형은 적 종류 에셋이 가진다(EnemyLooks). 색은 적의 색 등급으로, 크기는 적의 수치로 정한다.
     // 특수 성질이 붙었으면 그 색의 윤곽 안에 성질의 표식 색으로 속을 한 겹 더 그린다(황금이면 노란 속, 임시 표식). 스프라이트가 없는 종류는 적 ID에 맞는 다각형으로 그린다.
     // 달 성질이 붙은 적은 Breaker 달과 같은 모양의 달 하나가 주위를 공전한다. 크기·위상·속도는 출현 때 정해진다(일시정지 중에는 멈춘다).
+    // 은하는 중심과 세 팔이 하나의 실루엣으로 자전하고(공전과 별개, 화면에서만), 죽으면 나선이 중심으로 말려 들어가며 사라진다(GalaxyCollapses).
+    // 혜성을 뺀 적은 출현할 때 점에서 시작해 제 크기보다 살짝 커졌다가 제 크기로 돌아온다(AdvanceSpawn). 일시정지 중에는 멈춘다.
+    // 판 시작 연출 동안에는 원점에서 RevealRadius 안의 적만 화면을 만든다. 반경이 넓어지면 바깥 적이 그때 출현 연출과 함께 나타난다(BattleSystem).
     // 픽업(혜성)은 CometView가 통째로 맡는다(스프라이트가 아니라 셰이더). 사망 파편·골드·피해량 텍스트도 없다 — 한 방에 부서지는 버프 아이템이라 필요 없다.
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다.
     // 피격·사망 연출(흔들림·파편·피해량·Gold 텍스트·파괴음)은 Step이 끝난 뒤 판의 피격 기록(World.Hits)과 사망 기록(World.Deaths)을 읽어 낸다.
@@ -27,7 +30,26 @@ namespace BlackHole.Unity
             // 달 공전의 위상(바퀴)과 속도(바퀴/초, 시계방향). 적마다 출현 때 한 번 정해진다.
             public float MoonPhase;
             public float MoonSpeed;
+            // 은하만 가진다(없으면 null). 적 스프라이트(중심)의 자식이라 피격 흔들림과 크기를 함께 받고, 자기 자전만 따로 한다.
+            public Transform Arms;
+            // 나선팔 자전 속도(도/초, 음수 = 시계방향). 출현 때 한 번 정해진다.
+            public float ArmSpin;
+            // 출현 연출이 끝났을 때의 크기(적 스프라이트·달). 연출 중에는 여기에 배율을 곱해 키운다.
+            public Vector3 BaseScale;
+            public Vector3 MoonBaseScale;
+            // 출현 연출이 흐른 시간(초). SpawnSeconds에 닿으면 연출이 끝난다.
+            public float SpawnElapsed;
         }
+
+        // 출현 연출 [임시]: SpawnSeconds 동안 크기 0(점)에서 제 크기로 키운다. OutBack 곡선이라 도중에 제 크기를 살짝 넘었다가 돌아온다.
+        private const float SpawnSeconds = 0.35f;
+        // OutBack 곡선의 넘침 정도. 1.70158이면 가장 클 때 제 크기의 약 1.1배다. 키우면 더 크게 튀었다가 돌아온다.
+        private const float SpawnOvershoot = 1.70158f;
+
+        // 은하 나선팔의 자전 속도(도/초)와 적마다의 배율 범위 [임시]. 팔이 반시계로 감겨 있어 시계방향으로 돌면 팔이 뒤로 끌린다(EnemyLooks).
+        private const float GalaxySpin = 40f;
+        private const float GalaxySpinMin = 0.8f;
+        private const float GalaxySpinMax = 1.2f;
 
         // 달 구체의 반지름(전장 배율 1에서의 월드 단위). 모든 행성이 같은 크기의 달을 가진다. Breaker 달(BreakerLook.OrbRadius)보다 작다.
         // 원작 달은 카메라와 무관하게 화면에서 약 25px이라(C0 지름 25px ÷ 54px/unit ÷ 2) 판의 전장 배율을 곱한다.
@@ -66,10 +88,17 @@ namespace BlackHole.Unity
         private readonly Dictionary<EnemyId, EnemyVisual> _visuals = new Dictionary<EnemyId, EnemyVisual>();
         private readonly HashSet<EnemyId> _seen = new HashSet<EnemyId>();
         private readonly List<EnemyId> _gone = new List<EnemyId>();
+        // 이번 프레임에 사망 기록으로 죽음을 안 은하. 화면을 지우는 대신 붕괴 연출로 넘긴다.
+        private readonly HashSet<EnemyId> _collapsing = new HashSet<EnemyId>();
+        private readonly GalaxyCollapses _collapses = new GalaxyCollapses();
 
         // 마지막으로 연출을 낸 피격·사망 기록의 번호.
         private long _lastHitSequence;
         private long _lastDeathSequence;
+
+        // 원점(HQ)에서 적 중심까지 이 거리보다 먼 적은 아직 화면을 만들지 않는다(월드 단위, 기본은 무한 = 모두 보임).
+        // 판 시작 연출이 0에서 넓힌다(BattleSystem). 한 번 보인 적은 다시 숨기지 않는다. 연출 동안 판이 멈춰 있어 숨은 적의 피격·사망은 없다.
+        public float RevealRadius { get; set; } = float.PositiveInfinity;
 
         // breakerLook: 달의 외형(머티리얼·색·간격·기본 공전 속도)을 Breaker 달과 같게 맞추려고 받는다.
         // cometLook: 혜성(픽업)의 외형. 혜성의 화면은 CometView가 맡는다.
@@ -104,20 +133,32 @@ namespace BlackHole.Unity
 
                 if (enemy.Definition.IsPickup)
                 {
-                    _comets.Show(enemy, paused, delta);
+                    if (IsRevealed(enemy))
+                        _comets.Show(enemy, paused, delta);
+
                     continue;
                 }
 
                 if (!_visuals.TryGetValue(enemy.Id, out EnemyVisual visual))
                 {
+                    if (!IsRevealed(enemy))
+                        continue;
+
                     visual = Create(enemy);
                     _visuals.Add(enemy.Id, visual);
                 }
 
                 visual.Renderer.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
 
+                // 일시정지 중에는 연출을 멈춘다. 다만 일시정지 중에 새로 생긴 적(테스트 도구 소환)은 크기 0으로 숨어 있지 않게 바로 제 크기로 보인다.
+                if (visual.SpawnElapsed < SpawnSeconds)
+                    AdvanceSpawn(visual, paused ? (visual.SpawnElapsed == 0 ? SpawnSeconds : 0) : delta);
+
                 if (visual.Moon != null)
                     AdvanceMoon(visual, enemy, paused, delta);
+
+                if (visual.Arms != null && !paused)
+                    visual.Arms.Rotate(0, 0, visual.ArmSpin * delta);
             }
 
             // 이번 Step의 피격·사망 연출. 피격 흔들림은 아직 살아 있는 적에만 낸다(죽은 적의 스프라이트는 아래에서 지운다).
@@ -129,6 +170,7 @@ namespace BlackHole.Unity
             _hitParticles.Advance();
             _goldText.Age(delta);
             _damageText.Age(delta);
+            _collapses.Advance(paused, delta);
             _gone.Clear();
 
             foreach (EnemyId id in _visuals.Keys)
@@ -139,9 +181,17 @@ namespace BlackHole.Unity
 
             foreach (EnemyId id in _gone)
             {
-                Release(_visuals[id]);
+                EnemyVisual visual = _visuals[id];
+
+                if (visual.Arms != null && _collapsing.Contains(id))
+                    _collapses.Play(visual.Renderer.transform, visual.Arms, visual.ArmSpin);
+                else
+                    Release(visual);
+
                 _visuals.Remove(id);
             }
+
+            _collapsing.Clear();
 
             _comets.Retain(_seen);
         }
@@ -189,8 +239,11 @@ namespace BlackHole.Unity
                     continue;
 
                 _hitParticles.EmitDeath(new Vector3(death.Position.X, death.Position.Y, 0),
-                    _looks.ColorOf(death.EnemyType, death.Tier), death.Tier, death.Size);
+                    _looks.ColorOf(death.EnemyType, death.Tier), death.EnemyType, death.Tier, death.Size);
                 _goldText.Show(death);
+
+                if (death.EnemyType == EnemyType.Galaxy)
+                    _collapsing.Add(death.EnemyId);
             }
 
             if (anyNew)
@@ -204,10 +257,13 @@ namespace BlackHole.Unity
                 Release(visual);
 
             _visuals.Clear();
+            _collapsing.Clear();
+            _collapses.Reset();
             _comets.Reset();
             _hitParticles.Clear();
             _goldText.Reset();
             _damageText.Reset();
+            RevealRadius = float.PositiveInfinity;
 
             // 새 판의 기록 번호는 1부터 다시 시작하므로 함께 되돌린다. 빠뜨리면 다음 판에서 연출이 나지 않는다.
             _lastHitSequence = 0;
@@ -216,9 +272,17 @@ namespace BlackHole.Unity
 
         public void Dispose()
         {
+            _collapses.Reset();
             _comets.Dispose();
             Object.Destroy(_root.gameObject);
             Object.Destroy(_quad);
+        }
+
+        private bool IsRevealed(Enemy enemy)
+        {
+            float x = enemy.Position.X;
+            float y = enemy.Position.Y;
+            return x * x + y * y <= RevealRadius * RevealRadius;
         }
 
         // 스프라이트·달을 지운다. _visuals에서 빼는 것은 호출자가 한다.
@@ -239,8 +303,10 @@ namespace BlackHole.Unity
             view.transform.SetParent(_root, false);
 
             var renderer = view.AddComponent<SpriteRenderer>();
-            renderer.sprite = _looks.SpriteOf(kind, enemy.Id.Value);
+            // 은하의 부모 스프라이트는 크기와 성질 표식의 기준이다. 실제 몸체는 자식의 완성 실루엣으로 그린다.
+            renderer.sprite = kind == EnemyType.Galaxy ? _looks.GalaxyCore : _looks.SpriteOf(kind, enemy.Id.Value);
             renderer.color = _looks.ColorOf(kind, enemy.Tier);
+            renderer.enabled = kind != EnemyType.Galaxy;
 
             // 크기는 규칙 수치(반지름)를 그대로 쓴다: 스프라이트의 긴 변이 지름이 되게 맞춘다.
             Vector3 bounds = renderer.sprite.bounds.size;
@@ -266,7 +332,65 @@ namespace BlackHole.Unity
             if (trait == EnemyTraitType.Moon)
                 CreateMoon(visual, enemy);
 
+            if (kind == EnemyType.Galaxy)
+                CreateGalaxyArms(visual, enemy);
+
+            // 출현 연출은 점에서 시작한다(AdvanceSpawn). 자식(성질 표식·은하 실루엣)은 부모 크기를 따라 함께 커진다.
+            visual.BaseScale = view.transform.localScale;
+            view.transform.localScale = Vector3.zero;
+
+            if (visual.Moon != null)
+            {
+                visual.MoonBaseScale = visual.Moon.transform.localScale;
+                visual.Moon.transform.localScale = new Vector3(0, 0, visual.MoonBaseScale.z);
+            }
+
             return visual;
+        }
+
+        // 출현 연출을 delta만큼 진행한다. 끝나면 정확히 제 크기가 된다(OutBack(1) = 1).
+        // 피격 흔들림은 회전만 바꾸므로 겹쳐도 된다. 연출 중에 죽은 은하는 그때 크기에서 붕괴를 시작한다(GalaxyCollapses).
+        private static void AdvanceSpawn(EnemyVisual visual, float delta)
+        {
+            visual.SpawnElapsed = Mathf.Min(SpawnSeconds, visual.SpawnElapsed + delta);
+            float scale = OutBack(visual.SpawnElapsed / SpawnSeconds);
+            visual.Renderer.transform.localScale = visual.BaseScale * scale;
+
+            if (visual.Moon != null)
+            {
+                Vector3 moon = visual.MoonBaseScale;
+                visual.Moon.transform.localScale = new Vector3(moon.x * scale, moon.y * scale, moon.z);
+            }
+        }
+
+        // 0 → 1로 가며 끝 무렵 1을 살짝 넘었다가 1에서 멈추는 곡선.
+        private static float OutBack(float t)
+        {
+            float u = t - 1;
+            return 1 + (SpawnOvershoot + 1) * u * u * u + SpawnOvershoot * u * u;
+        }
+
+        // 은하의 완성 실루엣: 중심과 팔을 함께 돌린다. 별도 중심 원이 윤곽을 덮지 않으며 성질 표식만 위에 겹친다.
+        // 피격 흔들림은 부모를 돌리고, 자전과 붕괴 회전은 이 자식을 돌린다.
+        private void CreateGalaxyArms(EnemyVisual visual, Enemy enemy)
+        {
+            var arms = new GameObject("Arms");
+            arms.transform.SetParent(visual.Renderer.transform, false);
+            arms.transform.localRotation = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0f, 360f));
+
+            var armsRenderer = arms.AddComponent<SpriteRenderer>();
+            armsRenderer.sprite = _looks.SpriteOf(EnemyType.Galaxy, enemy.Id.Value);
+            armsRenderer.color = visual.Renderer.color;
+            armsRenderer.sortingOrder = visual.Renderer.sortingOrder - 1;
+
+            // 에셋 스프라이트로 바꿔도 중심과 같은 지름이 되게 맞춘다(중심 도형은 1 단위).
+            Vector3 bounds = armsRenderer.sprite.bounds.size;
+            float longest = Mathf.Max(bounds.x, bounds.y);
+            Vector3 core = visual.Renderer.sprite.bounds.size;
+            arms.transform.localScale = Vector3.one * (Mathf.Max(core.x, core.y) / longest);
+
+            visual.Arms = arms.transform;
+            visual.ArmSpin = -GalaxySpin * UnityEngine.Random.Range(GalaxySpinMin, GalaxySpinMax);
         }
 
         // 달은 출현 때 한 번 만든다. 적의 크기는 변하지 않으므로 궤도와 사각형 크기도 여기서 한 번만 정한다.

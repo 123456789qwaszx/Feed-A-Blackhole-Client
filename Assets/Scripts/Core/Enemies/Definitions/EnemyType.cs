@@ -9,5 +9,7 @@ namespace BlackHole.Core
         Star = 2,
         // 픽업(주기 출현).
         Comet = 3,
+        // 별 다음 단계(별 → 은하 변환). 화면에서 나선팔이 자전하고, 죽으면 나선이 중심으로 말려 들어간다.
+        Galaxy = 4,
     }
 }

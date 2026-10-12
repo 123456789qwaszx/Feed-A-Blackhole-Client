@@ -48,7 +48,11 @@ namespace BlackHole.Unity
         private void StartBattle()
         {
             if (_battle.TryStart(NodePurchase.StatsFor(_progress, _tree)))
+            {
+                // 판이 흐르기 전에 시작 조건을 적는다.
+                _analytics.BattleStarted(_battle.Session, _progress);
                 ShowBattle();
+            }
         }
 
         private async Task EndBattleAsync()
@@ -59,6 +63,7 @@ namespace BlackHole.Unity
             {
                 // 결산이 진행 상태(Gold·성장도)를 바꿨다.
                 _progressStore.Save(_progress);
+                _analytics.BattleEnded(raw);
                 ShowSettlement(raw);
             }
         }

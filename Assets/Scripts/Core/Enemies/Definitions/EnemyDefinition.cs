@@ -31,7 +31,7 @@ namespace BlackHole.Core
         // 픽업은 성질이 정확히 하나이고 언제나 붙는다(혜성 = 혜성 버프).
         public IReadOnlyList<EnemyTraitDefinition> Traits { get; }
 
-        // 판 시작 때 이 종류의 시작 공급 중 변환 수(노드)만큼이 바뀌는 다음 종류(소행성 → 행성 → 별). 없으면 null.
+        // 판 시작 때 이 종류의 시작 공급 중 변환 수(노드)만큼이 바뀌는 다음 종류(소행성 → 행성 → 별 → 은하). 없으면 null.
         public EnemyType? UpgradesTo { get; }
 
         // 주기 출현의 판정 주기(초). 0이면 공급되는 보통 종류다.

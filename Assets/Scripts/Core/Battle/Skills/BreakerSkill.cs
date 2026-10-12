@@ -154,7 +154,7 @@ namespace BlackHole.Core
             _ticks.Add(new BreakerTick(TickCount, center, radius, _targets.Count, critical));
         }
 
-        // 대상 종류에 따른 추가 피해(노드 수치 breaker.planetBonusDamage·breaker.starBonusDamage). 행성·별이 아니면 0이다.
+        // 대상 종류에 따른 추가 피해(노드 수치 breaker.planetBonusDamage·starBonusDamage·galaxyBonusDamage). 행성·별·은하가 아니면 0이다.
         private float BonusAgainst(Enemy target)
         {
             switch (target.Definition.Type)
@@ -163,6 +163,8 @@ namespace BlackHole.Core
                     return Definition.PlanetBonusDamage;
                 case EnemyType.Star:
                     return Definition.StarBonusDamage;
+                case EnemyType.Galaxy:
+                    return Definition.GalaxyBonusDamage;
                 default:
                     return 0;
             }

@@ -28,6 +28,15 @@ namespace BlackHole.Core
         // 진행 후: 지금까지의 진행으로 판의 종료를 판정한다.
         internal bool HasExpired(float elapsed) => elapsed >= Limit;
 
+        // 테스트 도구(BattleCheats)가 부른다. 제한 시간을 늘리되 판 통계의 더해진 시간(ExtendedSeconds)에는 세지 않는다.
+        internal void ExtendUncounted(float seconds)
+        {
+            if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < 0)
+                throw new ArgumentOutOfRangeException(nameof(seconds), "0 이상의 유한한 값이 필요하다.");
+
+            Limit += seconds;
+        }
+
         // 이 판의 제한 시간을 늘린다(블랙홀 Level업)
         internal void Extend(float seconds)
         {

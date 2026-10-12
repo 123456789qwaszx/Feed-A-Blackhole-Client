@@ -17,12 +17,16 @@ namespace BlackHole.Unity
         private SavedProgress _basis;
         // 이번 실행에서 새 게임·계속을 골랐는가.
         private bool _started;
+        // 테스트 세션: 테스트 도구가 진행 상태를 시나리오로 바꿨다. 이번 실행은 저장하지 않는다(저장 파일을 지킨다).
+        private bool _testSession;
 
         // 앱 시작 때 불러온 저장. 없으면 null.
         public SavedProgress Saved { get; private set; }
 
         // 계속할 진행이 있는가: 불러온 저장이 있거나, 이번 실행에서 이미 진행 중이다.
         public bool CanContinue => _started || Saved != null;
+
+        public bool IsTestSession => _testSession;
 
         private ProgressStore(ProgressSaveFile file)
         {
@@ -66,9 +70,17 @@ namespace BlackHole.Unity
             Save(progress);
         }
 
+        // 테스트 도구가 진행 상태를 바꾸기 직전에 부른다. 이후 이번 실행은 진행 중으로 보고(계속은 메모리 상태 그대로) 저장하지 않는다.
+        // 되돌리는 길은 없다. 앱(장면)을 다시 시작하면 저장 파일에서 다시 불러온다.
+        public void EnterTestSession()
+        {
+            _started = true;
+            _testSession = true;
+        }
+
         public void Save(ProgressState progress)
         {
-            if (!_started)
+            if (!_started || _testSession)
                 return;
 
             try

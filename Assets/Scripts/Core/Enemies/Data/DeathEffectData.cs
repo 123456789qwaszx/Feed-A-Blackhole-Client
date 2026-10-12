@@ -12,7 +12,7 @@ namespace BlackHole.Core
         public float CritRewardScale;
         // ChainLightning, LaserBurst
         public float Damage;
-        // ChainLightning(한 번 옮겨 가는 거리), Explosion(반경)
+        // ChainLightning(한 번 옮겨 가는 거리), Explosion(반경), GravityField(끌어들이는 범위)
         public float Radius;
         // ChainLightning(한 줄기가 옮겨 가는 최대 횟수)
         public int MaxTargets;
@@ -25,6 +25,10 @@ namespace BlackHole.Core
         public float HealthFraction;
         // LaserBurst(레이저 너비)
         public float Width;
+        // GravityField(끌리는 속도, 초당 거리)
+        public float Force;
+        // GravityField(지속 시간, 초)
+        public float Duration;
         // MoonBuff·CometBuff는 쓰는 칸이 없다: 버프 시간과 수치는 Breaker의 것이다(BreakerData).
     }
 }
