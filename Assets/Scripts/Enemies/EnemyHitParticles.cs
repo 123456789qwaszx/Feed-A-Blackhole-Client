@@ -22,24 +22,54 @@ namespace BlackHole.Unity
         private const float FragmentSpreadRadius = 0.5f;
         // Size 1당 파편 크기가 이 비율만큼 커짐(size=4면 1.45배). 반지름 비례 방식 대신 이 방식을 채택함(체감상 더 적합).
         private const float FragmentSizePerEnemySize = 0.15f;
-        // 전체 흡입 속도 기준값(Planet 배율 1.0 기준, 기존보다 낮춤).
-        private const float SwirlRate = 7.2f;
-        private const float InwardRate = 2.5f;
+
+        // ── 사망 파편 흡입 궤적 ──
+        // 모든 속도는 "월드 단위/초" 선속도로 정한다. 각속도는 접선 선속도 ÷ 현재 반지름으로 매 프레임 구한다.
+        // 예전처럼 각속도를 거리와 무관한 하나의 값으로 두면(= 강체 회전) 세 가지 문제가 한꺼번에 생겼다:
+        //  1) 멀리서 죽은 적의 파편은 선속도가 거리에 비례해 커져(반지름 9면 초당 수십 단위) 화면을 가로질러
+        //     튕겨 나가는 것처럼 보였다(원심력 착시).
+        //  2) 같은 적의 파편이 회전 대열을 그대로 유지한 채 반지름 방향으로만 줄어들어 일직선(스포크)이 됐다.
+        //  3) 가까이서 함께 죽은 적들의 파편이 한 덩어리로 굳은 채 같이 돌다 같이 빨려 들어갔다.
+        // 지금은 안쪽일수록 빨리 도는 차등 회전이라 당겨지는 파편이 앞질러 나가며 나선 팔을 만들고, 덩어리는
+        // 시간이 지날수록 호(arc) 모양으로 찢어져 흩어진다. 반지름은 줄기만 하고 늘지 않는다(바깥으로 안 나감).
+        private const float WaitOrbitSpeed = 0.9f;      // 자기 차례 전, 죽은 자리 근처에서 천천히 도는 접선 선속도
+        private const float WaitInwardSpeed = 0.12f;    // 자기 차례 전에도 아주 천천히 안쪽으로 스며드는 선속도
+        private const float PullStartSpeed = 0.6f;      // 당김 시작 순간의 구심 선속도
+        private const float PullAcceleration = 7f;      // 당김 중 구심 선속도의 가속도(단위/초²) — 끝으로 갈수록 빨라짐
+        // 당김 중 접선 선속도 = 구심 선속도 × 이 값(+ 대기 공전 속도). 두 성분이 같은 비율로 커지므로 궤적은
+        // 로그 나선이 되고, 값이 클수록 많이 감긴다(2 ≈ 반지름 7에서 중심까지 약 한 바퀴).
+        private const float SpiralTwist = 2f;
+        // 각속도 계산에 쓰는 최소 반지름 — 중심 바로 앞에서 각속도가 폭주해 프레임마다 크게 튀는 걸 막는다.
+        private const float MinSwirlRadius = 0.35f;
         private const float CenterRadius = 0.06f;
-        // 공전 진입을 부드럽게 하는 이징. 전원 동시 진입이라 파편 간 간격과는 무관.
+        // 공전 진입을 부드럽게 하는 이징(전원 DeathSuctionDelay 시점에 동시 진입).
         private const float OrbitEaseInDuration = 0.35f;
-        // 당김 시작 이징. ⚠ SuctionStaggerInterval보다 뚜렷하게 짧아야 함 — 안 그러면 여러 파편이 동시에
-        // 당겨져 "다 같이 날아가는" 것처럼 보임(한 파편씩 순서대로 보이려면 이 관계 필수).
-        private const float InwardEaseInDuration = 0.12f;
-        // 공전은 전원 동시 시작, 당김 시작 시점만 파편 순서(i)대로 이 간격씩 늦춤 — 공전 대열 유지한 채
-        // 한 파편씩 순서대로 당겨짐. InwardEaseInDuration보다 뚜렷하게 커야 함.
+        // 파편 하나씩 차례로 당긴다. 순서 간격에 파편마다 ±StaggerRandomness(비율)만큼, 적마다 0~1 간격만큼
+        // 위상을 흔들어 — 가까이서 함께 죽은 적들의 i번째 파편끼리 짝지어 같이 날아가지 않게 한다.
         private const float SuctionStaggerInterval = 0.18f;
-        // 당김 시작 후 중심 도달까지의 시간(Planet 기준). 파편마다 수명을 다르게 줘서 늦게 당겨져도 같은
-        // 시간을 받게 하고, 실제로는 종류별 속도 배율(SuctionSpeedMultiplierOf)로 나눠 쓴다.
-        private const float SuctionTravelDuration = 1.9f;
-        // 당김 진행도에 비례해 Ease.InQuad로 가속(완만하게 시작, 끝으로 갈수록 가팔라짐). 스월·당김 두 성분에
-        // 같은 배율을 곱해 회전각(궤적 모양)은 유지. 100% 진행 시 속도는 (1+SuctionAccelerationBonus)배.
-        private const float SuctionAccelerationBonus = 5f;
+        private const float StaggerRandomness = 0.35f;
+        // 적(사망 1회)마다 한 번 뽑는 배율 + 파편마다 조금 더 흔드는 배율. 회전(감김)과 당김 속도 양쪽에 준다.
+        // 수명은 EmitDeath가 이 값들까지 넣어 파편마다 정확히 계산하므로 도착 타이밍이 어긋나지 않는다.
+        private const float EnemySwirlJitter = 0.2f;
+        private const float FragmentSwirlJitter = 0.15f;
+        private const float EnemyPullJitter = 0.15f;
+        private const float FragmentPullJitter = 0.1f;
+        // 시스템 기본 수명(폴백). 실제 수명은 EmitDeath에서 파편마다 지정된다.
+        private const float FallbackDeathLifetime = 3f;
+
+        // randomSeed(uint) 비트 패킹 — EmitDeath가 파편별 궤적 값을 실어 보내고 Advance가 꺼내 쓴다
+        // (이 파티클 시스템에는 randomSeed를 쓰는 모듈이 없어 안전하게 재사용 가능).
+        //  [0..9]   당김 시작 나이(1/100초 단위, 최대 10.23초)
+        //  [10..17] 속도 배율(종류별 배율 × 당김 지터, 0~SpeedScaleMax를 8비트로)
+        //  [18..25] 회전 배율(회전 지터, SwirlScaleMin~SwirlScaleMax를 8비트로)
+        private const uint PullStartMask = (1u << 10) - 1;
+        private const int SpeedShift = 10;
+        private const int SwirlShift = 18;
+        private const uint ByteMask = 0xFF;
+        private const float SpeedScaleMax = 1.5f;
+        private const float SwirlScaleMin = 0.5f;
+        private const float SwirlScaleMax = 1.5f;
+
         private static readonly Vector2[] FragmentVertices =
         {
             new Vector2(-0.46f, 0.24f),
@@ -111,8 +141,8 @@ namespace BlackHole.Unity
             deathMain.playOnAwake = false;
             deathMain.loop = false;
             // 실제 수명은 EmitDeath에서 파편마다 개별 지정됨 — 여기 값은 폴백일 뿐.
-            deathMain.duration = DeathSuctionDelay + SuctionTravelDuration;
-            deathMain.startLifetime = DeathSuctionDelay + SuctionTravelDuration;
+            deathMain.duration = FallbackDeathLifetime;
+            deathMain.startLifetime = FallbackDeathLifetime;
             deathMain.startSpeed = 0;
             deathMain.startSize = DeathFragmentSize;
             deathMain.startColor = Color.white;
@@ -174,8 +204,7 @@ namespace BlackHole.Unity
             }
         }
 
-        // 적 종류별 흡입 속도 배율(소행성 > 행성 > 별 > 은하 순으로 빠름). Advance·EmitDeath 양쪽에서 스월·당김
-        // 성분에 동일하게 곱해 쓰므로 회전각(궤적 모양)은 유지됨.
+        // 적 종류별 흡입 속도 배율(소행성 > 행성 > 별 > 은하 순으로 빠름). 대기 공전·당김 속도 전부에 곱한다.
         private static float SuctionSpeedMultiplierOf(EnemyType type)
         {
             switch (type)
@@ -192,8 +221,53 @@ namespace BlackHole.Unity
             }
         }
 
-        // 사망 파편: 폭발 없이 죽은 자리 둘레에 배치만 하고, DeathSuctionDelay 후 공전 진입, Advance가 한
-        // 파편씩 순서대로 HQ로 빨아들인다. type은 종류별 흡입 속도 차등에 쓰인다.
+        private static uint EncodePullStart(float age)
+        {
+            return (uint)Mathf.Clamp(Mathf.RoundToInt(age * 100f), 0, (int)PullStartMask);
+        }
+
+        private static float DecodePullStart(uint seed)
+        {
+            return (seed & PullStartMask) / 100f;
+        }
+
+        private static uint EncodeSpeed(float scale)
+        {
+            return (uint)Mathf.Clamp(Mathf.RoundToInt(scale / SpeedScaleMax * 255f), 1, 255);
+        }
+
+        private static float DecodeSpeed(uint seed)
+        {
+            return ((seed >> SpeedShift) & ByteMask) / 255f * SpeedScaleMax;
+        }
+
+        private static uint EncodeSwirl(float scale)
+        {
+            return (uint)Mathf.RoundToInt(Mathf.InverseLerp(SwirlScaleMin, SwirlScaleMax, scale) * 255f);
+        }
+
+        private static float DecodeSwirl(uint seed)
+        {
+            return Mathf.Lerp(SwirlScaleMin, SwirlScaleMax, ((seed >> SwirlShift) & ByteMask) / 255f);
+        }
+
+        // 시작 거리에서 중심(CenterRadius)에 닿기까지의 나이 — Advance의 반지름 변화와 같은 식이다
+        // (대기 중 등속으로 스며들기 → 당김 시작 후 등가속). colorOverLifetime이 수명 끝에서 완전히 투명해지게
+        // 짜여 있으므로 수명을 도착 시점에 맞춘다. 회전은 반지름을 바꾸지 않으므로 계산에 끼지 않는다.
+        private static float LifetimeOf(float startDistance, uint seed)
+        {
+            float pullStart = DecodePullStart(seed);
+            float speed = DecodeSpeed(seed);
+            float distanceAtPull = startDistance - WaitInwardSpeed * speed * (pullStart - DeathSuctionDelay);
+            float remaining = Mathf.Max(0f, distanceAtPull - CenterRadius);
+            float startSpeed = PullStartSpeed * speed;
+            float acceleration = PullAcceleration * speed;
+            float travel = (Mathf.Sqrt(startSpeed * startSpeed + 2f * acceleration * remaining) - startSpeed) / acceleration;
+            return pullStart + travel;
+        }
+
+        // 사망 파편: 폭발 없이 죽은 자리 둘레에 배치만 하고, DeathSuctionDelay 후 그 자리에서 천천히 돌기
+        // 시작하며, 자기 차례가 되면 Advance가 나선을 그리며 HQ로 빨아들인다. type은 종류별 흡입 속도 차등에 쓰인다.
         public void EmitDeath(Vector3 position, Color color, EnemyType type, int tier, int size)
         {
             if (!_deathParticles.isPlaying)
@@ -202,51 +276,55 @@ namespace BlackHole.Unity
             // 파편 수 = (Tier+1) × 크기. 예: Tier0·크기2 → 2개, Tier4·크기3 → 15개.
             int fragmentCount = (tier + 1) * size;
             float baseAngle = (_burstIndex++ % 16) * Mathf.PI / 8f;
-
             float fragmentSizeMultiplier = 1f + (size - 1) * FragmentSizePerEnemySize;
-            float speedMultiplier = SuctionSpeedMultiplierOf(type);
-            // 종류별 속도에 맞춰 수명 확보(빠른 소행성은 짧게, 느린 별은 길게) — 도중에 사라지지 않도록.
-            float travelDuration = SuctionTravelDuration / speedMultiplier;
+            float typeSpeed = SuctionSpeedMultiplierOf(type);
+
+            // 이 적(사망 1회) 전체에 공통인 값. 가까이서 함께 죽은 다른 적과 감김·속도·당김 타이밍이 서로 달라져
+            // 한 덩어리로 같이 움직이지 않는다.
+            float enemySwirl = 1f + UnityEngine.Random.Range(-EnemySwirlJitter, EnemySwirlJitter);
+            float enemyPull = 1f + UnityEngine.Random.Range(-EnemyPullJitter, EnemyPullJitter);
+            float staggerPhase = UnityEngine.Random.value * SuctionStaggerInterval;
 
             for (int i = 0; i < fragmentCount; i++)
             {
                 float angle = baseAngle + i * Mathf.PI * 2f / fragmentCount;
-                Vector3 spreadOffset = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * FragmentSpreadRadius;
+                Vector3 start = position + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * FragmentSpreadRadius;
 
-                // i번째 파편은 i번째 차례에 당겨짐(스월은 전원 동시 시작). 늦게 당겨지는 만큼 수명도 늘려 모두
-                // 동일한 travelDuration을 받게 함.
-                float inwardDelay = DeathSuctionDelay + i * SuctionStaggerInterval;
-                float startLifetime = inwardDelay + travelDuration;
+                float order = i + UnityEngine.Random.Range(-StaggerRandomness, StaggerRandomness);
+                float pullStart = Mathf.Max(DeathSuctionDelay, DeathSuctionDelay + staggerPhase + order * SuctionStaggerInterval);
+                float speed = typeSpeed * enemyPull * (1f + UnityEngine.Random.Range(-FragmentPullJitter, FragmentPullJitter));
+                float swirl = enemySwirl * (1f + UnityEngine.Random.Range(-FragmentSwirlJitter, FragmentSwirlJitter));
+                uint seed = EncodePullStart(pullStart) | (EncodeSpeed(speed) << SpeedShift) | (EncodeSwirl(swirl) << SwirlShift);
 
                 var parameters = new ParticleSystem.EmitParams
                 {
-                    position = position + spreadOffset,
+                    position = start,
                     velocity = Vector3.zero,
-                    startLifetime = startLifetime,
+                    // 인코딩된 값으로 계산해야 Advance가 실제로 쓰는 값과 정확히 같다.
+                    startLifetime = LifetimeOf(new Vector2(start.x, start.y).magnitude, seed),
                     startSize = (DeathFragmentSize + (i % 3) * 0.13f) * fragmentSizeMultiplier,
                     startColor = color,
                     rotation = angle + i * 0.61f,
-                    // randomSeed 재사용: 하위 16비트=당김 순서, 상위 16비트=EnemyType. 이 시스템은 randomSeed를
-                    // 쓰는 다른 모듈이 없어 안전하게 재사용 가능.
-                    randomSeed = (uint)i | ((uint)type << 16),
+                    randomSeed = seed,
                 };
 
                 _deathParticles.Emit(parameters, 1);
             }
         }
 
-        // EnemyView.Synchronize가 매 프레임 호출. 위치 동기화와 같은 타이밍/순서로 돌아야 해서(스크립트
-        // 실행 순서에 기대지 않도록) Update() 대신 외부에서 직접 구동.
-        public void Advance()
+        // EnemyView.Synchronize가 매 프레임 delta와 함께 호출. 위치 동기화와 같은 타이밍/순서로 돌아야 해서
+        // (스크립트 실행 순서에 기대지 않도록) Update() 대신 외부에서 직접 구동.
+        // 위치는 유니티의 velocity 적분에 맡기지 않고 매 프레임 정확한 회전 변환 + 반지름 감소로 직접 계산한다 —
+        // 접선 속도를 엔진이 직선으로 적분하면 프레임마다 조금씩 바깥으로 밀리는 오차가 누적되기 때문.
+        public void Advance(float delta)
         {
+            if (delta <= 0)
+                return;
+
             int count = _deathParticles.GetParticles(_deathParticleBuffer);
             if (count == 0)
                 return;
 
-            // 흡입 2단계: 1) 스월(공전) 진입 — 전원 DeathSuctionDelay 시점에 동시 진입(HQ 근처 파편이 연출 위해
-            //    멀어지는 걸 막는 핵심). 2) 중심 당김 — randomSeed 하위 16비트(순서)만큼 늦게 당김 성분 추가,
-            //    공전은 유지한 채 한 파편씩 차례로 흡수(상위 16비트의 종류별로 속도 차등). 둘 다 Ease.OutQuad로
-            //    부드럽게 램프업.
             bool changed = false;
             for (int i = 0; i < count; i++)
             {
@@ -265,27 +343,37 @@ namespace BlackHole.Unity
                     continue;
                 }
 
-                int order = (int)(particle.randomSeed & 0xFFFFu);
-                var type = (EnemyType)(particle.randomSeed >> 16);
-                float speedMultiplier = SuctionSpeedMultiplierOf(type);
+                uint seed = particle.randomSeed;
+                float pullStart = DecodePullStart(seed);
+                float speed = DecodeSpeed(seed);
+                float swirl = DecodeSwirl(seed);
 
-                Vector2 radial = offset / distance;
-                Vector2 tangent = new Vector2(-radial.y, radial.x);
+                float orbitStrength = Easing.Evaluate(Mathf.Clamp01((age - DeathSuctionDelay) / OrbitEaseInDuration), Ease.OutQuad);
+                float tangentialSpeed = WaitOrbitSpeed * orbitStrength * speed;
+                float inwardSpeed;
+                if (age < pullStart)
+                {
+                    // 차례 전: 죽은 자리 근처에서 천천히 돌며 아주 조금씩 안으로.
+                    inwardSpeed = WaitInwardSpeed * speed;
+                }
+                else
+                {
+                    // 차례 후: 구심 속도가 등가속으로 붙고, 접선 속도도 같은 비율로 붙어 나선을 그린다.
+                    inwardSpeed = (PullStartSpeed + PullAcceleration * (age - pullStart)) * speed;
+                    tangentialSpeed += inwardSpeed * SpiralTwist;
+                }
 
-                float orbitProgress = Mathf.Clamp01((age - DeathSuctionDelay) / OrbitEaseInDuration);
-                float orbitStrength = Easing.Evaluate(orbitProgress, Ease.OutQuad);
+                // 각속도 = 선속도 ÷ 반지름 — 안쪽일수록 빨리 돈다(차등 회전). 이게 나선 팔과 흩어짐을 만든다.
+                float deltaAngle = tangentialSpeed / Mathf.Max(distance, MinSwirlRadius) * swirl * delta;
+                float cos = Mathf.Cos(deltaAngle);
+                float sin = Mathf.Sin(deltaAngle);
+                Vector2 rotated = new Vector2(offset.x * cos - offset.y * sin, offset.x * sin + offset.y * cos);
 
-                float inwardDelay = DeathSuctionDelay + order * SuctionStaggerInterval;
-                float inwardProgress = Mathf.Clamp01((age - inwardDelay) / InwardEaseInDuration);
-                float inwardStrength = Easing.Evaluate(inwardProgress, Ease.OutQuad);
+                float newDistance = Mathf.Max(0f, distance - inwardSpeed * delta);
+                Vector2 newOffset = rotated * (newDistance / distance);
 
-                // 당김 진행도에 비례 가속(두 성분에 동일 배율이라 회전각은 유지).
-                float travelProgress = Mathf.Clamp01((age - inwardDelay) / (SuctionTravelDuration / speedMultiplier));
-                float accelerationMultiplier = 1f + Easing.Evaluate(travelProgress, Ease.InQuad) * SuctionAccelerationBonus;
-
-                Vector2 velocity = (tangent * (distance * SwirlRate * orbitStrength) - radial * (distance * InwardRate * inwardStrength))
-                    * speedMultiplier * accelerationMultiplier;
-                particle.velocity = new Vector3(velocity.x, velocity.y, 0);
+                particle.position = new Vector3(newOffset.x, newOffset.y, particle.position.z);
+                particle.velocity = Vector3.zero;
                 _deathParticleBuffer[i] = particle;
                 changed = true;
             }

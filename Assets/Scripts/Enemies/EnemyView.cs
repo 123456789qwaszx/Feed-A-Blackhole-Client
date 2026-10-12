@@ -184,7 +184,7 @@ namespace BlackHole.Unity
 
             // 사망 파편의 흡입 스월, 떠오르는 텍스트 둘 다 개별 적이 아니라 공용 연출 하나를 매 프레임
             // 진행시키는 일이라, 위치 동기화와 같은 자리에서 한 번만 호출한다(따로 Update를 두지 않는다).
-            _hitParticles.Advance();
+            _hitParticles.Advance(delta);
             _goldText.Age(delta);
             _damageText.Age(delta);
             _collapses.Advance(paused, delta);
