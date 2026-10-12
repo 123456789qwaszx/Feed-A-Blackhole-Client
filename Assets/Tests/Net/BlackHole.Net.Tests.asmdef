@@ -4,6 +4,9 @@
   "references": [
     "BlackHole.Net",
     "BlackHole.Net.Unity",
+    "BlackHole.Sync",
+    "BlackHole.Core.Common",
+    "BlackHole.Core.Enemies",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],
