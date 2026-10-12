@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class UpgradeScreen : UIRoot<UpgradeScreen.Refs>, IUIPageOwner, ILocalizedView, ITextStyleView
+    public sealed class UpgradeScreen : UIRoot<UpgradeScreen.Refs>, IUIPageOwner, ILocalizedView, ITextStyleView, INumberFormatView
     {
         public enum Refs
         {
@@ -82,7 +82,7 @@ namespace BlackHole.Unity
             _shownGold = gold;
 
             if (_gold != null)
-                _gold.text = Localized("upgrade.gold", OverThousand.GoldThousand(gold));
+                _gold.text = Localized("upgrade.gold", GoldText.Of(gold));
         }
 
         // 블랙홀(판 밖 진행): 성장도(도달한 이정표 수)와 다음 판의 목표 Level(다음 이정표의 Level, 0이면 마지막 이정표 뒤).
@@ -101,6 +101,13 @@ namespace BlackHole.Unity
         }
 
         // 마지막으로 보인 Gold·블랙홀 글자를 지금 언어로 다시 쓴다. 노드 툴팁은 닫는다(다시 올리면 새 언어로 뜬다).
+        // Gold 표기 설정이 바뀌었다. 보이는 Gold를 다시 쓴다.
+        public void RefreshNumbers()
+        {
+            if (_shownGold is long gold)
+                ShowGold(gold);
+        }
+
         public void Relocalize(Localizer localizer)
         {
             _localizer = localizer;

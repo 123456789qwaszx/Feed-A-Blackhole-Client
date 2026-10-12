@@ -21,7 +21,11 @@ setting.ShowDamage,Show Damage,피해량 표시
 setting.ScreenShake,Screen Shake,화면 흔들림
 setting.BlackHolePulse,Black Hole Pulse,블랙홀 맥동
 setting.MatterParticles,Matter Particles,물질 파편
-# 설정 선택지 (setting.{설정 ID}.{선택지 번호}) - 숫자·퍼센트·언어 이름은 넣지 않는다. 지금은 없다.
+setting.NumberFormat,Number Format,숫자 표기
+setting.EnemyOrbit,Object Rotation,물체 공전
+# 설정 선택지 (setting.{설정 ID}.{선택지 번호}) - 숫자·퍼센트·언어 이름은 넣지 않는다.
+setting.NumberFormat.0,Short (1.2M),축약 (1.2M)
+setting.NumberFormat.1,Scientific (1.2e6),과학적 (1.2e6)
 # 타이틀 화면 (Title_Text는 게임 이름이라 넣지 않는다)
 TitleScreen.StartBtn_Text,START,시작
 TitleScreen.SettingsBtn_Text,SETTINGS,설정

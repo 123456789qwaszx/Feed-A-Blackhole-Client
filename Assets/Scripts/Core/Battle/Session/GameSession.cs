@@ -27,6 +27,9 @@ namespace BlackHole.Core
         // 화면은 프레임 사이의 차이로 "방금 늘어난 시간"을 알린다.
         public float AddedSeconds => _timeLimit.ExtendedSeconds;
 
+        // 적의 공전을 켜고 끈다(플레이어 설정 Object Rotation). 판 규칙이 아니라 표시에 가까운 설정이라 판 중에도 바꿀 수 있다.
+        public void SetOrbitEnabled(bool enabled) => World.OrbitEnabled = enabled;
+
         // 시간 고정. 게임에서는 늘 false이고, 테스트 도구(BattleCheats)만 켠다. 켜 두면 흐른 만큼 제한 시간을 되돌려 남은 시간이 줄지 않는다.
         internal bool TimeFrozen { get; set; }
 
