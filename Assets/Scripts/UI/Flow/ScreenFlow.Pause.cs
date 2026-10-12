@@ -4,13 +4,17 @@ namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
-        // 시작 연출 중에도 열 수 있다(연출도 함께 멈춘다).
+        // 전투에서는 판을 멈추고 연다. 시작 연출 중에도 열 수 있다(연출도 함께 멈춘다).
+        // 결산·업그레이드에서는 멈출 판이 없어 창만 연다.
         private void OpenPause()
         {
-            if (!_battle.CanPause)
-                return;
+            if (_ui.CurrentRoot is BattleScreen)
+            {
+                if (!_battle.CanPause)
+                    return;
 
-            SetBattlePaused(true);
+                SetBattlePaused(true);
+            }
 
             _ui.PushPanel<PausePanel>(
                 _presentations.Pause,
@@ -49,13 +53,21 @@ namespace BlackHole.Unity
         // 설정: 일시 정지 창 위에 설정 창을 쌓는다. 설정 창을 닫으면 일시 정지 창으로 돌아온다.
         private void HandlePauseSettingsClicked() => OpenSettings();
 
-        private void HandlePauseMainMenuClicked() => _transition.Play(LeaveBattleToTitleAsync);
+        private void HandlePauseMainMenuClicked() => _transition.Play(LeaveToTitleAsync);
 
-        private async Task LeaveBattleToTitleAsync()
+        // 전투: 판을 포기하고(결산 없음) 타이틀로.
+        // 결산·업그레이드: 판이 없어 곧바로 타이틀로. 진행은 결산·노드 구매 때 이미 저장했다.
+        private async Task LeaveToTitleAsync()
         {
             _ui.PopAllPanels(Unbind);
             _pauseOpen = false;
             _settingsOpen = false;
+
+            if (_battle.Session == null)
+            {
+                ShowTitle();
+                return;
+            }
 
             if (await _battle.TryAbandonAsync())
             {
