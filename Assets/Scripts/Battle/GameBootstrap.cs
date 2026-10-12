@@ -60,6 +60,7 @@ namespace BlackHole.Unity
         private ProgressStore _progressStore;
         private GameSettings _settings;
         private BattleAnalytics _analytics;
+        private FrameRateLimiter _frameRate;
         private GameHost _host;
 
         private void Awake()
@@ -98,6 +99,7 @@ namespace BlackHole.Unity
                 loaded.NodeTree.Content,
                 loaded.Content.Growth);
             _settings = GameSettings.Load();
+            _frameRate = new FrameRateLimiter(_settings);
             _analytics = BattleAnalytics.Create(
                 _analyticsSettings,
                 Application.persistentDataPath,
@@ -191,7 +193,11 @@ namespace BlackHole.Unity
             _analytics.Flush();
         }
 
-        private void OnDestroy() => _host?.Dispose();
+        private void OnDestroy()
+        {
+            _frameRate?.Dispose();
+            _host?.Dispose();
+        }
 
         private UIManager CreateUI()
         {

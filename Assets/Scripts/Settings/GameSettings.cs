@@ -64,7 +64,10 @@ namespace BlackHole.Unity
         // 선택지는 번호로 저장한다. 순서를 바꾸면 저장된 값의 뜻이 바뀌므로 끝에만 더한다.
         private static readonly string[] NoOptions = Array.Empty<string>();
         private static readonly string[] LanguageOptions = { "English", "Korean" };
-        private static readonly string[] FpsLimitOptions = { "30", "60", "120", "144", "240", "Unlimited" };
+        // 프레임 제한. 앞 세 개(30·60·120)는 예전 선택지와 번호가 같다 — 예전에 144 이상을 고른 값은 120으로 읽힌다.
+        private static readonly string[] FpsLimitOptions = { "30", "60", "120" };
+        private static readonly int[] FpsLimitValues = { 30, 60, 120 };
+        private const int DefaultFpsLimitIndex = 1;
         // 퍼센트 단계: 50% ~ 200%, 10%씩. 100%가 기본.
         private const int PercentMin = 50;
         private const int PercentMax = 200;
@@ -82,7 +85,7 @@ namespace BlackHole.Unity
             Slider(MusicVolume, "Music Volume", 0.25f),
             Toggle(ShuffleMusic, "Shuffle Music", false),
             Options(Kind.Choice, Language, "Language", LanguageOptions, 0),
-            Options(Kind.Choice, FpsLimit, "FPS Limit", FpsLimitOptions, FpsLimitOptions.Length - 1),
+            Options(Kind.Choice, FpsLimit, "FPS Limit", FpsLimitOptions, DefaultFpsLimitIndex),
             Options(Kind.Stepper, TextSize, "Text Size", PercentOptions, DefaultPercentIndex),
             Toggle(ShowMoneyText, "Show Money Text", true),
             Toggle(ShowDamage, "Show Damage", true),
@@ -116,6 +119,9 @@ namespace BlackHole.Unity
         public bool IsOn(string id) => ValueOf(id) >= 0.5f;
         public float LevelOf(string id) => ValueOf(id);
         public int IndexOf(string id) => Mathf.RoundToInt(ValueOf(id));
+
+        // 고른 프레임 제한(초당 프레임 수).
+        public int FrameRateLimit => FpsLimitValues[IndexOf(FpsLimit)];
 
         // 퍼센트 단계(Text Size)의 배율. 100%면 1이다.
         public float PercentOf(string id) => (PercentMin + IndexOf(id) * PercentStep) / 100f;
