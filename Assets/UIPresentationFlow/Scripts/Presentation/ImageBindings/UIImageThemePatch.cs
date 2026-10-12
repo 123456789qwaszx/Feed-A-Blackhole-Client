@@ -40,6 +40,25 @@ public sealed class UIImageThemePatch : IUIPatch
             }
 
             image.sprite = entry.sprite;
+
+            // The Selectable is usually on the parent with this image as its target graphic.
+            Selectable selectable = entry.HasStateSprites ? SelectableOf(image) : null;
+
+            if (selectable != null && selectable.transition == Selectable.Transition.SpriteSwap)
+            {
+                SpriteState state = selectable.spriteState;
+                if (entry.highlightedSprite != null) state.highlightedSprite = entry.highlightedSprite;
+                if (entry.pressedSprite != null) state.pressedSprite = entry.pressedSprite;
+                if (entry.disabledSprite != null) state.disabledSprite = entry.disabledSprite;
+                selectable.spriteState = state;
+            }
         }
+    }
+
+    // The Selectable (on this object or a parent) whose target graphic is this image. Null if none.
+    public static Selectable SelectableOf(Image image)
+    {
+        Selectable selectable = image.GetComponentInParent<Selectable>(true);
+        return selectable != null && selectable.targetGraphic == image ? selectable : null;
     }
 }

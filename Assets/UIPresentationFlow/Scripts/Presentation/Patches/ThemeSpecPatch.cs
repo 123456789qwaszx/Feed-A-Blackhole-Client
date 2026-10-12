@@ -7,17 +7,25 @@ public sealed class ThemeSpecPatch : IUIPatch
     private readonly UITextBindingCatalog _textBindings;
     private readonly float _textScale;
     private readonly string _localeId;
+    private readonly Color _textMain;
+    private readonly Color _textWeak;
 
     public ThemeSpecPatch(
         ThemeSpec theme,
         UITextBindingCatalog textBindings,
         float textScale = 1f,
-        string localeId = null)
+        string localeId = null,
+        string themeId = null)
     {
         _theme = theme;
         _textBindings = textBindings;
         _textScale = textScale > 0f ? textScale : 1f;
         _localeId = localeId;
+
+        // Colors come from the palette row of the current theme; without a palette, from the spec itself.
+        UIPalette.ThemeColors colors = theme != null && theme.palette != null ? theme.palette.Get(themeId) : null;
+        _textMain = colors != null ? colors.textMain : (theme != null ? theme.textMainColor : Color.white);
+        _textWeak = colors != null ? colors.textWeak : (theme != null ? theme.textWeakColor : Color.gray);
     }
 
     public void Apply(IUIPresentationRefProvider refs)
@@ -79,17 +87,17 @@ public sealed class ThemeSpecPatch : IUIPatch
         {
             case UITextRole.Title:
                 SetSize(text, _theme.titleSize * scale);
-                text.color = _theme.textMainColor;
+                text.color = _textMain;
                 break;
 
             case UITextRole.Body:
                 SetSize(text, _theme.bodySize * scale);
-                text.color = _theme.textMainColor;
+                text.color = _textMain;
                 break;
 
             case UITextRole.Caption:
                 SetSize(text, _theme.captionSize * scale);
-                text.color = _theme.textWeakColor;
+                text.color = _textWeak;
                 break;
         }
     }

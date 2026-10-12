@@ -28,7 +28,7 @@ namespace BlackHole.Unity
     // 이 컴포넌트는 트리 영역(보이는 창)에 붙고, 그 영역은 호스트의 PageRoot 바로 아래 자식.
     //
     // 영역은 가운데 기준(pivot 0.5)이어야 확대 계산이 맞음.
-    public sealed class NodeTreeView : UIPage<NodeTreeView.Refs>, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler,
+    public sealed class NodeTreeView : UIPage<NodeTreeView.Refs>, IStyleView, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler,
         IPointerMoveHandler, IPointerExitHandler
     {
         public enum Refs { }
@@ -65,6 +65,74 @@ namespace BlackHole.Unity
 
         [Tooltip("노드 그림과 선·가격 색. 비우면 상태 색 칸으로 그린다.")]
         [SerializeField] private NodeTreeLook _look;
+
+        // 테마(다크 모드): 노드 그림은 Look의 그림을 테마 짝(UISpriteSet)으로, 선·가격·딱지 색은 팔레트 역할로 바꾼다.
+        // 팔레트가 없으면 Look의 색을 쓴다. 설정이 바뀌면 UISettingsSync가 다시 넣는다.
+        private UIStyle _style = UIStyle.Default;
+
+        public void ApplyStyle(in UIStyle style)
+        {
+            _style = style;
+            RepaintAll();
+        }
+
+        // 테마가 바뀌었다. 보이는 노드·선·딱지를 지금 테마로 다시 칠한다(상태는 그대로).
+        private void RepaintAll()
+        {
+            foreach (NodeVisual node in _nodes.Values)
+            {
+                if (node.State == NodeState.Hidden)
+                    continue;
+
+                Paint(node);
+                PaintBadges(node);
+            }
+
+            PaintLinks();
+        }
+
+        // 가격·Rank 딱지의 바탕과 Rank 글자 색.
+        private void PaintBadges(NodeVisual node)
+        {
+            if (node.Badge != null && node.Badge.TryGetComponent(out Image priceBack))
+                priceBack.color = BadgeBackColor();
+
+            if (node.RankLabel != null)
+            {
+                node.RankLabel.color = PriceColorOf(NodeState.Purchasable);
+
+                if (node.RankLabel.transform.parent.TryGetComponent(out Image rankBack))
+                    rankBack.color = BadgeBackColor();
+            }
+        }
+
+        private Color BadgeBackColor() =>
+            _style.ColorFor(UIColorRole.Surface) ?? (_look != null ? _look.PriceBackColor : new Color(0.1f, 0.1f, 0.12f, 0.85f));
+
+        private Color PriceColorOf(NodeState state)
+        {
+            if (_style.HasColors)
+                return _style.ColorFor(state == NodeState.Purchasable ? UIColorRole.TextMain : UIColorRole.TextWeak).Value;
+
+            return _look != null ? _look.PriceColorOf(state) : Color.white;
+        }
+
+        private Color LinkColorOf(NodeState a, NodeState b)
+        {
+            if (_style.HasColors)
+            {
+                if (a == NodeState.Owned && b == NodeState.Owned)
+                    return _style.ColorFor(UIColorRole.Accent).Value;
+
+                bool open = (a == NodeState.Owned && b == NodeState.Purchasable) || (b == NodeState.Owned && a == NodeState.Purchasable);
+                return _style.ColorFor(open ? UIColorRole.TextMain : UIColorRole.Line).Value;
+            }
+
+            if (_look != null)
+                return _look.LinkColorOf(a, b);
+
+            return a == NodeState.Owned && b == NodeState.Owned ? OwnedLinkColor : LinkColor;
+        }
 
         private readonly Dictionary<string, NodeVisual> _nodes = new Dictionary<string, NodeVisual>(StringComparer.Ordinal);
         private readonly Dictionary<GameObject, NodeVisual> _nodesByObject = new Dictionary<GameObject, NodeVisual>();
@@ -152,21 +220,19 @@ namespace BlackHole.Unity
             if (_hovered != null && _hovered.State == NodeState.Hidden)
                 SetHovered(null);
 
+            PaintLinks();
+        }
+
+        // 선: 양 끝이 보일 때만 보이고, 양 끝 상태에 따른 색.
+        private void PaintLinks()
+        {
             foreach (LinkVisual link in _links)
             {
                 bool visible = link.From.State != NodeState.Hidden && link.To.State != NodeState.Hidden;
                 link.Root.SetActive(visible);
 
-                if (!visible)
-                    continue;
-
-                NodeState from = LinkStateOf(link.From);
-                NodeState to = LinkStateOf(link.To);
-
-                if (_look != null)
-                    link.Image.color = _look.LinkColorOf(from, to);
-                else
-                    link.Image.color = from == NodeState.Owned && to == NodeState.Owned ? OwnedLinkColor : LinkColor;
+                if (visible)
+                    link.Image.color = LinkColorOf(LinkStateOf(link.From), LinkStateOf(link.To));
             }
         }
 
@@ -453,7 +519,7 @@ namespace BlackHole.Unity
                 return;
             }
 
-            node.Image.sprite = _look.SpriteOf(node.Stat, node.State, node == _hovered);
+            node.Image.sprite = _style.SpriteFor(_look.SpriteOf(node.Stat, node.State, node == _hovered));
             Color tint = _look.TintOf(node.State);
             node.Image.color = partial ? Color.Lerp(tint, OwnedColor, PartialMix) : tint;
 
@@ -463,11 +529,11 @@ namespace BlackHole.Unity
 
             if (!showPrice || node.Label.text == price)
             {
-                node.Label.color = _look.PriceColorOf(node.State);
+                node.Label.color = PriceColorOf(node.State);
                 return;
             }
 
-            node.Label.color = _look.PriceColorOf(node.State);
+            node.Label.color = PriceColorOf(node.State);
             node.Label.text = price;
 
             if (node.Badge != null)
@@ -514,7 +580,7 @@ namespace BlackHole.Unity
                 badge.pivot = new Vector2(0.5f, 1);
                 badge.sizeDelta = new Vector2(NodeSize, PriceHeight);
                 var back = badge.gameObject.AddComponent<Image>();
-                back.color = _look.PriceBackColor;
+                back.color = BadgeBackColor();
                 back.raycastTarget = false;
                 labelRect = Child(badge, "Label");
                 labelRect.anchorMin = Vector2.zero;
@@ -565,7 +631,7 @@ namespace BlackHole.Unity
             badge.sizeDelta = new Vector2(NodeSize * 0.6f, RankHeight);
 
             var back = badge.gameObject.AddComponent<Image>();
-            back.color = _look != null ? _look.PriceBackColor : new Color(0.1f, 0.1f, 0.12f, 0.85f);
+            back.color = BadgeBackColor();
             back.raycastTarget = false;
 
             RectTransform textRect = Child(badge, "Label");
@@ -576,7 +642,7 @@ namespace BlackHole.Unity
             var text = textRect.gameObject.AddComponent<TextMeshProUGUI>();
             text.fontSize = RankSize;
             text.alignment = TextAlignmentOptions.Center;
-            text.color = _look != null ? _look.PriceColorOf(NodeState.Purchasable) : Color.white;
+            text.color = PriceColorOf(NodeState.Purchasable);
             text.textWrappingMode = TextWrappingModes.NoWrap;
             text.raycastTarget = false;
             return text;
