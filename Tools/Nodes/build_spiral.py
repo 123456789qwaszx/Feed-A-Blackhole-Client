@@ -6,8 +6,10 @@
 # 원작과 다른 점:
 # - 구역(우주 구역) 9개가 한 바퀴 돌아 안쪽 블랙홀로 떨어지는 나선. 구역 = 원작의 단계(zones.json 1~8 + 은하).
 #   구역 입구(가장 싼 노드)에서 가지 3줄(가운데 = Breaker·성장, 한쪽 = 적 종류, 반대쪽 = 특수 성질)로 퍼지고, 가운데 줄 끝이 다음 구역 입구로 이어진다.
-# - 같은 구역·같은 수치의 원작 노드는 하나의 여러 Rank 노드로 접는다(Rank ≤ MAX_RANKS). 값·가격은 원작 그대로(가격 순).
-#   노드 수는 줄고 구매 수(Rank 합)는 원작과 같다. 노드 그림은 StatId로 고르므로(NodeItem.Stat) 그림이 더 필요하지 않다.
+# - 구역 안은 섹터로 나뉜다: 같은 수치의 원작 노드를 가격 순으로 1번째·2번째·…로 보고, k번째들을 모아 섹터 k로 둔다.
+#   섹터 하나 = 가운데 줄의 입구 노드 + 양옆 줄(지그재그)의 나머지 노드 → 한 섹터 안에서 여러 수치를 골고루 올린다.
+#   보물(Breaker 피해·질량·수)의 k번째는 섹터 k에서 섹터 k+1로 가는 가운데 통로에 놓는다(주요 보상 = 다음 섹터로 가는 길).
+#   노드는 원작 그대로 1 Rank씩(여러 Rank는 블랙홀만). 값·가격은 원작 그대로. 노드 그림은 StatId로 고르므로 그림이 더 필요하지 않다.
 # - 블랙홀(가운데)은 원작 9단계 반복 노드 8개 그대로. 마지막 구역(은하핵)에서 이어진다.
 # 숨은 노드를 흐리게 보여 주는 것(안개)은 NodeTreeView가 맡는다.
 import argparse, collections, csv, json, os
@@ -19,7 +21,7 @@ CATALOG = os.path.join(ROOT, "Assets", "Data", "NodeCatalog.asset")
 ZONES = os.path.join(ROOT, "Docs", "QA", "NodeSuite", "zones.json")
 PREVIEW = os.path.join(ROOT, "Docs", "QA", "NodeSuite", "spiral-map.svg")
 
-MAX_RANKS = 4
+MAX_RANKS = 1  # 구역 노드는 접지 않는다(원작 노드 하나 = 노드 하나). 블랙홀만 10 Rank.
 
 # 구역: (원작 단계, 이름, 여는 것, 가격 배율). 'G'는 zones.json에 없는 은하 노드. 화면 이름 열쇠(REGION_KEYS)는 UIText.csv의 node.region.<key>.
 # 가격 배율: 원작은 2시간 분량이라 별 이후(6단계~)가 비싸다. 40분에 맞춰 별 이후를 당긴다(시뮬레이션으로 맞춘 값).
@@ -51,6 +53,14 @@ LANE_OF = {
 KEYSTONES = {"growth.time", "electricAsteroid.spawnChance", "goldenAsteroid.spawnChance", "asteroid.toPlanet", "moonPlanet.spawnChance",
              "comet.spawnChance", "comet.rainChance", "planet.toStar", "electricStar.spawnChance", "laserStar.spawnChance",
              "supernovaStar.spawnChance", "star.toGalaxy", "gravityGalaxy.spawnChance", "timer"}
+
+
+# 보물: 섹터 사이 통로에 놓는 핵심 수치(계열별로 k번째가 통로 k).
+TREASURE_FAMILY = {
+    "breaker.damage": "damage",
+    "asteroid.count": "count",
+    "asteroid.massScale": "mass", "planet.massScale": "mass", "star.massScale": "mass", "galaxy.massScale": "mass",
+}
 
 
 def read_original():
@@ -114,46 +124,85 @@ class Builder:
 DIRS = {"R": (1, 0), "D": (0, -1), "L": (-1, 0), "U": (0, 1)}
 
 
-def assign_lanes(items):
-    # 계열별 선호 줄에 넣되, 한 줄이 다른 줄보다 3 이상 길면 짧은 줄로 보낸다. 입구(첫 항목)는 가운데 줄.
-    lanes = {0: [], 1: [], -1: []}
-    for i, it in enumerate(items):
-        want = 0 if i == 0 else LANE_OF.get(it[0].split(".")[0], 0)
-        shortest = min(lanes, key=lambda l: len(lanes[l]))
-        if i > 0 and len(lanes[want]) - len(lanes[shortest]) >= 3:
-            want = shortest
-        lanes[want].append(it)
-    return lanes
+SECTOR_MAX = 8    # 섹터 하나의 노드 수 상한(보물 제외)
+CORRIDOR_MAX = 3  # 통로 하나의 보물 수 상한
+
+
+def sectors_of(items):
+    """items(가격 순, 1 Rank씩) → [(섹터 노드들, 그 뒤 통로의 보물들)].
+    보물 아닌 노드는 (수치 안의 몇 번째인가, 가격) 순으로 늘어놓고 비슷한 크기의 섹터로 자른다 — 앞 섹터는 각 수치의 1번째, 뒤로 갈수록 2번째·3번째.
+    보물은 가격 순으로 통로마다 고르게 나눈다(앞 통로가 하나 더). 마지막 통로는 구역 출구다."""
+    seen = collections.Counter()
+    plain, treasure = [], []
+    for it in items:
+        if it[0] in TREASURE_FAMILY:
+            treasure.append(it)
+        else:
+            plain.append((seen[it[0]], it[3][0], it))
+            seen[it[0]] += 1
+    plain.sort(key=lambda t: (t[0], t[1]))
+    count = max(1, -(-len(plain) // SECTOR_MAX), -(-len(treasure) // CORRIDOR_MAX))
+    sectors = [sorted([t[2] for t in plain[i * len(plain) // count:(i + 1) * len(plain) // count]], key=lambda it: it[3][0]) for i in range(count)]
+    corridors = [treasure[i * len(treasure) // count:(i + 1) * len(treasure) // count] for i in range(count)]
+    return list(zip(sectors, corridors))
 
 
 def place_region(b, zone_id, items, d, entry, region_index):
+    """섹터 배치. 가운데 줄: 섹터 입구 → 통로(보물) → 다음 섹터 입구 → … 옆줄: 섹터의 나머지 노드(지그재그).
+    반환: (입구 노드, 끝 노드)."""
     ux, uy = DIRS[d]
     vx, vy = -uy, ux
     cell = lambda u, v: (entry[0] + ux * u + vx * v, entry[1] + uy * u + vy * v)
-    lanes = assign_lanes(items)
-    main = lanes[0]
-    placed = {0: [], 1: [], -1: []}
-    # 가운데 줄: u = 0, 1, 2, …  옆줄: u = 1에서 v = ±1로 갈라져 u ≥ 2는 v = ±2, ±3을 번갈아(지그재그 — 별자리처럼 보이게).
-    for i, (stat, unit, values, costs) in enumerate(main):
-        x, y = cell(i, 0)
-        placed[0].append(b.add(stat, unit, values, costs, x, y, zone_id, start=(region_index == 0 and i == 0)))
-    for lane in (1, -1):
-        for i, (stat, unit, values, costs) in enumerate(lanes[lane]):
-            x, y = cell(1, lane) if i == 0 else cell(i + 1, (2 + (i + 1) % 2) * lane)
-            placed[lane].append(b.add(stat, unit, values, costs, x, y, zone_id))
-    for lane, nodes in placed.items():
-        for i in range(len(nodes) - 1):
-            b.link(nodes[i], nodes[i + 1])
-        if lane != 0 and nodes:
-            b.link(placed[0][0], nodes[0])
-    # 옆줄 끝이 가운데 줄 끝 가까이 오면 이어서 작은 고리를 만든다(원작의 우회로 느낌을 조금 남긴다).
-    tail = placed[0][-1]
-    for lane in (1, -1):
-        if placed[lane]:
-            end = placed[lane][-1]
-            if max(abs(end["x"] - tail["x"]), abs(end["y"] - tail["y"])) <= 2:
-                b.link(end, tail)
-    return placed[0][0], tail
+    u0 = 0
+    head = None
+    prev_center = None
+    prev_side_ends = []
+    for k, (sector, corridor) in enumerate(sectors_of(items)):
+        if not sector:
+            continue
+        first, rest = sector[0], sector[1:]
+        stat, unit, values, costs = first
+        entry_node = b.add(stat, unit, values, costs, *cell(u0, 0), zone_id, start=(region_index == 0 and k == 0))
+        head = head or entry_node
+        if prev_center is not None:
+            b.link(prev_center, entry_node)
+        # 앞 섹터 옆줄 끝이 가까우면 이어 작은 고리(우회로).
+        for end in prev_side_ends:
+            if max(abs(end["x"] - entry_node["x"]), abs(end["y"] - entry_node["y"])) <= 2:
+                b.link(end, entry_node)
+        # 옆줄: 번갈아 +1/-1. u0+1에서 v=±1, 그다음 ±2/±3 지그재그.
+        lanes = {1: [], -1: []}
+        for i, it in enumerate(rest):
+            lanes[1 if i % 2 == 0 else -1].append(it)
+        side_ends = []
+        for lane, lst in lanes.items():
+            prev = entry_node
+            for i, (st, un, va, co) in enumerate(lst):
+                x, y = cell(u0 + 1, lane) if i == 0 else cell(u0 + 1 + i, (2 + (i + 1) % 2) * lane)
+                node = b.add(st, un, va, co, x, y, zone_id)
+                b.link(prev, node)
+                prev = node
+            if lst:
+                side_ends.append(prev)
+        # 통로: 가운데 줄, 다음 섹터 입구 바로 앞에 보물을 한 줄로(옆줄이 더 길면 그만큼 뒤로).
+        side_len = max([len(lst) for lst in lanes.values()] + [0])
+        span = max(len(corridor), side_len)
+        prev = entry_node
+        corridor_nodes = []
+        for i, (st, un, va, co) in enumerate(corridor):
+            node = b.add(st, un, va, co, *cell(u0 + span - len(corridor) + 1 + i, 0), zone_id)
+            b.link(prev, node)
+            prev = node
+            corridor_nodes.append(node)
+        # 옆줄 끝이 통로 보물과 가까우면 이어 고리를 닫는다(옆줄이 막다른 길로 끝나지 않게).
+        for end in side_ends:
+            near = [c for c in corridor_nodes if max(abs(end["x"] - c["x"]), abs(end["y"] - c["y"])) <= 2]
+            if near:
+                b.link(end, min(near, key=lambda c: abs(end["x"] - c["x"]) + abs(end["y"] - c["y"])))
+        prev_center = prev
+        prev_side_ends = [e for e in side_ends if not any(max(abs(e["x"] - c["x"]), abs(e["y"] - c["y"])) <= 2 for c in corridor_nodes)]
+        u0 += span + 1
+    return head, prev_center
 
 
 def build():
@@ -297,7 +346,10 @@ def preview(b, regions, path):
         fam = n["stat"].split(".")[0]
         r = 9 if n["zone"] == CENTER_ZONE else 8
         fill = colors.get(fam, "#888")
-        if n["stat"] in KEYSTONES:
+        if n["stat"] in TREASURE_FAMILY:
+            rr = r + 2
+            out.append(f'<rect x="{x - rr:.0f}" y="{y - rr:.0f}" width="{2 * rr:.0f}" height="{2 * rr:.0f}" rx="3" fill="{fill}" stroke="#ffd36b" stroke-width="2.5"/>')
+        elif n["stat"] in KEYSTONES:
             out.append(f'<polygon points="{x:.0f},{y - r - 4:.0f} {x + r + 4:.0f},{y:.0f} {x:.0f},{y + r + 4:.0f} {x - r - 4:.0f},{y:.0f}" fill="{fill}" stroke="#fff" stroke-width="2"/>')
         else:
             out.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r}" fill="{fill}" stroke="{"#fff" if n["start"] else "#000"}" stroke-width="{3 if n["start"] else 1}"/>')
