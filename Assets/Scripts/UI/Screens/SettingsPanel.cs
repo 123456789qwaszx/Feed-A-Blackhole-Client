@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class SettingsPanel : UIPanel<SettingsPanel.Refs>
+    public sealed class SettingsPanel : UIPanel<SettingsPanel.Refs>, ITextStyleView
     {
         public enum Refs
         {
@@ -55,6 +55,9 @@ namespace BlackHole.Unity
 
         private readonly List<SettingRow> _rows = new List<SettingRow>();
         private readonly List<Button> _options = new List<Button>();
+        // 글자 크기·언어별 글꼴. 행과 펼침 목록은 복제로 만들므로 만들 때 넣고 지울 때 비운다(틀은 넣지 않는다).
+        private readonly StyledTexts _rowTexts = new StyledTexts();
+        private readonly StyledTexts _optionTexts = new StyledTexts();
         private readonly Dictionary<GameSettings.Kind, SettingRow> _templates = new Dictionary<GameSettings.Kind, SettingRow>();
         private readonly Vector3[] _corners = new Vector3[4];
 
@@ -113,6 +116,33 @@ namespace BlackHole.Unity
             }
 
             _rowList.anchoredPosition = Vector2.zero;
+        }
+
+        // 행을 다시 만들지 않고 이름·선택지·값만 다시 보여 준다(언어가 바뀌었을 때). 목록의 스크롤 위치는 그대로 둔다.
+        // 행은 ID로 찾는다. 맞는 항목이 없는 행은 그대로 둔다.
+        public void Relabel(IReadOnlyList<SettingItem> items)
+        {
+            foreach (SettingRow row in _rows)
+            {
+                if (row == null)
+                    continue;
+
+                foreach (SettingItem item in items)
+                {
+                    if (item.Id != row.Id)
+                        continue;
+
+                    row.Show(item.Id, item.Label, item.Kind, item.Value, item.Options);
+                    break;
+                }
+            }
+        }
+
+        // 글자 크기·언어별 글꼴. 창 제목은 TextBindings에 있어 Theme가 맞춘다.
+        public void ApplyTextStyle(in UITextStyle style)
+        {
+            _rowTexts.SetStyle(style);
+            _optionTexts.SetStyle(style);
         }
 
         // 패널이 닫힐 때(비활성) 펼침 목록도 닫는다.
@@ -207,6 +237,7 @@ namespace BlackHole.Unity
             }
 
             _options.Clear();
+            _optionTexts.Clear();
             _choiceRow = null;
             SetVisible(_blocker, false);
             SetVisible(_popup, false);
@@ -219,7 +250,10 @@ namespace BlackHole.Unity
 
             TMP_Text label = option.GetComponentInChildren<TMP_Text>(true);
             if (label != null)
+            {
                 label.text = text;
+                _optionTexts.Add(label, UITextRole.Body);
+            }
 
             if (selected && option.targetGraphic != null)
                 option.targetGraphic.color = SelectedOptionColor;
@@ -239,6 +273,9 @@ namespace BlackHole.Unity
             row.Show(item.Id, item.Label, item.Kind, item.Value, item.Options);
             row.Changed += HandleRowChanged;
             row.ChoiceClicked += OpenChoice;
+
+            foreach ((TMP_Text text, UITextRole role) in row.StyledTexts)
+                _rowTexts.Add(text, role);
             row.gameObject.SetActive(true);
             return row;
         }
@@ -252,6 +289,7 @@ namespace BlackHole.Unity
             }
 
             _rows.Clear();
+            _rowTexts.Clear();
         }
 
         private void AddTemplate(GameSettings.Kind kind, Refs key)

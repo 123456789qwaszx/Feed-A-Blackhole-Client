@@ -23,6 +23,9 @@ namespace BlackHole.Core
         public bool IsEnded => _ended;
         public float Elapsed { get; private set; }
         public float Remaining => _timeLimit.Remaining(Elapsed);
+        // 이 판에서 제한 시간에 더해진 초의 합(블랙홀 성장 + 파괴 때 시간 추가). 테스트 도구로 더한 시간은 들지 않는다.
+        // 화면은 프레임 사이의 차이로 "방금 늘어난 시간"을 알린다.
+        public float AddedSeconds => _timeLimit.ExtendedSeconds;
 
         // 시간 고정. 게임에서는 늘 false이고, 테스트 도구(BattleCheats)만 켠다. 켜 두면 흐른 만큼 제한 시간을 되돌려 남은 시간이 줄지 않는다.
         internal bool TimeFrozen { get; set; }

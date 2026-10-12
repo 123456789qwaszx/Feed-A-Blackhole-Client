@@ -17,10 +17,10 @@ MonoBehaviour:
   - refId: Remaining_Text
     role: 1
     stale: 0
-  - refId: EarnedGold_Text
+  - refId: TimeGain_Text
     role: 2
     stale: 0
-  - refId: Level_Text
+  - refId: EarnedGold_Text
     role: 2
     stale: 0
   - refId: PauseBtn_Text

@@ -15,6 +15,7 @@ namespace BlackHole.Unity
         private readonly IReadOnlyList<NodeItem> _nodes;// 업그레이드 화면에 그릴 노드(칸, 가격).
         private readonly HqGrowthDefinition _growth;// 블랙홀 성장(성장도별 Level 표, 이정표).
         private readonly GameSettings _settings;// 플레이어 설정.
+        private readonly Localizer _localizer;// 코드가 쓰는 UI 글자의 번역.
         private readonly ScreenTransition _transition;
         private readonly KeyInput _keyInput;
         private readonly BattleAnalytics _analytics;// 판의 시작·끝을 통계 서버로 보낸다.
@@ -30,6 +31,7 @@ namespace BlackHole.Unity
             IReadOnlyList<NodeItem> nodes,
             HqGrowthDefinition growth,
             GameSettings settings,
+            Localizer localizer,
             ScreenTransition transition,
             KeyInput keyInput,
             BattleAnalytics analytics)
@@ -43,6 +45,7 @@ namespace BlackHole.Unity
             _nodes = nodes;
             _growth = growth;
             _settings = settings;
+            _localizer = localizer;
             _transition = transition;
             _keyInput = keyInput;
             _analytics = analytics;

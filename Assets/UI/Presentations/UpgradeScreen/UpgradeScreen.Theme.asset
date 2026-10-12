@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UIPresentationFlow.Runtime::ThemeSpec
   textMainColor: {r: 0.125, g: 0.129, b: 0.141, a: 1}
   textWeakColor: {r: 0.42, g: 0.435, b: 0.424, a: 1}
-  mainFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  fonts: {fileID: 11400000, guid: 940c8ce4f1344ac29c2671ed2f23fd5a, type: 2}
   titleSize: 32
   bodySize: 36
   captionSize: 26

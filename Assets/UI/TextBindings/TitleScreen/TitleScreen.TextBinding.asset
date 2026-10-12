@@ -17,6 +17,8 @@ MonoBehaviour:
   - refId: Title_Text
     role: 1
     stale: 0
+    fixedSize: 1
+    fixedFont: 1
   - refId: StartBtn_Text
     role: 2
     stale: 0
