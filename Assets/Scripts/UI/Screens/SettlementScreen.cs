@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class SettlementScreen : UIRoot<SettlementScreen.Refs>, ILocalizedView, IStyleView
+    public sealed class SettlementScreen : UIRoot<SettlementScreen.Refs>, ILocalizedView, IStyleView, INumberFormatView
     {
         public enum Refs
         {
@@ -598,6 +598,16 @@ namespace BlackHole.Unity
             _themed.SetStyle(style);
         }
 
+        // Gold 표기 설정이 바뀌었다. 증가 연출이 마지막으로 쓴 값을 지금 표기로 다시 쓴다(연출 중이면 다음 프레임이 이어 쓴다).
+        public void RefreshNumbers()
+        {
+            foreach (KeyValuePair<TMP_Text, long> pair in _previousGolds)
+            {
+                if (pair.Key != null)
+                    pair.Key.text = Money(pair.Value);
+            }
+        }
+
         private string Localized(string key, params object[] args) =>
             _localizer != null ? _localizer.Format(key, args) : key;
 
@@ -647,7 +657,7 @@ namespace BlackHole.Unity
         private static string Whole(int count) => count.ToString(CultureInfo.InvariantCulture);
 
         private static string Money(long gold) =>
-            "$" + OverThousand.GoldThousand(gold);/*gold.ToString("N0", CultureInfo.InvariantCulture);*/
+            "$" + GoldText.Of(gold);
 
         // MonoBehavior
         private void Update()

@@ -56,6 +56,8 @@ namespace BlackHole.Unity
         public const string ScreenShake = "ScreenShake";
         public const string BlackHolePulse = "BlackHolePulse";
         public const string MatterParticles = "MatterParticles";
+        public const string NumberFormat = "NumberFormat";
+        public const string EnemyOrbit = "EnemyOrbit";
 
         private const string KeyPrefix = "Settings.";
 
@@ -74,6 +76,8 @@ namespace BlackHole.Unity
         private const int PercentStep = 10;
         private static readonly string[] PercentOptions = Percents();
         private const int DefaultPercentIndex = (100 - PercentMin) / PercentStep;
+        // Gold 숫자 표기. 번호는 NumberFormat 열거형의 순서와 같다(GoldText).
+        private static readonly string[] NumberFormatOptions = { "Short (1.2M)", "Scientific (1.2e6)" };
 
         // 설정 창에 보이는 순서. 이름과 선택지는 영어 원문이다 — 설정 창은 UI 글자 표(setting.{ID}, setting.{ID}.{번호})의
         // 번역을 먼저 쓰고, 표에 없으면 이 원문을 쓴다(숫자·퍼센트 선택지는 표에 넣지 않는다).
@@ -92,6 +96,9 @@ namespace BlackHole.Unity
             Toggle(ScreenShake, "Screen Shake", true),
             Toggle(BlackHolePulse, "Black Hole Pulse", true),
             Toggle(MatterParticles, "Matter Particles", true),
+            Options(Kind.Choice, NumberFormat, "Number Format", NumberFormatOptions, 0),
+            // 적이 블랙홀을 중심으로 공전하는가(원작 "Object Rotation"). 끄면 적이 제자리에 머문다(중력장의 끌림은 그대로).
+            Toggle(EnemyOrbit, "Object Rotation", true),
         };
 
         private static readonly Dictionary<string, Definition> ById = IndexById();
@@ -130,6 +137,9 @@ namespace BlackHole.Unity
 
         // 글자 크기 배율(Text Size). 100%면 1이다.
         public float TextScale => PercentOf(TextSize);
+
+        // 고른 Gold 숫자 표기.
+        public BlackHole.Unity.NumberFormat NumberFormatValue => (BlackHole.Unity.NumberFormat)IndexOf(NumberFormat);
 
         public void SetOn(string id, bool on) => Set(id, on ? 1 : 0);
         public void SetLevel(string id, float level) => Set(id, level);
