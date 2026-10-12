@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class UpgradeScreen : UIRoot<UpgradeScreen.Refs>, IUIPageOwner, ILocalizedView, ITextScaleView
+    public sealed class UpgradeScreen : UIRoot<UpgradeScreen.Refs>, IUIPageOwner, ILocalizedView, ITextStyleView
     {
         public enum Refs
         {
@@ -50,7 +50,7 @@ namespace BlackHole.Unity
 
         // 언어가 바뀌면 다시 쓸 마지막 값. 아직 보이지 않았으면 null.
         private Localizer _localizer;
-        private readonly ScaledTexts _scaled = new();
+        private readonly StyledTexts _styled = new();
         // 노드 툴팁의 프리팹 폭. 글자 크기 설정만큼 넓힌다(원작처럼 상자가 글자를 따라 커진다).
         private float _tooltipWidth;
         private long? _shownGold;
@@ -65,7 +65,7 @@ namespace BlackHole.Unity
             _tooltip = View.Rect(Refs.NodeTooltip_Image);
             _tooltipTitle = View.Text(Refs.NodeTooltipTitle_Text);
             _tooltipBody = View.Text(Refs.NodeTooltipBody_Text);
-            _scaled.Add(View.Text(Refs.Hint_Text));
+            _styled.Add(View.Text(Refs.Hint_Text), UITextRole.Caption);
             _tooltipWidth = _tooltip != null ? _tooltip.sizeDelta.x : 0;
             HideNodeTooltip();
 
@@ -113,13 +113,13 @@ namespace BlackHole.Unity
                 ShowHq(stage, goalLevel);
         }
 
-        // 글자 크기 설정. TextBindings에 등록되지 않은 글자만 여기서 맞춘다(등록된 글자는 Theme가 맞춘다).
-        public void ApplyTextScale(float scale)
+        // 글자 크기·언어별 글꼴. TextBindings에 등록되지 않은 글자만 여기서 맞춘다(등록된 글자는 Theme가 맞춘다).
+        public void ApplyTextStyle(in UITextStyle style)
         {
-            _scaled.SetScale(scale);
+            _styled.SetStyle(style);
 
             if (_tooltip != null)
-                _tooltip.sizeDelta = new Vector2(_tooltipWidth * scale, _tooltip.sizeDelta.y);
+                _tooltip.sizeDelta = new Vector2(_tooltipWidth * style.Scale, _tooltip.sizeDelta.y);
         }
 
         private string Localized(string key, params object[] args) =>

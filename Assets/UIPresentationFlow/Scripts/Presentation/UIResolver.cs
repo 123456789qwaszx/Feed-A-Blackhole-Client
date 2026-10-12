@@ -40,7 +40,8 @@ public sealed class UIResolver
         resolved.Theme?.BuildPatches(
             patches,
             resolved.TextBindings,
-            _context.TextScale);
+            _context.TextScale,
+            _context.LocaleId);
         resolved.Layout?.BuildPatches(patches);
         resolved.ImageTheme?.BuildPatches(patches);
         trace.Add($"[Patches] {patches.Count}");

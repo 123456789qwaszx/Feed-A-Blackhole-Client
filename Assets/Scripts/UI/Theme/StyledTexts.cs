@@ -3,31 +3,33 @@ using TMPro;
 
 namespace BlackHole.Unity
 {
-    // 글자 크기 설정을 TextBindings가 닿지 않는 글자에 넣는다(설정 행, 결산 통계 칸, 안내 글자 등).
-    // - 처음 넣을 때의 크기를 기준으로 기억하고 "기준 × 배율"로 맞춘다. 다시 넣어도 배율이 겹치지 않는다.
+    // 글자 스타일(크기 배율, 언어별 글꼴)을 TextBindings가 닿지 않는 글자에 넣는다(설정 행, 결산 통계 칸, 안내 글자 등).
+    // - 글자마다 역할(Title/Body/Caption)을 함께 받는다. 글꼴은 글꼴 묶음(UIFontSet)에서 "지금 언어 × 역할"로 고른다.
+    // - 처음 넣을 때의 크기·글꼴을 기준으로 기억한다. 크기는 "기준 × 배율"이라 다시 넣어도 배율이 겹치지 않고,
+    //   글꼴 묶음에 맞는 글꼴이 없으면 기준 글꼴로 되돌린다.
     // - 자동 크기(Auto Size) 글자는 크기 대신 최소·최대 크기를 같은 배율로 바꾼다.
-    // - 틀(template)은 넣지 않는다. 복제본이 틀의 원래 크기를 물려받아 기준이 된다.
+    // - 틀(template)은 넣지 않는다. 복제본이 틀의 원래 크기·글꼴을 물려받아 기준이 된다.
     // 복제해 만든 글자(행, 선택지)는 지울 때 Clear로 함께 비운다.
-    internal sealed class ScaledTexts
+    internal sealed class StyledTexts
     {
         private readonly Dictionary<TMP_Text, Base> _bases = new();
         private readonly List<TMP_Text> _gone = new();
 
-        public float Scale { get; private set; } = 1f;
+        public UITextStyle Style { get; private set; } = UITextStyle.Default;
 
-        public void Add(TMP_Text text)
+        public void Add(TMP_Text text, UITextRole role)
         {
             if (text == null || _bases.ContainsKey(text))
                 return;
 
-            var source = new Base(text.fontSize, text.fontSizeMin, text.fontSizeMax);
+            var source = new Base(role, text.font, text.fontSize, text.fontSizeMin, text.fontSizeMax);
             _bases.Add(text, source);
             Apply(text, source);
         }
 
-        public void SetScale(float scale)
+        public void SetStyle(in UITextStyle style)
         {
-            Scale = scale > 0f ? scale : 1f;
+            Style = style;
 
             foreach (KeyValuePair<TMP_Text, Base> pair in _bases)
             {
@@ -48,25 +50,32 @@ namespace BlackHole.Unity
 
         private void Apply(TMP_Text text, Base source)
         {
+            TMP_FontAsset font = Style.FontFor(source.Role);
+            text.font = font != null ? font : source.Font;
+
             if (text.enableAutoSizing)
             {
-                text.fontSizeMin = source.Min * Scale;
-                text.fontSizeMax = source.Max * Scale;
+                text.fontSizeMin = source.Min * Style.Scale;
+                text.fontSizeMax = source.Max * Style.Scale;
             }
             else
             {
-                text.fontSize = source.Size * Scale;
+                text.fontSize = source.Size * Style.Scale;
             }
         }
 
         private readonly struct Base
         {
+            public readonly UITextRole Role;
+            public readonly TMP_FontAsset Font;
             public readonly float Size;
             public readonly float Min;
             public readonly float Max;
 
-            public Base(float size, float min, float max)
+            public Base(UITextRole role, TMP_FontAsset font, float size, float min, float max)
             {
+                Role = role;
+                Font = font;
                 Size = size;
                 Min = min;
                 Max = max;

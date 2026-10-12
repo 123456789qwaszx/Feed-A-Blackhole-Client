@@ -9,4 +9,7 @@ public sealed class UITextBindingEntry
 
     // Keep the theme size regardless of the user text size (e.g. a logo-like title).
     public bool fixedSize;
+
+    // Keep the authored font in every locale (e.g. an untranslated logo).
+    public bool fixedFont;
 }

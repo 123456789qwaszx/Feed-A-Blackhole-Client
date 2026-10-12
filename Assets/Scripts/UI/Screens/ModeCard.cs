@@ -20,14 +20,14 @@ namespace BlackHole.Unity
             RecordText,
         }
 
-        // 글자 크기 설정을 받는 글자. 모드 선택 창이 카드를 만들 때 ScaledTexts에 넣는다.
-        public IEnumerable<TMP_Text> ScaledTexts
+        // 글자 크기·언어별 글꼴을 받는 글자와 역할. 모드 선택 창이 카드를 만들 때 StyledTexts에 넣는다.
+        public IEnumerable<(TMP_Text Text, UITextRole Role)> StyledTexts
         {
             get
             {
-                yield return View.Text(Refs.TitleText);
-                yield return View.Text(Refs.DescriptionText);
-                yield return View.Text(Refs.RecordText);
+                yield return (View.Text(Refs.TitleText), UITextRole.Title);
+                yield return (View.Text(Refs.DescriptionText), UITextRole.Body);
+                yield return (View.Text(Refs.RecordText), UITextRole.Caption);
             }
         }
 

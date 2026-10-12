@@ -139,7 +139,7 @@ public sealed class UIPresentationApplier
                     _texts.Add(refId, baseline);
                 }
 
-                baseline.CaptureAndOwn(text, theme);
+                baseline.CaptureAndOwn(text, theme.fonts != null && !entry.fixedFont);
             }
         }
 
@@ -313,9 +313,10 @@ public sealed class UIPresentationApplier
         private Color _color;
         private bool _ownsColor;
 
-        public void CaptureAndOwn(TMP_Text text, ThemeSpec theme)
+        // ownsFont: the theme sets this text's font (it has a font set and the entry is not fixedFont).
+        public void CaptureAndOwn(TMP_Text text, bool ownsFont)
         {
-            if (theme.mainFont != null)
+            if (ownsFont)
             {
                 if (!_hasFont)
                 {

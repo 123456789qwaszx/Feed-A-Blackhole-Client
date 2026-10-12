@@ -7,7 +7,7 @@ namespace BlackHole.Unity
 {
     // 확인 창. 부르는 쪽이 글자(Present)와 확인·취소 때 할 일을 정한다.
     // 뒤를 가리개(Blocker)가 덮어, 창이 열린 동안 아래 화면은 눌리지 않는다.
-    public sealed class ConfirmPanel : UIPanel<ConfirmPanel.Refs>, ITextScaleView
+    public sealed class ConfirmPanel : UIPanel<ConfirmPanel.Refs>, ITextStyleView
     {
         public enum Refs
         {
@@ -38,10 +38,10 @@ namespace BlackHole.Unity
         public event Action ConfirmClicked;
         public event Action CancelClicked;
 
-        private readonly ScaledTexts _scaled = new();
+        private readonly StyledTexts _styled = new();
 
-        // 글자 크기 설정. TextBindings에 등록되지 않은 글자만 여기서 맞춘다(등록된 글자는 Theme가 맞춘다).
-        public void ApplyTextScale(float scale) => _scaled.SetScale(scale);
+        // 글자 크기·언어별 글꼴. 이 창은 TextBindings가 없어 모든 글자를 여기서 맞춘다.
+        public void ApplyTextStyle(in UITextStyle style) => _styled.SetStyle(style);
 
         protected override void OnInitialize()
         {
@@ -54,10 +54,10 @@ namespace BlackHole.Unity
             _confirmLabel = View.Text(Refs.ConfirmBtn_Text);
             _cancelLabel = View.Text(Refs.CancelBtn_Text);
 
-            _scaled.Add(_title);
-            _scaled.Add(_body);
-            _scaled.Add(_confirmLabel);
-            _scaled.Add(_cancelLabel);
+            _styled.Add(_title, UITextRole.Title);
+            _styled.Add(_body, UITextRole.Body);
+            _styled.Add(_confirmLabel, UITextRole.Body);
+            _styled.Add(_cancelLabel, UITextRole.Body);
 
             _confirmAnimation = ButtonAnimation.Of(_confirmButton);
             _cancelAnimation = ButtonAnimation.Of(_cancelButton);

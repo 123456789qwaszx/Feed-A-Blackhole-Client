@@ -30,6 +30,11 @@ namespace BlackHole.Unity
         [Header("Presentations")]
         [SerializeField] private ScreenPresentations _presentations;
 
+        // 언어·역할별 글꼴(Assets/UI/Fonts/UIFontSet.asset). 화면 Theme들이 가리키는 것과 같은 에셋을 연결한다.
+        // Theme는 TextBindings 글자에, 이 칸은 TextBindings가 닿지 않는 글자(복제·코드 글자)에 같은 글꼴을 넣는다.
+        [Header("Fonts")]
+        [SerializeField] private UIFontSet _fonts;
+
         // UI 글자 표(Assets/Data/Localization/UIText.csv). 형식과 키 규칙은 Localizer에 적었다.
         [Header("Localization")]
         [SerializeField] private TextAsset _texts;
@@ -128,8 +133,8 @@ namespace BlackHole.Unity
             UIManager ui = CreateUI();
             // 화면을 등록한 뒤에 프리팹 글자를 지금 언어로 바꾼다. 언어가 바뀌면 다시 바꾼다.
             _viewTexts = new ViewTexts(_views, localizer);
-            // 언어·글자 크기 설정을 UIContext와 화면 글자에 넣는다. 설정이 바뀌면 다시 넣는다.
-            _uiSettings = new UISettingsSync(ui, _views, _settings);
+            // 언어·글자 크기 설정을 UIContext와 화면 글자(크기·글꼴)에 넣는다. 설정이 바뀌면 다시 넣는다.
+            _uiSettings = new UISettingsSync(ui, _views, _settings, _fonts);
             ScreenTransition transition = CreateScreenTransition();
             KeyInput keyInput = GetOrAdd<KeyInput>(gameObject);
 
@@ -297,6 +302,25 @@ namespace BlackHole.Unity
             return configured;
         }
 
+        // Theme가 다른 글꼴 묶음을 가리키면 같은 화면 안에서 TextBindings 글자와 나머지 글자의 글꼴이 갈린다.
+        private void WarnOtherFontSets()
+        {
+            var others = new List<string>();
+
+            foreach (ThemeSpec theme in _presentations.Themes())
+            {
+                if (theme != null && theme.fonts != _fonts && !others.Contains(theme.name))
+                    others.Add(theme.name);
+            }
+
+            if (others.Count > 0)
+            {
+                Debug.LogWarning(
+                    $"[UI] 이 Theme들은 GameBootstrap과 다른 글꼴 묶음을 가리킨다: {string.Join(", ", others)}." +
+                    " 같은 UIFontSet을 연결한다.", _fonts);
+            }
+        }
+
         private bool HasConfiguredUI()
         {
             bool configured = true;
@@ -348,6 +372,16 @@ namespace BlackHole.Unity
                         $"[UI] 화면 Presentation 묶음에 연결하지 않은 칸이 있다: {string.Join(", ", missing)}.", _presentations);
                     configured = false;
                 }
+            }
+
+            if (_fonts == null)
+            {
+                Debug.LogError("[UI] GameBootstrap에 글꼴 묶음(UIFontSet)을 연결해야 한다.", this);
+                configured = false;
+            }
+            else if (_presentations != null)
+            {
+                WarnOtherFontSets();
             }
 
             return configured;

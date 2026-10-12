@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class ModeSelectPanel : UIPanel<ModeSelectPanel.Refs>, ITextScaleView
+    public sealed class ModeSelectPanel : UIPanel<ModeSelectPanel.Refs>, ITextStyleView
     {
         public enum Refs
         {
@@ -67,9 +67,9 @@ namespace BlackHole.Unity
 
         private readonly List<ModeItem> _modes = new();
         private readonly List<ModeCard> _cards = new();
-        // 글자 크기 설정. 카드는 복제로 만들므로 만들 때 넣고 지울 때 비운다(틀은 넣지 않는다).
+        // 글자 크기·언어별 글꼴. 카드는 복제로 만들므로 만들 때 넣고 지울 때 비운다(틀은 넣지 않는다).
         // 창 제목·버튼 글자는 TextBindings에 있어 Theme가 맞춘다.
-        private readonly ScaledTexts _cardTexts = new();
+        private readonly StyledTexts _cardTexts = new();
         private readonly List<Vector2> _targetPositions = new();
         private readonly List<float> _targetScales = new();
 
@@ -203,7 +203,7 @@ namespace BlackHole.Unity
             }
         }
 
-        public void ApplyTextScale(float scale) => _cardTexts.SetScale(scale);
+        public void ApplyTextStyle(in UITextStyle style) => _cardTexts.SetStyle(style);
 
         private ModeCard CreateCard(ModeItem mode, int index)
         {
@@ -213,8 +213,8 @@ namespace BlackHole.Unity
             card.Show(mode);
             card.Clicked += () => Select(index);
 
-            foreach (TMPro.TMP_Text text in card.ScaledTexts)
-                _cardTexts.Add(text);
+            foreach ((TMPro.TMP_Text text, UITextRole role) in card.StyledTexts)
+                _cardTexts.Add(text, role);
 
             card.gameObject.SetActive(true);
             return card;
