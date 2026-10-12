@@ -36,6 +36,16 @@ namespace BlackHole.Unity
         [Tooltip("켜면 흐린 그림 대신 자물쇠(locked) 그림을 쓴다. 무엇인지 숨기고 싶을 때.")]
         [SerializeField] private bool _revealedAsLocked;
 
+        [Header("아직 닿지 않은 노드(Hidden) — 안개")]
+        [Tooltip("켜면 아직 닿지 않은 노드도 흐린 윤곽으로 보인다(지도 전체가 처음부터 보이고, 멀리 있는 구역은 안개 속). 끄면 원작처럼 이웃을 사야 나타난다.")]
+        [SerializeField] private bool _showHidden = true;
+        [Tooltip("안개 속 노드의 그림. 켜면 자물쇠(locked) 그림, 끄면 살 수 있음 그림을 쓴다.")]
+        [SerializeField] private bool _hiddenAsLocked = true;
+        [Tooltip("안개 속 노드 그림에 곱하는 색. 알파를 낮춰 흐리게.")]
+        [SerializeField] private Color _hiddenTint = new Color(1, 1, 1, 0.18f);
+        [Tooltip("안개 속 선의 색(알파 포함).")]
+        [SerializeField] private Color _hiddenLinkColor = new Color(0.722f, 0.729f, 0.725f, 0.18f);
+
         [Header("선")]
         [Tooltip("양 끝을 모두 샀다.")]
         [SerializeField] private Color _ownedLinkColor = new Color(0.341f, 0.592f, 0.412f);
@@ -54,6 +64,11 @@ namespace BlackHole.Unity
 
         private Dictionary<string, NodeSprites> _byStat;
 
+        // 아직 닿지 않은 노드를 안개로 보이는가.
+        public bool ShowHidden => _showHidden;
+
+        public Color HiddenLinkColor => _hiddenLinkColor;
+
         // 노드 그림. hovered는 손을 올린 노드(샀으면 무시한다).
         public Sprite SpriteOf(string stat, NodeState state, bool hovered)
         {
@@ -63,6 +78,7 @@ namespace BlackHole.Unity
             {
                 case NodeState.Owned:
                     return Pick(sprites?.purchased, _fallback.purchased);
+                case NodeState.Hidden when _hiddenAsLocked:
                 case NodeState.Revealed when _revealedAsLocked:
                     return Pick(sprites?.locked, _fallback.locked);
                 default:
@@ -72,9 +88,14 @@ namespace BlackHole.Unity
             }
         }
 
-        // 그림에 곱하는 색. Gold가 모자란 노드만 흐리게 한다.
-        public Color TintOf(NodeState state) =>
-            state == NodeState.Revealed && !_revealedAsLocked ? _revealedTint : Color.white;
+        // 그림에 곱하는 색. Gold가 모자란 노드는 흐리게, 안개 속 노드는 더 흐리게.
+        public Color TintOf(NodeState state)
+        {
+            if (state == NodeState.Hidden)
+                return _hiddenTint;
+
+            return state == NodeState.Revealed && !_revealedAsLocked ? _revealedTint : Color.white;
+        }
 
         public Color LinkColorOf(NodeState a, NodeState b)
         {

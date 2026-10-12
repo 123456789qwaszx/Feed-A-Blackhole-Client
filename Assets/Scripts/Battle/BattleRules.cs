@@ -14,7 +14,11 @@ namespace BlackHole.Unity
         [Tooltip("적이 파괴될 때 시간 추가(노드 asteroid.timeChance 등)가 성공하면 제한 시간에 더하는 초. 원작 실측 0.3초.")]
         [SerializeField] private float killTimeBonus = 0.3f;
 
+        [Tooltip("한 판에 파괴로 더할 수 있는 시간의 합(초). 0이면 제한 없음. 재생성·시간 추가 노드가 쌓이면 판이 끝나지 않으므로 둔다.")]
+        [Min(0)]
+        [SerializeField] private float maxKillTimeBonus = 0f;
+
         internal void WriteTo(ContentData data) =>
-            data.BattleRules = new BattleRulesData { TimeLimit = timeLimit, KillTimeBonus = killTimeBonus };
+            data.BattleRules = new BattleRulesData { TimeLimit = timeLimit, KillTimeBonus = killTimeBonus, MaxKillTimeBonus = maxKillTimeBonus };
     }
 }

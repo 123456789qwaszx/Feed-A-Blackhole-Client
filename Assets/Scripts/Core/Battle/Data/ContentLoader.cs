@@ -37,7 +37,7 @@ namespace BlackHole.Core
                 return null;
             }
 
-            return Guard("BattleRules.TimeLimit", into, () => new TimeLimitDefinition(item.TimeLimit, item.KillTimeBonus));
+            return Guard("BattleRules.TimeLimit", into, () => new TimeLimitDefinition(item.TimeLimit, item.KillTimeBonus, item.MaxKillTimeBonus));
         }
 
         private static BreakerDefinition LoadBreaker(BreakerData item, List<ContentDiagnostic> into)

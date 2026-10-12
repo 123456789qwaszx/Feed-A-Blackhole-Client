@@ -206,7 +206,8 @@ namespace BlackHole.Unity
                 if (costs.TryGetValue(node.Id, out long cost))
                     node.Price = cost;
 
-                bool visible = node.State != NodeState.Hidden;
+                // 아직 닿지 않은 노드: 안개 설정(NodeTreeLook.ShowHidden)이 켜져 있으면 흐린 윤곽으로 보이고, 아니면 숨긴다.
+                bool visible = node.State != NodeState.Hidden || ShowHidden;
                 node.Root.SetActive(visible);
 
                 if (!visible)
@@ -223,18 +224,23 @@ namespace BlackHole.Unity
             PaintLinks();
         }
 
-        // 선: 양 끝이 보일 때만 보이고, 양 끝 상태에 따른 색.
+        // 선: 양 끝이 보일 때만 보이고, 양 끝 상태에 따른 색. 한쪽이라도 안개 속이면 안개 선 색.
         private void PaintLinks()
         {
             foreach (LinkVisual link in _links)
             {
-                bool visible = link.From.State != NodeState.Hidden && link.To.State != NodeState.Hidden;
+                bool fogged = link.From.State == NodeState.Hidden || link.To.State == NodeState.Hidden;
+                bool visible = !fogged || ShowHidden;
                 link.Root.SetActive(visible);
 
-                if (visible)
-                    link.Image.color = LinkColorOf(LinkStateOf(link.From), LinkStateOf(link.To));
+                if (!visible)
+                    continue;
+
+                link.Image.color = fogged ? _look.HiddenLinkColor : LinkColorOf(LinkStateOf(link.From), LinkStateOf(link.To));
             }
         }
+
+        private bool ShowHidden => _look != null && _look.ShowHidden;
 
         // 모든 노드(숨은 노드 포함)의 범위가 보이게 맞춘다. 저작한 모양의 가운데가 화면 가운데임.
         public void FrameAll()
@@ -501,7 +507,25 @@ namespace BlackHole.Unity
         private void Paint(NodeVisual node)
         {
             if (node.State == NodeState.Hidden)
+            {
+                // 안개 속: 그림만 흐리게, 가격·Rank 딱지는 숨긴다.
+                if (_look != null)
+                {
+                    node.Image.sprite = _style.SpriteFor(_look.SpriteOf(node.Stat, node.State, false));
+                    node.Image.color = _look.TintOf(node.State);
+                }
+
+                if (node.Badge != null && node.Badge.gameObject.activeSelf)
+                    node.Badge.gameObject.SetActive(false);
+
+                if (node.RankLabel != null && node.RankLabel.transform.parent.gameObject.activeSelf)
+                    node.RankLabel.transform.parent.gameObject.SetActive(false);
+
                 return;
+            }
+
+            if (node.RankLabel != null && !node.RankLabel.transform.parent.gameObject.activeSelf)
+                node.RankLabel.transform.parent.gameObject.SetActive(true);
 
             string price = NumberText.Compact(node.Price);
             bool partial = node.Rank > 0 && node.State != NodeState.Owned;

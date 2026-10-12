@@ -48,6 +48,7 @@ namespace BlackHole.Simulation.Tool
             {
                 TimeLimit = Float(rules, "timeLimit", 12),
                 KillTimeBonus = Float(rules, "killTimeBonus", 0.3f),
+                MaxKillTimeBonus = Float(rules, "maxKillTimeBonus", 0),
             };
 
             YamlNode skills = Asset(setup.Guid("_skills"), "스킬 설정(_skills)");
