@@ -30,6 +30,10 @@ namespace BlackHole.Unity
         [Header("Presentations")]
         [SerializeField] private ScreenPresentations _presentations;
 
+        // UI 글자 표(Assets/Data/Localization/UIText.csv). 형식과 키 규칙은 Localizer에 적었다.
+        [Header("Localization")]
+        [SerializeField] private TextAsset _texts;
+
         [Header("Analytics")]
         [SerializeField] private AnalyticsSettings _analyticsSettings;
 
@@ -54,12 +58,12 @@ namespace BlackHole.Unity
         };
 
         private const UITheme Theme = UITheme.Light;
-        private const UILocale Locale = UILocale.Korean;
 
         private ProgressState _progress;
         private ProgressStore _progressStore;
         private GameSettings _settings;
         private BattleAnalytics _analytics;
+        private ViewTexts _viewTexts;
         private GameHost _host;
 
         private void Awake()
@@ -98,6 +102,7 @@ namespace BlackHole.Unity
                 loaded.NodeTree.Content,
                 loaded.Content.Growth);
             _settings = GameSettings.Load();
+            Localizer localizer = Localizer.Create(_texts, _settings);
             _analytics = BattleAnalytics.Create(
                 _analyticsSettings,
                 Application.persistentDataPath,
@@ -116,6 +121,8 @@ namespace BlackHole.Unity
             AimInput aim = new(battle);
 
             UIManager ui = CreateUI();
+            // 화면을 등록한 뒤에 프리팹 글자를 지금 언어로 바꾼다. 언어가 바뀌면 다시 바꾼다.
+            _viewTexts = new ViewTexts(_views, localizer);
             ScreenTransition transition = CreateScreenTransition();
             KeyInput keyInput = GetOrAdd<KeyInput>(gameObject);
 
@@ -129,6 +136,7 @@ namespace BlackHole.Unity
                 loaded.NodeItems,
                 loaded.Content.Growth,
                 _settings,
+                localizer,
                 transition,
                 keyInput,
                 _analytics);
@@ -191,11 +199,17 @@ namespace BlackHole.Unity
             _analytics.Flush();
         }
 
-        private void OnDestroy() => _host?.Dispose();
+        private void OnDestroy()
+        {
+            _viewTexts?.Dispose();
+            _host?.Dispose();
+        }
 
         private UIManager CreateUI()
         {
-            UIContext uiContext = new(Theme.ToId(), Locale.ToId());
+            // 언어는 시작할 때의 설정 값이다. 실행 중에 바꾼 언어는 아직 UIContext에 넣지 않는다 —
+            // 언어별 Presentation 변형(글꼴·배치·그림)이 생기면 그때 바꿔 끼우고 다시 적용한다. 글자 번역은 Localizer가 따로 한다.
+            UIContext uiContext = new(Theme.ToId(), _settings.LanguageLocale.ToId());
             UIResolver uiResolver = new(uiContext);
             UIPresentationApplier presentationApplier = new();
 

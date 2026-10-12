@@ -66,7 +66,9 @@ namespace BlackHole.Unity
 
         // 선택지는 번호로 저장한다. 순서를 바꾸면 저장된 값의 뜻이 바뀌므로 끝에만 더한다.
         private static readonly string[] NoOptions = Array.Empty<string>();
-        private static readonly string[] LanguageOptions = { "English", "Korean" };
+        // 언어 이름은 번역하지 않고 그 언어로 쓴다(어느 언어에서도 자기 언어를 찾을 수 있게).
+        private static readonly string[] LanguageOptions = { "English", "한국어" };
+        private static readonly UILocale[] LanguageValues = { UILocale.English, UILocale.Korean };
         private static readonly string[] ScreenModeOptions = { "Fullscreen", "Exclusive Fullscreen", "Windowed" };
         private static readonly FullScreenMode[] ScreenModeValues =
             { FullScreenMode.FullScreenWindow, FullScreenMode.ExclusiveFullScreen, FullScreenMode.Windowed };
@@ -78,7 +80,8 @@ namespace BlackHole.Unity
         private static readonly string[] PercentOptions = Percents();
         private const int DefaultPercentIndex = (100 - PercentMin) / PercentStep;
 
-        // 설정 창에 보이는 순서.
+        // 설정 창에 보이는 순서. 이름과 선택지는 영어 원문이다 — 설정 창은 UI 글자 표(setting.{ID}, setting.{ID}.{번호})의
+        // 번역을 먼저 쓰고, 표에 없으면 이 원문을 쓴다(숫자·퍼센트 선택지는 표에 넣지 않는다).
         public static IReadOnlyList<Definition> Definitions { get; } = new[]
         {
             Toggle(DarkMode, "Dark Mode", false),
@@ -127,6 +130,9 @@ namespace BlackHole.Unity
         public bool IsOn(string id) => ValueOf(id) >= 0.5f;
         public float LevelOf(string id) => ValueOf(id);
         public int IndexOf(string id) => Mathf.RoundToInt(ValueOf(id));
+
+        // 고른 언어(Language 선택지 → UI 언어).
+        public UILocale LanguageLocale => LanguageValues[IndexOf(Language)];
 
         // 퍼센트 단계(Text Size·Controller Sensitivity)의 배율. 100%면 1이다.
         public float PercentOf(string id) => (PercentMin + IndexOf(id) * PercentStep) / 100f;

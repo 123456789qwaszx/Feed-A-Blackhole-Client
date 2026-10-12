@@ -10,7 +10,7 @@ namespace BlackHole.Unity
     // 전투 화면(전투 장면 위의 겹 화면). 남은 시간, 이 판이 번 Gold, 블랙홀의 판 Level·목표 Level과 다음 Level까지의 %(글자와 막대), 일시정지 여부를 받아 보여 주고, 일시정지·종료 버튼을 알린다.
     // 전투 Session을 모른다 — GameHost가 전투 Step 뒤 표시 값을 넘긴다. 진행 중인 판이 없으면 비어 있는 표시(ShowIdle)다.
     // 번 Gold는 이 판의 합계일 뿐이다. 진행 상태의 Gold는 판이 끝난 뒤 결산이 바꾼다.
-    public sealed class BattleScreen : UIRoot<BattleScreen.Refs>
+    public sealed class BattleScreen : UIRoot<BattleScreen.Refs>, ILocalizedView
     {
         public enum Refs
         {
@@ -54,6 +54,7 @@ namespace BlackHole.Unity
         private int _shownPercent = -1;
         private int _shownGoal = -1;
         private bool? _shownPaused;
+        private Localizer _localizer;
 
         private const float FillSharpness = 5f;
         private float _fillValue = float.NaN;
@@ -101,7 +102,7 @@ namespace BlackHole.Unity
             if (_shownPaused != false && _pauseLabel != null)
             {
                 _shownPaused = false;
-                _pauseLabel.text = "Pause";
+                _pauseLabel.text = PauseLabel(false);
             }
         }
 
@@ -120,8 +121,7 @@ namespace BlackHole.Unity
             if (earnedGold != _shownEarned && _earned != null)
             {
                 _shownEarned = earnedGold;
-                //_earned.text = "+" + earnedGold.ToString("N0", CultureInfo.InvariantCulture) + " Gold";
-                _earned.text = "+" + OverThousand.GoldThousand(earnedGold) + " Gold";
+                _earned.text = EarnedText(earnedGold);
             }
 
             int percent = Mathf.FloorToInt(progress * 100);
@@ -131,9 +131,7 @@ namespace BlackHole.Unity
                 _shownLevel = level;
                 _shownPercent = percent;
                 _shownGoal = goalLevel;
-                _level.text = "Lv " + level.ToString(CultureInfo.InvariantCulture)
-                    + (goalLevel > 0 ? " / " + goalLevel.ToString(CultureInfo.InvariantCulture) : string.Empty)
-                    + "  " + percent.ToString(CultureInfo.InvariantCulture) + "%";
+                _level.text = LevelText(level, goalLevel, percent);
                 // 막대도 글자와 같은 %로 맞춘다. 1% 단위로만 바뀌므로 매 프레임 레이아웃을 다시 잡지 않는다.
                 //SetLevelFill(percent / 100f);
             }
@@ -143,9 +141,41 @@ namespace BlackHole.Unity
             if (paused != _shownPaused && _pauseLabel != null)
             {
                 _shownPaused = paused;
-                _pauseLabel.text = paused ? "Resume" : "Pause";
+                _pauseLabel.text = PauseLabel(paused);
             }
         }
+
+        // 지금 보이는 값(번 Gold·Level·일시정지 글자)을 지금 언어로 다시 쓴다. 비어 있는 표시는 그대로 둔다.
+        public void Relocalize(Localizer localizer)
+        {
+            _localizer = localizer;
+
+            if (_earned != null && _shownEarned >= 0)
+                _earned.text = EarnedText(_shownEarned);
+
+            if (_level != null && _shownLevel >= 0)
+                _level.text = LevelText(_shownLevel, _shownGoal, _shownPercent);
+
+            if (_pauseLabel != null && _shownPaused is bool paused)
+                _pauseLabel.text = PauseLabel(paused);
+        }
+
+        private string EarnedText(long earnedGold) => Localized("battle.earned", OverThousand.GoldThousand(earnedGold));
+
+        private string LevelText(int level, int goalLevel, int percent)
+        {
+            string shownLevel = level.ToString(CultureInfo.InvariantCulture);
+            string shownPercent = percent.ToString(CultureInfo.InvariantCulture);
+
+            return goalLevel > 0
+                ? Localized("battle.level.goal", shownLevel, goalLevel.ToString(CultureInfo.InvariantCulture), shownPercent)
+                : Localized("battle.level", shownLevel, shownPercent);
+        }
+
+        private string PauseLabel(bool paused) => Localized(paused ? "battle.resume" : "battle.pause");
+
+        private string Localized(string key, params object[] args) =>
+            _localizer != null ? _localizer.Format(key, args) : key;
 
         private void SetLevelFill(float amount)
         {
