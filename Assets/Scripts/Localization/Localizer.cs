@@ -162,6 +162,10 @@ namespace BlackHole.Unity
                 if (key.Length == 0 || key.StartsWith(CommentPrefix, StringComparison.Ordinal))
                     continue;
 
+                // 칸 안의 줄바꿈은 \n 하나로 맞춘다(Windows에서 받으면 \r\n이 될 수 있다).
+                for (int c = 0; c < cells.Length; c++)
+                    cells[c] = cells[c].Replace("\r\n", "\n");
+
                 if (!_rows.TryAdd(key, cells))
                     Debug.LogWarning($"[글자] UI 글자 표에 '{key}'가 두 번 있다({i + 1}번째 줄). 앞의 것을 쓴다.");
             }
