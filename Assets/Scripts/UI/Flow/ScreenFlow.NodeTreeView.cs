@@ -19,7 +19,13 @@ namespace BlackHole.Unity
                     BindView(page, ApplyBindings);
                     page.Build(_nodes, _tree.Graph.Links, _regions);
                 },
-                afterClosed: Unbind);
+                afterClosed: page =>
+                {
+                    Unbind(page);
+
+                    if (_ui.CurrentRoot is UpgradeScreen root)
+                        root.ShowRegion(null);
+                });
         }
 
         private void ApplyBindings(NodeTreeView page)
@@ -35,6 +41,16 @@ namespace BlackHole.Unity
             AddBinding(page,
                 p => p.NodeLeft += HandleNodeTreeNodeLeft,
                 p => p.NodeLeft -= HandleNodeTreeNodeLeft);
+            AddBinding(page,
+                p => p.RegionViewed += HandleNodeTreeRegionViewed,
+                p => p.RegionViewed -= HandleNodeTreeRegionViewed);
+        }
+
+        // 트리의 보이는 창 가운데가 든 구역이 바뀌었다. 위쪽 글자(블랙홀 자리)에 구역 이름을 보인다.
+        private void HandleNodeTreeRegionViewed(string key)
+        {
+            if (_ui.CurrentRoot is UpgradeScreen root)
+                root.ShowRegion(key);
         }
 
         private void HandleNodeTreeNodeClicked(string id)

@@ -46,16 +46,6 @@ namespace BlackHole.Unity
         [Tooltip("안개 속 선의 색(알파 포함).")]
         [SerializeField] private Color _hiddenLinkColor = new Color(0.722f, 0.729f, 0.725f, 0.18f);
 
-        [Header("구역(우주 구역) 이름·테두리")]
-        [Tooltip("구역 노드들을 감싸는 판의 색(알파 낮게). 알파 0이면 판을 그리지 않는다.")]
-        [SerializeField] private Color _regionBackColor = new Color(1, 1, 1, 0.04f);
-        [Tooltip("구역 이름 글자 색.")]
-        [SerializeField] private Color _regionLabelColor = new Color(0.72f, 0.73f, 0.73f, 0.9f);
-        [Tooltip("구역 이름 글자 크기(트리 공간, 칸 150 기준).")]
-        [SerializeField] private float _regionLabelSize = 40f;
-        [Tooltip("판이 노드 바깥으로 나가는 여유(트리 공간).")]
-        [SerializeField] private float _regionPadding = 60f;
-
         [Header("선")]
         [Tooltip("양 끝을 모두 샀다.")]
         [SerializeField] private Color _ownedLinkColor = new Color(0.341f, 0.592f, 0.412f);
@@ -79,10 +69,6 @@ namespace BlackHole.Unity
 
         public Color HiddenLinkColor => _hiddenLinkColor;
 
-        public Color RegionBackColor => _regionBackColor;
-        public Color RegionLabelColor => _regionLabelColor;
-        public float RegionLabelSize => _regionLabelSize;
-        public float RegionPadding => _regionPadding;
 
         // 노드 그림. hovered는 손을 올린 노드(샀으면 무시한다).
         public Sprite SpriteOf(string stat, NodeState state, bool hovered)
