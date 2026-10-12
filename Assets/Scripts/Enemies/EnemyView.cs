@@ -23,8 +23,15 @@ namespace BlackHole.Unity
         // 적 하나의 화면 상태: 스프라이트와, 그 스프라이트에 적용되는 짧은 피격 흔들림 연출.
         private sealed class EnemyVisual
         {
+            // 위치·크기(출현 연출)·자전을 맡는 바깥 트랜스폼. 소행성/행성/별은 Renderer(스프라이트)를 감싸는
+            // 별도 부모(아래 Create 참고)라서, 자전 회전과 Hit의 펀치 회전(Renderer.transform)이 서로 다른
+            // 트랜스폼을 써서 부딪히지 않는다. 그 외 종류는 Renderer.transform과 같은 객체다(구조 변화 없음).
+            public Transform Container;
             public SpriteRenderer Renderer;
             public EnemyHitAnimation Hit;
+            // 소행성/행성/별만 0이 아니다(출현 때 무작위로 정함). 공전(이동)과 별개로 제자리에서 도는 자전
+            // 속도(도/초, 부호가 방향).
+            public float SpinSpeed;
             // 달 성질이 붙은 적만 가진다(없으면 null). 적 스프라이트의 형제라 피격 흔들림·배율의 영향을 받지 않는다.
             public MeshRenderer Moon;
             // 달 공전의 위상(바퀴)과 속도(바퀴/초, 시계방향). 적마다 출현 때 한 번 정해진다.
@@ -50,6 +57,11 @@ namespace BlackHole.Unity
         private const float GalaxySpin = 40f;
         private const float GalaxySpinMin = 0.8f;
         private const float GalaxySpinMax = 1.2f;
+
+        // 소행성/행성/별의 자전 속도 범위(도/초) [임시]. 공전(이동)과 별개로 제자리에서 천천히 도는 연출 —
+        // 방향(시계/반시계)은 적마다 무작위.
+        private const float SpinSpeedMin = 10f;
+        private const float SpinSpeedMax = 25f;
 
         // 달 구체의 반지름(전장 배율 1에서의 월드 단위). 모든 행성이 같은 크기의 달을 가진다. Breaker 달(BreakerLook.OrbRadius)보다 작다.
         // 원작 달은 카메라와 무관하게 화면에서 약 25px이라(C0 지름 25px ÷ 54px/unit ÷ 2) 판의 전장 배율을 곱한다.
@@ -148,7 +160,7 @@ namespace BlackHole.Unity
                     _visuals.Add(enemy.Id, visual);
                 }
 
-                visual.Renderer.transform.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
+                visual.Container.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
 
                 // 일시정지 중에는 연출을 멈춘다. 다만 일시정지 중에 새로 생긴 적(테스트 도구 소환)은 크기 0으로 숨어 있지 않게 바로 제 크기로 보인다.
                 if (visual.SpawnElapsed < SpawnSeconds)
@@ -159,6 +171,11 @@ namespace BlackHole.Unity
 
                 if (visual.Arms != null && !paused)
                     visual.Arms.Rotate(0, 0, visual.ArmSpin * delta);
+
+                // 공전(이동)과 별개의 자전(소행성/행성/별만 SpinSpeed != 0). Container를 돌리므로 Hit의 펀치
+                // 회전(Renderer.transform)과 서로 다른 트랜스폼이라 부딪히지 않는다.
+                if (visual.SpinSpeed != 0 && !paused)
+                    visual.Container.Rotate(0, 0, visual.SpinSpeed * delta);
             }
 
             // 이번 Step의 피격·사망 연출. 피격 흔들림은 아직 살아 있는 적에만 낸다(죽은 적의 스프라이트는 아래에서 지운다).
@@ -289,7 +306,7 @@ namespace BlackHole.Unity
         // 혜성은 여기에 없다 — 화면은 CometView가 지운다(Retain·Reset).
         private void Release(EnemyVisual visual)
         {
-            Object.Destroy(visual.Renderer.gameObject);
+            Object.Destroy(visual.Container.gameObject);
 
             if (visual.Moon != null)
                 Object.Destroy(visual.Moon.gameObject);
@@ -299,8 +316,31 @@ namespace BlackHole.Unity
         {
             EnemyType kind = enemy.Definition.Type;
             EnemyTraitType? trait = enemy.Trait?.Type;
-            var view = new GameObject(trait != null ? $"{kind} #{enemy.Id.Value} ({trait})" : $"{kind} #{enemy.Id.Value}");
-            view.transform.SetParent(_root, false);
+            string name = trait != null ? $"{kind} #{enemy.Id.Value} ({trait})" : $"{kind} #{enemy.Id.Value}";
+            bool spins = kind == EnemyType.Asteroid || kind == EnemyType.Planet || kind == EnemyType.Star;
+
+            // 자전하는 종류(소행성/행성/별)만 바깥에 별도 Container를 두고 그 안에 "Sprite"를 자식으로 둔다 —
+            // Container(위치·크기·자전)와 Sprite(Hit 펀치 회전)가 서로 다른 트랜스폼이라 부딪히지 않는다.
+            // 그 외 종류는 기존과 같은 평평한 구조를 유지한다(Container == Sprite 자신) — 은하의 붕괴 연출
+            // (GalaxyCollapses)이 Renderer.transform의 게임오브젝트 하나만 파괴하므로, 감싸면 빈 부모가 남는다.
+            GameObject view;
+            Transform container;
+
+            if (spins)
+            {
+                var containerObject = new GameObject(name);
+                containerObject.transform.SetParent(_root, false);
+                container = containerObject.transform;
+
+                view = new GameObject("Sprite");
+                view.transform.SetParent(container, false);
+            }
+            else
+            {
+                view = new GameObject(name);
+                view.transform.SetParent(_root, false);
+                container = view.transform;
+            }
 
             var renderer = view.AddComponent<SpriteRenderer>();
             // 은하의 부모 스프라이트는 크기와 성질 표식의 기준이다. 실제 몸체는 자식의 완성 실루엣으로 그린다.
@@ -311,7 +351,7 @@ namespace BlackHole.Unity
             // 크기는 규칙 수치(반지름)를 그대로 쓴다: 스프라이트의 긴 변이 지름이 되게 맞춘다.
             Vector3 bounds = renderer.sprite.bounds.size;
             float longest = Mathf.Max(bounds.x, bounds.y);
-            view.transform.localScale = Vector3.one * (enemy.Stats.Radius * 2 / longest);
+            container.localScale = Vector3.one * (enemy.Stats.Radius * 2 / longest);
 
             Color marker = _looks.TraitColorOf(kind, trait);
 
@@ -327,7 +367,10 @@ namespace BlackHole.Unity
                 fillRenderer.sortingOrder = renderer.sortingOrder + 1;
             }
 
-            var visual = new EnemyVisual { Renderer = renderer, Hit = new EnemyHitAnimation(renderer.transform) };
+            var visual = new EnemyVisual { Container = container, Renderer = renderer, Hit = new EnemyHitAnimation(renderer.transform) };
+
+            if (spins)
+                visual.SpinSpeed = UnityEngine.Random.Range(SpinSpeedMin, SpinSpeedMax) * (UnityEngine.Random.value < 0.5f ? -1f : 1f);
 
             if (trait == EnemyTraitType.Moon)
                 CreateMoon(visual, enemy);
@@ -336,8 +379,8 @@ namespace BlackHole.Unity
                 CreateGalaxyArms(visual, enemy);
 
             // 출현 연출은 점에서 시작한다(AdvanceSpawn). 자식(성질 표식·은하 실루엣)은 부모 크기를 따라 함께 커진다.
-            visual.BaseScale = view.transform.localScale;
-            view.transform.localScale = Vector3.zero;
+            visual.BaseScale = container.localScale;
+            container.localScale = Vector3.zero;
 
             if (visual.Moon != null)
             {
@@ -354,7 +397,7 @@ namespace BlackHole.Unity
         {
             visual.SpawnElapsed = Mathf.Min(SpawnSeconds, visual.SpawnElapsed + delta);
             float scale = OutBack(visual.SpawnElapsed / SpawnSeconds);
-            visual.Renderer.transform.localScale = visual.BaseScale * scale;
+            visual.Container.localScale = visual.BaseScale * scale;
 
             if (visual.Moon != null)
             {
