@@ -136,6 +136,7 @@ namespace BlackHole.Unity
                 loaded.NodeItems,
                 loaded.Content.Growth,
                 _settings,
+                localizer,
                 transition,
                 keyInput,
                 _analytics);

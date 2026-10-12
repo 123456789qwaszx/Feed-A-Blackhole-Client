@@ -115,6 +115,26 @@ namespace BlackHole.Unity
             _rowList.anchoredPosition = Vector2.zero;
         }
 
+        // 행을 다시 만들지 않고 이름·선택지·값만 다시 보여 준다(언어가 바뀌었을 때). 목록의 스크롤 위치는 그대로 둔다.
+        // 행은 ID로 찾는다. 맞는 항목이 없는 행은 그대로 둔다.
+        public void Relabel(IReadOnlyList<SettingItem> items)
+        {
+            foreach (SettingRow row in _rows)
+            {
+                if (row == null)
+                    continue;
+
+                foreach (SettingItem item in items)
+                {
+                    if (item.Id != row.Id)
+                        continue;
+
+                    row.Show(item.Id, item.Label, item.Kind, item.Value, item.Options);
+                    break;
+                }
+            }
+        }
+
         // 패널이 닫힐 때(비활성) 펼침 목록도 닫는다.
         private void OnDisable() => CloseChoice();
 
