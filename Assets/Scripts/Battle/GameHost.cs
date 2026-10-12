@@ -16,6 +16,7 @@ namespace BlackHole.Unity
         private readonly DeathEffectView _deathEffectView;
         private readonly HqView _hqView;
         private readonly CameraShake _cameraShake;
+        private readonly GameSettings _settings;
 
         public GameHost(
             UIManager ui,
@@ -27,7 +28,8 @@ namespace BlackHole.Unity
             BreakerView breakerView,
             DeathEffectView deathEffectView,
             HqView hqView,
-            CameraShake cameraShake)
+            CameraShake cameraShake,
+            GameSettings settings)
         {
             _ui = ui;
             _battle = battle;
@@ -39,6 +41,7 @@ namespace BlackHole.Unity
             _deathEffectView = deathEffectView;
             _hqView = hqView;
             _cameraShake = cameraShake;
+            _settings = settings;
         }
 
         public void Start() => _screens.GoToTitle();
@@ -54,7 +57,9 @@ namespace BlackHole.Unity
 
             if (result.RaisedLevels > 0)
             {
-                _cameraShake.Play();
+                if (_settings.IsOn(GameSettings.ScreenShake))
+                    _cameraShake.Play();
+
                 SoundManager.Instance.PlayLevelUp();
             }
 
