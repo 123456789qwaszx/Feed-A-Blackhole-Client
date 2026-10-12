@@ -17,6 +17,10 @@ namespace BlackHole.Unity
         [SerializeField] private CometLook _cometLook;
         [SerializeField] private GameObject _blackHole;
 
+        // 전투 배경의 밝기 테마(설정 Dark Mode). 메뉴 Tools/Black Hole/Battle Background/Install in Open Scene이 연결한다. 비우면 씬에 놓인 그대로.
+        [Header("Battle Background")]
+        [SerializeField] private BattleBackgroundTheme _battleBackground;
+
         [Header("UI Layers")]
         [SerializeField] private RectTransform _rootLayer;
         [SerializeField] private RectTransform _panelLayer;
@@ -95,6 +99,10 @@ namespace BlackHole.Unity
 
             // 설정은 화면(적 연출·화면 흔들림)이 읽으므로 화면보다 먼저 읽는다.
             _settings = GameSettings.Load();
+
+            // 전투 배경은 설정의 Dark Mode를 따른다. 설정을 읽은 직후에 묶어 첫 프레임부터 맞는 배경이 보인다.
+            if (_battleBackground != null)
+                _battleBackground.Bind(_settings);
             _frameRate = new FrameRateLimiter(_settings);
 
             Camera battleCamera = Camera.main;
