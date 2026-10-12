@@ -18,4 +18,4 @@ MonoBehaviour:
   periodicSpawnOuterOffset: 0.5
   startSupply:
   - kind: {fileID: 11400000, guid: 05425233efee43ed8109228e30eff09f, type: 2}
-    count: 15
+    count: 12

@@ -160,7 +160,7 @@ namespace BlackHole.Core
         private void MoveEnemies(float delta)
         {
             bool fields = DeathEffects.HasGravityFields;
-            bool holding = AimPoint.HasValue && Breaker.Definition.HoldSlow < 1;
+            bool holding = IsHoldingAny;
 
             if (!fields && !holding)
             {
@@ -190,6 +190,12 @@ namespace BlackHole.Core
                 enemies[i].Move(orbit);
             }
         }
+
+        // 지금 붙잡기가 일어나는가: 조준점이 있고 붙잡기가 켜져 있다(HoldSlow < 1).
+        private bool IsHoldingAny => AimPoint.HasValue && Breaker.Definition.HoldSlow < 1;
+
+        // 이 적이 지금 Breaker에 붙잡혀 있는가(조준점이 있고 공격 원 안이라 거의 멈춰 있다). 화면이 붙잡힌 적을 표시할 때 쓴다.
+        public bool IsHeld(Enemy enemy) => IsHoldingAny && Breaker.IsHolding(this, enemy);
 
         // 이 성질이 지금 판에 있는 수: 살아 있는 그 성질 적 + 그 성질이 준 버프 중 Breaker에 남은 중첩(달).
         // 성질의 동시 상한(EnemyTraitDefinition.MaxActive, 원작 "달 최대 개수")은 이 수에 건다(EnemySupply).

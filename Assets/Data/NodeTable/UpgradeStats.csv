@@ -11,7 +11,7 @@ breaker.critChance,Float,Percent,0,Add,0,100,TRUE,,브레이커 치명타 확률
 breaker.critBonus,Float,Percent,200,Add,0,,TRUE,,브레이커 치명타 보너스,%,200,5,[2]동일한것,14,OK
 breaker.planetBonusDamage,Float,Flat,0,Add,0,,TRUE,,행성에 대한 브레이커의 보너스 피해,값,,4,[2]동일한것,4,OK
 breaker.starBonusDamage,Float,Flat,0,Add,0,,TRUE,,별에 대한 브레이커의 보너스 대미지,값,,2,[2]동일한것,2,OK
-asteroid.count,Int,Flat,15,Add,0,,TRUE,,소행성 수,값,20,5,[2]동일한것,5,OK
+asteroid.count,Int,Flat,12,Add,0,,TRUE,,소행성 수,값,20,5,[2]동일한것,5,OK
 asteroid.size,Int,Flat,1,Add,0,,TRUE,,소행성 크기,값,1,2,[2]동일한것,2,OK
 asteroid.massScale,Float,Percent,100,Add,0,,TRUE,,소행성 질량,%,100,10,[2]동일한것,10,OK
 asteroid.timeChance,Float,Percent,0,Add,0,100,TRUE,,소행성이 파괴될 때 시간이 추가될 확률,%,0,2,[2]동일한것,2,OK

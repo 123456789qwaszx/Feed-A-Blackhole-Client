@@ -72,6 +72,22 @@ namespace BlackHole.Unity
         [Min(0)]
         [SerializeField] private float _cometAuraOffset = 0.15f;
 
+        [Header("붙잡힌 적: 조준점이 있는 동안 링 안에 들어 거의 멈춘 적의 표시(EnemyView)")]
+        [Tooltip("붙잡힌 적의 색을 이 색 쪽으로 섞는다. 알파는 쓰지 않는다.")]
+        [SerializeField] private Color _holdTint = new(1f, 1f, 1f, 1f);
+        [Tooltip("색을 섞는 비율(0 = 안 섞음, 1 = 완전히 이 색).")]
+        [Range(0, 1)]
+        [SerializeField] private float _holdTintStrength = 0.4f;
+        [Tooltip("붙잡힌 적이 제자리에서 떠는 폭(적 반지름에 대한 비율).")]
+        [Range(0, 0.5f)]
+        [SerializeField] private float _holdJitter = 0.06f;
+        [Tooltip("떨림의 빠르기(초당 왕복 수).")]
+        [Min(0)]
+        [SerializeField] private float _holdJitterHz = 18f;
+        [Tooltip("붙잡힘 표시가 켜지고 꺼지는 데 걸리는 시간(초).")]
+        [Min(0.01f)]
+        [SerializeField] private float _holdFadeSeconds = 0.08f;
+
         public Material Material => _material;
         public float ThicknessRatio => _thicknessRatio;
         public int DashCount => _dashCount;
@@ -93,6 +109,11 @@ namespace BlackHole.Unity
         public float MoonOutlineWidth => _moonOutlineWidth;
         public Material CometAuraMaterial => _cometAuraMaterial;
         public float CometAuraOffset => _cometAuraOffset;
+        public Color HoldTint => _holdTint;
+        public float HoldTintStrength => _holdTintStrength;
+        public float HoldJitter => _holdJitter;
+        public float HoldJitterHz => _holdJitterHz;
+        public float HoldFadeSeconds => _holdFadeSeconds;
 
         // 진행(0 ~ 1)에서의 튐 세기. 곡선이 없으면 튀지 않는다.
         public float Punch(float progress) => _punchCurve == null ? 0 : _punchCurve.Evaluate(progress);
