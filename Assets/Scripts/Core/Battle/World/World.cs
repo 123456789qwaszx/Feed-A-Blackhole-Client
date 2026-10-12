@@ -156,9 +156,13 @@ namespace BlackHole.Core
 
         // 적 이동: 중력장 범위 안의 적은 그 중력장에 끌리고(DeathEffects.Pull), 끌린 정도의 나머지만큼 공전한다.
         // 중력장이 켜지고 꺼지는 순간과 범위 가장자리에서는 둘이 섞여 움직임이 끊기지 않는다.
+        // 누르고 있는 동안(조준점) Breaker 공격 원 안의 적은 공전이 HoldSlow 배로 느려진다(붙잡힘). 중력장 끌림은 그대로다.
         private void MoveEnemies(float delta)
         {
-            if (!DeathEffects.HasGravityFields)
+            bool fields = DeathEffects.HasGravityFields;
+            bool holding = IsHoldingAny;
+
+            if (!fields && !holding)
             {
                 if (OrbitEnabled)
                     _enemies.Move(delta);
@@ -166,17 +170,32 @@ namespace BlackHole.Core
                 return;
             }
 
-            DeathEffects.BeginPull();
+            if (fields)
+                DeathEffects.BeginPull();
+
             IReadOnlyList<Enemy> enemies = _enemies.Alive;
 
             for (int i = 0; i < enemies.Count; i++)
             {
-                float pulled = DeathEffects.Pull(enemies[i], delta);
+                float pulled = fields ? DeathEffects.Pull(enemies[i], delta) : 0;
 
-                if (OrbitEnabled && pulled < 1)
-                    enemies[i].Move(delta * (1 - pulled));
+                if (!OrbitEnabled || pulled >= 1)
+                    continue;
+
+                float orbit = delta * (1 - pulled);
+
+                if (holding && Breaker.IsHolding(this, enemies[i]))
+                    orbit *= Breaker.Definition.HoldSlow;
+
+                enemies[i].Move(orbit);
             }
         }
+
+        // 지금 붙잡기가 일어나는가: 조준점이 있고 붙잡기가 켜져 있다(HoldSlow < 1).
+        private bool IsHoldingAny => AimPoint.HasValue && Breaker.Definition.HoldSlow < 1;
+
+        // 이 적이 지금 Breaker에 붙잡혀 있는가(조준점이 있고 공격 원 안이라 거의 멈춰 있다). 화면이 붙잡힌 적을 표시할 때 쓴다.
+        public bool IsHeld(Enemy enemy) => IsHoldingAny && Breaker.IsHolding(this, enemy);
 
         // 이 성질이 지금 판에 있는 수: 살아 있는 그 성질 적 + 그 성질이 준 버프 중 Breaker에 남은 중첩(달).
         // 성질의 동시 상한(EnemyTraitDefinition.MaxActive, 원작 "달 최대 개수")은 이 수에 건다(EnemySupply).

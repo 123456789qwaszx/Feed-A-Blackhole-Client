@@ -18,5 +18,6 @@ namespace BlackHole.Core
         public float PlanetBonusDamage;    // 행성에 주는 추가 피해
         public float StarBonusDamage;      // 별에 주는 추가 피해
         public float GalaxyBonusDamage;    // 은하에 주는 추가 피해
+        public float HoldSlow = 0.05f;     // 누르고 있는 동안 공격 원 안의 적이 움직이는 비율(0 ~ 1). 0이면 완전히 멈춘다.
     }
 }

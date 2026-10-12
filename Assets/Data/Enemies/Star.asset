@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.EnemyKind
   type: 2
   moveSpeed: 0.5
-  radius: 2.653
+  radius: 3.1
   radiusStep: 0.33
   upgradesTo: {fileID: 11400000, guid: 29e4d81e98ee4f70aa1065bfd408911e, type: 2}
   spawnPeriod: 0
