@@ -44,7 +44,6 @@ namespace BlackHole.Unity
 
         // 설정 ID. PlayerPrefs 키이기도 하다 — 바꾸면 저장된 값을 잃는다.
         public const string DarkMode = "DarkMode";
-        public const string RunTimer = "RunTimer";
         public const string MasterVolume = "MasterVolume";
         public const string EffectsVolume = "EffectsVolume";
         public const string MusicVolume = "MusicVolume";
@@ -57,7 +56,6 @@ namespace BlackHole.Unity
         public const string ScreenShake = "ScreenShake";
         public const string BlackHolePulse = "BlackHolePulse";
         public const string MatterParticles = "MatterParticles";
-        public const string ObjectRotation = "ObjectRotation";
 
         private const string KeyPrefix = "Settings.";
 
@@ -79,7 +77,6 @@ namespace BlackHole.Unity
         public static IReadOnlyList<Definition> Definitions { get; } = new[]
         {
             Toggle(DarkMode, "Dark Mode", false),
-            Toggle(RunTimer, "Run Timer", false),
             Slider(MasterVolume, "Master Volume", 0.5f),
             Slider(EffectsVolume, "Effects Volume", 0.5f),
             Slider(MusicVolume, "Music Volume", 0.25f),
@@ -92,7 +89,6 @@ namespace BlackHole.Unity
             Toggle(ScreenShake, "Screen Shake", true),
             Toggle(BlackHolePulse, "Black Hole Pulse", true),
             Toggle(MatterParticles, "Matter Particles", true),
-            Toggle(ObjectRotation, "Object Rotation", true),
         };
 
         private static readonly Dictionary<string, Definition> ById = IndexById();

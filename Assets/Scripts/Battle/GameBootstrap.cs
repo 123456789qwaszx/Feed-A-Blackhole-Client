@@ -95,7 +95,7 @@ namespace BlackHole.Unity
             EnemyView enemyView = new(transform, enemyLooks, _breakerLook, _cometLook, _settings);
             BreakerView breakerView = new(transform, _breakerLook);
             DeathEffectView deathEffectView = new(transform, _lightningLook, _explosionLook);
-            HqView hqView = new(transform, _blackHole, battleCamera);
+            HqView hqView = new(transform, _blackHole, battleCamera, _settings);
 
             _progress = new ProgressState();
             _progressStore = ProgressStore.Load(
