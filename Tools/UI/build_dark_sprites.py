@@ -23,7 +23,7 @@ SOURCES = [
     'BlackHoleGUI/PNG/Controls/toggle_off', 'BlackHoleGUI/PNG/Controls/toggle_on', 'BlackHoleGUI/PNG/Controls/checkbox_off', 'BlackHoleGUI/PNG/Controls/checkbox_on',
     'BlackHoleGUI/PNG/Settlement/Components/bar_track',
     'UI/Backgrounds/Background_Arcs', 'UI/Backgrounds/Background_Warm',
-]
+] + sorted(p[len(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'Assets') + os.sep):-4].replace(os.sep, '/') for p in __import__('glob').glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'Assets', 'BlackHoleGUI', 'PNG', 'Nodes', '*.png')))
 RIM_SOURCES = ['BlackHoleGUI/PNG/Tokens/blackhole']   # 검정 실루엣: 검정 채움 + 아이보리 테두리
 
 def lerp(a, b, t): return tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
@@ -83,7 +83,7 @@ def convert(rel, rim=False):
     return dst_rel, guid
 
 def ensure_folder_metas():
-    for d in ['BlackHoleGUI/PNG/Dark', 'BlackHoleGUI/PNG/Dark/Buttons', 'BlackHoleGUI/PNG/Dark/Buttons/Ready', 'BlackHoleGUI/PNG/Dark/Controls', 'BlackHoleGUI/PNG/Dark/Settlement', 'BlackHoleGUI/PNG/Dark/Settlement/Components', 'BlackHoleGUI/PNG/Dark/Tokens']:
+    for d in ['BlackHoleGUI/PNG/Dark', 'BlackHoleGUI/PNG/Dark/Buttons', 'BlackHoleGUI/PNG/Dark/Buttons/Ready', 'BlackHoleGUI/PNG/Dark/Controls', 'BlackHoleGUI/PNG/Dark/Settlement', 'BlackHoleGUI/PNG/Dark/Settlement/Components', 'BlackHoleGUI/PNG/Dark/Tokens', 'BlackHoleGUI/PNG/Dark/Nodes']:
         p = os.path.join(ROOT, d)
         if not os.path.isdir(p): continue
         m = p + '.meta'

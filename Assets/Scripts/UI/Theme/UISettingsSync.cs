@@ -7,8 +7,8 @@ namespace BlackHole.Unity
     // - UIContext: 테마·언어·글자 배율을 담아 UIManager에 바꿔 끼운다 → 보이는 화면을 다시 적용한다.
     //   테마(Light/Dark)는 Presentation의 Dark 변형(ImageTheme)과 팔레트(UIPalette)의 색을 고른다.
     //   TextBindings에 역할로 등록된 글자는 Theme가 "역할 크기 × 배율"과 "언어 × 역할" 글꼴로 맞춘다. 숨은 화면은 다음에 열 때 맞춰진다.
-    // - TextBindings가 닿지 않는 글자: 등록된 화면 중 ITextStyleView가 제 글자에 같은 배율·글꼴을 넣는다.
-    // 글꼴 묶음(UIFontSet)은 Theme들이 가리키는 것과 같은 에셋이다(GameBootstrap이 확인한다).
+    // - TextBindings·ImageBindings가 닿지 않는 글자·그림: 등록된 화면 중 IStyleView가 같은 배율·글꼴·테마 색·테마 그림(UIStyle)을 넣는다.
+    // 글꼴 묶음(UIFontSet)·팔레트(UIPalette)는 Theme들이 가리키는 것과 같은 에셋이다(GameBootstrap이 확인한다).
     // 글자 내용(번역)은 Localizer가 따로 맡는다.
     internal sealed class UISettingsSync : IDisposable
     {
@@ -16,13 +16,19 @@ namespace BlackHole.Unity
         private readonly IReadOnlyList<UIBase> _views;
         private readonly GameSettings _settings;
         private readonly UIFontSet _fonts;
+        private readonly UIPalette _palette;
+        private readonly UISpriteSet _sprites;
 
-        public UISettingsSync(UIManager ui, IReadOnlyList<UIBase> views, GameSettings settings, UIFontSet fonts)
+        public UISettingsSync(
+            UIManager ui, IReadOnlyList<UIBase> views, GameSettings settings,
+            UIFontSet fonts, UIPalette palette, UISpriteSet sprites)
         {
             _ui = ui ?? throw new ArgumentNullException(nameof(ui));
             _views = views ?? Array.Empty<UIBase>();
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _fonts = fonts;
+            _palette = palette;
+            _sprites = sprites;
 
             _settings.Changed += HandleSettingChanged;
             ApplyTextStyle();
@@ -49,12 +55,13 @@ namespace BlackHole.Unity
 
         private void ApplyTextStyle()
         {
-            var style = new UITextStyle(_settings.TextScale, _fonts, _settings.LanguageLocale.ToId());
+            var style = new UIStyle(
+                _settings.TextScale, _fonts, _settings.LanguageLocale.ToId(), _palette, _sprites, ThemeOf(_settings).ToId());
 
             foreach (UIBase view in _views)
             {
-                if (view is ITextStyleView styled)
-                    styled.ApplyTextStyle(style);
+                if (view is IStyleView styled)
+                    styled.ApplyStyle(style);
             }
         }
     }

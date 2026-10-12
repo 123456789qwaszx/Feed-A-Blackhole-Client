@@ -223,6 +223,230 @@
   "UI/Backgrounds/Background_Warm_Dark",
   "f300f38d210740d0b615c49762195728"
  ],
+ "BlackHoleGUI/PNG/Nodes/asteroid_count_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/asteroid_count_available",
+  "775099385db644f3b1d1027d585423a9"
+ ],
+ "BlackHoleGUI/PNG/Nodes/asteroid_count_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/asteroid_count_hover",
+  "354bd73c87c44c48bd26b780061b6d61"
+ ],
+ "BlackHoleGUI/PNG/Nodes/asteroid_count_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/asteroid_count_locked",
+  "4c8e57ac0fc64a33964424926651674a"
+ ],
+ "BlackHoleGUI/PNG/Nodes/asteroid_count_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/asteroid_count_purchased",
+  "1f95bb331f6742428376a53985c7f61b"
+ ],
+ "BlackHoleGUI/PNG/Nodes/critical_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/critical_available",
+  "5eb4d7af31194993b2ae735de5e7b0ac"
+ ],
+ "BlackHoleGUI/PNG/Nodes/critical_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/critical_hover",
+  "9e04009baeff4d93be414a91d1cba789"
+ ],
+ "BlackHoleGUI/PNG/Nodes/critical_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/critical_locked",
+  "f2439ddb95d5408c9d4e596387edb8f6"
+ ],
+ "BlackHoleGUI/PNG/Nodes/critical_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/critical_purchased",
+  "c1071a5095fc4489861ee195e862537f"
+ ],
+ "BlackHoleGUI/PNG/Nodes/damage_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/damage_available",
+  "8d20a6a9e4974324aaded68a48f58313"
+ ],
+ "BlackHoleGUI/PNG/Nodes/damage_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/damage_hover",
+  "89b5f40b4bbc4471a856e051b1421a2f"
+ ],
+ "BlackHoleGUI/PNG/Nodes/damage_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/damage_locked",
+  "d2e8f2a5beb8460a95acff21d799ef7a"
+ ],
+ "BlackHoleGUI/PNG/Nodes/damage_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/damage_purchased",
+  "6093f3d13328432c8223ddc08bb7a0ae"
+ ],
+ "BlackHoleGUI/PNG/Nodes/electric_asteroid_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/electric_asteroid_available",
+  "59bc1b3ea7354bf1a73f5eb52a0dce88"
+ ],
+ "BlackHoleGUI/PNG/Nodes/electric_asteroid_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/electric_asteroid_hover",
+  "9d7381708bd648a7b4afd7097acfed3c"
+ ],
+ "BlackHoleGUI/PNG/Nodes/electric_asteroid_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/electric_asteroid_locked",
+  "dc89d99d680c48c8ad17422dd4fd3323"
+ ],
+ "BlackHoleGUI/PNG/Nodes/electric_asteroid_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/electric_asteroid_purchased",
+  "69b1f9cd8fca4072a206263ab812901c"
+ ],
+ "BlackHoleGUI/PNG/Nodes/gold_asteroid_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/gold_asteroid_available",
+  "bd603b9902644d12970d626a88228900"
+ ],
+ "BlackHoleGUI/PNG/Nodes/gold_asteroid_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/gold_asteroid_hover",
+  "3833630ae20443e4b492c2d89b23d7bf"
+ ],
+ "BlackHoleGUI/PNG/Nodes/gold_asteroid_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/gold_asteroid_locked",
+  "31e77a1ec0624291aaf0ef83dea161f9"
+ ],
+ "BlackHoleGUI/PNG/Nodes/gold_asteroid_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/gold_asteroid_purchased",
+  "7b7c1a5ffb584b1b9e48d4792b6f5576"
+ ],
+ "BlackHoleGUI/PNG/Nodes/growth_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/growth_available",
+  "8bd9929c028041e3a0da63f6d3d76c04"
+ ],
+ "BlackHoleGUI/PNG/Nodes/growth_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/growth_hover",
+  "78907fde205d4942baf08f267f06973b"
+ ],
+ "BlackHoleGUI/PNG/Nodes/growth_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/growth_locked",
+  "22db0236ab4f4569997c0fa1bebb8b14"
+ ],
+ "BlackHoleGUI/PNG/Nodes/growth_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/growth_purchased",
+  "f6b4f9ab9219413093b92a5ed0876c61"
+ ],
+ "BlackHoleGUI/PNG/Nodes/haste_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/haste_available",
+  "1feb6258d8a04b10be05df4e459593a6"
+ ],
+ "BlackHoleGUI/PNG/Nodes/haste_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/haste_hover",
+  "aff00d90df28403fa871be6f576c4168"
+ ],
+ "BlackHoleGUI/PNG/Nodes/haste_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/haste_locked",
+  "d854d9462837433987e8f103b151488f"
+ ],
+ "BlackHoleGUI/PNG/Nodes/haste_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/haste_purchased",
+  "725ff86be43046b9bc9187cd527370b1"
+ ],
+ "BlackHoleGUI/PNG/Nodes/laser_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/laser_available",
+  "c80850c6f91848bf95602c1e4d364f98"
+ ],
+ "BlackHoleGUI/PNG/Nodes/laser_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/laser_hover",
+  "46c8a97d51c447a6902d12d9f71eca48"
+ ],
+ "BlackHoleGUI/PNG/Nodes/laser_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/laser_locked",
+  "a8dd2a8797df4a3fb36424d3f22f505b"
+ ],
+ "BlackHoleGUI/PNG/Nodes/laser_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/laser_purchased",
+  "5c1899f6826d40e987a56fe45ada35de"
+ ],
+ "BlackHoleGUI/PNG/Nodes/laser_width_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/laser_width_available",
+  "58ab3827c44542d798be874b62888e4c"
+ ],
+ "BlackHoleGUI/PNG/Nodes/laser_width_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/laser_width_hover",
+  "74b68db51fe54be8bab1412276ec302f"
+ ],
+ "BlackHoleGUI/PNG/Nodes/laser_width_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/laser_width_locked",
+  "866517750dd747bb9837d9162d7b5afb"
+ ],
+ "BlackHoleGUI/PNG/Nodes/laser_width_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/laser_width_purchased",
+  "954d10185314421a95be5ec902fd30aa"
+ ],
+ "BlackHoleGUI/PNG/Nodes/lightning_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/lightning_available",
+  "a32235dc7d574b55a3ae57ef3fa3756d"
+ ],
+ "BlackHoleGUI/PNG/Nodes/lightning_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/lightning_hover",
+  "d1f949bb00de467d9f79b4518d74d7e9"
+ ],
+ "BlackHoleGUI/PNG/Nodes/lightning_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/lightning_locked",
+  "0254e865dbf94d9eb9cc93e67cae661c"
+ ],
+ "BlackHoleGUI/PNG/Nodes/lightning_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/lightning_purchased",
+  "ead16239d54a4d419b714d640356eee0"
+ ],
+ "BlackHoleGUI/PNG/Nodes/planet_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/planet_available",
+  "609a4d0cd3224466aa5ff8c22be8e6fa"
+ ],
+ "BlackHoleGUI/PNG/Nodes/planet_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/planet_hover",
+  "c2c4a50fa6ad49caa52fbac5e4196ca4"
+ ],
+ "BlackHoleGUI/PNG/Nodes/planet_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/planet_locked",
+  "9bc9c13cb6c8455bb1e0ba5dbfe92396"
+ ],
+ "BlackHoleGUI/PNG/Nodes/planet_mass_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/planet_mass_available",
+  "5f92388495954e598bbd3e054ee9c54b"
+ ],
+ "BlackHoleGUI/PNG/Nodes/planet_mass_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/planet_mass_hover",
+  "fecae4ee50fd4aeabc6ab9824d147a09"
+ ],
+ "BlackHoleGUI/PNG/Nodes/planet_mass_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/planet_mass_locked",
+  "541a38a35a934a5db93e4fb587a9fbed"
+ ],
+ "BlackHoleGUI/PNG/Nodes/planet_mass_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/planet_mass_purchased",
+  "d350510446154cc894970981193c75c8"
+ ],
+ "BlackHoleGUI/PNG/Nodes/planet_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/planet_purchased",
+  "54774d65ebac425b9d996d94de2015b5"
+ ],
+ "BlackHoleGUI/PNG/Nodes/radius_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/radius_available",
+  "c449a27912cc4c9984b7573e1d6e8ff0"
+ ],
+ "BlackHoleGUI/PNG/Nodes/radius_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/radius_hover",
+  "9aace42b4ec547c4b75b5459be9346e2"
+ ],
+ "BlackHoleGUI/PNG/Nodes/radius_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/radius_locked",
+  "df97afab5a7b4391bc47cc098597c64c"
+ ],
+ "BlackHoleGUI/PNG/Nodes/radius_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/radius_purchased",
+  "f204888faeaf4f4fbce8e92b1fde77f2"
+ ],
+ "BlackHoleGUI/PNG/Nodes/timer_plus_available": [
+  "BlackHoleGUI/PNG/Dark/Nodes/timer_plus_available",
+  "ccab2fad044642e4a3bad486e5de1493"
+ ],
+ "BlackHoleGUI/PNG/Nodes/timer_plus_hover": [
+  "BlackHoleGUI/PNG/Dark/Nodes/timer_plus_hover",
+  "4e30556c488446f2910403b39cbf1853"
+ ],
+ "BlackHoleGUI/PNG/Nodes/timer_plus_locked": [
+  "BlackHoleGUI/PNG/Dark/Nodes/timer_plus_locked",
+  "a33ce0291fc24e6c9861c6976fa2feea"
+ ],
+ "BlackHoleGUI/PNG/Nodes/timer_plus_purchased": [
+  "BlackHoleGUI/PNG/Dark/Nodes/timer_plus_purchased",
+  "1ef65d98e9594f3f8a5754843cabf09e"
+ ],
  "BlackHoleGUI/PNG/Tokens/blackhole": [
   "BlackHoleGUI/PNG/Dark/Tokens/blackhole",
   "ff0e4f0015334e7b8e8b43e46114cba1"

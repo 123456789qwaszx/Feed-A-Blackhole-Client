@@ -17,6 +17,7 @@ public sealed class UIPalette : ScriptableObject
         public Color accent = Color.green;              // progress fills, selected states
         public Color surface = Color.white;             // chips/panels drawn by code
         public Color line = Color.gray;                 // outlines, tracks, dividers
+        public Color backdrop = Color.white;            // screen background behind the background image
     }
 
     [Tooltip("The first row is used for themes without their own row.")]

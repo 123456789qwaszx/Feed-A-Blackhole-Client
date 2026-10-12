@@ -6,8 +6,13 @@ namespace BlackHole.Unity
 {
     // 타이틀 화면. 버튼이 눌렸다는 사실만 알린다. 무엇을 할지는 ScreenFlow가 정한다.
     // 버튼 연출(올림·누름)은 버튼마다 붙은 ButtonAnimation이 맡는다. 화면은 사건을 넘기기만 한다.
-    public sealed class TitleScreen : UIRoot<TitleScreen.Refs>
+    public sealed class TitleScreen : UIRoot<TitleScreen.Refs>, IStyleView
     {
+        // 테마 색: 화면 바탕색(배경 그림 뒤). 나머지 그림·글자는 Presentation이 맞춘다.
+        private readonly ThemedImages _themed = new();
+
+        public void ApplyStyle(in UIStyle style) => _themed.SetStyle(style);
+
         public enum Refs
         {
             StartBtn_Button,
@@ -46,6 +51,7 @@ namespace BlackHole.Unity
         {
             ScreenRefs.WarnMissing<Refs>(this);
 
+            _themed.AddColor(GetComponent<Image>(), UIColorRole.Backdrop);
             _startButton = View.Button(Refs.StartBtn_Button);
             _settingsButton = View.Button(Refs.SettingsBtn_Button);
             _quitButton = View.Button(Refs.QuitBtn_Button);
