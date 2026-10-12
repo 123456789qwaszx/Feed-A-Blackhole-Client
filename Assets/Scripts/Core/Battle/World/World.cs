@@ -19,7 +19,7 @@ namespace BlackHole.Core
         public IReadOnlyList<HitRecord> Hits => _enemies.Hits;
         public IReadOnlyList<DeathRecord> Deaths => _enemies.Deaths;
 
-        // 사망 효과의 대기열과 이번 Step의 효과 기록(번개 이동, 폭발, 레이저).
+        // 사망 효과의 대기열과 이번 Step의 효과 기록(번개 이동, 폭발, 레이저), 켜진 중력장.
         public DeathEffects DeathEffects { get; }
 
         // 블랙홀.
@@ -29,7 +29,11 @@ namespace BlackHole.Core
         public long EarnedGold => _enemies.KillGold;
 
         // 이 판의 종류별 판 구성과 (종류, 색 등급, 성질, 크기)별 수치. 판 조립 때 정해졌다.
-        internal EnemyStatTable Stats { get; }
+        // 밖에서는 읽기만 한다(표는 읽기 API만 연다). 전투 통계가 이 판에 적용된 성질 확률·황금 배율을 읽는다.
+        public EnemyStatTable Stats { get; }
+
+        // 적 이동 배율. 게임에서는 늘 1이고, 테스트 도구(BattleCheats)만 바꾼다(0이면 멈춤).
+        internal float EnemyMoveScale { get; set; } = 1f;
 
         internal World(
             int seed,
@@ -87,6 +91,13 @@ namespace BlackHole.Core
             _enemies.ClearAlive();
         }
 
+        // 테스트 도구(BattleCheats)가 부른다. 정해진 적을 바로 만든다. 만든 수를 돌려준다.
+        internal int SpawnExact(EnemyDefinition kind, int tier, EnemyTraitDefinition trait, int size, int count) =>
+            _supply.SpawnExact(kind, tier, trait, size, count);
+
+        // 테스트 도구(BattleCheats)가 부른다. 살아 있는 적만 치운다. 처치가 아니다(사망 기록·처치 수·Gold 없음).
+        internal void ClearAliveEnemies() => _enemies.ClearAlive();
+
         internal bool DealDamage(Enemy enemy, Damage damage)
         {
             if (!_enemies.DealDamage(enemy, damage))
@@ -106,8 +117,12 @@ namespace BlackHole.Core
             DeathEffects.BeginStep();
             Breaker.BeginStep();
 
-            // 1. Enemy Action
-            _enemies.Move(delta);
+            // 1. Enemy Action. 이동 배율 0(테스트 도구의 멈춤)이면 위치를 다시 계산하지 않는다 — 각도 재계산의 반올림으로 조금씩 밀리지 않게.
+            //    켜진 중력장이 있으면 그 범위 안의 적은 공전 대신 중력장 중심으로 끌린다. 중력장의 시간은 이동 배율과 무관하게 흐른다.
+            if (EnemyMoveScale > 0)
+                MoveEnemies(delta * EnemyMoveScale);
+
+            DeathEffects.AgeFields(delta);
 
             // 2. Passive Attack: (DealDamage).
             Breaker.Advance(delta, this);
@@ -133,6 +148,28 @@ namespace BlackHole.Core
             // 7. Periodic Spawn: 주기 출현(혜성)의 등장 판정 진행.
             _supply.AdvancePeriodicSpawns(delta);
             return raised;
+        }
+
+        // 적 이동: 중력장 범위 안의 적은 그 중력장에 끌리고(DeathEffects.Pull), 끌린 정도의 나머지만큼 공전한다.
+        // 중력장이 켜지고 꺼지는 순간과 범위 가장자리에서는 둘이 섞여 움직임이 끊기지 않는다.
+        private void MoveEnemies(float delta)
+        {
+            if (!DeathEffects.HasGravityFields)
+            {
+                _enemies.Move(delta);
+                return;
+            }
+
+            DeathEffects.BeginPull();
+            IReadOnlyList<Enemy> enemies = _enemies.Alive;
+
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                float pulled = DeathEffects.Pull(enemies[i], delta);
+
+                if (pulled < 1)
+                    enemies[i].Move(delta * (1 - pulled));
+            }
         }
 
         // 이 성질이 지금 판에 있는 수: 살아 있는 그 성질 적 + 그 성질이 준 버프 중 Breaker에 남은 중첩(달).

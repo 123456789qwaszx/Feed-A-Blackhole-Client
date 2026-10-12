@@ -5,12 +5,20 @@ using UnityEngine;
 
 namespace BlackHole.Unity
 {
+    // 콘텐츠 데이터에 값을 덮어쓰는 패치(테스트 도구의 밸런스 프로필). 로더에 넘기기 전에 부른다.
+    // 오류가 있으면 아무것도 바꾸지 않고 오류 목록을 돌려준다.
+    internal delegate IReadOnlyList<string> ContentPatch(ContentData content, NodeContentData nodes);
+
     // 게임 콘텐츠 세트(GameContentSetup) → 게임 정의(GameContent·NodeTree)와 업그레이드 화면에 그릴 노드. Unity 에셋과 Core 사이의 경계다.
     // 빠진 연결은 여기서 한 번 보고, 규칙은 Core 로더들이 본다. 차례로 불러 단계마다 진단을 콘솔에 남긴다.
     // 오류가 하나라도 있으면 null이다(부분 통과 금지).
     public static class GameContentLoader
     {
-        public static LoadedContent Load(GameContentSetup setup)
+        public static LoadedContent Load(GameContentSetup setup) => Load(setup, null);
+
+        // patch가 있으면 두 데이터를 읽은 뒤, 검증하기 전에 적용한다. 패치한 값도 원래 검증을 그대로 거친다.
+        // 패치에 오류가 있으면 원본 값으로 불러온다.
+        internal static LoadedContent Load(GameContentSetup setup, ContentPatch patch)
         {
             if (setup == null)
             {
@@ -26,12 +34,6 @@ namespace BlackHole.Unity
                 return null;
             }
 
-            ContentLoadResult content = ContentLoader.Load(setup.ToData());
-            LogErrors("콘텐츠", content.Diagnostics, setup);
-
-            if (!content.Succeeded)
-                return null;
-
             NodeCatalog nodes = setup.Nodes;
 
             if (nodes.Content == null)
@@ -40,7 +42,29 @@ namespace BlackHole.Unity
                 return null;
             }
 
-            NodeContentLoadResult nodeContent = nodes.Content.Load();
+            ContentData contentData = setup.ToData();
+            var readErrors = new List<ContentDiagnostic>();
+            NodeContentData nodeData = nodes.Content.Read(readErrors);
+            LogErrors("노드 콘텐츠", readErrors, nodes.Content);
+
+            if (readErrors.Count > 0)
+                return null;
+
+            if (patch != null)
+            {
+                IReadOnlyList<string> patchErrors = patch(contentData, nodeData);
+
+                if (patchErrors.Count > 0)
+                    Debug.LogError($"[밸런스 프로필] 오류 {patchErrors.Count}개라 원본 값으로 불러온다.\n  {string.Join("\n  ", patchErrors)}");
+            }
+
+            ContentLoadResult content = ContentLoader.Load(contentData);
+            LogErrors("콘텐츠", content.Diagnostics, setup);
+
+            if (!content.Succeeded)
+                return null;
+
+            NodeContentLoadResult nodeContent = NodeContentLoader.Load(nodeData);
             LogErrors("노드 콘텐츠", nodeContent.Diagnostics, nodes.Content);
 
             if (!nodeContent.Succeeded)

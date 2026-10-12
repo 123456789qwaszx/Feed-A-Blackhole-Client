@@ -17,6 +17,7 @@ namespace BlackHole.Unity
         private readonly GameSettings _settings;// 플레이어 설정.
         private readonly ScreenTransition _transition;
         private readonly KeyInput _keyInput;
+        private readonly BattleAnalytics _analytics;// 판의 시작·끝을 통계 서버로 보낸다.
         private readonly Dictionary<UIBase, List<Action>> _cleanupByScreen = new();
 
         public ScreenFlow(
@@ -30,7 +31,8 @@ namespace BlackHole.Unity
             HqGrowthDefinition growth,
             GameSettings settings,
             ScreenTransition transition,
-            KeyInput keyInput)
+            KeyInput keyInput,
+            BattleAnalytics analytics)
         {
             _ui = ui;
             _presentations = presentations;
@@ -43,6 +45,7 @@ namespace BlackHole.Unity
             _settings = settings;
             _transition = transition;
             _keyInput = keyInput;
+            _analytics = analytics;
 
             _keyInput.ContinuePressed += HandleKeyActionSpace;
             _keyInput.UpgradePressed += HandleKeyActionShift;

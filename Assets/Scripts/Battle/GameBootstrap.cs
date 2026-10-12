@@ -30,6 +30,16 @@ namespace BlackHole.Unity
         [Header("Presentations")]
         [SerializeField] private ScreenPresentations _presentations;
 
+        [Header("Analytics")]
+        [SerializeField] private AnalyticsSettings _analyticsSettings;
+
+        // 테스트 도구(개발 패널)의 밸런스 프로필·시나리오 목록. 에디터와 개발 빌드만 쓴다. 비워 두면 기기 폴더의 파일만 읽는다.
+        // 장면 직렬화가 빌드마다 같도록 #if로 감싸지 않는다. 릴리스 빌드는 읽지 않는다(CS0169).
+        [Header("Playtest")]
+#pragma warning disable CS0169
+        [SerializeField] private PlaytestLibrary _playtest;
+#pragma warning restore CS0169
+
         private static readonly Type[] RequiredViews =
         {
             typeof(TitleScreen),
@@ -49,11 +59,22 @@ namespace BlackHole.Unity
         private ProgressState _progress;
         private ProgressStore _progressStore;
         private GameSettings _settings;
+        private BattleAnalytics _analytics;
         private GameHost _host;
 
         private void Awake()
         {
+            // 판의 콘텐츠 표시(밸런스 프로필 이름, 테스트 표시). 릴리스는 늘 비어 있다.
+            ContentTag contentTag = new();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            PlaytestSession playtest = PlaytestSession.Create(_playtest, contentTag);
+            LoadedContent loaded = LoadContent(playtest);
+            // 프로필을 적용했으면 그 프로필의 저장을 따로 쓴다. 테스트 값으로 번 진행이 실제 저장을 덮지 않는다.
+            string saveDirectory = playtest.SaveDirectory(Application.persistentDataPath);
+#else
             LoadedContent loaded = GameContentLoader.Load(_content);
+            string saveDirectory = Application.persistentDataPath;
+#endif
 
             if (loaded == null || !HasConfiguredLooks() || !HasConfiguredUI())
             {
@@ -73,10 +94,16 @@ namespace BlackHole.Unity
 
             _progress = new ProgressState();
             _progressStore = ProgressStore.Load(
-                Application.persistentDataPath,
+                saveDirectory,
                 loaded.NodeTree.Content,
                 loaded.Content.Growth);
             _settings = GameSettings.Load();
+            _analytics = BattleAnalytics.Create(
+                _analyticsSettings,
+                Application.persistentDataPath,
+                Application.version,
+                Application.platform.ToString(),
+                contentTag);
 
             BattleSystem battle = new(
                 loaded.Content,
@@ -103,7 +130,8 @@ namespace BlackHole.Unity
                 loaded.Content.Growth,
                 _settings,
                 transition,
-                keyInput);
+                keyInput,
+                _analytics);
 
             _host = new GameHost(
                 ui,
@@ -116,20 +144,51 @@ namespace BlackHole.Unity
                 deathEffectView,
                 hqView,
                 cameraShake);
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            PlaytestPanel panel = GetOrAdd<PlaytestPanel>(gameObject);
+            panel.Initialize(playtest, battle, screens, loaded.Content, loaded.NodeTree, _progress, _analytics);
+#endif
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 고른 밸런스 프로필을 적용해 불러온다. 패치한 값이 콘텐츠 검사를 통과하지 못하면 원본 값으로 다시 불러온다.
+        private LoadedContent LoadContent(PlaytestSession playtest)
+        {
+            LoadedContent loaded = GameContentLoader.Load(_content, playtest.Patch);
+
+            if (loaded != null || playtest.AppliedProfile == null)
+                return loaded;
+
+            playtest.RejectProfile();
+            Debug.LogWarning("[테스트] 밸런스 프로필을 적용한 콘텐츠가 검사를 통과하지 못해 원본 값으로 다시 불러온다. 위의 [콘텐츠] 오류를 본다.", this);
+            return GameContentLoader.Load(_content);
+        }
+#endif
 
         private void Start()
         {
             _host.Start();
             SoundManager.Instance.Bind(_settings);
+            // 지난 실행에서 보내지 못한 통계를 보낸다.
+            _analytics.Flush();
         }
 
         private void Update() => _host.Tick(Time.deltaTime);
 
         private void OnApplicationPause(bool paused)
         {
-            if (paused && enabled)
+            if (!enabled)
+                return;
+
+            if (paused)
+            {
                 _progressStore.Save(_progress);
+                return;
+            }
+
+            // 앱으로 돌아왔다. 내려가 있는 동안 보내지 못한 통계를 보낸다.
+            _analytics.Flush();
         }
 
         private void OnDestroy() => _host?.Dispose();
