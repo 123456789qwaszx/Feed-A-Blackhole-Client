@@ -1630,6 +1630,7 @@ MonoBehaviour:
   - {fileID: 747572562}
   - {fileID: 513473408}
   _presentations: {fileID: 11400000, guid: 64149f72c61e4f378df706e37ce97160, type: 2}
+  _texts: {fileID: 4900000, guid: 0fd5c068cd6e450ab06df5aecd221fa4, type: 3}
   _analyticsSettings: {fileID: 0}
   _playtest: {fileID: 0}
 --- !u!1001 &974995110
