@@ -24,6 +24,15 @@ namespace BlackHole.CelestialBattle
             if (Application.isPlaying && isActiveAndEnabled) AcquireMaterial();
         }
 
+        // Overlay-only use (UI screens without a static background image): swap the ambient material.
+        public void SetOverlayMaterial(Material material)
+        {
+            if (overlay == null || material == null) return;
+            ReleaseMaterial();
+            overlay.material = material;
+            if (Application.isPlaying && isActiveAndEnabled) AcquireMaterial();
+        }
+
         // Can also be called by the game's settings/UI code at runtime.
         public void SetTheme(Texture texture, Material material)
         {

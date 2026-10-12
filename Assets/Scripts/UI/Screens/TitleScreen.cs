@@ -11,7 +11,13 @@ namespace BlackHole.Unity
         // 테마 색: 화면 바탕색(배경 그림 뒤). 나머지 그림·글자는 Presentation이 맞춘다.
         private readonly ThemedImages _themed = new();
 
-        public void ApplyStyle(in UIStyle style) => _themed.SetStyle(style);
+        private UIScreenAmbient Ambient => View.Component<UIScreenAmbient>(Refs.Ambient);
+
+        public void ApplyStyle(in UIStyle style)
+        {
+            _themed.SetStyle(style);
+            Ambient?.Apply(style.ThemeId);
+        }
 
         public enum Refs
         {
@@ -20,6 +26,8 @@ namespace BlackHole.Unity
             QuitBtn_Button,
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
+            // 배경 위의 별빛·궤도 문양(UIScreenAmbient). 테마에 따라 머티리얼만 바뀐다.
+            Ambient,
 
             // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
             // _Image는 Image Theme(UI/ImageBindings)가 기본 그림을, _Text는 ThemeSpec이 역할(Title·Body)에 맞춰 글꼴·크기·색을 정한다.

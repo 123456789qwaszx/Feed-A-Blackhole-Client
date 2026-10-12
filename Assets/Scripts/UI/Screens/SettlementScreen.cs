@@ -33,6 +33,8 @@ namespace BlackHole.Unity
             Tooltip_Text,
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
+            // 배경 위의 별빛·궤도 문양(UIScreenAmbient). 테마에 따라 머티리얼만 바뀐다.
+            Ambient,
             // 오른쪽 통계 칸(스킬별 피해·수집). 칸에 손을 올리면 툴팁으로 이름을 보인다.
             // 칸은 두 그룹(격자)에 들어 있고 그룹 사이에 구분선이 있다. 값이 0인 칸·빈 그룹·구분선은 숨긴다.
             SkillStats,
@@ -587,8 +589,11 @@ namespace BlackHole.Unity
         }
 
         // 글자 크기·언어별 글꼴. TextBindings에 등록되지 않은 글자만 여기서 맞춘다(등록된 글자는 Theme가 맞춘다).
+        private UIScreenAmbient Ambient => View.Component<UIScreenAmbient>(Refs.Ambient);
+
         public void ApplyStyle(in UIStyle style)
         {
+            Ambient?.Apply(style.ThemeId);
             _styled.SetStyle(style);
             _themed.SetStyle(style);
         }

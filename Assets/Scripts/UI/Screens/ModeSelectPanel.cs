@@ -19,6 +19,8 @@ namespace BlackHole.Unity
             BackBtn_Button,
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
+            // 배경 위의 별빛·궤도 문양(UIScreenAmbient). 테마에 따라 머티리얼만 바뀐다.
+            Ambient,
 
             // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
             // 카드(ModeCard)는 위젯이라 Presentation이 닿지 않는다 — 카드의 모양은 프리팹의 카드 틀에서 정한다.
@@ -206,8 +208,11 @@ namespace BlackHole.Unity
             }
         }
 
+        private UIScreenAmbient Ambient => View.Component<UIScreenAmbient>(Refs.Ambient);
+
         public void ApplyStyle(in UIStyle style)
         {
+            Ambient?.Apply(style.ThemeId);
             _cardTexts.SetStyle(style);
             _themed.SetStyle(style);
         }
