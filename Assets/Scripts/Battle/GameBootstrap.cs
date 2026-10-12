@@ -158,6 +158,7 @@ namespace BlackHole.Unity
                 _progressStore,
                 loaded.NodeTree,
                 loaded.NodeItems,
+                loaded.NodeRegions,
                 loaded.Content.Growth,
                 _settings,
                 localizer,

@@ -1,7 +1,22 @@
+using System.Collections.Generic;
+
 namespace BlackHole.Unity
 {
     // 업그레이드 화면(NodeTreeView)에 노드 하나를 그리는 데 필요한 것.
     // 콘텐츠 로드 때 노드 배치(칸)와 노드 정의(가격·그림 스탯·Rank)로 한 번 만든다(GameContentLoader).
+    // 업그레이드 화면이 구역 이름·테두리를 그리는 데 필요한 것: 구역 열쇠(번역표 node.region.<Key>)와 노드 ID.
+    public readonly struct NodeRegionItem
+    {
+        public string Key { get; }
+        public IReadOnlyList<string> Nodes { get; }
+
+        public NodeRegionItem(string key, IReadOnlyList<string> nodes)
+        {
+            Key = key;
+            Nodes = nodes;
+        }
+    }
+
     public readonly struct NodeItem
     {
         public string Id { get; }

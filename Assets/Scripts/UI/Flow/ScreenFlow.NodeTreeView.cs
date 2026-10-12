@@ -17,7 +17,7 @@ namespace BlackHole.Unity
                 afterPresented: page =>
                 {
                     BindView(page, ApplyBindings);
-                    page.Build(_nodes, _tree.Graph.Links);
+                    page.Build(_nodes, _tree.Graph.Links, _regions);
                 },
                 afterClosed: Unbind);
         }

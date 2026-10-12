@@ -11,11 +11,15 @@ namespace BlackHole.Unity
         // 업그레이드 화면에 그릴 노드(배치 순서): 격자 칸, 첫 가격, 그림을 고르는 스탯, 최대 Rank.
         public IReadOnlyList<NodeItem> NodeItems { get; }
 
-        internal LoadedContent(GameContent content, NodeTree nodeTree, IReadOnlyList<NodeItem> nodeItems)
+        // 업그레이드 화면에 그릴 구역(이름 열쇠, 노드 ID). 비어 있을 수 있다.
+        public IReadOnlyList<NodeRegionItem> NodeRegions { get; }
+
+        internal LoadedContent(GameContent content, NodeTree nodeTree, IReadOnlyList<NodeItem> nodeItems, IReadOnlyList<NodeRegionItem> nodeRegions)
         {
             Content = content;
             NodeTree = nodeTree;
             NodeItems = nodeItems;
+            NodeRegions = nodeRegions;
         }
     }
 }

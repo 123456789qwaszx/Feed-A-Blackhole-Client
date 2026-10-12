@@ -28,8 +28,8 @@ namespace BlackHole.Unity
     // 이 컴포넌트는 트리 영역(보이는 창)에 붙고, 그 영역은 호스트의 PageRoot 바로 아래 자식.
     //
     // 영역은 가운데 기준(pivot 0.5)이어야 확대 계산이 맞음.
-    public sealed class NodeTreeView : UIPage<NodeTreeView.Refs>, IStyleView, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler,
-        IPointerMoveHandler, IPointerExitHandler
+    public sealed class NodeTreeView : UIPage<NodeTreeView.Refs>, IStyleView, ILocalizedView, IBeginDragHandler, IDragHandler, IEndDragHandler,
+        IScrollHandler, IPointerMoveHandler, IPointerExitHandler
     {
         public enum Refs { }
 
@@ -137,9 +137,13 @@ namespace BlackHole.Unity
         private readonly Dictionary<string, NodeVisual> _nodes = new Dictionary<string, NodeVisual>(StringComparer.Ordinal);
         private readonly Dictionary<GameObject, NodeVisual> _nodesByObject = new Dictionary<GameObject, NodeVisual>();
         private readonly List<LinkVisual> _links = new List<LinkVisual>();
+        // 구역(우주 구역): 노드들을 감싸는 흐린 판과 이름. 노드·선 아래에 그린다. 번역표 열쇠 node.region.<Key>.
+        private readonly List<RegionVisual> _regions = new List<RegionVisual>();
+        private Localizer _localizer;
 
         private RectTransform _viewport;
         private RectTransform _content;
+        private RectTransform _regionLayer;
         private RectTransform _linkLayer;
         private RectTransform _nodeLayer;
         private Canvas _canvas;
@@ -168,12 +172,14 @@ namespace BlackHole.Unity
                 gameObject.AddComponent<RectMask2D>();
 
             _content = Layer(_viewport, "Content");
+            _regionLayer = Layer(_content, "Regions");
             _linkLayer = Layer(_content, "Links");
             _nodeLayer = Layer(_content, "Nodes");
         }
 
         // 트리를 새로 만든다. 선의 양 끝 가운데 하나라도 노드 목록에 없으면 그 선은 그리지 않음.
-        public void Build(IReadOnlyList<NodeItem> nodes, IReadOnlyList<(string A, string B)> links)
+        // regions: 구역(비어 있어도 된다). 구역 노드들의 칸을 감싸는 판과 이름을 그린다.
+        public void Build(IReadOnlyList<NodeItem> nodes, IReadOnlyList<(string A, string B)> links, IReadOnlyList<NodeRegionItem> regions = null)
         {
             Clear();
 
@@ -190,7 +196,95 @@ namespace BlackHole.Unity
                     _links.Add(CreateLink(from, to));
             }
 
+            if (regions != null)
+            {
+                foreach (NodeRegionItem region in regions)
+                {
+                    RegionVisual visual = CreateRegion(region);
+
+                    if (visual != null)
+                        _regions.Add(visual);
+                }
+            }
+
             _framePending = true;
+        }
+
+        // 언어가 바뀌었다(또는 처음). 구역 이름을 지금 언어로 다시 쓴다.
+        public void Relocalize(Localizer localizer)
+        {
+            _localizer = localizer;
+
+            foreach (RegionVisual region in _regions)
+                region.Label.text = RegionTitle(region.Key);
+        }
+
+        private string RegionTitle(string key)
+        {
+            string textKey = "node.region." + key;
+            return _localizer != null && _localizer.TryGet(textKey, out string text) ? text : key;
+        }
+
+        // 구역: 노드 칸들의 경계 + 여유만큼의 판(노드·선 아래)과 위쪽 가운데의 이름. 노드가 하나도 없으면 null.
+        private RegionVisual CreateRegion(NodeRegionItem region)
+        {
+            bool any = false;
+            Vector2 min = Vector2.zero;
+            Vector2 max = Vector2.zero;
+
+            foreach (string id in region.Nodes)
+            {
+                if (!_nodes.TryGetValue(id, out NodeVisual node))
+                    continue;
+
+                if (!any)
+                {
+                    min = max = node.Position;
+                    any = true;
+                    continue;
+                }
+
+                min = Vector2.Min(min, node.Position);
+                max = Vector2.Max(max, node.Position);
+            }
+
+            if (!any)
+                return null;
+
+            float padding = (_look != null ? _look.RegionPadding : 60f) + NodeSize * 0.5f;
+            min -= Vector2.one * padding;
+            max += Vector2.one * padding;
+
+            RectTransform rect = Child(_regionLayer, "Region " + region.Key);
+            rect.anchoredPosition = (min + max) * 0.5f;
+            rect.sizeDelta = max - min;
+
+            var back = rect.gameObject.AddComponent<Image>();
+            back.raycastTarget = false;
+            back.color = _look != null ? _look.RegionBackColor : new Color(1, 1, 1, 0.04f);
+            back.enabled = back.color.a > 0;
+
+            RectTransform labelRect = Child(rect, "Label");
+            labelRect.anchorMin = new Vector2(0, 1);
+            labelRect.anchorMax = new Vector2(1, 1);
+            labelRect.pivot = new Vector2(0.5f, 0);
+            labelRect.anchoredPosition = new Vector2(0, 8);
+            labelRect.sizeDelta = new Vector2(0, 60);
+
+            var label = labelRect.gameObject.AddComponent<TextMeshProUGUI>();
+            label.raycastTarget = false;
+            label.alignment = TextAlignmentOptions.Center;
+            label.fontSize = _look != null ? _look.RegionLabelSize : 40f;
+            label.color = _look != null ? _look.RegionLabelColor : new Color(0.72f, 0.73f, 0.73f, 0.9f);
+            label.textWrappingMode = TextWrappingModes.NoWrap;
+            label.overflowMode = TextOverflowModes.Overflow;
+            label.text = RegionTitle(region.Key);
+
+            TMP_FontAsset font = _style.FontFor(UITextRole.Caption);
+            if (font != null)
+                label.font = font;
+
+            return new RegionVisual(region.Key, rect.gameObject, back, label);
         }
 
         // 노드마다 상태(와 다음 Rank 비용, 산 Rank)를 받아 칠한다. 바뀐 프레임에만 호출.
@@ -696,9 +790,13 @@ namespace BlackHole.Unity
             foreach (LinkVisual link in _links)
                 Destroy(link.Root);
 
+            foreach (RegionVisual region in _regions)
+                Destroy(region.Root);
+
             _nodes.Clear();
             _nodesByObject.Clear();
             _links.Clear();
+            _regions.Clear();
         }
 
         private static RectTransform Layer(RectTransform parent, string name)
@@ -754,6 +852,22 @@ namespace BlackHole.Unity
                 Button = button;
                 Label = label;
                 Badge = badge;
+            }
+        }
+
+        private sealed class RegionVisual
+        {
+            public readonly string Key;
+            public readonly GameObject Root;
+            public readonly Image Back;
+            public readonly TMP_Text Label;
+
+            public RegionVisual(string key, GameObject root, Image back, TMP_Text label)
+            {
+                Key = key;
+                Root = root;
+                Back = back;
+                Label = label;
             }
         }
 

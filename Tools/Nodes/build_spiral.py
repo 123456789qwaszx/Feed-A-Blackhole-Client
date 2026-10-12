@@ -21,7 +21,7 @@ PREVIEW = os.path.join(ROOT, "Docs", "QA", "NodeSuite", "spiral-map.svg")
 
 MAX_RANKS = 4
 
-# 구역: (원작 단계, 이름, 여는 것, 가격 배율). 'G'는 zones.json에 없는 은하 노드.
+# 구역: (원작 단계, 이름, 여는 것, 가격 배율). 'G'는 zones.json에 없는 은하 노드. 화면 이름 열쇠(REGION_KEYS)는 UIText.csv의 node.region.<key>.
 # 가격 배율: 원작은 2시간 분량이라 별 이후(6단계~)가 비싸다. 40분에 맞춰 별 이후를 당긴다(시뮬레이션으로 맞춘 값).
 REGIONS = [
     (1, "먼지 띠", "Breaker·소행성 기본", 1),
@@ -39,6 +39,7 @@ CENTER_SCALE = 0.1
 CENTER_GROWTH = 1.3
 CENTER_ZONE = 9
 CENTER_NAME = "블랙홀"
+REGION_KEYS = {1: "dust", 2: "belt", 3: "nebula", 4: "planets", 5: "comets", 6: "cradle", 7: "pulsar", 8: "remnant", "G": "core", 9: "blackhole"}
 
 # 줄 배정: 수치 계열 → 줄. 가운데(0) Breaker·성장·시간, 한쪽(+1) 적 종류, 반대쪽(-1) 특수 성질.
 LANE_OF = {
@@ -132,13 +133,13 @@ def place_region(b, zone_id, items, d, entry, region_index):
     lanes = assign_lanes(items)
     main = lanes[0]
     placed = {0: [], 1: [], -1: []}
-    # 가운데 줄: u = 0, 1, 2, …  옆줄: u = 1에서 v = ±1로 갈라져 u ≥ 2는 v = ±2.
+    # 가운데 줄: u = 0, 1, 2, …  옆줄: u = 1에서 v = ±1로 갈라져 u ≥ 2는 v = ±2, ±3을 번갈아(지그재그 — 별자리처럼 보이게).
     for i, (stat, unit, values, costs) in enumerate(main):
         x, y = cell(i, 0)
         placed[0].append(b.add(stat, unit, values, costs, x, y, zone_id, start=(region_index == 0 and i == 0)))
     for lane in (1, -1):
         for i, (stat, unit, values, costs) in enumerate(lanes[lane]):
-            x, y = cell(1, lane) if i == 0 else cell(i + 1, 2 * lane)
+            x, y = cell(1, lane) if i == 0 else cell(i + 1, (2 + (i + 1) % 2) * lane)
             placed[lane].append(b.add(stat, unit, values, costs, x, y, zone_id))
     for lane, nodes in placed.items():
         for i in range(len(nodes) - 1):
@@ -171,7 +172,7 @@ def build():
         if prev_dir is not None and d != prev_dir:
             px, py = DIRS[prev_dir]
             nx, ny = DIRS[d]
-            cursor = (prev_tail["x"] + px * GAP + nx * 3, prev_tail["y"] + py * GAP + ny * 3)
+            cursor = (prev_tail["x"] + px * GAP + nx * 4, prev_tail["y"] + py * GAP + ny * 4)
         elif prev_tail is not None:
             px, py = DIRS[d]
             cursor = (prev_tail["x"] + px * (GAP + 1), prev_tail["y"] + py * (GAP + 1))
@@ -257,6 +258,10 @@ def write(b, regions):
     for n in b.nodes:
         lines.append(f"    - Id: {n['id']}\n      Start: {1 if n['start'] else 0}\n      X: {n['x']}\n      Y: {n['y']}\n")
         lines.append("      Links:\n" + "".join(f"      - {l}\n" for l in n["links"]) if n["links"] else "      Links: []\n")
+    lines.append("    Regions:\n")
+    for r in regions:
+        members = [n["id"] for n in b.nodes if n["zone"] == r["zone"]]
+        lines.append(f"    - Id: {REGION_KEYS[r['zone']]}\n      Nodes:\n" + "".join(f"      - {m}\n" for m in members))
     with open(CATALOG, "w", encoding="utf-8", newline="\n") as f:
         f.write("".join(lines))
     zones = [dict(id=r["id"], title=r["title"], unlocks=r["unlocks"], nodes=sorted(n["id"] for n in b.nodes if n["zone"] == r["zone"]))
