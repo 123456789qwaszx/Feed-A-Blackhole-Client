@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 namespace BlackHole.Unity
 {
     // 키보드 단축키(Input System의 UI 액션)를 화면 흐름의 이벤트로 넘긴다. GameBootstrap이 ScreenFlow에 연결한다.
-    // - Shift: 업그레이드, Space: 계속, Esc: 일시정지
+    // - Shift: 업그레이드, Space: 계속, Esc: 일시정지 창(전투·결산·업그레이드)
     public class KeyInput : MonoBehaviour
     {
         private InputSystem_Actions _actions;
