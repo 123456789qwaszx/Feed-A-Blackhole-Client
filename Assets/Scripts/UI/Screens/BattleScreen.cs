@@ -7,7 +7,8 @@ using UnityEngine.EventSystems;
 
 namespace BlackHole.Unity
 {
-    // 전투 화면(전투 장면 위의 겹 화면). 남은 시간, 이 판이 번 Gold, 블랙홀의 판 Level·목표 Level과 다음 Level까지의 %(글자와 막대), 일시정지 여부를 받아 보여 주고, 일시정지·종료 버튼을 알린다.
+    // 전투 화면(전투 장면 위의 겹 화면). 전투 중에 필요한 정보만 보여 준다: 남은 시간, 다음 Level까지의 진행 막대, 일시정지·종료 버튼.
+    // Level 숫자·목표·% 글자는 두지 않는다(막대와 겹친다). 번 Gold 칩은 프리팹에서 꺼 두었다(결산에서 본다) — 켜면 다시 보인다.
     // 전투 Session을 모른다 — GameHost가 전투 Step 뒤 표시 값을 넘긴다. 진행 중인 판이 없으면 비어 있는 표시(ShowIdle)다.
     // 번 Gold는 이 판의 합계일 뿐이다. 진행 상태의 Gold는 판이 끝난 뒤 결산이 바꾼다.
     public sealed class BattleScreen : UIRoot<BattleScreen.Refs>, ILocalizedView
@@ -15,8 +16,8 @@ namespace BlackHole.Unity
         public enum Refs
         {
             Remaining_Text,
+            // 번 Gold. 칩(GoldChip_Image)이 프리팹에서 꺼져 있어 지금은 보이지 않는다.
             EarnedGold_Text,
-            Level_Text,
             // 다음 Level까지의 몫만큼 늘어나는 막대. 폭은 anchorMax.x로 정한다.
             LevelFill_Image,
             PauseBtn_Button,
@@ -32,8 +33,6 @@ namespace BlackHole.Unity
             GoldIcon_Image,
             LevelChip_Image,
             LevelBar_Image,
-            TimerChip_Image,
-            TimerIcon_Image,
             PauseBtn_Image,
             PauseIcon_Image,
             EndBtn_Image,
@@ -45,18 +44,18 @@ namespace BlackHole.Unity
 
         private TMP_Text _remaining;
         private TMP_Text _earned;
-        private TMP_Text _level;
         private RectTransform _levelFill;
         private TMP_Text _pauseLabel;
         private int _shownTenths = -1;
         private long _shownEarned = -1;
-        private int _shownLevel = -1;
-        private int _shownPercent = -1;
-        private int _shownGoal = -1;
+        private bool _idle;
         private bool? _shownPaused;
         private Localizer _localizer;
 
         private const float FillSharpness = 5f;
+        // 남은 시간 숫자 한 칸의 폭(글자 크기 기준)과 소수 부분의 크기. 글꼴이 바뀌면 화면에서 간격을 보고 맞춘다.
+        private const string DigitWidth = "0.6em";
+        private const string FractionSize = "70%";
         private float _fillValue = float.NaN;
 
         protected override void OnInitialize()
@@ -65,7 +64,6 @@ namespace BlackHole.Unity
 
             _remaining = View.Text(Refs.Remaining_Text);
             _earned = View.Text(Refs.EarnedGold_Text);
-            _level = View.Text(Refs.Level_Text);
             _levelFill = View.Rect(Refs.LevelFill_Image);
             _pauseLabel = View.Text(Refs.PauseBtn_Text);
 
@@ -91,10 +89,9 @@ namespace BlackHole.Unity
                 _earned.text = string.Empty;
             }
 
-            if (_shownLevel != int.MinValue && _level != null)
+            if (!_idle)
             {
-                _shownLevel = int.MinValue;
-                _level.text = string.Empty;
+                _idle = true;
                 _fillValue = float.NaN;
                 SetLevelFill(0);
             }
@@ -107,33 +104,23 @@ namespace BlackHole.Unity
         }
 
         // 매 프레임 불러도 된다. 보이는 값이 바뀔 때만 글자를 고친다.
-        // progress: 지금 Level에서 다음 Level까지의 몫(0 ~ 1). 마지막 Level이면 1이다. goalLevel: 이번 성장도의 목표 Level(0이면 목표 없음).
-        public void Show(float remainingSeconds, long earnedGold, bool paused, int level, float progress, int goalLevel)
+        // level·progress: 지금 Level과 다음 Level까지의 몫(0 ~ 1, 마지막 Level이면 1). 막대만 그린다 — Level이 오르면 막대가 한 바퀴 돈다.
+        public void Show(float remainingSeconds, long earnedGold, bool paused, int level, float progress)
         {
+            _idle = false;
+
             int tenths = Mathf.CeilToInt(remainingSeconds * 10);
 
             if (tenths != _shownTenths && _remaining != null)
             {
                 _shownTenths = tenths;
-                _remaining.text = (tenths / 10f).ToString("F1", CultureInfo.InvariantCulture);
+                _remaining.text = RemainingText(tenths);
             }
 
             if (earnedGold != _shownEarned && _earned != null)
             {
                 _shownEarned = earnedGold;
                 _earned.text = EarnedText(earnedGold);
-            }
-
-            int percent = Mathf.FloorToInt(progress * 100);
-
-            if ((level != _shownLevel || percent != _shownPercent || goalLevel != _shownGoal) && _level != null)
-            {
-                _shownLevel = level;
-                _shownPercent = percent;
-                _shownGoal = goalLevel;
-                _level.text = LevelText(level, goalLevel, percent);
-                // 막대도 글자와 같은 %로 맞춘다. 1% 단위로만 바뀌므로 매 프레임 레이아웃을 다시 잡지 않는다.
-                //SetLevelFill(percent / 100f);
             }
 
             UpdateLevelFill(level, progress);
@@ -145,7 +132,7 @@ namespace BlackHole.Unity
             }
         }
 
-        // 지금 보이는 값(번 Gold·Level·일시정지 글자)을 지금 언어로 다시 쓴다. 비어 있는 표시는 그대로 둔다.
+        // 지금 보이는 값(번 Gold·일시정지 글자)을 지금 언어로 다시 쓴다. 비어 있는 표시는 그대로 둔다.
         public void Relocalize(Localizer localizer)
         {
             _localizer = localizer;
@@ -153,23 +140,24 @@ namespace BlackHole.Unity
             if (_earned != null && _shownEarned >= 0)
                 _earned.text = EarnedText(_shownEarned);
 
-            if (_level != null && _shownLevel >= 0)
-                _level.text = LevelText(_shownLevel, _shownGoal, _shownPercent);
-
             if (_pauseLabel != null && _shownPaused is bool paused)
                 _pauseLabel.text = PauseLabel(paused);
         }
 
         private string EarnedText(long earnedGold) => Localized("battle.earned", OverThousand.GoldThousand(earnedGold));
 
-        private string LevelText(int level, int goalLevel, int percent)
+        // 남은 시간 글자. 0.1초마다 바뀌므로 흔들림을 줄인다.
+        // - 숫자는 칸 폭을 고정한다(<mspace>). 1과 8의 폭이 달라 가운데 정렬에서 숫자 묶음이 좌우로 움직이지 않게 한다.
+        //   소수점은 칸에 넣지 않는다 — 숫자 한 칸만큼 벌어져 보인다.
+        // - 소수 부분(".9")은 작게 그려 자주 바뀌는 자리가 덜 눈에 띄게 한다.
+        // 자릿수가 바뀔 때(10 → 9)만 묶음 폭이 한 칸 줄어든다.
+        private static string RemainingText(int tenths)
         {
-            string shownLevel = level.ToString(CultureInfo.InvariantCulture);
-            string shownPercent = percent.ToString(CultureInfo.InvariantCulture);
+            tenths = Mathf.Max(0, tenths);
+            string whole = (tenths / 10).ToString(CultureInfo.InvariantCulture);
+            string fraction = (tenths % 10).ToString(CultureInfo.InvariantCulture);
 
-            return goalLevel > 0
-                ? Localized("battle.level.goal", shownLevel, goalLevel.ToString(CultureInfo.InvariantCulture), shownPercent)
-                : Localized("battle.level", shownLevel, shownPercent);
+            return $"<mspace={DigitWidth}>{whole}</mspace><size={FractionSize}>.<mspace={DigitWidth}>{fraction}</mspace></size>";
         }
 
         private string PauseLabel(bool paused) => Localized(paused ? "battle.resume" : "battle.pause");

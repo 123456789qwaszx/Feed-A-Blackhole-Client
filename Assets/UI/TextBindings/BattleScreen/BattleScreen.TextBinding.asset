@@ -20,9 +20,6 @@ MonoBehaviour:
   - refId: EarnedGold_Text
     role: 2
     stale: 0
-  - refId: Level_Text
-    role: 2
-    stale: 0
   - refId: PauseBtn_Text
     role: 3
     stale: 0

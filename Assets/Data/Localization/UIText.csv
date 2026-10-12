@@ -55,8 +55,6 @@ BattleScreen.EndBtn_Text,End,종료
 battle.pause,Pause,일시 정지
 battle.resume,Resume,계속
 battle.earned,+{0} Gold,+{0} 골드
-battle.level,Lv {0}  {1}%,Lv {0}  {1}%
-battle.level.goal,Lv {0} / {1}  {2}%,Lv {0} / {1}  {2}%
 # 결산 화면
 SettlementScreen.DestroyedCaption_Text,DESTROYED,파괴
 SettlementScreen.AsteroidName_Text,ASTEROID,소행성

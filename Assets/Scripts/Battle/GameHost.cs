@@ -90,8 +90,7 @@ namespace BlackHole.Unity
                     session.World.EarnedGold,
                     _battle.IsPaused,
                     session.World.Hq.Level,
-                    session.World.Hq.Progress,
-                    session.World.Hq.GoalLevel);
+                    session.World.Hq.Progress);
         }
 
         public void Dispose()
