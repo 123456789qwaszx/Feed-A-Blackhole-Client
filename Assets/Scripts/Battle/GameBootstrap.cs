@@ -64,6 +64,7 @@ namespace BlackHole.Unity
         private GameSettings _settings;
         private BattleAnalytics _analytics;
         private ViewTexts _viewTexts;
+        private FrameRateLimiter _frameRate;
         private GameHost _host;
 
         private void Awake()
@@ -86,22 +87,25 @@ namespace BlackHole.Unity
                 return;
             }
 
+            // 설정은 화면(적 연출·화면 흔들림)이 읽으므로 화면보다 먼저 읽는다.
+            _settings = GameSettings.Load();
+            _frameRate = new FrameRateLimiter(_settings);
+
             Camera battleCamera = Camera.main;
             CameraShake cameraShake = battleCamera.GetComponent<CameraShake>();
             BattleCameraFit cameraFit = GetOrAdd<BattleCameraFit>(battleCamera.gameObject);
 
             EnemyLooks enemyLooks = new(_content.Enemies.Kinds());
-            EnemyView enemyView = new(transform, enemyLooks, _breakerLook, _cometLook);
+            EnemyView enemyView = new(transform, enemyLooks, _breakerLook, _cometLook, _settings);
             BreakerView breakerView = new(transform, _breakerLook);
             DeathEffectView deathEffectView = new(transform, _lightningLook, _explosionLook);
-            HqView hqView = new(transform, _blackHole, battleCamera);
+            HqView hqView = new(transform, _blackHole, battleCamera, _settings);
 
             _progress = new ProgressState();
             _progressStore = ProgressStore.Load(
                 saveDirectory,
                 loaded.NodeTree.Content,
                 loaded.Content.Growth);
-            _settings = GameSettings.Load();
             Localizer localizer = Localizer.Create(_texts, _settings);
             _analytics = BattleAnalytics.Create(
                 _analyticsSettings,
@@ -151,7 +155,8 @@ namespace BlackHole.Unity
                 breakerView,
                 deathEffectView,
                 hqView,
-                cameraShake);
+                cameraShake,
+                _settings);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             PlaytestPanel panel = GetOrAdd<PlaytestPanel>(gameObject);
@@ -201,6 +206,7 @@ namespace BlackHole.Unity
 
         private void OnDestroy()
         {
+            _frameRate?.Dispose();
             _viewTexts?.Dispose();
             _host?.Dispose();
         }

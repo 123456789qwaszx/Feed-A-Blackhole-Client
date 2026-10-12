@@ -77,6 +77,8 @@ namespace BlackHole.Unity
 
         private readonly Transform _root;
         private readonly EnemyLooks _looks;
+        // 표시 설정(피해량·Gold 텍스트, 물질 파편). 끄면 그다음 기록부터 내지 않는다 — 이미 떠 있는 것은 제 수명대로 사라진다.
+        private readonly GameSettings _settings;
         private readonly BreakerLook _breakerLook;
         private readonly CometView _comets;
         private readonly Mesh _quad;
@@ -102,8 +104,9 @@ namespace BlackHole.Unity
 
         // breakerLook: 달의 외형(머티리얼·색·간격·기본 공전 속도)을 Breaker 달과 같게 맞추려고 받는다.
         // cometLook: 혜성(픽업)의 외형. 혜성의 화면은 CometView가 맡는다.
-        public EnemyView(Transform parent, EnemyLooks looks, BreakerLook breakerLook, CometLook cometLook)
+        public EnemyView(Transform parent, EnemyLooks looks, BreakerLook breakerLook, CometLook cometLook, GameSettings settings)
         {
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _root = new GameObject("Enemy View").transform;
             _root.SetParent(parent, false);
             _looks = looks;
@@ -199,6 +202,10 @@ namespace BlackHole.Unity
         // 아직 읽지 않은 피격 기록마다: 살아 있는 적이면 흔들림, 그리고 피격 파편과 피해량 텍스트. 픽업(혜성)은 연출이 없다.
         private void ReadHits(IReadOnlyList<HitRecord> hits)
         {
+            // 설정은 프레임마다 한 번 읽는다(피격은 한 프레임에 많을 수 있다).
+            bool particles = _settings.IsOn(GameSettings.MatterParticles);
+            bool damageText = _settings.IsOn(GameSettings.ShowDamage);
+
             // 매 프레임 경로: IReadOnlyList를 인덱스로 돈다(인터페이스 foreach는 열거자를 할당한다).
             for (int i = 0; i < hits.Count; i++)
             {
@@ -215,8 +222,11 @@ namespace BlackHole.Unity
                 if (_seen.Contains(hit.EnemyId) && _visuals.TryGetValue(hit.EnemyId, out EnemyVisual visual))
                     visual.Hit.Play();
 
-                _hitParticles.EmitHit(new Vector3(hit.Position.X, hit.Position.Y, 0), _looks.ColorOf(hit.EnemyType, hit.Tier));
-                _damageText.Show(hit);
+                if (particles)
+                    _hitParticles.EmitHit(new Vector3(hit.Position.X, hit.Position.Y, 0), _looks.ColorOf(hit.EnemyType, hit.Tier));
+
+                if (damageText)
+                    _damageText.Show(hit);
             }
         }
 
@@ -224,6 +234,8 @@ namespace BlackHole.Unity
         private void ReadDeaths(IReadOnlyList<DeathRecord> deaths)
         {
             bool anyNew = false;
+            bool particles = _settings.IsOn(GameSettings.MatterParticles);
+            bool goldText = _settings.IsOn(GameSettings.ShowMoneyText);
 
             for (int i = 0; i < deaths.Count; i++)
             {
@@ -238,9 +250,14 @@ namespace BlackHole.Unity
                 if (death.IsPickup)
                     continue;
 
-                _hitParticles.EmitDeath(new Vector3(death.Position.X, death.Position.Y, 0),
-                    _looks.ColorOf(death.EnemyType, death.Tier), death.EnemyType, death.Tier, death.Size);
-                _goldText.Show(death);
+                if (particles)
+                {
+                    _hitParticles.EmitDeath(new Vector3(death.Position.X, death.Position.Y, 0),
+                        _looks.ColorOf(death.EnemyType, death.Tier), death.EnemyType, death.Tier, death.Size);
+                }
+
+                if (goldText)
+                    _goldText.Show(death);
 
                 if (death.EnemyType == EnemyType.Galaxy)
                     _collapsing.Add(death.EnemyId);
