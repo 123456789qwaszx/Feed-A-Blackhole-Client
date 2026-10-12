@@ -9,28 +9,19 @@ PausePanel.QuitBtn_Text,QUIT,게임 종료
 SettingsPanel.Title_Text,SETTINGS,설정
 # 설정 이름 (setting.{설정 ID})
 setting.DarkMode,Dark Mode,다크 모드
-setting.RunTimer,Run Timer,플레이 타이머
 setting.MasterVolume,Master Volume,전체 음량
 setting.EffectsVolume,Effects Volume,효과음 음량
 setting.MusicVolume,Music Volume,배경음 음량
 setting.ShuffleMusic,Shuffle Music,배경음 무작위 재생
 setting.Language,Language,언어
-setting.ScreenMode,Screen Mode,화면 모드
 setting.FpsLimit,FPS Limit,프레임 제한
-setting.VSync,VSync,수직 동기화
 setting.TextSize,Text Size,글자 크기
-setting.ControllerSensitivity,Controller Sensitivity,컨트롤러 감도
 setting.ShowMoneyText,Show Money Text,골드 획득 표시
 setting.ShowDamage,Show Damage,피해량 표시
 setting.ScreenShake,Screen Shake,화면 흔들림
 setting.BlackHolePulse,Black Hole Pulse,블랙홀 맥동
 setting.MatterParticles,Matter Particles,물질 파편
-setting.ObjectRotation,Object Rotation,천체 회전
-# 설정 선택지 (setting.{설정 ID}.{선택지 번호}) - 숫자·퍼센트·언어 이름은 넣지 않는다
-setting.ScreenMode.0,Fullscreen,전체 화면
-setting.ScreenMode.1,Exclusive Fullscreen,전용 전체 화면
-setting.ScreenMode.2,Windowed,창 모드
-setting.FpsLimit.5,Unlimited,제한 없음
+# 설정 선택지 (setting.{설정 ID}.{선택지 번호}) - 숫자·퍼센트·언어 이름은 넣지 않는다. 지금은 없다.
 # 타이틀 화면 (Title_Text는 게임 이름이라 넣지 않는다)
 TitleScreen.StartBtn_Text,START,시작
 TitleScreen.SettingsBtn_Text,SETTINGS,설정
