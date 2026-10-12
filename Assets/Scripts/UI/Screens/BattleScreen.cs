@@ -7,18 +7,25 @@ using UnityEngine.EventSystems;
 
 namespace BlackHole.Unity
 {
-    // 전투 화면(전투 장면 위의 겹 화면). 남은 시간, 이 판이 번 Gold, 블랙홀의 판 Level·목표 Level과 다음 Level까지의 %(글자와 막대), 일시정지 여부를 받아 보여 주고, 일시정지·종료 버튼을 알린다.
+    // 전투 화면(전투 장면 위의 겹 화면). 전투 중에 필요한 정보만 보여 준다: 남은 시간, 다음 Level까지의 진행 막대, 일시정지·종료 버튼.
+    // Level 숫자·목표·% 글자는 두지 않는다(막대와 겹친다). 번 Gold 칩은 프리팹에서 꺼 두었다(결산에서 본다) — 켜면 다시 보인다.
+    // 막대 아래의 마름모 10칸(MilestoneRow)은 이번 구간에서 오른 Level 수다. 이정표에 닿으면 달성 연출을 하고, 그동안 GameHost가 결산 전환을 미룬다.
     // 전투 Session을 모른다 — GameHost가 전투 Step 뒤 표시 값을 넘긴다. 진행 중인 판이 없으면 비어 있는 표시(ShowIdle)다.
     // 번 Gold는 이 판의 합계일 뿐이다. 진행 상태의 Gold는 판이 끝난 뒤 결산이 바꾼다.
-    public sealed class BattleScreen : UIRoot<BattleScreen.Refs>
+    public sealed class BattleScreen : UIRoot<BattleScreen.Refs>, ILocalizedView
     {
         public enum Refs
         {
             Remaining_Text,
+            // 남은 시간이 늘어난 순간 숫자 오른쪽에 잠깐 뜨는 "+0.3". 프리팹에서는 꺼져 있고 코드가 켠다.
+            TimeGain_Text,
+            // 번 Gold. 칩(GoldChip_Image)이 프리팹에서 꺼져 있어 지금은 보이지 않는다.
             EarnedGold_Text,
-            Level_Text,
             // 다음 Level까지의 몫만큼 늘어나는 막대. 폭은 anchorMax.x로 정한다.
             LevelFill_Image,
+            // 이정표 누적 칸 10개의 행과, 달성 때 퍼지는 파편(UIMilestoneBurst). 둘 다 터치를 받지 않는다.
+            MilestoneRow,
+            MilestoneBurst,
             PauseBtn_Button,
             PauseBtn_Text,
             EndBtn_Button,
@@ -32,8 +39,6 @@ namespace BlackHole.Unity
             GoldIcon_Image,
             LevelChip_Image,
             LevelBar_Image,
-            TimerChip_Image,
-            TimerIcon_Image,
             PauseBtn_Image,
             PauseIcon_Image,
             EndBtn_Image,
@@ -44,36 +49,86 @@ namespace BlackHole.Unity
         public event Action EndClicked;
 
         private TMP_Text _remaining;
+        private TMP_Text _gain;
         private TMP_Text _earned;
-        private TMP_Text _level;
         private RectTransform _levelFill;
         private TMP_Text _pauseLabel;
+        private MilestoneRow _milestones;
         private int _shownTenths = -1;
         private long _shownEarned = -1;
-        private int _shownLevel = -1;
-        private int _shownPercent = -1;
-        private int _shownGoal = -1;
+        private bool _idle;
         private bool? _shownPaused;
+        private Localizer _localizer;
 
         private const float FillSharpness = 5f;
+        // 남은 시간 숫자 한 칸의 폭(글자 크기 기준)과 소수 부분의 크기. 글꼴이 바뀌면 화면에서 간격을 보고 맞춘다.
+        private const string DigitWidth = "0.6em";
+        private const string FractionSize = "70%";
         private float _fillValue = float.NaN;
+
+        // 시간 증가 알림. 짧게 연달아 늘면 하나로 합쳐 "+0.9"처럼 보이고, 마지막 증가 뒤 잠시 있다가 흐려진다.
+        // 그 순간 남은 시간 숫자를 살짝 튕긴다. 화면에서 보고 맞출 값이다.
+        private const float GainMergeWindow = 0.5f; // 이 안에 다시 늘면 합친다(초)
+        private const float GainHold = 0.5f;        // 마지막 증가 뒤 그대로 보이는 시간(초)
+        private const float GainFade = 0.3f;        // 그 뒤 흐려지는 시간(초)
+        private const float GainGap = 12f;          // 숫자 오른쪽 끝과의 틈(px)
+        private const float MinGain = 0.05f;        // 이보다 작은 증가는 모아 두었다가 알린다(초)
+        private const float PopDuration = 0.15f;
+        private const float PopScale = 0.1f;        // 1.0 → 1.1 → 1.0
+
+        private float _shownAdded = float.NaN;      // 마지막으로 알린 "더해진 시간" 합. NaN이면 기준이 없다(새 판).
+        private float _gainSum;
+        private float _sinceGain = float.PositiveInfinity;
+        private float _popTime = PopDuration;
 
         protected override void OnInitialize()
         {
             ScreenRefs.WarnMissing<Refs>(this);
 
             _remaining = View.Text(Refs.Remaining_Text);
+            _gain = View.Text(Refs.TimeGain_Text);
+            ResetGain();
             _earned = View.Text(Refs.EarnedGold_Text);
-            _level = View.Text(Refs.Level_Text);
             _levelFill = View.Rect(Refs.LevelFill_Image);
             _pauseLabel = View.Text(Refs.PauseBtn_Text);
+
+            RectTransform burstRect = View.Rect(Refs.MilestoneBurst);
+            _milestones = new MilestoneRow(
+                View.Rect(Refs.MilestoneRow),
+                burstRect != null ? burstRect.GetComponent<UIMilestoneBurst>() : null);
+            _milestones.Reset();
 
             BindEvent(View.Button(Refs.PauseBtn_Button), HandlePauseClicked);
             BindEvent(View.Button(Refs.EndBtn_Button), HandleEndClicked);
         }
 
-        private void HandlePauseClicked(PointerEventData _) => PauseClicked?.Invoke();
-        private void HandleEndClicked(PointerEventData _) => EndClicked?.Invoke();
+        // 화면이 닫힐 때 알림·튕김·이정표 칸을 지운다. 다시 열 때 남아 있지 않게 한다.
+        private void OnDisable()
+        {
+            ResetGain();
+            _milestones?.Reset();
+        }
+
+        // 이정표 칸의 연출은 실제 시간으로 흐른다(정지 중·판이 끝난 뒤에도).
+        private void Update() => _milestones?.Tick(Time.unscaledDeltaTime);
+
+        // 이정표 달성 연출 중인가. 끝날 때까지 GameHost가 결산 전환을 미루고, 이 화면은 버튼을 받지 않는다.
+        public bool IsCelebratingMilestone => _milestones != null && _milestones.IsCelebrating;
+
+        // 이정표에 닿아 판이 끝났다. 10칸을 채운 모습과 달성 연출을 시작한다. 시작했으면 true(한 판에 한 번).
+        public bool TryPlayMilestoneReached() => _milestones != null && _milestones.TryCelebrate();
+
+        private void HandlePauseClicked(PointerEventData _)
+        {
+            if (!IsCelebratingMilestone)
+                PauseClicked?.Invoke();
+        }
+
+        private void HandleEndClicked(PointerEventData _)
+        {
+            if (!IsCelebratingMilestone)
+                EndClicked?.Invoke();
+        }
 
         // 진행 중인 판이 없을 때의 표시. 매 프레임 불러도 된다.
         public void ShowIdle()
@@ -90,52 +145,62 @@ namespace BlackHole.Unity
                 _earned.text = string.Empty;
             }
 
-            if (_shownLevel != int.MinValue && _level != null)
+            if (!_idle)
             {
-                _shownLevel = int.MinValue;
-                _level.text = string.Empty;
+                _idle = true;
                 _fillValue = float.NaN;
                 SetLevelFill(0);
+                ResetGain();
+                _milestones?.Reset();
+                _milestones?.SetVisible(false);
             }
 
             if (_shownPaused != false && _pauseLabel != null)
             {
                 _shownPaused = false;
-                _pauseLabel.text = "Pause";
+                _pauseLabel.text = PauseLabel(false);
             }
         }
 
         // 매 프레임 불러도 된다. 보이는 값이 바뀔 때만 글자를 고친다.
-        // progress: 지금 Level에서 다음 Level까지의 몫(0 ~ 1). 마지막 Level이면 1이다. goalLevel: 이번 성장도의 목표 Level(0이면 목표 없음).
-        public void Show(float remainingSeconds, long earnedGold, bool paused, int level, float progress, int goalLevel)
+        // addedSeconds: 이 판에서 제한 시간에 더해진 초의 합(GameSession.AddedSeconds). 늘어난 만큼 "+0.3"을 띄운다.
+        // level·progress: 지금 Level과 다음 Level까지의 몫(0 ~ 1, 마지막 Level이면 1). 막대만 그린다 — Level이 오르면 막대가 한 바퀴 돈다.
+        // startLevel·goalLevel: 이 판의 시작 Level(체크포인트)과 목표 Level(Hq.StartLevel·GoalLevel). 이정표 칸은 level - startLevel개를 채운다.
+        //   목표가 없으면(마지막 이정표 뒤, goalLevel == 0) 칸 행을 숨긴다.
+        public void Show(
+            float remainingSeconds, float addedSeconds, long earnedGold, bool paused,
+            int level, float progress, int startLevel, int goalLevel)
         {
+            _idle = false;
+
+            if (_milestones != null)
+            {
+                bool hasGoal = goalLevel > 0;
+                _milestones.SetVisible(hasGoal);
+
+                if (hasGoal)
+                    _milestones.Show(level - startLevel);
+            }
+
             int tenths = Mathf.CeilToInt(remainingSeconds * 10);
+            bool remainingChanged = false;
 
             if (tenths != _shownTenths && _remaining != null)
             {
                 _shownTenths = tenths;
-                _remaining.text = (tenths / 10f).ToString("F1", CultureInfo.InvariantCulture);
+                _remaining.text = RemainingText(tenths);
+                remainingChanged = true;
             }
+
+            if (TrackGain(addedSeconds) || (remainingChanged && GainVisible))
+                PlaceGain();
+
+            AnimateGain(Time.unscaledDeltaTime);
 
             if (earnedGold != _shownEarned && _earned != null)
             {
                 _shownEarned = earnedGold;
-                //_earned.text = "+" + earnedGold.ToString("N0", CultureInfo.InvariantCulture) + " Gold";
-                _earned.text = "+" + OverThousand.GoldThousand(earnedGold) + " Gold";
-            }
-
-            int percent = Mathf.FloorToInt(progress * 100);
-
-            if ((level != _shownLevel || percent != _shownPercent || goalLevel != _shownGoal) && _level != null)
-            {
-                _shownLevel = level;
-                _shownPercent = percent;
-                _shownGoal = goalLevel;
-                _level.text = "Lv " + level.ToString(CultureInfo.InvariantCulture)
-                    + (goalLevel > 0 ? " / " + goalLevel.ToString(CultureInfo.InvariantCulture) : string.Empty)
-                    + "  " + percent.ToString(CultureInfo.InvariantCulture) + "%";
-                // 막대도 글자와 같은 %로 맞춘다. 1% 단위로만 바뀌므로 매 프레임 레이아웃을 다시 잡지 않는다.
-                //SetLevelFill(percent / 100f);
+                _earned.text = EarnedText(earnedGold);
             }
 
             UpdateLevelFill(level, progress);
@@ -143,9 +208,127 @@ namespace BlackHole.Unity
             if (paused != _shownPaused && _pauseLabel != null)
             {
                 _shownPaused = paused;
-                _pauseLabel.text = paused ? "Resume" : "Pause";
+                _pauseLabel.text = PauseLabel(paused);
             }
         }
+
+        // 지금 보이는 값(번 Gold·일시정지 글자)을 지금 언어로 다시 쓴다. 비어 있는 표시는 그대로 둔다.
+        public void Relocalize(Localizer localizer)
+        {
+            _localizer = localizer;
+
+            if (_earned != null && _shownEarned >= 0)
+                _earned.text = EarnedText(_shownEarned);
+
+            if (_pauseLabel != null && _shownPaused is bool paused)
+                _pauseLabel.text = PauseLabel(paused);
+        }
+
+        private string EarnedText(long earnedGold) => Localized("battle.earned", OverThousand.GoldThousand(earnedGold));
+
+        // 남은 시간 글자. 0.1초마다 바뀌므로 흔들림을 줄인다.
+        // - 숫자는 칸 폭을 고정한다(<mspace>). 1과 8의 폭이 달라 가운데 정렬에서 숫자 묶음이 좌우로 움직이지 않게 한다.
+        //   소수점은 칸에 넣지 않는다 — 숫자 한 칸만큼 벌어져 보인다.
+        // - 소수 부분(".9")은 작게 그려 자주 바뀌는 자리가 덜 눈에 띄게 한다.
+        // 자릿수가 바뀔 때(10 → 9)만 묶음 폭이 한 칸 줄어든다.
+        private static string RemainingText(int tenths)
+        {
+            tenths = Mathf.Max(0, tenths);
+            string whole = (tenths / 10).ToString(CultureInfo.InvariantCulture);
+            string fraction = (tenths % 10).ToString(CultureInfo.InvariantCulture);
+
+            return $"<mspace={DigitWidth}>{whole}</mspace><size={FractionSize}>.<mspace={DigitWidth}>{fraction}</mspace></size>";
+        }
+
+        private bool GainVisible => _gain != null && _gain.gameObject.activeSelf;
+
+        // 더해진 시간 합이 늘었으면 알림 글자를 고치고 true. 새 판(합이 줄었거나 기준이 없음)이면 기준만 잡는다.
+        private bool TrackGain(float addedSeconds)
+        {
+            if (float.IsNaN(_shownAdded) || addedSeconds < _shownAdded)
+            {
+                _shownAdded = addedSeconds;
+                return false;
+            }
+
+            float gained = addedSeconds - _shownAdded;
+            if (gained < MinGain)
+                return false;
+
+            _shownAdded = addedSeconds;
+            _gainSum = _sinceGain <= GainMergeWindow ? _gainSum + gained : gained;
+            _sinceGain = 0;
+            _popTime = 0;
+
+            if (_gain == null)
+                return false;
+
+            _gain.text = "+" + _gainSum.ToString("0.0", CultureInfo.InvariantCulture);
+            _gain.alpha = 1;
+            _gain.gameObject.SetActive(true);
+            return true;
+        }
+
+        // 알림을 숫자 오른쪽 끝 바로 옆에 둔다. 숫자 폭은 자릿수·글자 크기 설정에 따라 바뀐다.
+        // 숫자 글자는 Timer 전체에 펼쳐져 있고 기준점이 가운데라, 그 지역 좌표의 x가 곧 Timer 가운데 기준 x다.
+        private void PlaceGain()
+        {
+            if (_gain == null || _remaining == null)
+                return;
+
+            _remaining.ForceMeshUpdate();
+            RectTransform gain = _gain.rectTransform;
+            gain.anchoredPosition = new Vector2(_remaining.textBounds.max.x + GainGap, gain.anchoredPosition.y);
+        }
+
+        private void AnimateGain(float deltaTime)
+        {
+            if (_popTime < PopDuration && _remaining != null)
+            {
+                _popTime += deltaTime;
+                float t = Mathf.Clamp01(_popTime / PopDuration);
+                float scale = t < 1 ? 1 + PopScale * Mathf.Sin(t * Mathf.PI) : 1;
+                _remaining.rectTransform.localScale = new Vector3(scale, scale, 1);
+            }
+
+            if (float.IsPositiveInfinity(_sinceGain))
+                return;
+
+            _sinceGain += deltaTime;
+            float alpha = 1 - Mathf.Clamp01((_sinceGain - GainHold) / GainFade);
+
+            if (alpha > 0)
+            {
+                if (_gain != null)
+                    _gain.alpha = alpha;
+
+                return;
+            }
+
+            _sinceGain = float.PositiveInfinity;
+
+            if (_gain != null)
+                _gain.gameObject.SetActive(false);
+        }
+
+        private void ResetGain()
+        {
+            _shownAdded = float.NaN;
+            _gainSum = 0;
+            _sinceGain = float.PositiveInfinity;
+            _popTime = PopDuration;
+
+            if (_gain != null)
+                _gain.gameObject.SetActive(false);
+
+            if (_remaining != null)
+                _remaining.rectTransform.localScale = Vector3.one;
+        }
+
+        private string PauseLabel(bool paused) => Localized(paused ? "battle.resume" : "battle.pause");
+
+        private string Localized(string key, params object[] args) =>
+            _localizer != null ? _localizer.Format(key, args) : key;
 
         private void SetLevelFill(float amount)
         {

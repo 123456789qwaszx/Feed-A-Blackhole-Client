@@ -16,6 +16,9 @@ namespace BlackHole.Unity
         private readonly DeathEffectView _deathEffectView;
         private readonly HqView _hqView;
         private readonly CameraShake _cameraShake;
+        private readonly GameSettings _settings;
+        // 이정표에 닿아 판이 끝났고, 전투 화면의 달성 연출이 끝나기를 기다리는 중. 끝나면 한 번만 결산 전환을 요청한다.
+        private bool _endAwaitsMilestoneEffect;
 
         public GameHost(
             UIManager ui,
@@ -27,7 +30,8 @@ namespace BlackHole.Unity
             BreakerView breakerView,
             DeathEffectView deathEffectView,
             HqView hqView,
-            CameraShake cameraShake)
+            CameraShake cameraShake,
+            GameSettings settings)
         {
             _ui = ui;
             _battle = battle;
@@ -39,6 +43,7 @@ namespace BlackHole.Unity
             _deathEffectView = deathEffectView;
             _hqView = hqView;
             _cameraShake = cameraShake;
+            _settings = settings;
         }
 
         public void Start() => _screens.GoToTitle();
@@ -49,17 +54,51 @@ namespace BlackHole.Unity
 
             AdvanceResult result = _battle.Tick(deltaTime);
 
-            if (result.Ended)
-                _screens.HandleBattleTimeExpired();
-
             if (result.RaisedLevels > 0)
             {
-                _cameraShake.Play();
+                if (_settings.IsOn(GameSettings.ScreenShake))
+                    _cameraShake.Play();
+
                 SoundManager.Instance.PlayLevelUp();
             }
 
+            // 화면을 먼저 맞춘다 — 판이 끝난 프레임이면 끝난 상태(10칸)를 보인 뒤에 연출·전환을 결정한다.
             RefreshBattleHud();
+
+            if (result.Ended)
+                HandleBattleEnded();
+            else if (_endAwaitsMilestoneEffect)
+                RequestEndAfterMilestoneEffect();
+
             RefreshCursor();
+        }
+
+        // 판이 이번 프레임에 끝났다. 전투 규칙상 종료는 이미 적용됐다(판이 더 흐르지 않는다).
+        // 이정표 도달이면 전투 화면의 달성 연출을 먼저 보여 주고, 연출이 끝난 뒤 결산 전환을 요청한다. 시간 만료는 곧바로 요청한다.
+        private void HandleBattleEnded()
+        {
+            GameSession session = _battle.Session;
+            bool milestone = session != null && session.World.Hq.ReachedMilestone;
+
+            if (milestone && _ui.CurrentRoot is BattleScreen screen && screen.TryPlayMilestoneReached())
+            {
+                _endAwaitsMilestoneEffect = true;
+                return;
+            }
+
+            _screens.HandleBattleTimeExpired();
+        }
+
+        // 달성 연출이 끝났거나 전투 화면이 다른 이유로 닫혔으면 결산 전환을 한 번 요청한다. 판이 이미 없으면(다른 경로로 끝남) 요청하지 않는다.
+        private void RequestEndAfterMilestoneEffect()
+        {
+            if (_ui.CurrentRoot is BattleScreen screen && screen.IsCelebratingMilestone)
+                return;
+
+            _endAwaitsMilestoneEffect = false;
+
+            if (_battle.Session != null)
+                _screens.HandleBattleTimeExpired();
         }
 
         private void RefreshCursor()
@@ -82,10 +121,12 @@ namespace BlackHole.Unity
             else
                 screen.Show(
                     session.Remaining,
+                    session.AddedSeconds,
                     session.World.EarnedGold,
                     _battle.IsPaused,
                     session.World.Hq.Level,
                     session.World.Hq.Progress,
+                    session.World.Hq.StartLevel,
                     session.World.Hq.GoalLevel);
         }
 

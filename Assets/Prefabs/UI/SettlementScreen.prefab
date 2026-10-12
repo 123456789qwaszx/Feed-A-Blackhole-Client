@@ -372,7 +372,7 @@ GameObject:
   - component: {fileID: 6404156749607706267}
   - component: {fileID: 2957032452970414332}
   m_Layer: 0
-  m_Name: DestroyedCaption
+  m_Name: DestroyedCaption_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -817,7 +817,7 @@ GameObject:
   - component: {fileID: 492461701013112115}
   - component: {fileID: 8393630497248646190}
   m_Layer: 0
-  m_Name: Name
+  m_Name: AsteroidName_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1356,7 +1356,7 @@ GameObject:
   - component: {fileID: 6016205465229392765}
   - component: {fileID: 4530104310438276571}
   m_Layer: 0
-  m_Name: Name
+  m_Name: PlanetName_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1895,7 +1895,7 @@ GameObject:
   - component: {fileID: 6750790380633365076}
   - component: {fileID: 7374142221830568767}
   m_Layer: 0
-  m_Name: Name
+  m_Name: StarName_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2630,7 +2630,7 @@ GameObject:
   - component: {fileID: 7525218876671884943}
   - component: {fileID: 4707711544624885159}
   m_Layer: 0
-  m_Name: GoldCaption
+  m_Name: GoldCaption_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2904,7 +2904,7 @@ GameObject:
   - component: {fileID: 6274803088030648921}
   - component: {fileID: 3302292121405036378}
   m_Layer: 0
-  m_Name: GrowthCaption
+  m_Name: GrowthCaption_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3617,7 +3617,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: -34}
-  m_SizeDelta: {x: 320, y: 52}
+  m_SizeDelta: {x: 260, y: 72}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &373975359900705149
 CanvasRenderer:
@@ -3677,9 +3677,9 @@ MonoBehaviour:
   m_fontSize: 40
   m_fontSizeBase: 40
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 24
+  m_fontSizeMax: 40
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -3942,7 +3942,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: -14}
-  m_SizeDelta: {x: 320, y: 52}
+  m_SizeDelta: {x: 260, y: 72}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &8851824526751798514
 CanvasRenderer:
@@ -4002,9 +4002,9 @@ MonoBehaviour:
   m_fontSize: 40
   m_fontSizeBase: 40
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 24
+  m_fontSizeMax: 40
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512

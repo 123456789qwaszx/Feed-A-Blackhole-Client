@@ -33,6 +33,8 @@ namespace BlackHole.Unity
 
         private readonly LineStrokes _strokes;
         private readonly Shockwaves _shockwaves;
+        // Black Hole Pulse 설정. 끄면 레벨업 때의 원형 플래시·충격파를 내지 않는다(블랙홀이 커지는 것은 그대로).
+        private readonly GameSettings _settings;
         private readonly GameObject _blackHole;
         // 블랙홀 오브젝트의 처음 크기와, 그 크기에서 검은 중심 원의 반지름(월드 단위). Level에 맞춰 이 비율로 키운다.
         private readonly Vector3 _blackHoleScale;
@@ -40,8 +42,9 @@ namespace BlackHole.Unity
         private int _shownLevel = -1;
 
         //public HqView(Transform parent) => _strokes = new LineStrokes(parent, "Hq View");
-        public HqView(Transform parent, GameObject blackHole, Camera camera)
+        public HqView(Transform parent, GameObject blackHole, Camera camera, GameSettings settings)
         {
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _strokes = new LineStrokes(parent, "Hq View");
             _shockwaves = new Shockwaves(camera);
             _blackHole = blackHole != null ? blackHole : throw new ArgumentNullException(nameof(blackHole));
@@ -68,7 +71,7 @@ namespace BlackHole.Unity
             float radius = RadiusOf(level);
             _blackHole.transform.localScale = _blackHoleScale * (radius / _blackHoleCoreRadius);
 
-            if (_shownLevel >= 0 && level > _shownLevel)
+            if (_shownLevel >= 0 && level > _shownLevel && _settings.IsOn(GameSettings.BlackHolePulse))
             {
                 LineStrokes.SetCircle(_strokes.Flash("Level Up", FlashWidth * fieldScale, FlashColor, FlashSeconds), BattleSpace.Origin, radius * 1.4f);
 

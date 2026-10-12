@@ -72,7 +72,7 @@ namespace BlackHole.Unity
             var text = new StringBuilder();
 
             if (node.MaxRank > 1)
-                text.Append("Rank ").Append(rank).Append('/').Append(node.MaxRank).Append('\n');
+                text.Append(_localizer.Format("node.rank", rank, node.MaxRank)).Append('\n');
 
             foreach (NodeEffect effect in shown.Effects)
             {
@@ -83,7 +83,7 @@ namespace BlackHole.Unity
 
                 if (maxed)
                 {
-                    text.Append("  (now ").Append(NumberText.Value(now)).Append(unit).Append(')');
+                    text.Append("  (").Append(_localizer.Format("node.now", NumberText.Value(now) + unit)).Append(')');
                 }
                 else
                 {
@@ -94,7 +94,7 @@ namespace BlackHole.Unity
                 text.Append('\n');
             }
 
-            text.Append(maxed ? "Maxed" : "Cost " + NumberText.Compact(shown.Cost));
+            text.Append(maxed ? _localizer.Get("node.maxed") : _localizer.Format("node.cost", NumberText.Compact(shown.Cost)));
             return text.ToString();
         }
 

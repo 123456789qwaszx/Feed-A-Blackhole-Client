@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class UpgradeScreen : UIRoot<UpgradeScreen.Refs>, IUIPageOwner
+    public sealed class UpgradeScreen : UIRoot<UpgradeScreen.Refs>, IUIPageOwner, ILocalizedView, ITextStyleView
     {
         public enum Refs
         {
@@ -20,6 +20,8 @@ namespace BlackHole.Unity
             NodeTooltipBody_Text,
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
+            // 조작 안내. 코드는 쓰지 않고 UI 글자 표가 언어에 맞게 바꾼다(ViewTexts).
+            Hint_Text,
 
             // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
             // 트리의 노드 그림은 여기 없다 — 트리 보기(NodeTreeView)의 NodeTreeLook이 정한다.
@@ -46,6 +48,14 @@ namespace BlackHole.Unity
         private TMP_Text _tooltipBody;
         private readonly Vector3[] _corners = new Vector3[4];
 
+        // 언어가 바뀌면 다시 쓸 마지막 값. 아직 보이지 않았으면 null.
+        private Localizer _localizer;
+        private readonly StyledTexts _styled = new();
+        // 노드 툴팁의 프리팹 폭. 글자 크기 설정만큼 넓힌다(원작처럼 상자가 글자를 따라 커진다).
+        private float _tooltipWidth;
+        private long? _shownGold;
+        private (int Stage, int GoalLevel)? _shownHq;
+
         protected override void OnInitialize()
         {
             ScreenRefs.WarnMissing<Refs>(this);
@@ -55,6 +65,8 @@ namespace BlackHole.Unity
             _tooltip = View.Rect(Refs.NodeTooltip_Image);
             _tooltipTitle = View.Text(Refs.NodeTooltipTitle_Text);
             _tooltipBody = View.Text(Refs.NodeTooltipBody_Text);
+            _styled.Add(View.Text(Refs.Hint_Text), UITextRole.Caption);
+            _tooltipWidth = _tooltip != null ? _tooltip.sizeDelta.x : 0;
             HideNodeTooltip();
 
             BindEvent(View.Button(Refs.StartBattleBtn_Button), HandleStartBattleClicked);
@@ -67,25 +79,51 @@ namespace BlackHole.Unity
 
         public void ShowGold(long gold)
         {
+            _shownGold = gold;
+
             if (_gold != null)
-            {
-                // _gold.text = "Gold " + gold.ToString("N0", CultureInfo.InvariantCulture);
-                _gold.text = "Gold " + OverThousand.GoldThousand(gold);
-            }
+                _gold.text = Localized("upgrade.gold", OverThousand.GoldThousand(gold));
         }
 
         // 블랙홀(판 밖 진행): 성장도(도달한 이정표 수)와 다음 판의 목표 Level(다음 이정표의 Level, 0이면 마지막 이정표 뒤).
         // 산 노드 수는 결산 화면이 보여 준다.
         public void ShowHq(int stage, int goalLevel)
         {
+            _shownHq = (stage, goalLevel);
+
             if (_hq == null)
                 return;
 
-            _hq.text = "Black hole  Stage " + stage.ToString(CultureInfo.InvariantCulture)
-                + (goalLevel > 0
-                    ? "  (goal Lv " + goalLevel.ToString(CultureInfo.InvariantCulture) + ")"
-                    : "  (last stage)");
+            string shownStage = stage.ToString(CultureInfo.InvariantCulture);
+            _hq.text = goalLevel > 0
+                ? Localized("upgrade.hq.goal", shownStage, goalLevel.ToString(CultureInfo.InvariantCulture))
+                : Localized("upgrade.hq.last", shownStage);
         }
+
+        // 마지막으로 보인 Gold·블랙홀 글자를 지금 언어로 다시 쓴다. 노드 툴팁은 닫는다(다시 올리면 새 언어로 뜬다).
+        public void Relocalize(Localizer localizer)
+        {
+            _localizer = localizer;
+            HideNodeTooltip();
+
+            if (_shownGold is long gold)
+                ShowGold(gold);
+
+            if (_shownHq is (int stage, int goalLevel))
+                ShowHq(stage, goalLevel);
+        }
+
+        // 글자 크기·언어별 글꼴. TextBindings에 등록되지 않은 글자만 여기서 맞춘다(등록된 글자는 Theme가 맞춘다).
+        public void ApplyTextStyle(in UITextStyle style)
+        {
+            _styled.SetStyle(style);
+
+            if (_tooltip != null)
+                _tooltip.sizeDelta = new Vector2(_tooltipWidth * style.Scale, _tooltip.sizeDelta.y);
+        }
+
+        private string Localized(string key, params object[] args) =>
+            _localizer != null ? _localizer.Format(key, args) : key;
 
         // 노드 위 가운데에 툴팁을 붙인다. 화면 위로 넘치면 노드 아래에 붙인다.
         // 툴팁은 레이캐스트를 받지 않아 노드의 올림을 가로채지 않는다.

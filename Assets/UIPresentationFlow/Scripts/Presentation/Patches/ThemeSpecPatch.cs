@@ -5,13 +5,19 @@ public sealed class ThemeSpecPatch : IUIPatch
 {
     private readonly ThemeSpec _theme;
     private readonly UITextBindingCatalog _textBindings;
+    private readonly float _textScale;
+    private readonly string _localeId;
 
     public ThemeSpecPatch(
         ThemeSpec theme,
-        UITextBindingCatalog textBindings)
+        UITextBindingCatalog textBindings,
+        float textScale = 1f,
+        string localeId = null)
     {
         _theme = theme;
         _textBindings = textBindings;
+        _textScale = textScale > 0f ? textScale : 1f;
+        _localeId = localeId;
     }
 
     public void Apply(IUIPresentationRefProvider refs)
@@ -53,31 +59,46 @@ public sealed class ThemeSpecPatch : IUIPatch
                 continue;
             }
 
-            ApplyTextTheme(text, entry.role);
+            ApplyTextTheme(text, entry.role, entry.fixedSize ? 1f : _textScale, !entry.fixedFont);
         }
     }
 
-    private void ApplyTextTheme(TMP_Text text, UITextRole role)
+    // The size is always computed from the role size, so re-applying never compounds the scale.
+    // Auto-sized texts take the size as their maximum: they grow with the scale and shrink to fit their rect.
+    // The font comes from the font set by the current locale and the role (fixedFont entries keep theirs).
+    private void ApplyTextTheme(TMP_Text text, UITextRole role, float scale, bool setFont)
     {
-        if (_theme.mainFont != null)
-            text.font = _theme.mainFont;
+        if (setFont && _theme.fonts != null)
+        {
+            TMP_FontAsset font = _theme.fonts.Get(_localeId, role);
+            if (font != null)
+                text.font = font;
+        }
 
         switch (role)
         {
             case UITextRole.Title:
-                text.fontSize = _theme.titleSize;
+                SetSize(text, _theme.titleSize * scale);
                 text.color = _theme.textMainColor;
                 break;
 
             case UITextRole.Body:
-                text.fontSize = _theme.bodySize;
+                SetSize(text, _theme.bodySize * scale);
                 text.color = _theme.textMainColor;
                 break;
 
             case UITextRole.Caption:
-                text.fontSize = _theme.captionSize;
+                SetSize(text, _theme.captionSize * scale);
                 text.color = _theme.textWeakColor;
                 break;
         }
+    }
+
+    private static void SetSize(TMP_Text text, float size)
+    {
+        if (text.enableAutoSizing)
+            text.fontSizeMax = size;
+
+        text.fontSize = size;
     }
 }

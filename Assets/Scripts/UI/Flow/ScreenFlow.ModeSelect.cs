@@ -7,13 +7,14 @@ namespace BlackHole.Unity
         private const string NormalModeId = "normal";
         private static readonly Color NormalModeColor = new(0.62f, 0.33f, 0.35f);
 
-        // 모드 카드. 계속 버튼은 이어 할 진행이 있을 때만 켠다(진행 저장).
+        // 모드 카드. 계속 버튼은 이어 할 진행이 있을 때만 켠다(진행 저장). 이름·설명은 창을 열 때의 언어로 만든다
+        // (모드 선택 창이 열린 채로는 언어를 바꿀 수 없다).
         private ModeSelectPanel.ModeItem[] Modes() => new[]
         {
             new ModeSelectPanel.ModeItem(
                 NormalModeId,
-                "Normal Mode",
-                "The main mode. Break asteroids, planets and stars and feed their matter to the black hole.",
+                _localizer.Get("mode.normal.title"),
+                _localizer.Get("mode.normal.description"),
                 NormalModeColor,
                 canContinue: _progressStore.CanContinue),
         };
@@ -50,7 +51,12 @@ namespace BlackHole.Unity
         private void HandleModeSelectNewGameClicked(string modeId)
         {
             if (_progressStore.CanContinue)
-                OpenConfirm("NEW GAME", "Start over from the beginning?\nYour saved progress will be lost.", "START", "CANCEL", StartNewGame);
+                OpenConfirm(
+                    _localizer.Get("confirm.newGame.title"),
+                    _localizer.Get("confirm.newGame.body"),
+                    _localizer.Get("confirm.newGame.confirm"),
+                    _localizer.Get("confirm.cancel"),
+                    StartNewGame);
             else
                 StartNewGame();
         }
