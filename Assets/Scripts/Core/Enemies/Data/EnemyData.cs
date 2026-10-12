@@ -18,7 +18,7 @@ namespace BlackHole.Core
         // 붙을 수 있는 특수 성질(성질 종류마다 하나). 생성 확률은 노드(electricAsteroid.spawnChance 등)가 정하고 기본 0%다.
         // 픽업은 정확히 하나이고 언제나 붙는다.
         public List<EnemyTraitData> Traits = new List<EnemyTraitData>();
-        // 변환 대상 종류(소행성 → 행성 → 별). null이면 변환하지 않는다. 변환 수는 노드(asteroid.toPlanet·planet.toStar)만 정한다.
+        // 변환 대상 종류(소행성 → 행성 → 별 → 은하). null이면 변환하지 않는다. 변환 수는 노드(asteroid.toPlanet·planet.toStar·star.toGalaxy)만 정한다.
         public EnemyType? UpgradesTo;
         // 주기 출현의 판정 주기(초). 0이면 공급되는 보통 종류다(0보다 크면 픽업). 등장 확률은 노드(comet.spawnChance)가 정한다.
         public float SpawnPeriod;

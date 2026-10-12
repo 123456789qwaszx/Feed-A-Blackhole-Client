@@ -402,8 +402,9 @@ namespace BlackHole.EditorTools
 
             if (!_host.Editing)
             {
+                // 미리보기·테스트 세팅: Ctrl(Mac은 Cmd)+클릭을 창에 넘긴다(Rank 되돌리기).
                 if (node != null)
-                    _host.OnNodeClicked(node, false);
+                    _host.OnNodeClicked(node, _additive);
 
                 return;
             }

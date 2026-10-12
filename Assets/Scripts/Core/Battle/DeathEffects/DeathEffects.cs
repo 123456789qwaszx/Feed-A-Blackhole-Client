@@ -7,10 +7,14 @@ namespace BlackHole.Core
     // 대기열: 특수 적(성질이 붙은 적)이 죽는 순간(World.DealDamage) 그 성질의 효과·죽은 자리를 넣음.
     // 처리: 넣은 순서(사망 순서)대로 효과를 실행하고 대기열을 비움.
     // 레이저 별은 죽는 순간 경로를 정해 예고를 시작하고, 예고 시간이 지난 Step에 쏜다(피해는 그때 준다).
+    // 중력장 은하는 죽는 순간 그 자리에 중력장을 연다. 중력장은 다음 Step의 이동부터 범위 안의 적을 나선으로 끌어 작은 원반에 머물게 한다(World.Step 1, Pull·GravityPull).
     // 효과의 피해는 특수 적(성질이 붙은 적, 픽업 포함)에게 가지 않는다 — 효과가 효과를 부르지 않는다.
     public sealed class DeathEffects
     {
-        private const float LaserReach = 45f;
+        // 레이저가 죽은 자리에서 양쪽으로 뻗는 길이(판정도 이 길이 전체). 양 끝이 늘 화면 밖에 있도록 어떤 화면보다 훨씬 길게 둔다:
+        // 가장 넓은 전장(배율 2.83)에서 별은 원점에서 약 27 안, 화면 반대각선은 16:9에서 약 58, 세로 화면(9:16)에서도 약 103이다.
+        // (이전 45는 전장 끝의 별이 원점 쪽으로 쏘면 반대쪽 끝이 화면 안에 보였고, 전장 반대편 끝의 적에 닿지 않기도 했다.)
+        private const float LaserReach = 300f;
         // 레이저 별의 예고 시간(초).
         private const float LaserTelegraphSeconds = 0.4f;
         private const float TimeEpsilon = 1e-5f;
@@ -21,6 +25,8 @@ namespace BlackHole.Core
         private readonly List<LaserBurst> _laserBursts = new();
         private readonly List<ChargingLaser> _chargingLasers = new();
         private readonly List<LaserTelegraph> _laserTelegraphs = new();
+        private readonly List<OpenField> _openFields = new();
+        private readonly List<GravityField> _gravityFields = new();
         private readonly List<Enemy> _targets = new();
         private readonly HashSet<Enemy> _struck = new();
         // 번개의 갈래·치명타, 레이저의 방향·치명타 판정.
@@ -55,6 +61,18 @@ namespace BlackHole.Core
             public float Remaining;
         }
 
+        // 켜져 있는 중력장. 중심·범위·힘은 열 때 정해진다.
+        private sealed class OpenField
+        {
+            public long Sequence;
+            public Point2 Center;
+            public float Radius;
+            public float Force;
+            public float Duration;
+            public float Remaining;
+            public int Captured;
+        }
+
         // 이번 Step의 번개 이동, 폭발, 레이저 발동(일어난 순서). 다음 Step이 시작될 때 비운다.
         public IReadOnlyList<LightningHit> LightningHits { get; }
         public IReadOnlyList<ExplosionBlast> Explosions { get; }
@@ -63,6 +81,12 @@ namespace BlackHole.Core
         // 지금 예고 중인 레이저(예고한 순서). 화면은 이것으로 예고선을 그린다. 처리(Resolve)마다 지금 상태로 다시 채운다.
         public IReadOnlyList<LaserTelegraph> LaserTelegraphs { get; }
 
+        // 지금 켜져 있는 중력장(연 순서). 처리(Resolve)마다 지금 상태로 다시 채운다.
+        public IReadOnlyList<GravityField> GravityFields { get; }
+
+        // 끌어야 할 중력장이 있는가. 없으면 이동(World.Step 1)이 중력장을 보지 않고 모두 공전시킨다.
+        internal bool HasGravityFields => _openFields.Count > 0;
+
         internal DeathEffects(int seed)
         {
             _random = new BattleRandom(seed, RandomStream.DeathEffect);
@@ -70,6 +94,7 @@ namespace BlackHole.Core
             Explosions = _explosions.AsReadOnly();
             LaserBursts = _laserBursts.AsReadOnly();
             LaserTelegraphs = _laserTelegraphs.AsReadOnly();
+            GravityFields = _gravityFields.AsReadOnly();
         }
 
         // 막 죽은 적(피해·파괴로 처음 죽음)이 특수 적이면 그 성질의 효과를 대기열에 추가.
@@ -87,16 +112,18 @@ namespace BlackHole.Core
             _laserBursts.Clear();
         }
 
-        // 판 정리: 처리되지 않은 효과와 예고 중인 레이저를 버린다(쏘지 않는다).
+        // 판 정리: 처리되지 않은 효과와 예고 중인 레이저, 켜진 중력장을 버린다(쏘거나 끌지 않는다).
         internal void Clear()
         {
             _pending.Clear();
             _chargingLasers.Clear();
             _laserTelegraphs.Clear();
+            _openFields.Clear();
+            _gravityFields.Clear();
         }
 
         // 먼저 예고가 끝난 레이저를 쏘고, 그다음 이번 Step의 사망 효과를 처리한다.
-        // 이번 Step에 예고를 시작한 레이저는 다음 Step부터 시간이 흐른다.
+        // 이번 Step에 예고를 시작한 레이저와 연 중력장은 다음 Step부터 시간이 흐른다.
         internal void Resolve(World world, float delta)
         {
             FireChargedLasers(delta, world);
@@ -122,6 +149,9 @@ namespace BlackHole.Core
                     case CometBuffDefinition:
                         world.Breaker.GrantComet();
                         break;
+                    case GravityFieldDefinition gravity:
+                        Open(gravity, pending);
+                        break;
                     case GoldenDefinition:
                         // 황금의 Gold 배율은 출현 때 그 적의 수치에 들어 있고, 사망 확정 순간 판의 합계에 이미 들었다.
                         break;
@@ -130,6 +160,56 @@ namespace BlackHole.Core
 
             _pending.Clear();
             RefreshTelegraphs();
+            RefreshFields();
+        }
+
+        // 이동(World.Step 1)에서 적마다 부른다. 이 적이 켜진 중력장(연 순서로 처음 닿는 것) 범위 안이면 그 중력장이 끌어 옮기고(GravityPull),
+        // 끌린 정도(0 ~ 1)를 돌려준다 — 부르는 쪽은 나머지(1 - 끌린 정도)만큼 평소처럼 공전시킨다.
+        // 범위 밖이거나 픽업이면 0(평소처럼 공전). 중력장이 꺼지면 그 자리에서 다시 공전한다.
+        internal float Pull(Enemy enemy, float delta)
+        {
+            if (enemy.Definition.IsPickup)
+                return 0;
+
+            for (int i = 0; i < _openFields.Count; i++)
+            {
+                OpenField field = _openFields[i];
+
+                if (!enemy.IsWithin(field.Center, field.Radius))
+                    continue;
+
+                float strength = GravityPull.Strength(field.Duration - field.Remaining, field.Remaining);
+                float weight = GravityPull.Weight(enemy, field.Center, field.Radius, strength);
+
+                if (weight <= 0)
+                    return 0;
+
+                field.Captured++;
+                GravityPull.Move(enemy, field.Center, field.Radius, field.Force, field.Sequence, weight, delta);
+                return weight;
+            }
+
+            return 0;
+        }
+
+        // 이동 전에 부른다: 중력장마다 이번 이동에서 끈 적의 수를 새로 센다.
+        internal void BeginPull()
+        {
+            for (int i = 0; i < _openFields.Count; i++)
+                _openFields[i].Captured = 0;
+        }
+
+        // 이동 뒤에 부른다: 중력장의 시간을 흘리고 다 된 중력장을 끈다.
+        internal void AgeFields(float delta)
+        {
+            for (int i = _openFields.Count - 1; i >= 0; i--)
+            {
+                OpenField field = _openFields[i];
+                field.Remaining -= delta;
+
+                if (field.Remaining <= TimeEpsilon)
+                    _openFields.RemoveAt(i);
+            }
         }
 
         // 효과 피해를 받을 수 있는 적: 살아 있고 특수 적이 아닌 적(World.Enemies는 살아 있는 적뿐이다).
@@ -287,6 +367,32 @@ namespace BlackHole.Core
                 world.DealDamage(target, damage);
 
             _laserBursts.Add(new LaserBurst(_nextSequence++, start, end, laser, critical, _targets.Count));
+        }
+
+        // 중력장 은하가 죽은 순간: 죽은 자리에 중력장을 연다. 범위는 은하 크기와 무관하다(폭발과 달리 크기 배율을 곱하지 않는다 —
+        // 곱하면 큰 은하의 중력장이 전장 대부분을 끌어 버린다).
+        private void Open(GravityFieldDefinition gravity, Pending pending)
+        {
+            _openFields.Add(new OpenField
+            {
+                Sequence = _nextSequence++,
+                Center = pending.Position,
+                Radius = gravity.Radius,
+                Force = gravity.Force,
+                Duration = gravity.Duration,
+                Remaining = gravity.Duration,
+            });
+        }
+
+        private void RefreshFields()
+        {
+            _gravityFields.Clear();
+
+            for (int i = 0; i < _openFields.Count; i++)
+            {
+                OpenField field = _openFields[i];
+                _gravityFields.Add(new GravityField(field.Sequence, field.Center, field.Radius, field.Remaining, field.Duration, field.Captured));
+            }
         }
 
         private void RefreshTelegraphs()

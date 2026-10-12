@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BlackHole.Core;
 using UnityEngine;
 
@@ -18,7 +19,19 @@ namespace BlackHole.Unity
         public NodeContentLoadResult Load() =>
             NodeContentCsv.Load(TextOf(_upgradeStats), TextOf(_nodes), TextOf(_nodeCost), TextOf(_nodeEffects));
 
+        // CSV를 읽기만 한다(규칙 검사 전). 형식 오류는 into에 더한다. 밸런스 프로필이 이 데이터에 패치를 적용한 뒤 로더에 넘긴다.
+        internal NodeContentData Read(List<ContentDiagnostic> into) =>
+            NodeContentCsv.Read(TextOf(_upgradeStats), TextOf(_nodes), TextOf(_nodeCost), TextOf(_nodeEffects), into);
+
         private static string TextOf(TextAsset csv) => csv != null ? csv.text : null;
+
+#if UNITY_EDITOR
+        // 테스트 도구의 승격·되돌리기(M4)가 행을 고치고, 시트 연동(M5)이 덮어쓸 CSV.
+        internal TextAsset UpgradeStatsCsv => _upgradeStats;
+        internal TextAsset NodesCsv => _nodes;
+        internal TextAsset NodeCostCsv => _nodeCost;
+        internal TextAsset NodeEffectsCsv => _nodeEffects;
+#endif
 
         // 에셋 인스펙터의 ⋮ 메뉴 > 검사: 불러와서 개수나 진단을 콘솔에 낸다.
         [ContextMenu("검사")]

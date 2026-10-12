@@ -11,12 +11,12 @@ namespace BlackHole.Unity
     // 외형 칸(스프라이트, 색 등급의 색)은 Core로 가지 않고 화면(EnemyView)만 읽는다. 규칙과 외형이 한 에셋에 있어 외형 연결이 빠지지 않는다.
     // 모든 칸은 이 에셋을 Inspector에서 직접 고친다.
     //
-    // 종류는 계열(소행성·행성·별, 픽업인 혜성)이고 색은 종류 안에 둔다.
+    // 종류는 계열(소행성·행성·별·은하, 픽업인 혜성)이고 색은 종류 안에 둔다.
     // - 반지름: 크기 1의 반지름. 모든 색이 같다.
     // - 색 등급: 같은 윤곽(스프라이트)에 색마다 색·HP·Gold·EXP가 다르다. 공급되는 종류는 6색(빨주노초파보), 픽업은 한 줄이다.
     // - 어떤 색이 나오는지는 그 종류의 질량(노드 asteroid.massScale 등, MassRule), 어떤 크기가 나오는지는 그 종류의 크기
     //   (노드 asteroid.size 등, SizeRule)가 정한다. 둘 다 종류마다 따로이고 이 에셋에는 칸이 없다.
-    // - 특수 성질: 황금·전기·달·레이저·슈퍼노바는 종류가 아니라 출현 때 한 마리에 붙는 성질이다(최대 하나, 배타).
+    // - 특수 성질: 황금·전기·달·레이저·슈퍼노바·중력장은 종류가 아니라 출현 때 한 마리에 붙는 성질이다(최대 하나, 배타).
     //   성질 종류(EnemyTraitType)가 사망 효과를 정하고, 성질마다 효과 수치와 표식 색이 있다. 붙는 확률은 노드(electricAsteroid.spawnChance 등)가 정하고 기본 0%다.
     //   성질이 붙은 적(특수 적)은 사망 효과의 피해를 받지 않는다.
     // - 출현 주기: 0보다 크면 공급되지 않는 픽업(혜성)이다. 주기마다 등장 확률(노드 comet.spawnChance)로 나오고, 성질 하나가 언제나 붙는다.
@@ -26,7 +26,7 @@ namespace BlackHole.Unity
         [Serializable]
         public struct Trait
         {
-            [Tooltip("성질 종류(종류 안에서 유일). 사망 효과를 정한다: Golden 황금, Electric 연쇄 번개, Moon 달 버프, Laser 레이저, Supernova 폭발, Comet 혜성 버프.")]
+            [Tooltip("성질 종류(종류 안에서 유일). 사망 효과를 정한다: Golden 황금, Electric 연쇄 번개, Moon 달 버프, Laser 레이저, Supernova 폭발, Comet 혜성 버프, Gravity 중력장.")]
             public EnemyTraitType type;
             [Tooltip("이 성질이 붙은 적의 표식 색. Core는 모른다.")]
             public Color color;
@@ -36,7 +36,7 @@ namespace BlackHole.Unity
             public float critRewardScale;
             [Tooltip("Electric·Laser: 피해.")]
             public float damage;
-            [Tooltip("Electric: 번개가 한 번 옮겨 가는 최대 거리. Supernova: 폭발 반경.")]
+            [Tooltip("Electric: 번개가 한 번 옮겨 가는 최대 거리. Supernova: 폭발 반경(크기 1 기준, 죽은 별의 크기 배율만큼 넓어진다). Gravity: 끌어들이는 범위(은하 크기와 무관).")]
             public float radius;
             [Tooltip("Electric: 한 줄기가 옮겨 가는 최대 횟수.")]
             public int maxTargets;
@@ -52,6 +52,10 @@ namespace BlackHole.Unity
             public float width;
             [Tooltip("이 성질의 동시 상한: 살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩. 0이면 상한 없음. 다 찼으면 뽑혀도 붙지 않는다(원작 달 최대 개수, 노드 moonPlanet.maxCount).")]
             public int maxActive;
+            [Tooltip("Gravity: 끌리는 속도(초당 거리). 범위 안의 적은 공전을 멈추고 이 속도로 중심에 다가가 뭉친다.")]
+            public float force;
+            [Tooltip("Gravity: 중력장 지속 시간(초). 끝나면 끌려간 자리에서 다시 공전한다.")]
+            public float duration;
         }
 
         [Serializable]
@@ -79,7 +83,7 @@ namespace BlackHole.Unity
         [SerializeField] private float radiusStep = 0.5f;
 
         [Header("종류 사이")]
-        [Tooltip("판 시작 때 시작 공급 중 변환 수(노드 asteroid.toPlanet·planet.toStar, 마리 수)만큼 바뀌는 다음 종류. 비우면 변환하지 않는다. 적 종류 목록에 있어야 한다.")]
+        [Tooltip("판 시작 때 시작 공급 중 변환 수(노드 asteroid.toPlanet·planet.toStar·star.toGalaxy, 마리 수)만큼 바뀌는 다음 종류. 비우면 변환하지 않는다. 적 종류 목록에 있어야 한다.")]
         [SerializeField] private EnemyKind upgradesTo;
         [Tooltip("0보다 크면 픽업(혜성): 공급되지 않고 이 주기(초)마다 등장 확률(노드 comet.spawnChance, %)로 나온다. 성질이 정확히 하나여야 한다.")]
         [SerializeField] private float spawnPeriod;
@@ -144,6 +148,8 @@ namespace BlackHole.Unity
                         CritMultiplier = trait.critMultiplier,
                         HealthFraction = trait.healthFraction,
                         Width = trait.width,
+                        Force = trait.force,
+                        Duration = trait.duration,
                     },
                 });
             }

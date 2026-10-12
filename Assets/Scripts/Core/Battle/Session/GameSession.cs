@@ -24,6 +24,9 @@ namespace BlackHole.Core
         public float Elapsed { get; private set; }
         public float Remaining => _timeLimit.Remaining(Elapsed);
 
+        // 시간 고정. 게임에서는 늘 false이고, 테스트 도구(BattleCheats)만 켠다. 켜 두면 흐른 만큼 제한 시간을 되돌려 남은 시간이 줄지 않는다.
+        internal bool TimeFrozen { get; set; }
+
         internal GameSession(
             World world,
             TimeLimitRule timeLimit,
@@ -60,6 +63,9 @@ namespace BlackHole.Core
             int raised = World.Step(step);
             Elapsed += step;
 
+            if (TimeFrozen)
+                _timeLimit.ExtendUncounted(step);
+
             // 이정표에 닿았으면 남은 시간과 관계없이 이 Step에서 판 종료.
             if (World.Hq.ReachedMilestone)
             {
@@ -85,6 +91,9 @@ namespace BlackHole.Core
             Hq hq = World.Hq;
             _settledGold = hq.ReachedMilestone ? hq.Milestone.RewardFor(_progress.Gold) : World.EarnedGold;
         }
+
+        // 테스트 도구(BattleCheats)가 부른다. 제한 시간을 늘리되 판 통계의 더해진 시간에는 세지 않는다.
+        internal void ExtendTimeUncounted(float seconds) => _timeLimit.ExtendUncounted(seconds);
 
         // 끝난 판에 남은 적과 처리되지 않은 생성 요청·사망 효과를 치운다. 처치가 아니다.
         public void ClearRemainingEnemies()

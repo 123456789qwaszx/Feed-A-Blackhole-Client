@@ -4,9 +4,10 @@ namespace BlackHole.Unity
 {
     internal sealed partial class ScreenFlow
     {
+        // 시작 연출 중에도 열 수 있다(연출도 함께 멈춘다).
         private void OpenPause()
         {
-            if (!_battle.IsRunning)
+            if (!_battle.CanPause)
                 return;
 
             SetBattlePaused(true);
@@ -57,7 +58,10 @@ namespace BlackHole.Unity
             _settingsOpen = false;
 
             if (await _battle.TryAbandonAsync())
+            {
+                _analytics.BattleAbandoned();
                 ShowTitle();
+            }
         }
 
         private static void HandlePauseQuitClicked() => QuitGame();
