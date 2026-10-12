@@ -156,9 +156,13 @@ namespace BlackHole.Core
 
         // 적 이동: 중력장 범위 안의 적은 그 중력장에 끌리고(DeathEffects.Pull), 끌린 정도의 나머지만큼 공전한다.
         // 중력장이 켜지고 꺼지는 순간과 범위 가장자리에서는 둘이 섞여 움직임이 끊기지 않는다.
+        // 누르고 있는 동안(조준점) Breaker 공격 원 안의 적은 공전이 HoldSlow 배로 느려진다(붙잡힘). 중력장 끌림은 그대로다.
         private void MoveEnemies(float delta)
         {
-            if (!DeathEffects.HasGravityFields)
+            bool fields = DeathEffects.HasGravityFields;
+            bool holding = AimPoint.HasValue && Breaker.Definition.HoldSlow < 1;
+
+            if (!fields && !holding)
             {
                 if (OrbitEnabled)
                     _enemies.Move(delta);
@@ -166,15 +170,24 @@ namespace BlackHole.Core
                 return;
             }
 
-            DeathEffects.BeginPull();
+            if (fields)
+                DeathEffects.BeginPull();
+
             IReadOnlyList<Enemy> enemies = _enemies.Alive;
 
             for (int i = 0; i < enemies.Count; i++)
             {
-                float pulled = DeathEffects.Pull(enemies[i], delta);
+                float pulled = fields ? DeathEffects.Pull(enemies[i], delta) : 0;
 
-                if (OrbitEnabled && pulled < 1)
-                    enemies[i].Move(delta * (1 - pulled));
+                if (!OrbitEnabled || pulled >= 1)
+                    continue;
+
+                float orbit = delta * (1 - pulled);
+
+                if (holding && Breaker.IsHolding(this, enemies[i]))
+                    orbit *= Breaker.Definition.HoldSlow;
+
+                enemies[i].Move(orbit);
             }
         }
 

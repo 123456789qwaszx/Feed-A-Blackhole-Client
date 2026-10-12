@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.EnemyKind
   type: 2
   moveSpeed: 0.5
-  radius: 2.653
+  radius: 2.918
   radiusStep: 0.33
   upgradesTo: {fileID: 11400000, guid: 29e4d81e98ee4f70aa1065bfd408911e, type: 2}
   spawnPeriod: 0
@@ -22,27 +22,27 @@ MonoBehaviour:
   tiers:
   - color: {r: 0.62, g: 0.32, b: 0.26, a: 1}
     maxHealth: 4000
-    gold: 50000000000
+    gold: 60000000000
     exp: 1000000
   - color: {r: 0.93, g: 0.55, b: 0.2, a: 1}
     maxHealth: 5778
-    gold: 100000000000
+    gold: 120000000000
     exp: 1500000
   - color: {r: 0.95, g: 0.85, b: 0.3, a: 1}
     maxHealth: 8444
-    gold: 200000000000
+    gold: 240000000000
     exp: 2200000
   - color: {r: 0.4, g: 0.75, b: 0.4, a: 1}
     maxHealth: 12444
-    gold: 400000000000
+    gold: 480000000000
     exp: 3300000
   - color: {r: 0.3, g: 0.45, b: 0.9, a: 1}
     maxHealth: 18222
-    gold: 600000000000
+    gold: 720000000000
     exp: 5000000
   - color: {r: 0.6, g: 0.35, b: 0.85, a: 1}
     maxHealth: 38889
-    gold: 1100000000000
+    gold: 1300000000000
     exp: 11000000
   traits:
   - type: 1

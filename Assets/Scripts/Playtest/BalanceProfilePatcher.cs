@@ -13,7 +13,7 @@ namespace BlackHole.Unity
     //
     // 경로는 슬래시로 나눈다. 종류·성질은 계약 ID처럼 열거형 이름의 첫 글자만 소문자다(asteroid, golden).
     //   battle/<timeLimit|killTimeBonus>
-    //   breaker/<damage|interval|radius|critChance|critDamage|moonDuration|moonSpeedBonus|moonRadiusBonus|cometDuration|cometCritDamageBonus|planetBonusDamage|starBonusDamage|galaxyBonusDamage>
+    //   breaker/<damage|interval|radius|critChance|critDamage|moonDuration|moonSpeedBonus|moonRadiusBonus|cometDuration|cometCritDamageBonus|planetBonusDamage|starBonusDamage|galaxyBonusDamage|holdSlow>
     //   placement/<minDistance|maxDistance>           적 출현 띠(HQ로부터 거리, 전장 배율 1 기준)
     //   enemy/<종류>/<moveSpeed|radius|radiusStep|spawnPeriod|rainCount>
     //   enemy/<종류>/tier/<색 등급, 1부터>/<hp|gold|exp>
@@ -59,7 +59,7 @@ namespace BlackHole.Unity
         private static readonly string[] BreakerFields =
         {
             "damage", "interval", "radius", "critChance", "critDamage", "moonDuration", "moonSpeedBonus", "moonRadiusBonus",
-            "cometDuration", "cometCritDamageBonus", "planetBonusDamage", "starBonusDamage", "galaxyBonusDamage",
+            "cometDuration", "cometCritDamageBonus", "planetBonusDamage", "starBonusDamage", "galaxyBonusDamage", "holdSlow",
         };
 
         private static readonly string[] PlacementFields = { "minDistance", "maxDistance" };
@@ -292,6 +292,7 @@ namespace BlackHole.Unity
                 case "planetBonusDamage": return Real(() => breaker.PlanetBonusDamage, v => breaker.PlanetBonusDamage = v, out error);
                 case "starBonusDamage": return Real(() => breaker.StarBonusDamage, v => breaker.StarBonusDamage = v, out error);
                 case "galaxyBonusDamage": return Real(() => breaker.GalaxyBonusDamage, v => breaker.GalaxyBonusDamage = v, out error);
+                case "holdSlow": return Real(() => breaker.HoldSlow, v => breaker.HoldSlow = v, out error);
                 default: return Unknown(field, out error);
             }
         }

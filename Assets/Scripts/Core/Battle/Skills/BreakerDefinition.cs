@@ -17,6 +17,8 @@ namespace BlackHole.Core
         public float PlanetBonusDamage { get; } // 행성 보너스 피해
         public float StarBonusDamage { get; } // 별 보너스 피해
         public float GalaxyBonusDamage { get; } // 은하 보너스 피해
+        // 누르고 있는 동안(조준점이 있는 동안) 공격 원 안의 적이 움직이는 비율(0 ~ 1). 0이면 멈추고 1이면 평소처럼 공전한다.
+        public float HoldSlow { get; }
 
         public BreakerDefinition(
             float damage,
@@ -31,7 +33,8 @@ namespace BlackHole.Core
             float cometCritDamageBonus,
             float planetBonusDamage,
             float starBonusDamage,
-            float galaxyBonusDamage)
+            float galaxyBonusDamage,
+            float holdSlow = 0.05f)
         {
             Damage = DefinitionGuard.Positive(damage, nameof(damage));
             Interval = DefinitionGuard.Positive(interval, nameof(interval));
@@ -50,6 +53,11 @@ namespace BlackHole.Core
             PlanetBonusDamage = NotNegative(planetBonusDamage, nameof(planetBonusDamage));
             StarBonusDamage = NotNegative(starBonusDamage, nameof(starBonusDamage));
             GalaxyBonusDamage = NotNegative(galaxyBonusDamage, nameof(galaxyBonusDamage));
+
+            if (float.IsNaN(holdSlow) || holdSlow < 0 || holdSlow > 1)
+                throw new ArgumentOutOfRangeException(nameof(holdSlow), "0부터 1까지의 값이 필요하다.");
+
+            HoldSlow = holdSlow;
         }
 
         private static float NotNegative(float value, string name)
@@ -80,7 +88,8 @@ namespace BlackHole.Core
                 CometCritDamageBonus + upgrades.GainOf(UpgradeStat.CometCritBonus) / 100,
                 PlanetBonusDamage + upgrades.GainOf(UpgradeStat.BreakerPlanetBonusDamage),
                 StarBonusDamage + upgrades.GainOf(UpgradeStat.BreakerStarBonusDamage),
-                GalaxyBonusDamage + upgrades.GainOf(UpgradeStat.BreakerGalaxyBonusDamage));
+                GalaxyBonusDamage + upgrades.GainOf(UpgradeStat.BreakerGalaxyBonusDamage),
+                HoldSlow);
         }
     }
 }
