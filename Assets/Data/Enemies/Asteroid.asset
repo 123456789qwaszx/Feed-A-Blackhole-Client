@@ -43,7 +43,7 @@ MonoBehaviour:
   - color: {r: 0.6, g: 0.35, b: 0.85, a: 1}
     maxHealth: 52
     gold: 6800
-    exp: 173
+    exp: 120
   traits:
   - type: 0
     color: {r: 1, g: 0.82, b: 0.2, a: 1}

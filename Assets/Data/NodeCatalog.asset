@@ -378,7 +378,6 @@ MonoBehaviour:
       X: 10
       Y: 10
       Links:
-      - growth.asteroids-03
       - asteroid.massScale-09
       - asteroid.massScale-08
     - Id: growth.asteroids-03
@@ -402,9 +401,10 @@ MonoBehaviour:
       Links: []
     - Id: asteroid.count-03
       Start: 0
-      X: 15
-      Y: 9
-      Links: []
+      X: 14
+      Y: 10
+      Links:
+      - asteroid.toPlanet-01
     - Id: electricAsteroid.chain-02
       Start: 0
       X: 6
@@ -432,10 +432,9 @@ MonoBehaviour:
     - Id: goldenAsteroid.critRewardScale-02
       Start: 0
       X: 14
-      Y: 10
+      Y: 9
       Links:
       - goldenAsteroid.critChance-02
-      - asteroid.toPlanet-01
       - asteroid.count-03
     - Id: asteroid.massScale-09
       Start: 0
