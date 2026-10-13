@@ -51,8 +51,24 @@ namespace BlackHole.Core
         // 달 버프의 중첩(받은 순서). 중첩 수가 곧 목록의 길이다.
         public IReadOnlyList<BreakerBuff> MoonBuffs { get; }
 
-        // 달 중첩의 공격 속도·공격 범위 보너스 합. 중첩이 없으면 0이다.
-        public float MoonSpeedBonus => _moon.Count * Definition.MoonSpeedBonus;
+        // 달 중첩의 공격 속도 보너스 합. 중첩이 없으면 0이다.
+        // 체감(MoonSpeedDecay = d)이 있으면 n개의 합은 보너스 × (1 − d^n) / (1 − d) — 상한 보너스 / (1 − d)에 수렴한다. 0이면 선형.
+        public float MoonSpeedBonus
+        {
+            get
+            {
+                int n = _moon.Count;
+                float d = Definition.MoonSpeedDecay;
+
+                if (n == 0)
+                    return 0;
+
+                if (d <= 0)
+                    return n * Definition.MoonSpeedBonus;
+
+                return Definition.MoonSpeedBonus * (1 - (float)Math.Pow(d, n)) / (1 - d);
+            }
+        }
 
         public float MoonRadiusBonus => _moon.Count * Definition.MoonRadiusBonus;
 

@@ -12,6 +12,10 @@ namespace BlackHole.Core
         public float MoonDuration { get; } // 달 버프 중첩 하나의 지속 시간(초)
         public float MoonSpeedBonus { get; }
         public float MoonRadiusBonus { get; }
+
+        // 달 중첩의 공격 속도 체감(0 ~ 1 미만). 0이면 선형(중첩 수 × 보너스).
+        // d면 n번째 달은 보너스 × d^(n−1)만 더해 합이 보너스 / (1 − d)에 수렴한다 — 한 개는 제값, 여덟 개는 과하지 않게.
+        public float MoonSpeedDecay { get; }
         public float CometDuration { get; } // 혜성 버프 중첩 하나의 지속 시간(초)
         public float CometCritDamageBonus { get; }
         public float PlanetBonusDamage { get; } // 행성 보너스 피해
@@ -34,7 +38,8 @@ namespace BlackHole.Core
             float planetBonusDamage,
             float starBonusDamage,
             float galaxyBonusDamage,
-            float holdSlow = 0.05f)
+            float holdSlow = 0.05f,
+            float moonSpeedDecay = 0)
         {
             Damage = DefinitionGuard.Positive(damage, nameof(damage));
             Interval = DefinitionGuard.Positive(interval, nameof(interval));
@@ -48,6 +53,11 @@ namespace BlackHole.Core
             MoonDuration = DefinitionGuard.Positive(moonDuration, nameof(moonDuration));
             MoonSpeedBonus = NotNegative(moonSpeedBonus, nameof(moonSpeedBonus));
             MoonRadiusBonus = NotNegative(moonRadiusBonus, nameof(moonRadiusBonus));
+
+            if (float.IsNaN(moonSpeedDecay) || moonSpeedDecay < 0 || moonSpeedDecay >= 1)
+                throw new ArgumentOutOfRangeException(nameof(moonSpeedDecay), "0 이상 1 미만이어야 한다(0 = 선형 중첩).");
+
+            MoonSpeedDecay = moonSpeedDecay;
             CometDuration = DefinitionGuard.Positive(cometDuration, nameof(cometDuration));
             CometCritDamageBonus = NotNegative(cometCritDamageBonus, nameof(cometCritDamageBonus));
             PlanetBonusDamage = NotNegative(planetBonusDamage, nameof(planetBonusDamage));
@@ -89,7 +99,8 @@ namespace BlackHole.Core
                 PlanetBonusDamage + upgrades.GainOf(UpgradeStat.BreakerPlanetBonusDamage),
                 StarBonusDamage + upgrades.GainOf(UpgradeStat.BreakerStarBonusDamage),
                 GalaxyBonusDamage + upgrades.GainOf(UpgradeStat.BreakerGalaxyBonusDamage),
-                HoldSlow);
+                HoldSlow,
+                MoonSpeedDecay);
         }
     }
 }

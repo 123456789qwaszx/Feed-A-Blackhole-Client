@@ -70,6 +70,7 @@ namespace BlackHole.Unity
                 { "critDamage", R(d.CritDamage) },
                 { "moonDuration", R(d.MoonDuration) },
                 { "moonSpeedBonus", R(d.MoonSpeedBonus) },
+                { "moonSpeedDecay", R(d.MoonSpeedDecay) },
                 { "moonRadiusBonus", R(d.MoonRadiusBonus) },
                 { "cometDuration", R(d.CometDuration) },
                 { "cometCritDamageBonus", R(d.CometCritDamageBonus) },
