@@ -12,6 +12,8 @@ namespace BlackHole.Unity
     // 달 성질이 붙은 적은 Breaker 달과 같은 모양의 달 하나가 주위를 공전한다. 크기·위상·속도는 출현 때 정해진다(일시정지 중에는 멈춘다).
     // 은하는 중심과 세 팔이 하나의 실루엣으로 자전하고(공전과 별개, 화면에서만), 죽으면 나선이 중심으로 말려 들어가며 사라진다(GalaxyCollapses).
     // 혜성을 뺀 적은 출현할 때 점에서 시작해 제 크기보다 살짝 커졌다가 제 크기로 돌아온다(AdvanceSpawn). 일시정지 중에는 멈춘다.
+    // 붙잡힌 적(World.IsHeld: 조준점이 있고 Breaker 링 안이라 거의 멈춘 적)은 색이 BreakerLook.HoldTint 쪽으로 밝아지고 제자리에서 잘게 떤다.
+    //   켜지고 꺼지는 것은 HoldFadeSeconds 동안 부드럽게. 떨림은 Container의 위치에만 더하므로 피격 흔들림·자전과 부딪히지 않는다. 일시정지 중에는 멈춘다.
     // 판 시작 연출 동안에는 원점에서 RevealRadius 안의 적만 화면을 만든다. 반경이 넓어지면 바깥 적이 그때 출현 연출과 함께 나타난다(BattleSystem).
     // 픽업(혜성)은 CometView가 통째로 맡는다(스프라이트가 아니라 셰이더). 사망 파편·골드·피해량 텍스트도 없다 — 한 방에 부서지는 버프 아이템이라 필요 없다.
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다.
@@ -46,6 +48,13 @@ namespace BlackHole.Unity
             public Vector3 MoonBaseScale;
             // 출현 연출이 흐른 시간(초). SpawnSeconds에 닿으면 연출이 끝난다.
             public float SpawnElapsed;
+            // 색을 바꾸는 렌더러(은하는 실루엣 팔, 그 외는 Renderer)와 그 기본 색(색 등급).
+            public SpriteRenderer Body;
+            public Color BaseColor;
+            // 붙잡힘 표시의 세기(0 = 없음, 1 = 완전히 붙잡힘). HoldFadeSeconds에 걸쳐 목표로 간다.
+            public float Hold;
+            // 떨림의 위상(적마다 다르게).
+            public float HoldPhase;
         }
 
         // 출현 연출 [임시]: SpawnSeconds 동안 크기 0(점)에서 제 크기로 키운다. OutBack 곡선이라 도중에 제 크기를 살짝 넘었다가 돌아온다.
@@ -89,6 +98,8 @@ namespace BlackHole.Unity
 
         private readonly Transform _root;
         private readonly EnemyLooks _looks;
+        // 표시 설정(피해량·Gold 텍스트, 물질 파편). 끄면 그다음 기록부터 내지 않는다 — 이미 떠 있는 것은 제 수명대로 사라진다.
+        private readonly GameSettings _settings;
         private readonly BreakerLook _breakerLook;
         private readonly CometView _comets;
         private readonly Mesh _quad;
@@ -98,6 +109,8 @@ namespace BlackHole.Unity
         private readonly EnemyGoldText _goldText;
         private readonly EnemyDamageText _damageText;
         private readonly Dictionary<EnemyId, EnemyVisual> _visuals = new Dictionary<EnemyId, EnemyVisual>();
+        // 붙잡힘 떨림이 흐르는 시간(초). 일시정지 중에는 멈춘다.
+        private float _holdTime;
         private readonly HashSet<EnemyId> _seen = new HashSet<EnemyId>();
         private readonly List<EnemyId> _gone = new List<EnemyId>();
         // 이번 프레임에 사망 기록으로 죽음을 안 은하. 화면을 지우는 대신 붕괴 연출로 넘긴다.
@@ -114,8 +127,9 @@ namespace BlackHole.Unity
 
         // breakerLook: 달의 외형(머티리얼·색·간격·기본 공전 속도)을 Breaker 달과 같게 맞추려고 받는다.
         // cometLook: 혜성(픽업)의 외형. 혜성의 화면은 CometView가 맡는다.
-        public EnemyView(Transform parent, EnemyLooks looks, BreakerLook breakerLook, CometLook cometLook)
+        public EnemyView(Transform parent, EnemyLooks looks, BreakerLook breakerLook, CometLook cometLook, GameSettings settings)
         {
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _root = new GameObject("Enemy View").transform;
             _root.SetParent(parent, false);
             _looks = looks;
@@ -136,6 +150,11 @@ namespace BlackHole.Unity
             _fieldScale = world.Hq.FieldScale;
             _goldText.Scale = _fieldScale;
             _damageText.Scale = _fieldScale;
+
+            if (!paused)
+                _holdTime += delta;
+
+            float holdStep = paused ? 0 : delta / _breakerLook.HoldFadeSeconds;
 
             // 매 프레임 경로: IReadOnlyList를 인덱스로 돈다(인터페이스 foreach는 열거자를 할당한다).
             for (int i = 0; i < enemies.Count; i++)
@@ -160,7 +179,8 @@ namespace BlackHole.Unity
                     _visuals.Add(enemy.Id, visual);
                 }
 
-                visual.Container.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0);
+                AdvanceHold(visual, world.IsHeld(enemy), holdStep);
+                visual.Container.localPosition = new Vector3(enemy.Position.X, enemy.Position.Y, 0) + HoldJitterOf(visual, enemy.Stats.Radius);
 
                 // 일시정지 중에는 연출을 멈춘다. 다만 일시정지 중에 새로 생긴 적(테스트 도구 소환)은 크기 0으로 숨어 있지 않게 바로 제 크기로 보인다.
                 if (visual.SpawnElapsed < SpawnSeconds)
@@ -216,6 +236,10 @@ namespace BlackHole.Unity
         // 아직 읽지 않은 피격 기록마다: 살아 있는 적이면 흔들림, 그리고 피격 파편과 피해량 텍스트. 픽업(혜성)은 연출이 없다.
         private void ReadHits(IReadOnlyList<HitRecord> hits)
         {
+            // 설정은 프레임마다 한 번 읽는다(피격은 한 프레임에 많을 수 있다).
+            bool particles = _settings.IsOn(GameSettings.MatterParticles);
+            bool damageText = _settings.IsOn(GameSettings.ShowDamage);
+
             // 매 프레임 경로: IReadOnlyList를 인덱스로 돈다(인터페이스 foreach는 열거자를 할당한다).
             for (int i = 0; i < hits.Count; i++)
             {
@@ -232,8 +256,11 @@ namespace BlackHole.Unity
                 if (_seen.Contains(hit.EnemyId) && _visuals.TryGetValue(hit.EnemyId, out EnemyVisual visual))
                     visual.Hit.Play();
 
-                _hitParticles.EmitHit(new Vector3(hit.Position.X, hit.Position.Y, 0), _looks.ColorOf(hit.EnemyType, hit.Tier));
-                _damageText.Show(hit);
+                if (particles)
+                    _hitParticles.EmitHit(new Vector3(hit.Position.X, hit.Position.Y, 0), _looks.ColorOf(hit.EnemyType, hit.Tier));
+
+                if (damageText)
+                    _damageText.Show(hit);
             }
         }
 
@@ -241,6 +268,8 @@ namespace BlackHole.Unity
         private void ReadDeaths(IReadOnlyList<DeathRecord> deaths)
         {
             bool anyNew = false;
+            bool particles = _settings.IsOn(GameSettings.MatterParticles);
+            bool goldText = _settings.IsOn(GameSettings.ShowMoneyText);
 
             for (int i = 0; i < deaths.Count; i++)
             {
@@ -255,9 +284,14 @@ namespace BlackHole.Unity
                 if (death.IsPickup)
                     continue;
 
-                _hitParticles.EmitDeath(new Vector3(death.Position.X, death.Position.Y, 0),
-                    _looks.ColorOf(death.EnemyType, death.Tier), death.EnemyType, death.Tier, death.Size);
-                _goldText.Show(death);
+                if (particles)
+                {
+                    _hitParticles.EmitDeath(new Vector3(death.Position.X, death.Position.Y, 0),
+                        _looks.ColorOf(death.EnemyType, death.Tier), death.EnemyType, death.Tier, death.Size);
+                }
+
+                if (goldText)
+                    _goldText.Show(death);
 
                 if (death.EnemyType == EnemyType.Galaxy)
                     _collapsing.Add(death.EnemyId);
@@ -367,7 +401,15 @@ namespace BlackHole.Unity
                 fillRenderer.sortingOrder = renderer.sortingOrder + 1;
             }
 
-            var visual = new EnemyVisual { Container = container, Renderer = renderer, Hit = new EnemyHitAnimation(renderer.transform) };
+            var visual = new EnemyVisual
+            {
+                Container = container,
+                Renderer = renderer,
+                Hit = new EnemyHitAnimation(renderer.transform),
+                Body = renderer,
+                BaseColor = renderer.color,
+                HoldPhase = UnityEngine.Random.Range(0f, Mathf.PI * 2),
+            };
 
             if (spins)
                 visual.SpinSpeed = UnityEngine.Random.Range(SpinSpeedMin, SpinSpeedMax) * (UnityEngine.Random.value < 0.5f ? -1f : 1f);
@@ -376,7 +418,10 @@ namespace BlackHole.Unity
                 CreateMoon(visual, enemy);
 
             if (kind == EnemyType.Galaxy)
+            {
                 CreateGalaxyArms(visual, enemy);
+                visual.Body = visual.Arms.GetComponent<SpriteRenderer>();
+            }
 
             // 출현 연출은 점에서 시작한다(AdvanceSpawn). 자식(성질 표식·은하 실루엣)은 부모 크기를 따라 함께 커진다.
             visual.BaseScale = container.localScale;
@@ -389,6 +434,33 @@ namespace BlackHole.Unity
             }
 
             return visual;
+        }
+
+        // 붙잡힘 표시의 세기를 목표(붙잡혔으면 1, 아니면 0)로 step만큼 옮기고, 바뀌었으면 색을 다시 쓴다.
+        // 색은 색 등급 기본색에서 HoldTint 쪽으로 Hold × HoldTintStrength만큼 섞는다. 알파는 기본색의 것.
+        private void AdvanceHold(EnemyVisual visual, bool held, float step)
+        {
+            float target = held ? 1 : 0;
+
+            if (visual.Hold == target)
+                return;
+
+            visual.Hold = step <= 0 ? visual.Hold : Mathf.MoveTowards(visual.Hold, target, step);
+
+            Color color = Color.Lerp(visual.BaseColor, _breakerLook.HoldTint, visual.Hold * _breakerLook.HoldTintStrength);
+            color.a = visual.BaseColor.a;
+            visual.Body.color = color;
+        }
+
+        // 붙잡힌 적의 제자리 떨림(월드 단위). Hold가 0이면 없다. 두 축의 주기를 조금 다르게 해 원을 그리지 않게 한다.
+        private Vector3 HoldJitterOf(EnemyVisual visual, float radius)
+        {
+            if (visual.Hold <= 0)
+                return Vector3.zero;
+
+            float amplitude = _breakerLook.HoldJitter * radius * visual.Hold;
+            float angle = _holdTime * _breakerLook.HoldJitterHz * Mathf.PI * 2 + visual.HoldPhase;
+            return new Vector3(Mathf.Sin(angle) * amplitude, Mathf.Sin(angle * 1.37f + 1.1f) * amplitude, 0);
         }
 
         // 출현 연출을 delta만큼 진행한다. 끝나면 정확히 제 크기가 된다(OutBack(1) = 1).

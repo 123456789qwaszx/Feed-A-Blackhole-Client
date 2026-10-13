@@ -1,0 +1,106 @@
+key,en-US,ko-KR
+# 일시정지 창
+PausePanel.Title_Text,PAUSED,일시 정지
+PausePanel.ResumeBtn_Text,RESUME,계속하기
+PausePanel.SettingsBtn_Text,SETTINGS,설정
+PausePanel.MainMenuBtn_Text,MAIN MENU,메인 메뉴
+PausePanel.QuitBtn_Text,QUIT,게임 종료
+# 설정 창
+SettingsPanel.Title_Text,SETTINGS,설정
+# 설정 이름 (setting.{설정 ID})
+setting.DarkMode,Dark Mode,다크 모드
+setting.MasterVolume,Master Volume,전체 음량
+setting.EffectsVolume,Effects Volume,효과음 음량
+setting.MusicVolume,Music Volume,배경음 음량
+setting.ShuffleMusic,Shuffle Music,배경음 무작위 재생
+setting.Language,Language,언어
+setting.FpsLimit,FPS Limit,프레임 제한
+setting.TextSize,Text Size,글자 크기
+setting.ShowMoneyText,Show Money Text,골드 획득 표시
+setting.ShowDamage,Show Damage,피해량 표시
+setting.ScreenShake,Screen Shake,화면 흔들림
+setting.BlackHolePulse,Black Hole Pulse,블랙홀 맥동
+setting.MatterParticles,Matter Particles,물질 파편
+setting.NumberFormat,Number Format,숫자 표기
+setting.EnemyOrbit,Object Rotation,물체 공전
+# 설정 선택지 (setting.{설정 ID}.{선택지 번호}) - 숫자·퍼센트·언어 이름은 넣지 않는다.
+setting.NumberFormat.0,Short (1.2M),축약 (1.2M)
+setting.NumberFormat.1,Scientific (1.2e6),과학적 (1.2e6)
+# 타이틀 화면 (Title_Text는 게임 이름이라 넣지 않는다)
+TitleScreen.StartBtn_Text,START,시작
+TitleScreen.SettingsBtn_Text,SETTINGS,설정
+TitleScreen.QuitBtn_Text,QUIT,게임 종료
+# 모드 선택 창
+ModeSelectPanel.Title_Text,SELECT MODE,모드 선택
+ModeSelectPanel.ContinueBtn_Text,CONTINUE,이어하기
+ModeSelectPanel.NewGameBtn_Text,NEW GAME,새 게임
+mode.normal.title,Normal Mode,일반 모드
+mode.normal.description,"The main mode. Break asteroids, planets and stars and feed their matter to the black hole.",기본 모드입니다. 소행성·행성·별을 부수고 그 물질을 블랙홀에 먹이세요.
+# 확인 창
+confirm.newGame.title,NEW GAME,새 게임
+confirm.newGame.body,"Start over from the beginning?
+Your saved progress will be lost.","처음부터 다시 시작할까요?
+저장된 진행 상황이 사라집니다."
+confirm.newGame.confirm,START,시작
+confirm.cancel,CANCEL,취소
+# 업그레이드 화면
+UpgradeScreen.StartBattleBtn_Text,Start Battle,전투 시작
+UpgradeScreen.Hint_Text,Tap a lit node to buy it  ·  drag to move  ·  scroll to zoom,밝은 노드를 눌러 구매  ·  끌어서 이동  ·  스크롤로 확대·축소
+upgrade.gold,Gold {0},골드 {0}
+upgrade.hq.goal,Black hole  Stage {0}  (goal Lv {1}),블랙홀  {0}단계  (목표 Lv {1})
+upgrade.hq.last,Black hole  Stage {0}  (last stage),블랙홀  {0}단계  (마지막 단계)
+# 노드 툴팁 (효과 이름은 아직 수치 ID를 그대로 보인다)
+node.rank,Rank {0}/{1},랭크 {0}/{1}
+node.now,now {0},현재 {0}
+node.maxed,Maxed,최대
+node.cost,Cost {0},비용 {0}
+# 전투 화면
+BattleScreen.EndBtn_Text,End,종료
+battle.pause,Pause,일시 정지
+battle.resume,Resume,계속
+battle.earned,+{0} Gold,+{0} 골드
+# 결산 화면
+SettlementScreen.DestroyedCaption_Text,DESTROYED,파괴
+SettlementScreen.AsteroidName_Text,ASTEROID,소행성
+SettlementScreen.PlanetName_Text,PLANET,행성
+SettlementScreen.StarName_Text,STAR,별
+SettlementScreen.GoldCaption_Text,GOLD,골드
+SettlementScreen.GrowthCaption_Text,GROWTH,성장
+SettlementScreen.ContinueBtn_Text,Continue,계속
+settlement.result.milestone,Milestone reached,이정표 도달
+settlement.result.over,Battle over,전투 종료
+settlement.stage,Stage {0} / {1},단계 {0} / {1}
+settlement.total,TOTAL,합계
+settlement.reward,REWARD,보상
+settlement.upgrade,Upgrade,업그레이드
+settlement.upgrade.count,Upgrade ({0}),업그레이드 ({0})
+settlement.row.asteroid,Asteroid,소행성
+settlement.row.planet,Planet,행성
+settlement.row.star,Star,별
+# 결산 통계 칸 툴팁
+settlement.stat.electricStarDamage,Electric Star Damage,전기 별 피해
+settlement.stat.laserDamage,Laser Damage,레이저 피해
+settlement.stat.supernovaDamage,Supernova Damage,슈퍼노바 피해
+settlement.stat.goldenAsteroidGold,Money from Golden Asteroids,황금 소행성으로 번 골드
+settlement.stat.electricAsteroidDamage,Electric Asteroid Damage,전기 소행성 피해
+settlement.stat.breakerDamage,Breaker Damage,브레이커 피해
+settlement.stat.breakerCritDamage,Breaker Critical Damage,브레이커 치명타 피해
+settlement.stat.breakerClicks,Breaker Clicks,브레이커 클릭 수
+settlement.stat.destroyedStars,Stars Destroyed,파괴한 별
+settlement.stat.destroyedPlanets,Planets Destroyed,파괴한 행성
+settlement.stat.collectedMoons,Moons Collected,모은 달
+settlement.stat.collectedComets,Comets Collected,모은 혜성
+settlement.stat.destroyedAsteroids,Asteroids Destroyed,파괴한 소행성
+settlement.stat.addedTime,Time Added,추가된 시간
+
+# 업그레이드 화면 구역(우주 구역) 이름 — 열쇠는 NodeCatalog 배치의 Regions.Id
+node.region.dust,Dust Belt,먼지 띠
+node.region.belt,Asteroid Belt,소행성대
+node.region.nebula,Electric Nebula · Gold Vein,전기 성운 · 황금 광맥
+node.region.planets,Planetary System,행성계
+node.region.comets,Comet Orbit,혜성 궤도
+node.region.cradle,Stellar Cradle,항성 요람
+node.region.pulsar,Pulsar · Supernova,펄서 · 초신성
+node.region.remnant,Supernova Remnant,초신성 잔해
+node.region.core,Galactic Core,은하핵
+node.region.blackhole,Black Hole,블랙홀

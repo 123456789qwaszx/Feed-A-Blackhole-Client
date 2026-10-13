@@ -48,6 +48,7 @@ namespace BlackHole.Simulation.Tool
             {
                 TimeLimit = Float(rules, "timeLimit", 12),
                 KillTimeBonus = Float(rules, "killTimeBonus", 0.3f),
+                MaxKillTimeBonus = Float(rules, "maxKillTimeBonus", 0),
             };
 
             YamlNode skills = Asset(setup.Guid("_skills"), "스킬 설정(_skills)");
@@ -63,6 +64,7 @@ namespace BlackHole.Simulation.Tool
                 MoonRadiusBonus = Float(skills, "breakerMoonRadiusBonus", 0.1f),
                 CometDuration = Float(skills, "breakerCometDuration", 5),
                 CometCritDamageBonus = Float(skills, "breakerCometCritDamageBonus", 0.5f),
+                HoldSlow = Float(skills, "breakerHoldSlow", 0.05f),
             };
 
             YamlNode catalog = Asset(setup.Guid("_enemies"), "적 종류 목록(_enemies)");

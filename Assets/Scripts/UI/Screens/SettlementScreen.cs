@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class SettlementScreen : UIRoot<SettlementScreen.Refs>
+    public sealed class SettlementScreen : UIRoot<SettlementScreen.Refs>, ILocalizedView, IStyleView, INumberFormatView
     {
         public enum Refs
         {
@@ -33,11 +33,15 @@ namespace BlackHole.Unity
             Tooltip_Text,
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
+            // 배경 위의 별빛·궤도 문양(UIScreenAmbient). 테마에 따라 머티리얼만 바뀐다.
+            Ambient,
             // 오른쪽 통계 칸(스킬별 피해·수집). 칸에 손을 올리면 툴팁으로 이름을 보인다.
             // 칸은 두 그룹(격자)에 들어 있고 그룹 사이에 구분선이 있다. 값이 0인 칸·빈 그룹·구분선은 숨긴다.
             SkillStats,
             CountStats,
             StatsDivider,
+            // 물질 행과 Gold 사이의 구분선(단색). 테마의 글자색을 옅게 쓴다.
+            Divider,
             ElectricStarDamage_Button,
             ElectricStarDamage_Text,
             LaserDamage_Button,
@@ -66,6 +70,13 @@ namespace BlackHole.Unity
             DestroyedAsteroids_Text,
             AddedTime_Button,
             AddedTime_Text,
+            // 머리글·행 이름. 코드는 쓰지 않고 UI 글자 표가 언어에 맞게 바꾼다(ViewTexts).
+            DestroyedCaption_Text,
+            AsteroidName_Text,
+            PlanetName_Text,
+            StarName_Text,
+            GoldCaption_Text,
+            GrowthCaption_Text,
 
             // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
             Background_Image,
@@ -159,22 +170,32 @@ namespace BlackHole.Unity
         private StatCell _destroyedAsteroids;
         private StatCell _addedTime;
 
-        // 오른쪽 통계 칸 하나: 칸 버튼(툴팁·연출), 값 글자, 툴팁 이름.
+        // 오른쪽 통계 칸 하나: 칸 버튼(툴팁·연출), 값 글자, 툴팁 이름의 글자 키.
         private sealed class StatCell
         {
             public Button Button { get; }
             public ButtonAnimation Animation { get; }
             public TMP_Text Value { get; }
-            public string Label { get; }
+            public string LabelKey { get; }
 
-            public StatCell(Button button, TMP_Text value, string label)
+            public StatCell(Button button, TMP_Text value, string labelKey)
             {
                 Button = button;
                 Animation = ButtonAnimation.Of(button);
                 Value = value;
-                Label = label;
+                LabelKey = labelKey;
             }
         }
+
+        // 언어가 바뀌면 다시 쓸 마지막 값. 아직 보이지 않았으면 null.
+        private Localizer _localizer;
+        private readonly StyledTexts _styled = new();
+        // 테마 색: 화면 바탕색과 구분선.
+        private readonly ThemedImages _themed = new();
+        private bool? _shownMilestone;
+        private (int Stage, int NextStage, int MaxStage)? _shownStage;
+        private bool? _shownReward;
+        private int? _shownPurchasable;
 
         public event Action UpgradeClicked;
         public event Action ContinueClicked;
@@ -236,6 +257,19 @@ namespace BlackHole.Unity
             _tooltipText = View.Text(Refs.Tooltip_Text);
             HideTooltip();
 
+            _styled.Add(_totalGold, UITextRole.Body);
+            _styled.Add(_tooltipText, UITextRole.Body);
+            _styled.Add(View.Text(Refs.DestroyedCaption_Text), UITextRole.Caption);
+            _styled.Add(View.Text(Refs.AsteroidName_Text), UITextRole.Caption);
+            _styled.Add(View.Text(Refs.PlanetName_Text), UITextRole.Caption);
+            _styled.Add(View.Text(Refs.StarName_Text), UITextRole.Caption);
+            _styled.Add(View.Text(Refs.GoldCaption_Text), UITextRole.Caption);
+            _styled.Add(View.Text(Refs.GrowthCaption_Text), UITextRole.Caption);
+
+            _themed.AddColor(GetComponent<Image>(), UIColorRole.Backdrop);
+            _themed.AddColor(View.Image(Refs.Divider), UIColorRole.TextMain);
+            _themed.AddColor(View.Image(Refs.StatsDivider), UIColorRole.TextMain);
+
             _asteroidRow = View.Button(Refs.AsteroidRow_Button);
             _planetRow = View.Button(Refs.PlanetRow_Button);
             _starRow = View.Button(Refs.StarRow_Button);
@@ -278,20 +312,20 @@ namespace BlackHole.Unity
             _skillStats = ObjectOf(View.Rect(Refs.SkillStats));
             _countStats = ObjectOf(View.Rect(Refs.CountStats));
             _statsDivider = ObjectOf(View.Rect(Refs.StatsDivider));
-            _electricStarDamage = BindStat(Refs.ElectricStarDamage_Button, Refs.ElectricStarDamage_Text, "Electric Star Damage");
-            _laserDamage = BindStat(Refs.LaserDamage_Button, Refs.LaserDamage_Text, "Laser Damage");
-            _supernovaDamage = BindStat(Refs.SupernovaDamage_Button, Refs.SupernovaDamage_Text, "Supernova Damage");
-            _goldenAsteroidGold = BindStat(Refs.GoldenAsteroidGold_Button, Refs.GoldenAsteroidGold_Text, "Money from Golden Asteroids");
-            _electricAsteroidDamage = BindStat(Refs.ElectricAsteroidDamage_Button, Refs.ElectricAsteroidDamage_Text, "Electric Asteroid Damage");
-            _breakerDamage = BindStat(Refs.BreakerDamage_Button, Refs.BreakerDamage_Text, "Breaker Damage");
-            _breakerCritDamage = BindStat(Refs.BreakerCritDamage_Button, Refs.BreakerCritDamage_Text, "Breaker Critical Damage");
-            _breakerClicks = BindStat(Refs.BreakerClicks_Button, Refs.BreakerClicks_Text, "Breaker Clicks");
-            _destroyedStars = BindStat(Refs.DestroyedStars_Button, Refs.DestroyedStars_Text, "Stars Destroyed");
-            _destroyedPlanets = BindStat(Refs.DestroyedPlanets_Button, Refs.DestroyedPlanets_Text, "Planets Destroyed");
-            _collectedMoons = BindStat(Refs.CollectedMoons_Button, Refs.CollectedMoons_Text, "Moons Collected");
-            _collectedComets = BindStat(Refs.CollectedComets_Button, Refs.CollectedComets_Text, "Comets Collected");
-            _destroyedAsteroids = BindStat(Refs.DestroyedAsteroids_Button, Refs.DestroyedAsteroids_Text, "Asteroids Destroyed");
-            _addedTime = BindStat(Refs.AddedTime_Button, Refs.AddedTime_Text, "Time Added");
+            _electricStarDamage = BindStat(Refs.ElectricStarDamage_Button, Refs.ElectricStarDamage_Text, "settlement.stat.electricStarDamage");
+            _laserDamage = BindStat(Refs.LaserDamage_Button, Refs.LaserDamage_Text, "settlement.stat.laserDamage");
+            _supernovaDamage = BindStat(Refs.SupernovaDamage_Button, Refs.SupernovaDamage_Text, "settlement.stat.supernovaDamage");
+            _goldenAsteroidGold = BindStat(Refs.GoldenAsteroidGold_Button, Refs.GoldenAsteroidGold_Text, "settlement.stat.goldenAsteroidGold");
+            _electricAsteroidDamage = BindStat(Refs.ElectricAsteroidDamage_Button, Refs.ElectricAsteroidDamage_Text, "settlement.stat.electricAsteroidDamage");
+            _breakerDamage = BindStat(Refs.BreakerDamage_Button, Refs.BreakerDamage_Text, "settlement.stat.breakerDamage");
+            _breakerCritDamage = BindStat(Refs.BreakerCritDamage_Button, Refs.BreakerCritDamage_Text, "settlement.stat.breakerCritDamage");
+            _breakerClicks = BindStat(Refs.BreakerClicks_Button, Refs.BreakerClicks_Text, "settlement.stat.breakerClicks");
+            _destroyedStars = BindStat(Refs.DestroyedStars_Button, Refs.DestroyedStars_Text, "settlement.stat.destroyedStars");
+            _destroyedPlanets = BindStat(Refs.DestroyedPlanets_Button, Refs.DestroyedPlanets_Text, "settlement.stat.destroyedPlanets");
+            _collectedMoons = BindStat(Refs.CollectedMoons_Button, Refs.CollectedMoons_Text, "settlement.stat.collectedMoons");
+            _collectedComets = BindStat(Refs.CollectedComets_Button, Refs.CollectedComets_Text, "settlement.stat.collectedComets");
+            _destroyedAsteroids = BindStat(Refs.DestroyedAsteroids_Button, Refs.DestroyedAsteroids_Text, "settlement.stat.destroyedAsteroids");
+            _addedTime = BindStat(Refs.AddedTime_Button, Refs.AddedTime_Text, "settlement.stat.addedTime");
         }
 
         // 화면이 닫힐 때 툴팁도 닫는다. 다시 열 때 남아 있지 않게 한다.
@@ -300,7 +334,7 @@ namespace BlackHole.Unity
         private void HoverAsteroidRow(PointerEventData _)
         {
             _asteroidAnimation.Hover();
-            ShowTooltip(_asteroidRow, "Asteroid");
+            ShowTooltip(_asteroidRow, Localized("settlement.row.asteroid"));
         }
 
         private void LeaveAsteroidRow(PointerEventData _)
@@ -315,7 +349,7 @@ namespace BlackHole.Unity
         private void HoverPlanetRow(PointerEventData _)
         {
             _planetAnimation.Hover();
-            ShowTooltip(_planetRow, "Planet");
+            ShowTooltip(_planetRow, Localized("settlement.row.planet"));
         }
 
         private void LeavePlanetRow(PointerEventData _)
@@ -330,7 +364,7 @@ namespace BlackHole.Unity
         private void HoverStarRow(PointerEventData _)
         {
             _starAnimation.Hover();
-            ShowTooltip(_starRow, "Star");
+            ShowTooltip(_starRow, Localized("settlement.row.star"));
         }
 
         private void LeaveStarRow(PointerEventData _)
@@ -342,9 +376,10 @@ namespace BlackHole.Unity
         private void PressStarRow(PointerEventData _) => _starAnimation.Press();
         private void ReleaseStarRow(PointerEventData _) => _starAnimation.Release();
 
-        private StatCell BindStat(Refs button, Refs value, string label)
+        private StatCell BindStat(Refs button, Refs value, string labelKey)
         {
-            StatCell cell = new(View.Button(button), View.Text(value), label);
+            StatCell cell = new(View.Button(button), View.Text(value), labelKey);
+            _styled.Add(cell.Value, UITextRole.Body);
 
             BindEvent(cell.Button, _ => HoverStat(cell), ETouchEvent.PointerEnter);
             BindEvent(cell.Button, _ => LeaveStat(cell), ETouchEvent.PointerExit);
@@ -357,7 +392,7 @@ namespace BlackHole.Unity
         private void HoverStat(StatCell cell)
         {
             cell.Animation.Hover();
-            ShowTooltip(cell.Button, cell.Label);
+            ShowTooltip(cell.Button, Localized(cell.LabelKey));
         }
 
         private void LeaveStat(StatCell cell)
@@ -381,12 +416,10 @@ namespace BlackHole.Unity
         // milestone: 이정표에 닿아 끝난 판인가(남은 시간과 관계없이 끝났다).
         public void ShowResult(bool milestone)
         {
+            _shownMilestone = milestone;
+
             if (_result != null)
-            {
-                _result.text = milestone
-                    ? "Milestone reached"
-                    : "Battle over";
-            }
+                _result.text = Localized(milestone ? "settlement.result.milestone" : "settlement.result.over");
         }
 
         // 블랙홀 성장도 막대: 결산 뒤 성장도 / 마지막 성장도. 이번 판에 올랐으면 "1 -> 2"로 보인다.
@@ -411,6 +444,13 @@ namespace BlackHole.Unity
                 //_stageFill.anchorMax = new Vector2(0f, _stageFill.anchorMax.y);
             }
 
+            _shownStage = (stage, nextStage, maxStage);
+            WriteStageText(stage, nextStage, maxStage);
+        }
+
+        // 성장도 글자만 쓴다(막대 연출은 다시 시작하지 않는다).
+        private void WriteStageText(int stage, int nextStage, int maxStage)
+        {
             if (_stageText == null)
                 return;
 
@@ -418,7 +458,7 @@ namespace BlackHole.Unity
                 ? stage.ToString(CultureInfo.InvariantCulture) + " -> " + nextStage.ToString(CultureInfo.InvariantCulture)
                 : nextStage.ToString(CultureInfo.InvariantCulture);
 
-            _stageText.text = "Stage " + reached + " / " + maxStage.ToString(CultureInfo.InvariantCulture);
+            _stageText.text = Localized("settlement.stage", reached, maxStage.ToString(CultureInfo.InvariantCulture));
         }
 
         // 물질 행: 물질별 처치 수. 판 기록에 종류별 Gold가 생기면 Gold로 바꾼다.
@@ -451,8 +491,10 @@ namespace BlackHole.Unity
             // 결산 전 잔액. 실제로 더해진 것은 settled다(이정표 판은 번 Gold를 버린다).
             _totalBegin = total - settled;
 
+            _shownReward = milestone;
+
             if (_totalLabel != null)
-                _totalLabel.text = milestone ? "REWARD" : "TOTAL";
+                _totalLabel.text = Localized(milestone ? "settlement.reward" : "settlement.total");
 
             if (_earned != null)
                 _earned.text = Money(0);
@@ -516,13 +558,58 @@ namespace BlackHole.Unity
         // 지금 Gold로 살 수 있는 노드 수. 없으면 수를 붙이지 않는다.
         public void ShowUpgradeCount(int purchasable)
         {
+            _shownPurchasable = purchasable;
+
             if (_upgradeLabel != null)
             {
                 _upgradeLabel.text = purchasable > 0
-                    ? "Upgrade (" + purchasable.ToString(CultureInfo.InvariantCulture) + ")"
-                    : "Upgrade";
+                    ? Localized("settlement.upgrade.count", purchasable.ToString(CultureInfo.InvariantCulture))
+                    : Localized("settlement.upgrade");
             }
         }
+
+        // 마지막으로 보인 결과·성장도·합계 이름·업그레이드 버튼 글자를 지금 언어로 다시 쓴다. 툴팁은 닫는다.
+        // 숫자(처치 수·Gold)는 언어와 관계없어 그대로 둔다.
+        public void Relocalize(Localizer localizer)
+        {
+            _localizer = localizer;
+            HideTooltip();
+
+            if (_shownMilestone is bool milestone)
+                ShowResult(milestone);
+
+            if (_shownStage is (int stage, int nextStage, int maxStage))
+                WriteStageText(stage, nextStage, maxStage);
+
+            if (_shownReward is bool reward && _totalLabel != null)
+                _totalLabel.text = Localized(reward ? "settlement.reward" : "settlement.total");
+
+            if (_shownPurchasable is int purchasable)
+                ShowUpgradeCount(purchasable);
+        }
+
+        // 글자 크기·언어별 글꼴. TextBindings에 등록되지 않은 글자만 여기서 맞춘다(등록된 글자는 Theme가 맞춘다).
+        private UIScreenAmbient Ambient => View.Component<UIScreenAmbient>(Refs.Ambient);
+
+        public void ApplyStyle(in UIStyle style)
+        {
+            Ambient?.Apply(style.ThemeId);
+            _styled.SetStyle(style);
+            _themed.SetStyle(style);
+        }
+
+        // Gold 표기 설정이 바뀌었다. 증가 연출이 마지막으로 쓴 값을 지금 표기로 다시 쓴다(연출 중이면 다음 프레임이 이어 쓴다).
+        public void RefreshNumbers()
+        {
+            foreach (KeyValuePair<TMP_Text, long> pair in _previousGolds)
+            {
+                if (pair.Key != null)
+                    pair.Key.text = Money(pair.Value);
+            }
+        }
+
+        private string Localized(string key, params object[] args) =>
+            _localizer != null ? _localizer.Format(key, args) : key;
 
         #region 툴팁
 
@@ -570,7 +657,7 @@ namespace BlackHole.Unity
         private static string Whole(int count) => count.ToString(CultureInfo.InvariantCulture);
 
         private static string Money(long gold) =>
-            "$" + OverThousand.GoldThousand(gold);/*gold.ToString("N0", CultureInfo.InvariantCulture);*/
+            "$" + GoldText.Of(gold);
 
         // MonoBehavior
         private void Update()

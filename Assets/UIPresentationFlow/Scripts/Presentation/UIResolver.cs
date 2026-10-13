@@ -12,9 +12,18 @@ public sealed class UIResolveTrace
 public sealed class UIResolver
 {
     private readonly UIVariantResolver _variantResolver = new();
-    private readonly UIContext _context;
+    private UIContext _context;
 
     public UIResolver(UIContext context)
+    {
+        _context = context;
+    }
+
+    public UIContext Context => _context;
+
+    // Replaces the whole context (contexts are never mutated). Callers re-apply
+    // visible views afterwards; hidden views resolve with it when shown.
+    public void SetContext(in UIContext context)
     {
         _context = context;
     }
@@ -30,7 +39,10 @@ public sealed class UIResolver
         var patches = new List<IUIPatch>(3);
         resolved.Theme?.BuildPatches(
             patches,
-            resolved.TextBindings);
+            resolved.TextBindings,
+            _context.TextScale,
+            _context.LocaleId,
+            _context.ThemeId);
         resolved.Layout?.BuildPatches(patches);
         resolved.ImageTheme?.BuildPatches(patches);
         trace.Add($"[Patches] {patches.Count}");

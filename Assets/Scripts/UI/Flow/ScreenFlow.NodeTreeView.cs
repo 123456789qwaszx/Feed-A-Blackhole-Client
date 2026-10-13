@@ -17,9 +17,15 @@ namespace BlackHole.Unity
                 afterPresented: page =>
                 {
                     BindView(page, ApplyBindings);
-                    page.Build(_nodes, _tree.Graph.Links);
+                    page.Build(_nodes, _tree.Graph.Links, _regions);
                 },
-                afterClosed: Unbind);
+                afterClosed: page =>
+                {
+                    Unbind(page);
+
+                    if (_ui.CurrentRoot is UpgradeScreen root)
+                        root.ShowRegion(null);
+                });
         }
 
         private void ApplyBindings(NodeTreeView page)
@@ -35,6 +41,16 @@ namespace BlackHole.Unity
             AddBinding(page,
                 p => p.NodeLeft += HandleNodeTreeNodeLeft,
                 p => p.NodeLeft -= HandleNodeTreeNodeLeft);
+            AddBinding(page,
+                p => p.RegionViewed += HandleNodeTreeRegionViewed,
+                p => p.RegionViewed -= HandleNodeTreeRegionViewed);
+        }
+
+        // 트리의 보이는 창 가운데가 든 구역이 바뀌었다. 위쪽 글자(블랙홀 자리)에 구역 이름을 보인다.
+        private void HandleNodeTreeRegionViewed(string key)
+        {
+            if (_ui.CurrentRoot is UpgradeScreen root)
+                root.ShowRegion(key);
         }
 
         private void HandleNodeTreeNodeClicked(string id)
@@ -72,7 +88,7 @@ namespace BlackHole.Unity
             var text = new StringBuilder();
 
             if (node.MaxRank > 1)
-                text.Append("Rank ").Append(rank).Append('/').Append(node.MaxRank).Append('\n');
+                text.Append(_localizer.Format("node.rank", rank, node.MaxRank)).Append('\n');
 
             foreach (NodeEffect effect in shown.Effects)
             {
@@ -83,7 +99,7 @@ namespace BlackHole.Unity
 
                 if (maxed)
                 {
-                    text.Append("  (now ").Append(NumberText.Value(now)).Append(unit).Append(')');
+                    text.Append("  (").Append(_localizer.Format("node.now", NumberText.Value(now) + unit)).Append(')');
                 }
                 else
                 {
@@ -94,7 +110,7 @@ namespace BlackHole.Unity
                 text.Append('\n');
             }
 
-            text.Append(maxed ? "Maxed" : "Cost " + NumberText.Compact(shown.Cost));
+            text.Append(maxed ? _localizer.Get("node.maxed") : _localizer.Format("node.cost", NumberText.Compact(shown.Cost)));
             return text.ToString();
         }
 

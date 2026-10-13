@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class ModeSelectPanel : UIPanel<ModeSelectPanel.Refs>
+    public sealed class ModeSelectPanel : UIPanel<ModeSelectPanel.Refs>, IStyleView
     {
         public enum Refs
         {
@@ -19,6 +19,8 @@ namespace BlackHole.Unity
             BackBtn_Button,
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
+            // 배경 위의 별빛·궤도 문양(UIScreenAmbient). 테마에 따라 머티리얼만 바뀐다.
+            Ambient,
 
             // Presentation이 바꾸는 그림과 글자. 코드는 건드리지 않는다.
             // 카드(ModeCard)는 위젯이라 Presentation이 닿지 않는다 — 카드의 모양은 프리팹의 카드 틀에서 정한다.
@@ -67,6 +69,11 @@ namespace BlackHole.Unity
 
         private readonly List<ModeItem> _modes = new();
         private readonly List<ModeCard> _cards = new();
+        // 글자 크기·언어별 글꼴. 카드는 복제로 만들므로 만들 때 넣고 지울 때 비운다(틀은 넣지 않는다).
+        // 창 제목·버튼 글자는 TextBindings에 있어 Theme가 맞춘다.
+        private readonly StyledTexts _cardTexts = new();
+        // 테마 그림·색: 카드 바탕, 넘김 버튼 아이콘, 창의 바탕색.
+        private readonly ThemedImages _themed = new();
         private readonly List<Vector2> _targetPositions = new();
         private readonly List<float> _targetScales = new();
 
@@ -91,6 +98,7 @@ namespace BlackHole.Unity
 
             _track = View.Rect(Refs.CardTrack);
             _template = View.Widget<ModeCard>(Refs.CardTemplate);
+            ThemeFixedImages();
             _prev = View.Button(Refs.PrevBtn_Button);
             _next = View.Button(Refs.NextBtn_Button);
             _continue = View.Button(Refs.ContinueBtn_Button);
@@ -200,6 +208,30 @@ namespace BlackHole.Unity
             }
         }
 
+        private UIScreenAmbient Ambient => View.Component<UIScreenAmbient>(Refs.Ambient);
+
+        public void ApplyStyle(in UIStyle style)
+        {
+            Ambient?.Apply(style.ThemeId);
+            _cardTexts.SetStyle(style);
+            _themed.SetStyle(style);
+        }
+
+        // 카드 밖의 고정 그림: 창 바탕색(단색)과 넘김 버튼의 아이콘(ink → ivory). 버튼 자체 그림은 ImageBindings가 바꾼다.
+        private void ThemeFixedImages()
+        {
+            _themed.AddColor(GetComponent<Image>(), UIColorRole.Backdrop);
+            _themed.AddSprite(ChildImage(Refs.PrevBtn_Button, "PrevBtn_Icon"));
+            _themed.AddSprite(ChildImage(Refs.NextBtn_Button, "NextBtn_Icon"));
+        }
+
+        private Image ChildImage(Refs parent, string name)
+        {
+            RectTransform rect = View.Rect(parent);
+            Transform child = rect != null ? rect.Find(name) : null;
+            return child != null ? child.GetComponent<Image>() : null;
+        }
+
         private ModeCard CreateCard(ModeItem mode, int index)
         {
             ModeCard card = Instantiate(_template, _track);
@@ -207,6 +239,12 @@ namespace BlackHole.Unity
             card.EnsureInitialized();
             card.Show(mode);
             card.Clicked += () => Select(index);
+
+            foreach ((TMPro.TMP_Text text, UITextRole role) in card.StyledTexts)
+                _cardTexts.Add(text, role);
+
+            _themed.AddSprites(card);
+
             card.gameObject.SetActive(true);
             return card;
         }
@@ -220,6 +258,9 @@ namespace BlackHole.Unity
             }
 
             _cards.Clear();
+            _cardTexts.Clear();
+            _themed.Clear();
+            ThemeFixedImages();
             _modes.Clear();
             _targetPositions.Clear();
             _targetScales.Clear();

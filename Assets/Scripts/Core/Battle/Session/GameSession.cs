@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace BlackHole.Core
@@ -10,6 +11,8 @@ namespace BlackHole.Core
     public sealed class GameSession
     {
         private readonly TimeLimitRule _timeLimit;
+        // 이 판에서 파괴로 더한 시간의 합(초). 판 설정의 상한(MaxKillTimeBonus)까지만 쌓인다.
+        private float _killTimeAdded;
         private readonly int _seed;
         private readonly ProgressState _progress;
         private readonly IReadOnlyList<SupplyRequest> _startSupply;
@@ -23,6 +26,12 @@ namespace BlackHole.Core
         public bool IsEnded => _ended;
         public float Elapsed { get; private set; }
         public float Remaining => _timeLimit.Remaining(Elapsed);
+        // 이 판에서 제한 시간에 더해진 초의 합(블랙홀 성장 + 파괴 때 시간 추가). 테스트 도구로 더한 시간은 들지 않는다.
+        // 화면은 프레임 사이의 차이로 "방금 늘어난 시간"을 알린다.
+        public float AddedSeconds => _timeLimit.ExtendedSeconds;
+
+        // 적의 공전을 켜고 끈다(플레이어 설정 Object Rotation). 판 규칙이 아니라 표시에 가까운 설정이라 판 중에도 바꿀 수 있다.
+        public void SetOrbitEnabled(bool enabled) => World.OrbitEnabled = enabled;
 
         // 시간 고정. 게임에서는 늘 false이고, 테스트 도구(BattleCheats)만 켠다. 켜 두면 흐른 만큼 제한 시간을 되돌려 남은 시간이 줄지 않는다.
         internal bool TimeFrozen { get; set; }
@@ -138,6 +147,12 @@ namespace BlackHole.Core
         {
             float growth = raised * World.Hq.GrowthTime;
             float kills = World.TakeTimeBonuses() * _timeLimit.Definition.KillTimeBonus;
+            float cap = _timeLimit.Definition.MaxKillTimeBonus;
+
+            if (cap > 0)
+                kills = Math.Min(kills, Math.Max(0, cap - _killTimeAdded));
+
+            _killTimeAdded += kills;
             _timeLimit.Extend(growth + kills);
         }
     }

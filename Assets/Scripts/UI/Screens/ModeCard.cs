@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,6 +18,18 @@ namespace BlackHole.Unity
             TitleText,
             DescriptionText,
             RecordText,
+        }
+
+        // 글자 크기·언어별 글꼴·테마 색을 받는 글자와 역할. 모드 선택 창이 카드를 만들 때 StyledTexts에 넣는다.
+        // 카드의 그림(바탕 panel)은 모드 선택 창이 ThemedImages.AddSprites(card)로 테마 짝으로 바꾼다. 머리(Header)는 그림이 없어 모드 색이 그대로다.
+        public IEnumerable<(TMP_Text Text, UITextRole Role)> StyledTexts
+        {
+            get
+            {
+                yield return (View.Text(Refs.TitleText), UITextRole.Title);
+                yield return (View.Text(Refs.DescriptionText), UITextRole.Body);
+                yield return (View.Text(Refs.RecordText), UITextRole.Caption);
+            }
         }
 
         public event Action Clicked;

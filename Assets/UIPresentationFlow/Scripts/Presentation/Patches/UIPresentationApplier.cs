@@ -139,7 +139,7 @@ public sealed class UIPresentationApplier
                     _texts.Add(refId, baseline);
                 }
 
-                baseline.CaptureAndOwn(text, theme);
+                baseline.CaptureAndOwn(text, theme.fonts != null && !entry.fixedFont);
             }
         }
 
@@ -306,15 +306,17 @@ public sealed class UIPresentationApplier
 
         private bool _hasFontSize;
         private float _fontSize;
+        private float _fontSizeMax;
         private bool _ownsFontSize;
 
         private bool _hasColor;
         private Color _color;
         private bool _ownsColor;
 
-        public void CaptureAndOwn(TMP_Text text, ThemeSpec theme)
+        // ownsFont: the theme sets this text's font (it has a font set and the entry is not fixedFont).
+        public void CaptureAndOwn(TMP_Text text, bool ownsFont)
         {
-            if (theme.mainFont != null)
+            if (ownsFont)
             {
                 if (!_hasFont)
                 {
@@ -328,6 +330,7 @@ public sealed class UIPresentationApplier
             if (!_hasFontSize)
             {
                 _fontSize = text.fontSize;
+                _fontSizeMax = text.fontSizeMax;
                 _hasFontSize = true;
             }
 
@@ -348,7 +351,10 @@ public sealed class UIPresentationApplier
                 text.font = _font;
 
             if (_ownsFontSize && _hasFontSize)
+            {
                 text.fontSize = _fontSize;
+                text.fontSizeMax = _fontSizeMax;
+            }
 
             if (_ownsColor && _hasColor)
                 text.color = _color;
@@ -370,12 +376,23 @@ public sealed class UIPresentationApplier
         private Sprite _sprite;
         private bool _ownsSprite;
 
+        // Sprite Swap states of a Selectable on the same object (a theme may replace them with the sprite).
+        private bool _hasSpriteState;
+        private SpriteState _spriteState;
+
         public void CaptureAndOwn(Image image)
         {
             if (!_hasSprite)
             {
                 _sprite = image.sprite;
                 _hasSprite = true;
+
+                Selectable selectable = UIImageThemePatch.SelectableOf(image);
+                if (selectable != null)
+                {
+                    _spriteState = selectable.spriteState;
+                    _hasSpriteState = true;
+                }
             }
 
             _ownsSprite = true;
@@ -384,7 +401,16 @@ public sealed class UIPresentationApplier
         public void RestoreOwned(Image image)
         {
             if (_ownsSprite && _hasSprite)
+            {
                 image.sprite = _sprite;
+
+                if (_hasSpriteState)
+                {
+                    Selectable selectable = UIImageThemePatch.SelectableOf(image);
+                    if (selectable != null)
+                        selectable.spriteState = _spriteState;
+                }
+            }
 
             ReleaseOwnership();
         }

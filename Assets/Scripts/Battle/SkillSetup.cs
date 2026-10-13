@@ -36,6 +36,10 @@ namespace BlackHole.Unity
         [Tooltip("혜성 중첩 하나의 치명타 피해 보너스 증가(0 이상). 0.5면 +50%. 중첩끼리 더한 뒤 치명타 피해 보너스에 곱한다.")]
         [SerializeField] private float breakerCometCritDamageBonus = 0.5f;
 
+        [Header("Breaker 붙잡기: 누르고 있는 동안 공격 원 안의 적이 거의 멈춘다")]
+        [Tooltip("누르고 있는 동안 공격 원 안의 적이 움직이는 비율(0 ~ 1). 0이면 완전히 멈추고 1이면 평소처럼 공전한다.")]
+        [SerializeField, Range(0, 1)] private float breakerHoldSlow = 0.05f;
+
         public void WriteTo(ContentData data)
         {
             data.Breaker = new BreakerData
@@ -50,6 +54,7 @@ namespace BlackHole.Unity
                 MoonRadiusBonus = breakerMoonRadiusBonus,
                 CometDuration = breakerCometDuration,
                 CometCritDamageBonus = breakerCometCritDamageBonus,
+                HoldSlow = breakerHoldSlow,
             };
         }
     }
