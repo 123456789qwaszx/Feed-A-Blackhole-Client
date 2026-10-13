@@ -1200,6 +1200,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &714270854
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 714270856}
+  - component: {fileID: 714270855}
+  m_Layer: 0
+  m_Name: Test_AuthServer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &714270855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 714270854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92574801bc7e66d479e44da3e54a05e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BlackHole.Net.Unity::BlackHole.Net.Unity.AuthLocalServerTest
+  baseUrl: http://localhost:8080
+  runnAllOnStart: 0
+--- !u!4 &714270856
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 714270854}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &747572559
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1616,6 +1662,7 @@ MonoBehaviour:
   _lightningLook: {fileID: 11400000, guid: e181953d102745b387176d400f5ea790, type: 2}
   _cometLook: {fileID: 11400000, guid: 3d1f6b7a8c2e4a5f9b0c1d2e3f405162, type: 2}
   _blackHole: {fileID: 1528454173}
+  _battleBackground: {fileID: 0}
   _rootLayer: {fileID: 238476925}
   _panelLayer: {fileID: 1238912222}
   _screenTransitionLook: {fileID: 11400000, guid: e8b5a01a379f4963816ccd796b04a8b7, type: 2}
@@ -1630,6 +1677,10 @@ MonoBehaviour:
   - {fileID: 747572562}
   - {fileID: 513473408}
   _presentations: {fileID: 11400000, guid: 64149f72c61e4f378df706e37ce97160, type: 2}
+  _fonts: {fileID: 11400000, guid: 940c8ce4f1344ac29c2671ed2f23fd5a, type: 2}
+  _palette: {fileID: 11400000, guid: a18ac4e32e664af58b6332ea4a5e8bb5, type: 2}
+  _sprites: {fileID: 11400000, guid: 7ee6a6a159ae49769f8343a17d89696e, type: 2}
+  _texts: {fileID: 11500000, guid: dd03d294e47c48d1aabb3bcd7aa95b83, type: 3}
   _analyticsSettings: {fileID: 0}
   _playtest: {fileID: 0}
 --- !u!1001 &974995110
@@ -2050,6 +2101,50 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &1507593164
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1507593165}
+  - component: {fileID: 1507593166}
+  m_Layer: 0
+  m_Name: Test_ServerConnect
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1507593165
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1507593164}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1507593166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1507593164}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 453241a130f0e43419c2af71fee9fae7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BlackHole.Net.Unity::BlackHole.Net.TestServerConnection
 --- !u!1 &1528454173
 GameObject:
   m_ObjectHideFlags: 0
@@ -2551,3 +2646,5 @@ SceneRoots:
   - {fileID: 411352703}
   - {fileID: 566433867}
   - {fileID: 1528454174}
+  - {fileID: 1507593165}
+  - {fileID: 714270856}

@@ -7,7 +7,7 @@ namespace BlackHole.Net
 {
     public sealed class AuthSession : IAuthSession
     {
-        public static readonly TimeSpan LoginBudget = TimeSpan.FromSeconds(0);
+        public static readonly TimeSpan LoginBudget = TimeSpan.FromSeconds(8);
         const string InvalidCredentialCode = "INVALID_CREDENTIALS";
 
         readonly GuestAuthApi _api;
@@ -53,7 +53,7 @@ namespace BlackHole.Net
             catch (Exception ex)
             {
                 _log("[Auth] 시작중 예외 : " + ex);
-                reason = OfflineReason.ProtocolError;
+                reason = OfflineReason.ProtocolError; // 예상하지 못한 예외는 버그
             }
 
             if (reason == OfflineReason.None) SetOnline();
@@ -171,8 +171,14 @@ namespace BlackHole.Net
          */
         Task<AuthResult> WithInBudget(DateTime deadline, Func<int, Task<AuthResult>> call)
         {
+            double remaining = (deadline - _now()).TotalSeconds;
             int seconds = (int)Math.Floor((deadline - _now()).TotalSeconds);
-            if (seconds < 1) return Task.FromResult(AuthResult.Unreachable(OfflineReason.Unreachable));
+            if (seconds < 1)
+            {
+                // 로그인 시간 예산 초과
+                _log($"[Auth] 남은 예산 {remaining:F2}초 — 요청을 보내지 않고 오프라인");
+                return Task.FromResult(AuthResult.Unreachable(OfflineReason.Unreachable));
+            }
             return call(seconds);
         }
         #endregion
