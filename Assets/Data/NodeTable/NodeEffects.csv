@@ -71,9 +71,9 @@ breaker.damage-12,1,breaker.damage,15,Flat,+15
 asteroid.massScale-10,1,asteroid.massScale,300,Percent,+300%
 growth.planets-01,1,growth.planets,60,Percent,+60%
 asteroid.toPlanet-01,1,asteroid.toPlanet,52,Flat,+52
-moonPlanet.rangeScale-01,1,moonPlanet.rangeScale,20,Percent,+20%
+moonPlanet.rangeScale-01,1,moonPlanet.rangeScale,15,Percent,+15%
 planet.size-01,1,planet.size,2,Flat,+2
-moonPlanet.speedScale-01,1,moonPlanet.speedScale,20,Percent,+20%
+moonPlanet.speedScale-01,1,moonPlanet.speedScale,12,Percent,+12%
 moonPlanet.duration-01,1,moonPlanet.duration,1,Flat,+1
 breaker.damage-13,1,breaker.damage,25,Flat,+25
 breaker.damage-14,1,breaker.damage,65,Flat,+65
@@ -81,7 +81,7 @@ planet.respawnChance-01,1,planet.respawnChance,60,Percent,+60%
 breaker.planetBonusDamage-01,1,breaker.planetBonusDamage,60,Flat,+60
 goldenAsteroid.rewardScale-03,1,goldenAsteroid.rewardScale,15000,Percent,+15000%
 comet.critBonus-01,1,comet.critBonus,50,Percent,+50%
-moonPlanet.spawnChance-01,1,moonPlanet.spawnChance,20,Percent,+20%
+moonPlanet.spawnChance-01,1,moonPlanet.spawnChance,16,Percent,+16%
 comet.duration-01,1,comet.duration,3,Flat,+3
 comet.spawnChance-01,1,comet.spawnChance,25,Percent,+25%
 planet.massScale-01,1,planet.massScale,110,Percent,+110%

@@ -18,8 +18,8 @@ MonoBehaviour:
   breakerCritChance: 0
   breakerCritDamage: 1
   breakerMoonDuration: 5
-  breakerMoonSpeedBonus: 0.08
-  breakerMoonRadiusBonus: 0.08
+  breakerMoonSpeedBonus: 0.05
+  breakerMoonRadiusBonus: 0.06
   breakerCometDuration: 4
   breakerCometCritDamageBonus: 0.5
   breakerHoldSlow: 0.05
