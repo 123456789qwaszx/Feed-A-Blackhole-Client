@@ -690,10 +690,11 @@ MonoBehaviour:
       - planet.massScale-06
     - Id: breaker.damage-18
       Start: 0
-      X: 20
-      Y: -6
+      X: 15
+      Y: -9
       Links:
       - planet.massScale-05
+      - breaker.radius-08
     - Id: breaker.planetBonusDamage-03
       Start: 0
       X: 29
@@ -741,121 +742,82 @@ MonoBehaviour:
       Y: 4
       Links:
       - electricAsteroid.critBonus-02
-    - Id: breaker.damage-19
-      Start: 0
-      X: 16
-      Y: -4
-      Links:
-      - planet.respawnChance-03
     - Id: growth.planets-02
       Start: 0
       X: 13
-      Y: -5
-      Links:
-      - breaker.radius-07
-      - moonPlanet.rangeScale-03
-      - planet.massScale-07
+      Y: -4
+      Links: []
     - Id: breaker.radius-07
       Start: 0
-      X: 14
-      Y: -4
+      X: 13
+      Y: -8
+      Links:
+      - moonPlanet.rangeScale-03
+    - Id: breaker.critChance-04
+      Start: 0
+      X: 13
+      Y: -6
       Links:
       - planet.respawnChance-03
+      - planet.massScale-07
     - Id: planet.respawnChance-03
-      Start: 0
-      X: 15
-      Y: -4
-      Links:
-      - breaker.damage-20
-    - Id: moonPlanet.rangeScale-03
       Start: 0
       X: 14
       Y: -6
       Links: []
-    - Id: comet.rainChance-02
+    - Id: moonPlanet.rangeScale-03
       Start: 0
-      X: 19
-      Y: -4
-      Links:
-      - breaker.radius-08
-    - Id: planet.massScale-07
-      Start: 0
-      X: 14
-      Y: -5
-      Links:
-      - breaker.damage-20
-    - Id: breaker.damage-20
-      Start: 0
-      X: 15
-      Y: -5
-      Links:
-      - breaker.radius-08
-    - Id: breaker.radius-08
-      Start: 0
-      X: 19
-      Y: -5
-      Links:
-      - asteroid.count-04
-      - planet.massScale-05
-    - Id: breaker.critChance-04
-      Start: 0
-      X: 20
-      Y: -11
-      Links:
-      - moonPlanet.rangeScale-04
-    - Id: moonPlanet.rangeScale-04
-      Start: 0
-      X: 21
-      Y: -11
+      X: 13
+      Y: -7
       Links:
       - breaker.radius-09
+      - breaker.critChance-04
+    - Id: planet.massScale-07
+      Start: 0
+      X: 13
+      Y: -5
+      Links:
+      - growth.planets-02
+    - Id: breaker.damage-20
+      Start: 0
+      X: 12
+      Y: -6
+      Links:
+      - breaker.critChance-04
+    - Id: breaker.radius-08
+      Start: 0
+      X: 13
+      Y: -9
+      Links:
+      - breaker.radius-07
     - Id: breaker.radius-09
       Start: 0
-      X: 24
-      Y: -11
-      Links: []
-    - Id: breaker.critChance-05
-      Start: 0
-      X: 18
-      Y: -11
+      X: 14
+      Y: -7
       Links:
-      - comet.rainChance-03
-      - asteroid.count-04
+      - planet.respawnChance-03
     - Id: comet.rainChance-03
       Start: 0
-      X: 18
-      Y: -12
-      Links:
-      - asteroid.count-05
-    - Id: asteroid.count-04
-      Start: 0
-      X: 19
+      X: 17
       Y: -11
       Links:
-      - asteroid.count-05
-      - breaker.critChance-04
-    - Id: asteroid.count-05
+      - asteroid.count-04
+      - star.respawnChance-01
+    - Id: asteroid.count-04
       Start: 0
-      X: 19
-      Y: -12
-      Links:
-      - planet.massScale-08
-    - Id: planet.massScale-08
-      Start: 0
-      X: 19
-      Y: -13
-      Links:
-      - planet.toStar-01
+      X: 17
+      Y: -9
+      Links: []
     - Id: breaker.speed-08
       Start: 0
       X: 19
-      Y: -19
+      Y: -15
       Links:
       - planet.toStar-01
     - Id: electricStar.damage-01
       Start: 0
       X: 19
-      Y: -20
+      Y: -16
       Links:
       - breaker.radius-10
       - breaker.damage-21
@@ -863,49 +825,49 @@ MonoBehaviour:
     - Id: breaker.radius-10
       Start: 0
       X: 20
-      Y: -20
+      Y: -16
       Links: []
     - Id: planet.toStar-01
       Start: 0
       X: 19
-      Y: -18
+      Y: -14
       Links: []
     - Id: electricStar.chain-01
       Start: 0
       X: 18
-      Y: -19
+      Y: -15
       Links:
       - asteroid.toPlanet-04
       - breaker.speed-08
     - Id: asteroid.toPlanet-04
       Start: 0
       X: 18
-      Y: -18
+      Y: -14
       Links:
       - star.respawnChance-01
       - planet.toStar-01
     - Id: star.respawnChance-01
       Start: 0
       X: 17
-      Y: -18
+      Y: -14
       Links:
       - growth.stars-01
     - Id: breaker.damage-21
       Start: 0
       X: 19
-      Y: -22
+      Y: -18
       Links:
       - breaker.damage-22
     - Id: breaker.damage-22
       Start: 0
       X: 18
-      Y: -22
+      Y: -18
       Links:
       - star.timeChance-01
     - Id: star.timeChance-01
       Start: 0
       X: 17
-      Y: -22
+      Y: -18
       Links:
       - star.size-01
       - electricStar.critChance-01
@@ -913,54 +875,54 @@ MonoBehaviour:
     - Id: star.size-01
       Start: 0
       X: 17
-      Y: -23
+      Y: -19
       Links:
       - electricStar.splitChance-01
     - Id: electricStar.splitChance-01
       Start: 0
       X: 16
-      Y: -23
+      Y: -19
       Links:
       - planet.timeChance-01
     - Id: planet.timeChance-01
       Start: 0
       X: 15
-      Y: -23
+      Y: -19
       Links:
       - breaker.damage-23
     - Id: electricStar.critChance-01
       Start: 0
       X: 17
-      Y: -21
+      Y: -17
       Links:
       - growth.stars-01
     - Id: growth.stars-01
       Start: 0
       X: 17
-      Y: -20
+      Y: -16
       Links:
       - breaker.starBonusDamage-01
     - Id: breaker.starBonusDamage-01
       Start: 0
       X: 16
-      Y: -20
+      Y: -16
       Links: []
     - Id: breaker.damage-23
       Start: 0
       X: 14
-      Y: -22
+      Y: -18
       Links:
       - breaker.damage-24
     - Id: breaker.damage-24
       Start: 0
       X: 14
-      Y: -21
+      Y: -17
       Links:
       - breaker.speed-09
     - Id: breaker.speed-09
       Start: 0
       X: 14
-      Y: -20
+      Y: -16
       Links:
       - electricStar.chain-02
       - moonPlanet.speedScale-03
@@ -992,19 +954,19 @@ MonoBehaviour:
     - Id: moonPlanet.speedScale-03
       Start: 0
       X: 14
-      Y: -19
+      Y: -15
       Links:
       - comet.rainChance-04
     - Id: comet.rainChance-04
       Start: 0
       X: 14
-      Y: -18
+      Y: -14
       Links:
       - electricStar.spawnChance-01
     - Id: electricStar.spawnChance-01
       Start: 0
       X: 14
-      Y: -17
+      Y: -13
       Links: []
     - Id: star.massScale-01
       Start: 0
@@ -1718,9 +1680,10 @@ MonoBehaviour:
       - breaker.speed-12
     - Id: planet.massScale-05
       Start: 0
-      X: 20
-      Y: -5
-      Links: []
+      X: 16
+      Y: -9
+      Links:
+      - asteroid.count-04
     Regions:
     - Id: dust
       Nodes:

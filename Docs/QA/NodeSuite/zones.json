@@ -107,7 +107,6 @@
         "breaker.damage-16",
         "breaker.damage-17",
         "breaker.damage-18",
-        "breaker.damage-19",
         "breaker.planetBonusDamage-01",
         "breaker.planetBonusDamage-02",
         "breaker.planetBonusDamage-03",
@@ -154,20 +153,15 @@
       "unlocks": "혜성 비·행성 공급",
       "nodes": [
         "asteroid.count-04",
-        "asteroid.count-05",
         "breaker.critChance-04",
-        "breaker.critChance-05",
         "breaker.damage-20",
         "breaker.radius-07",
         "breaker.radius-08",
         "breaker.radius-09",
-        "comet.rainChance-02",
         "comet.rainChance-03",
         "growth.planets-02",
         "moonPlanet.rangeScale-03",
-        "moonPlanet.rangeScale-04",
         "planet.massScale-07",
-        "planet.massScale-08",
         "planet.respawnChance-03"
       ]
     },
