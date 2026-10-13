@@ -142,11 +142,11 @@ namespace BlackHole.Core
         }
 
         // - growth: 오른 Level마다 블랙홀의 성장 시간,
-        // - 파괴 때 시간 추가가 성공한 수마다 판 설정의 추가 시간(World가 사망 순간에 판정해 모아 둔다).
+        // - 파괴 때 시간 추가가 성공한 만큼의 초(World가 사망 순간에 판정해 모아 둔다. 종류별 값이 없으면 판 설정의 추가 시간).
         private void ExtendTimeLimit(int raised)
         {
             float growth = raised * World.Hq.GrowthTime;
-            float kills = World.TakeTimeBonuses() * _timeLimit.Definition.KillTimeBonus;
+            float kills = World.TakeTimeBonusSeconds();
             float cap = _timeLimit.Definition.MaxKillTimeBonus;
 
             if (cap > 0)

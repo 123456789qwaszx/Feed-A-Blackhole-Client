@@ -15,4 +15,4 @@ MonoBehaviour:
   timeLimit: 12
   killTimeBonus: 0.3
   maxKillTimeBonus: 40
-  killTimeCooldown: 0.5
+  killTimeCooldown: 0.7

@@ -14,14 +14,18 @@ namespace BlackHole.Core
         private readonly float _timeBonusCooldown;
         private float _timeBonusCooldownLeft;
 
-        private int _timeBonuses; // 아직 판(GameSession)이 가져가지 않은 시간 추가 성공 수.
+        // 판 설정의 처치 추가 시간(초). 종류에 자기 값(EnemyDefinition.KillTimeBonus)이 있으면 그것을 쓴다.
+        private readonly float _killTimeBonus;
 
-        internal DeathBonuses(int seed, EnemyStatTable stats, EnemySupply supply, float timeBonusCooldown = 0)
+        private float _timeBonusSeconds; // 아직 판(GameSession)이 가져가지 않은 시간 추가 초.
+
+        internal DeathBonuses(int seed, EnemyStatTable stats, EnemySupply supply, float killTimeBonus = 0, float timeBonusCooldown = 0)
         {
             _stats = stats;
             _supply = supply;
             _respawnRandom = new BattleRandom(seed, RandomStream.Respawn);
             _timeBonusRandom = new BattleRandom(seed, RandomStream.TimeBonus);
+            _killTimeBonus = killTimeBonus;
             _timeBonusCooldown = timeBonusCooldown;
         }
 
@@ -51,16 +55,16 @@ namespace BlackHole.Core
 
             if (_timeBonusRandom.Roll(composition.TimeChance))
             {
-                _timeBonuses++;
+                _timeBonusSeconds += kind.KillTimeBonus > 0 ? kind.KillTimeBonus : _killTimeBonus;
                 _timeBonusCooldownLeft = _timeBonusCooldown;
             }
         }
 
-        // 모아 둔 시간 추가 성공 수를 넘기고 0으로 되돌린다.
-        internal int TakeTimeBonuses()
+        // 모아 둔 시간 추가 초를 넘기고 0으로 되돌린다.
+        internal float TakeTimeBonusSeconds()
         {
-            int taken = _timeBonuses;
-            _timeBonuses = 0;
+            float taken = _timeBonusSeconds;
+            _timeBonusSeconds = 0;
             return taken;
         }
     }

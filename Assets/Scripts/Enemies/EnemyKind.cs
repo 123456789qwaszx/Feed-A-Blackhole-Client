@@ -89,6 +89,9 @@ namespace BlackHole.Unity
         [SerializeField] private float spawnPeriod;
         [Tooltip("픽업: 혜성 비(노드 comet.rainChance)일 때 한꺼번에 나오는 수. 0이면 혜성 비가 없다.")]
         [SerializeField] private int rainCount;
+        [Tooltip("파괴 때 시간 추가(노드 timeChance)가 성공하면 더하는 초. 0이면 판 설정(BattleRules.killTimeBonus)을 쓴다.")]
+        [Min(0)]
+        [SerializeField] private float killTimeBonus;
         [Header("색 등급 (번호가 적의 색 등급, 빨주노초파보)")]
         [SerializeField] private List<Tier> tiers = new List<Tier>();
 
@@ -128,6 +131,7 @@ namespace BlackHole.Unity
                 UpgradesTo = upgradesTo != null ? upgradesTo.Type : (EnemyType?)null,
                 SpawnPeriod = spawnPeriod,
                 RainCount = rainCount,
+                KillTimeBonus = killTimeBonus,
             };
 
             foreach (Trait trait in traits)
