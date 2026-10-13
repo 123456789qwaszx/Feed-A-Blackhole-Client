@@ -18,10 +18,10 @@ MonoBehaviour:
     targetGold: 60000000
     fieldScale: 1.5
   - level: 20
-    targetGold: 1000000000
+    targetGold: 1000000000000
     fieldScale: 2.27
   - level: 30
-    targetGold: 100000000000
+    targetGold: 10000000000000
     fieldScale: 2.83
   - level: 40
     targetGold: 200000000000000
