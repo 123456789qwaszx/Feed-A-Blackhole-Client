@@ -20,8 +20,19 @@ namespace BlackHole.Unity
         private const float DeathFragmentSize = 0.65f; // 파편 기준 크기(여러 차례 조정됨). 필요시 에디터에서 추가 조절.
         // 폭발하듯 튀지 않고 죽은 자리 둘레 이 반경 안에 '배치'만 한다(초기 속도 0, DeathSuctionDelay 후 공전 진입).
         private const float FragmentSpreadRadius = 0.5f;
-        // Size 1당 파편 크기가 이 비율만큼 커짐(size=4면 1.45배). 반지름 비례 방식 대신 이 방식을 채택함(체감상 더 적합).
-        private const float FragmentSizePerEnemySize = 0.15f;
+        // ── 적 크기에 따른 파편 배율 ──
+        // 판이 진행될수록(성장도↑) 카메라가 넓어져(Hq.FieldScale 1 → 1.68 → 2.27 → 2.83 → 3.3, BattleCameraFit) 기존 적은
+        // 화면에서 작아지고, 새로 풀리는 종류는 월드 반지름 자체가 크다(소행성 0.45 · 행성 1.4 · 별 3.1 · 은하 4.0).
+        // 파편이 월드 크기 고정이면 새 종류의 파편이 몸집에 비해 너무 작고 넓어진 화면에서 점처럼 보인다.
+        // 그래서 파편 배율 = (적 반지름 ÷ ReferenceRadius)^FragmentSizeExponent 로 정한다(피격·사망 파편 공통).
+        //  - 기준(배율 1)은 크기 1 소행성. 지수 0.5(제곱근)면 소행성 크기 2·3·4가 1.15·1.30·1.43배로,
+        //    예전 '크기 1당 +15%'(1.15·1.30·1.45) 체감과 거의 같다 — 소행성 쪽 체감은 그대로 유지된다.
+        //  - 행성 ≈ 1.76배, 별 ≈ 2.62배, 은하 ≈ 2.98배. 각 종류가 주력이 되는 시점의 넓어진 화면에서도 파편이 처음 소행성
+        //    파편과 비슷한 화면 크기로 보이고, 이전 종류(소행성)의 파편은 그 몸집과 함께 작아져 비중이 줄어든다.
+        //  - 지수를 1로 올리면 반지름에 정비례(별 파편이 지금의 약 2.6배 더 커짐), 0으로 내리면 크기 무관 고정.
+        // 배치 반경(FragmentSpreadRadius)과 피격 파편이 튀는 속도도 같은 배율을 곱해, 커진 파편끼리 겹쳐 뭉치지 않게 한다.
+        private const float ReferenceRadius = 0.45f;
+        private const float FragmentSizeExponent = 0.5f;
 
         // ── 사망 파편 흡입 궤적 ──
         // 모든 속도는 "월드 단위/초" 선속도로 정한다. 각속도는 접선 선속도 ÷ 현재 반지름으로 매 프레임 구한다.
@@ -178,24 +189,31 @@ namespace BlackHole.Unity
             Object.Destroy(_fragmentTexture);
         }
 
-        // 피격 파편: 맞은 자리에서 작은 파편 몇 개를 사방으로 튀긴다. color는 맞은 적의 색이다.
-        public void EmitHit(Vector3 position, Color color)
+        // 적 반지름 → 파편 배율(위 '적 크기에 따른 파편 배율' 참고).
+        private static float FragmentScaleOf(float radius)
+        {
+            return Mathf.Pow(Mathf.Max(radius, 0.01f) / ReferenceRadius, FragmentSizeExponent);
+        }
+
+        // 피격 파편: 맞은 자리에서 작은 파편 몇 개를 사방으로 튀긴다. color는 맞은 적의 색, radius는 맞은 적의 반지름이다.
+        public void EmitHit(Vector3 position, Color color, float radius)
         {
             if (!_particles.isPlaying)
                 _particles.Play(false);
 
             float baseAngle = (_burstIndex++ % 8) * Mathf.PI / 4f;
+            float scale = FragmentScaleOf(radius);
 
             for (int i = 0; i < FragmentCount; i++)
             {
                 float angle = baseAngle + i * Mathf.PI * 2f / FragmentCount;
-                float speed = BaseSpeed + (i % 2) * 0.5f;
+                float speed = (BaseSpeed + (i % 2) * 0.5f) * scale;
                 var parameters = new ParticleSystem.EmitParams
                 {
                     position = position,
                     velocity = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * speed,
                     startLifetime = Lifetime,
-                    startSize = FragmentSize * (i % 2 == 0 ? 1f : 0.75f),
+                    startSize = FragmentSize * (i % 2 == 0 ? 1f : 0.75f) * scale,
                     startColor = color,
                     rotation = angle + i * 0.73f,
                 };
@@ -268,7 +286,8 @@ namespace BlackHole.Unity
 
         // 사망 파편: 폭발 없이 죽은 자리 둘레에 배치만 하고, DeathSuctionDelay 후 그 자리에서 천천히 돌기
         // 시작하며, 자기 차례가 되면 Advance가 나선을 그리며 HQ로 빨아들인다. type은 종류별 흡입 속도 차등에 쓰인다.
-        public void EmitDeath(Vector3 position, Color color, EnemyType type, int tier, int size)
+        // radius(죽은 적의 반지름)가 파편 크기와 배치 반경을 정한다(FragmentScaleOf). size는 파편 수에만 쓴다.
+        public void EmitDeath(Vector3 position, Color color, EnemyType type, int tier, int size, float radius)
         {
             if (!_deathParticles.isPlaying)
                 _deathParticles.Play(false);
@@ -276,7 +295,8 @@ namespace BlackHole.Unity
             // 파편 수 = (Tier+1) × 크기. 예: Tier0·크기2 → 2개, Tier4·크기3 → 15개.
             int fragmentCount = (tier + 1) * size;
             float baseAngle = (_burstIndex++ % 16) * Mathf.PI / 8f;
-            float fragmentSizeMultiplier = 1f + (size - 1) * FragmentSizePerEnemySize;
+            float fragmentSizeMultiplier = FragmentScaleOf(radius);
+            float spreadRadius = FragmentSpreadRadius * fragmentSizeMultiplier;
             float typeSpeed = SuctionSpeedMultiplierOf(type);
 
             // 이 적(사망 1회) 전체에 공통인 값. 가까이서 함께 죽은 다른 적과 감김·속도·당김 타이밍이 서로 달라져
@@ -288,7 +308,7 @@ namespace BlackHole.Unity
             for (int i = 0; i < fragmentCount; i++)
             {
                 float angle = baseAngle + i * Mathf.PI * 2f / fragmentCount;
-                Vector3 start = position + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * FragmentSpreadRadius;
+                Vector3 start = position + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * spreadRadius;
 
                 float order = i + UnityEngine.Random.Range(-StaggerRandomness, StaggerRandomness);
                 float pullStart = Mathf.Max(DeathSuctionDelay, DeathSuctionDelay + staggerPhase + order * SuctionStaggerInterval);
