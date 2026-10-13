@@ -1,7 +1,7 @@
 StatId,ValueType,Unit,DefaultValue,Aggregation,Min,Max,Enabled,Memo,원작 이름,원작 단위,원작 시작값,원작 노드 수,구현 상태,사용 노드 수,검사
 timer,Float,Flat,12,Add,0,,TRUE,,세션 타이머,값,12,4,[2]동일한것,4,OK
 growth.time,Float,Flat,0,Add,0,,TRUE,,블랙홀 성장 시 추가되는 시간,값,0,1,[2]동일한것,1,OK
-growth.asteroids,Float,Percent,0,Add,0,,TRUE,,블랙홀 성장 시 생성되는 소행성 수,%,0,3,[2]동일한것,3,OK
+growth.asteroids,Float,Percent,0,Add,0,,TRUE,,블랙홀 성장 시 생성되는 소행성 수,%,0,3,[2]동일한것,4,OK
 growth.planets,Float,Percent,0,Add,0,,TRUE,,블랙홀 성장 시 생성되는 행성 수,%,0,2,[2]동일한것,2,OK
 growth.stars,Float,Percent,0,Add,0,,TRUE,,블랙홀 성장 시 생성되는 별 수,%,0,1,[2]동일한것,1,OK
 breaker.damage,Float,Flat,1,Add,0,,TRUE,,브레이커 피해,값,1,28,[2]동일한것,28,OK

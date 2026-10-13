@@ -94,6 +94,7 @@ electricAsteroid.critChance-02,1,electricAsteroid.critChance,20,Percent,+20%
 comet.rainChance-01,1,comet.rainChance,1,Percent,+1%
 electricAsteroid.damage-03,1,electricAsteroid.damage,300,Flat,+300
 electricAsteroid.critBonus-02,1,electricAsteroid.critBonus,100,Percent,+100%
+growth.asteroids-04,1,growth.asteroids,25,Percent,+25%
 planet.massScale-03,1,planet.massScale,100,Percent,+100%
 planet.massScale-04,1,planet.massScale,100,Percent,+100%
 moonPlanet.speedScale-02,1,moonPlanet.speedScale,20,Percent,+20%

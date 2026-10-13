@@ -94,6 +94,7 @@ electricAsteroid.critChance-02,1,행성계
 comet.rainChance-01,1,행성계
 electricAsteroid.damage-03,1,행성계
 electricAsteroid.critBonus-02,1,행성계
+growth.asteroids-04,1,행성계
 planet.massScale-03,1,행성계
 planet.massScale-04,1,행성계
 moonPlanet.speedScale-02,1,행성계

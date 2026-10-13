@@ -94,6 +94,7 @@ electricAsteroid.critChance-02,1,5000000000
 comet.rainChance-01,1,950000000
 electricAsteroid.damage-03,1,5000000000
 electricAsteroid.critBonus-02,1,5000000000
+growth.asteroids-04,1,5000000000
 planet.massScale-03,1,300000000
 planet.massScale-04,1,900000000
 moonPlanet.speedScale-02,1,80000000

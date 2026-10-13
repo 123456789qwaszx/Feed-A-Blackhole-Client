@@ -614,6 +614,12 @@ MonoBehaviour:
       Y: 4
       Links:
       - growth.planets-02
+      - growth.asteroids-04
+    - Id: growth.asteroids-04
+      Start: 0
+      X: 14
+      Y: 4
+      Links: []
     - Id: planet.massScale-03
       Start: 0
       X: 28
