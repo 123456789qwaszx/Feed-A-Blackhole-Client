@@ -18,7 +18,17 @@ namespace BlackHole.Unity
         [Min(0)]
         [SerializeField] private float maxKillTimeBonus = 0f;
 
+        [Tooltip("시간 추가가 성공한 뒤 다음 판정까지 기다리는 초. 0이면 쿨타임 없음. 연쇄 처치가 시간을 몰아주지 않게 둔다.")]
+        [Min(0)]
+        [SerializeField] private float killTimeCooldown = 0f;
+
         internal void WriteTo(ContentData data) =>
-            data.BattleRules = new BattleRulesData { TimeLimit = timeLimit, KillTimeBonus = killTimeBonus, MaxKillTimeBonus = maxKillTimeBonus };
+            data.BattleRules = new BattleRulesData
+            {
+                TimeLimit = timeLimit,
+                KillTimeBonus = killTimeBonus,
+                MaxKillTimeBonus = maxKillTimeBonus,
+                KillTimeCooldown = killTimeCooldown,
+            };
     }
 }

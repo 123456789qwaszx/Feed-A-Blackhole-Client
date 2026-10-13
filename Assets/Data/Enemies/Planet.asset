@@ -18,11 +18,12 @@ MonoBehaviour:
   radiusStep: 0.09
   upgradesTo: {fileID: 11400000, guid: 0d5945d74a2a4975ab65cf7d32bbd8e8, type: 2}
   spawnPeriod: 0
+  rainCount: 0
   tiers:
   - color: {r: 0.62, g: 0.32, b: 0.26, a: 1}
     maxHealth: 140
-    gold: 290000
-    exp: 1000
+    gold: 350000
+    exp: 1200
   - color: {r: 0.93, g: 0.55, b: 0.2, a: 1}
     maxHealth: 420
     gold: 1400000
@@ -46,7 +47,8 @@ MonoBehaviour:
   traits:
   - type: 2
     color: {r: 0.85, g: 0.86, b: 0.9, a: 1}
-    multiplier: 0
+    multiplier: 1
+    critRewardScale: 0
     damage: 0
     radius: 0
     maxTargets: 0
@@ -56,4 +58,6 @@ MonoBehaviour:
     healthFraction: 0
     width: 0
     maxActive: 10
+    force: 0
+    duration: 0
   sprite: {fileID: 0}

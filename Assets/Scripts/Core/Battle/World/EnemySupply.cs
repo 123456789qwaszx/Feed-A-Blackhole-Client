@@ -149,7 +149,8 @@ namespace BlackHole.Core
                         trait,
                         size,
                         _stats.Of(kind, tier, trait, size),
-                        _placement.Pick(_placementRandom));
+                        _placement.Pick(_placementRandom),
+                        request.Respawn);
                 }
             }
 

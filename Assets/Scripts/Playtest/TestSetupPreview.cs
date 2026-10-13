@@ -147,6 +147,7 @@ namespace BlackHole.Unity
                 ? $"{Number(start)}초 (기본 {Number(limit.Duration)} + Level업 {raised}회 × 성장 시간 {Number(hq.GrowthTime)})"
                 : $"{Number(start)}초");
             section.Row("처치 추가 시간", $"{Number(limit.KillTimeBonus)}초");
+            section.Row("처치 추가 쿨타임", limit.KillTimeCooldown > 0 ? $"{Number(limit.KillTimeCooldown)}초" : "없음");
             section.Row("Level업 성장 시간", $"{Number(hq.GrowthTime)}초");
         }
 

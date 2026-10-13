@@ -57,6 +57,7 @@ namespace BlackHole.Unity
                 TimeLimitDefinition limit = content.TimeLimit.Upgraded(upgrades);
                 player.Add("timeLimit", R(limit.Duration));
                 player.Add("killTimeBonus", R(limit.KillTimeBonus));
+                player.Add("killTimeCooldown", R(limit.KillTimeCooldown));
             }
 
             BreakerDefinition d = session.World.Breaker.Definition;
