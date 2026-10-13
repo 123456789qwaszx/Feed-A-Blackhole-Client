@@ -95,6 +95,9 @@ namespace BlackHole.Unity
             string saveDirectory = Application.persistentDataPath;
 #endif
 
+            if (loaded != null)
+                Debug.Log($"[콘텐츠] 서버 콘텐츠 버전: {loaded.ServerContentVersion}");
+
             if (loaded == null || !HasConfiguredLooks() || !HasConfiguredUI())
             {
                 enabled = false;
