@@ -31,7 +31,7 @@ goldenAsteroid.critRewardScale,Float,Percent,100,Add,0,,TRUE,,황금 소행성 �
 moonPlanet.spawnChance,Float,Percent,0,Add,0,100,TRUE,,달 생성 확률,%,0,2,[2]동일한것,2,OK
 moonPlanet.speedScale,Float,Percent,8,Add,0,,TRUE,,브레이커 속도에 대한 달 버프 스케일,%,10,4,[2]동일한것,4,OK
 moonPlanet.rangeScale,Float,Percent,8,Add,0,,TRUE,,브레이커 범위에 대한 달 버프 스케일,%,10,7,[2]동일한것,7,OK
-moonPlanet.duration,Float,Flat,4,Add,0,,TRUE,,달 버프 지속시간,값,3,4,[2]동일한것,4,OK
+moonPlanet.duration,Float,Flat,5,Add,0,,TRUE,,달 버프 지속시간,값,3,4,[2]동일한것,4,OK
 moonPlanet.maxCount,Int,Flat,10,Add,0,,TRUE,,달 최대 개수,값,10,1,[2]동일한것,1,OK
 planet.size,Int,Flat,1,Add,0,,TRUE,,행성 크기,값,1,2,[2]동일한것,2,OK
 planet.respawnChance,Float,Percent,0,Add,0,100,TRUE,,행성이 파괴될 때 새로운 행성을 생성할 확률,%,0,4,[2]동일한것,4,OK

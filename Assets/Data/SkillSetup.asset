@@ -17,7 +17,7 @@ MonoBehaviour:
   breakerRadius: 0.87
   breakerCritChance: 0
   breakerCritDamage: 1
-  breakerMoonDuration: 4
+  breakerMoonDuration: 5
   breakerMoonSpeedBonus: 0.08
   breakerMoonRadiusBonus: 0.08
   breakerCometDuration: 4
