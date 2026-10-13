@@ -5,7 +5,11 @@ namespace BlackHole.Core
     public sealed class BreakerDefinition
     {
         public float Damage { get; }
-        public float Interval { get; } // 공격 주기(초).
+        public float Interval { get; } // 공격 주기(초). 노드 속도 배율(Speed)만 반영한 값이다.
+
+        // 노드가 반영된 공격 속도 배율(기본 1). Interval은 이미 이 배율로 나눈 값이다.
+        // 달 속도 보너스는 이 배율에 더한다(곱하지 않는다): BreakerSkill.CurrentSpeed = Speed + 달 보너스 합.
+        public float Speed { get; }
         public float Radius { get; } // 공격 원의 기본 반지름(노드 반영).
         public float CritChance { get; }
         public float CritDamage { get; }
@@ -39,7 +43,8 @@ namespace BlackHole.Core
             float starBonusDamage,
             float galaxyBonusDamage,
             float holdSlow = 0.05f,
-            float moonSpeedDecay = 0)
+            float moonSpeedDecay = 0,
+            float speed = 1)
         {
             Damage = DefinitionGuard.Positive(damage, nameof(damage));
             Interval = DefinitionGuard.Positive(interval, nameof(interval));
@@ -68,6 +73,7 @@ namespace BlackHole.Core
                 throw new ArgumentOutOfRangeException(nameof(holdSlow), "0부터 1까지의 값이 필요하다.");
 
             HoldSlow = holdSlow;
+            Speed = DefinitionGuard.Positive(speed, nameof(speed));
         }
 
         private static float NotNegative(float value, string name)
@@ -100,7 +106,8 @@ namespace BlackHole.Core
                 StarBonusDamage + upgrades.GainOf(UpgradeStat.BreakerStarBonusDamage),
                 GalaxyBonusDamage + upgrades.GainOf(UpgradeStat.BreakerGalaxyBonusDamage),
                 HoldSlow,
-                MoonSpeedDecay);
+                MoonSpeedDecay,
+                Speed * speed);
         }
     }
 }

@@ -214,7 +214,7 @@ namespace BlackHole.Unity
 
             BreakerSkill breaker = world.Breaker;
             BreakerDefinition definition = breaker.Definition;
-            _text.Append($"Breaker: 피해 {definition.Damage:0.#} · 주기 {definition.Interval:0.00}s · 반경 {breaker.CurrentRadius:0.00}");
+            _text.Append($"Breaker: 피해 {definition.Damage:0.#} · 주기 {breaker.CurrentInterval:0.00}s · 반경 {breaker.CurrentRadius:0.00}");
             _text.Append($" · 치명 {definition.CritChance:P0} ×{breaker.CurrentCritDamage:0.##}");
 
             return _text.ToString();
