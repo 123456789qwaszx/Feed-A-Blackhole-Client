@@ -23,25 +23,25 @@ MonoBehaviour:
   - color: {r: 0.62, g: 0.32, b: 0.26, a: 1}
     maxHealth: 140
     gold: 350000
-    exp: 1100
+    exp: 1000
   - color: {r: 0.93, g: 0.55, b: 0.2, a: 1}
     maxHealth: 480
     gold: 1200000
-    exp: 1500
+    exp: 1400
   - color: {r: 0.95, g: 0.85, b: 0.3, a: 1}
-    maxHealth: 1300
+    maxHealth: 1060
     gold: 7100000
     exp: 2200
   - color: {r: 0.4, g: 0.75, b: 0.4, a: 1}
-    maxHealth: 1900
+    maxHealth: 1460
     gold: 29000000
     exp: 3300
   - color: {r: 0.3, g: 0.45, b: 0.9, a: 1}
-    maxHealth: 2400
+    maxHealth: 1880
     gold: 86000000
     exp: 5000
   - color: {r: 0.6, g: 0.35, b: 0.85, a: 1}
-    maxHealth: 2800
+    maxHealth: 2400
     gold: 290000000
     exp: 11000
   traits:

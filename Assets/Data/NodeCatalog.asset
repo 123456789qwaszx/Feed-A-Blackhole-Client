@@ -505,10 +505,10 @@ MonoBehaviour:
       - moonPlanet.spawnChance-01
     - Id: breaker.damage-14
       Start: 0
-      X: 28
-      Y: 5
+      X: 30
+      Y: 6
       Links:
-      - planet.massScale-02
+      - goldenAsteroid.rewardScale-03
     - Id: planet.respawnChance-01
       Start: 0
       X: 19
@@ -522,15 +522,13 @@ MonoBehaviour:
       - planet.size-01
     - Id: goldenAsteroid.rewardScale-03
       Start: 0
-      X: 29
-      Y: 5
-      Links:
-      - breaker.damage-14
-      - moonPlanet.rangeScale-02
+      X: 31
+      Y: 6
+      Links: []
     - Id: comet.critBonus-01
       Start: 0
-      X: 24
-      Y: 5
+      X: 23
+      Y: 2
       Links:
       - comet.duration-01
     - Id: moonPlanet.spawnChance-01
@@ -541,15 +539,16 @@ MonoBehaviour:
       - planet.respawnChance-01
     - Id: comet.duration-01
       Start: 0
-      X: 26
-      Y: 5
+      X: 25
+      Y: 3
       Links:
       - comet.spawnChance-01
     - Id: comet.spawnChance-01
       Start: 0
-      X: 26
-      Y: 1
-      Links: []
+      X: 25
+      Y: 4
+      Links:
+      - planet.massScale-03
     - Id: planet.massScale-01
       Start: 0
       X: 24
@@ -559,23 +558,22 @@ MonoBehaviour:
       - planet.respawnChance-02
     - Id: breaker.damage-15
       Start: 0
-      X: 30
-      Y: 2
+      X: 29
+      Y: 3
       Links:
-      - breaker.planetBonusDamage-04
+      - moonPlanet.duration-02
     - Id: planet.massScale-02
       Start: 0
-      X: 27
-      Y: 5
+      X: 29
+      Y: 6
       Links:
-      - comet.duration-01
+      - breaker.planetBonusDamage-03
     - Id: breaker.planetBonusDamage-02
       Start: 0
       X: 28
-      Y: 6
+      Y: 8
       Links:
       - moonPlanet.speedScale-02
-      - breaker.damage-14
     - Id: goldenAsteroid.critChance-03
       Start: 0
       X: 16
@@ -596,8 +594,8 @@ MonoBehaviour:
       - goldenAsteroid.critRewardScale-04
     - Id: comet.rainChance-01
       Start: 0
-      X: 23
-      Y: 5
+      X: 21
+      Y: 2
       Links:
       - comet.critBonus-01
       - planet.massScale-04
@@ -614,36 +612,38 @@ MonoBehaviour:
       Links: []
     - Id: planet.massScale-03
       Start: 0
-      X: 30
-      Y: 1
+      X: 26
+      Y: 3
       Links:
-      - comet.spawnChance-01
-      - breaker.damage-15
+      - moonPlanet.duration-02
+      - comet.duration-01
     - Id: planet.massScale-04
       Start: 0
-      X: 23
+      X: 21
       Y: 3
       Links:
       - asteroid.toPlanet-03
+      - goldenAsteroid.rewardScale-05
     - Id: moonPlanet.speedScale-02
       Start: 0
       X: 29
-      Y: 6
-      Links:
-      - goldenAsteroid.rewardScale-03
+      Y: 8
+      Links: []
     - Id: moonPlanet.rangeScale-02
       Start: 0
-      X: 31
-      Y: 5
+      X: 29
+      Y: 7
       Links:
-      - moonPlanet.spawnChance-02
+      - moonPlanet.speedScale-02
+      - breaker.damage-14
+      - planet.massScale-02
     - Id: planet.size-02
       Start: 0
-      X: 27
-      Y: 6
+      X: 28
+      Y: 7
       Links:
       - breaker.planetBonusDamage-02
-      - planet.massScale-02
+      - moonPlanet.rangeScale-02
     - Id: planet.respawnChance-02
       Start: 0
       X: 27
@@ -657,17 +657,17 @@ MonoBehaviour:
       Links: []
     - Id: moonPlanet.spawnChance-02
       Start: 0
-      X: 31
+      X: 29
+      Y: 4
+      Links:
+      - breaker.planetBonusDamage-04
+      - breaker.damage-15
+    - Id: moonPlanet.duration-02
+      Start: 0
+      X: 28
       Y: 3
       Links:
       - breaker.planetBonusDamage-04
-    - Id: moonPlanet.duration-02
-      Start: 0
-      X: 31
-      Y: 1
-      Links:
-      - breaker.planetBonusDamage-03
-      - planet.massScale-03
     - Id: breaker.damage-16
       Start: 0
       X: 16
@@ -691,16 +691,16 @@ MonoBehaviour:
       - planet.massScale-05
     - Id: breaker.planetBonusDamage-03
       Start: 0
-      X: 31
-      Y: 2
+      X: 29
+      Y: 5
       Links:
       - moonPlanet.spawnChance-02
     - Id: breaker.planetBonusDamage-04
       Start: 0
-      X: 30
-      Y: 3
+      X: 27
+      Y: 5
       Links:
-      - planet.massScale-04
+      - comet.spawnChance-01
     - Id: asteroid.toPlanet-03
       Start: 0
       X: 17
@@ -716,20 +716,20 @@ MonoBehaviour:
       - goldenAsteroid.critRewardScale-03
     - Id: goldenAsteroid.rewardScale-04
       Start: 0
-      X: 17
+      X: 18
       Y: 4
       Links:
       - moonPlanet.duration-03
     - Id: moonPlanet.duration-03
       Start: 0
-      X: 17
+      X: 19
       Y: 5
       Links:
       - goldenAsteroid.rewardScale-05
     - Id: goldenAsteroid.rewardScale-05
       Start: 0
-      X: 18
-      Y: 5
+      X: 20
+      Y: 4
       Links: []
     - Id: planet.massScale-05
       Start: 0
