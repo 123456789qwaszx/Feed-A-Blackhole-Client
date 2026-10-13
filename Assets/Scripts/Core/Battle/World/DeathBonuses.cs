@@ -1,3 +1,5 @@
+using System;
+
 namespace BlackHole.Core
 {
     // 사망이 확정된 뒤 따라오는 효과 판정.
@@ -8,14 +10,26 @@ namespace BlackHole.Core
         private readonly BattleRandom _respawnRandom;
         private readonly BattleRandom _timeBonusRandom;
 
+        // 시간 추가가 성공한 뒤 다음 판정까지 기다리는 초(판 설정 KillTimeCooldown). 0이면 매 사망마다 판정.
+        private readonly float _timeBonusCooldown;
+        private float _timeBonusCooldownLeft;
+
         private int _timeBonuses; // 아직 판(GameSession)이 가져가지 않은 시간 추가 성공 수.
 
-        internal DeathBonuses(int seed, EnemyStatTable stats, EnemySupply supply)
+        internal DeathBonuses(int seed, EnemyStatTable stats, EnemySupply supply, float timeBonusCooldown = 0)
         {
             _stats = stats;
             _supply = supply;
             _respawnRandom = new BattleRandom(seed, RandomStream.Respawn);
             _timeBonusRandom = new BattleRandom(seed, RandomStream.TimeBonus);
+            _timeBonusCooldown = timeBonusCooldown;
+        }
+
+        // 판 시간이 delta만큼 흘렀다. 시간 추가 쿨타임을 줄인다.
+        internal void Advance(float delta)
+        {
+            if (_timeBonusCooldownLeft > 0)
+                _timeBonusCooldownLeft = Math.Max(0, _timeBonusCooldownLeft - delta);
         }
 
         internal void Roll(Enemy dead)
@@ -27,11 +41,19 @@ namespace BlackHole.Core
 
             EnemyComposition composition = _stats.CompositionOf(kind);
 
-            if (_respawnRandom.Roll(composition.RespawnChance))
-                _supply.Request(new SupplyRequest(kind, 1));
+            // 재생성으로 나온 적은 다시 재생성하지 않는다 — 1세대까지만. 사슬이면 처치 수가 1/(1-확률)배로 불어난다.
+            if (!dead.IsRespawned && _respawnRandom.Roll(composition.RespawnChance))
+                _supply.Request(new SupplyRequest(kind, 1, respawn: true));
+
+            // 쿨타임 중이면 판정 자체를 건너뛴다(난수도 쓰지 않는다). 연쇄 처치가 시간을 몰아주지 않게.
+            if (_timeBonusCooldownLeft > 0)
+                return;
 
             if (_timeBonusRandom.Roll(composition.TimeChance))
+            {
                 _timeBonuses++;
+                _timeBonusCooldownLeft = _timeBonusCooldown;
+            }
         }
 
         // 모아 둔 시간 추가 성공 수를 넘기고 0으로 되돌린다.

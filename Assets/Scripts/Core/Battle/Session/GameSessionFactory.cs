@@ -39,7 +39,8 @@ namespace BlackHole.Core
                 enemies.PeriodicSpawnPlacement.Scaled(hq.FieldScale),
                 hq,
                 content.Breaker.Upgraded(upgrades),
-                GrowthSupplyOf(startSupply, stats));
+                GrowthSupplyOf(startSupply, stats),
+                content.TimeLimit.KillTimeCooldown);
 
             TimeLimitRule timeLimit = new(content.TimeLimit.Upgraded(upgrades));
 

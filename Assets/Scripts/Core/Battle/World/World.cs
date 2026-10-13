@@ -46,7 +46,8 @@ namespace BlackHole.Core
             PeriodicSpawnPlacementDefinition periodicSpawnPlacement,
             Hq hq,
             BreakerDefinition breaker,
-            IReadOnlyList<SupplyRequest> growthSupply)
+            IReadOnlyList<SupplyRequest> growthSupply,
+            float killTimeCooldown = 0)
         {
             BattleRandom goldenCritRandom = new(seed, RandomStream.GoldenCrit);
             DeathRewards deathRewards = new(goldenCritRandom);
@@ -67,7 +68,7 @@ namespace BlackHole.Core
                 growthSupply,
                 CountActive);
 
-            _deathBonuses = new DeathBonuses(seed, stats, _supply);
+            _deathBonuses = new DeathBonuses(seed, stats, _supply, killTimeCooldown);
         }
 
         internal void SetAimPoint(Point2? aimPoint) => AimPoint = aimPoint;
@@ -127,6 +128,7 @@ namespace BlackHole.Core
                 MoveEnemies(delta * EnemyMoveScale);
 
             DeathEffects.AgeFields(delta);
+            _deathBonuses.Advance(delta);
 
             // 2. Passive Attack: (DealDamage).
             Breaker.Advance(delta, this);
