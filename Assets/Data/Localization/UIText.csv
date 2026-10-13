@@ -12,14 +12,14 @@ setting.DarkMode,Dark Mode,다크 모드
 setting.MasterVolume,Master Volume,전체 음량
 setting.EffectsVolume,Effects Volume,효과음 음량
 setting.MusicVolume,Music Volume,배경음 음량
-setting.ShuffleMusic,Shuffle Music,배경음 무작위 재생
+setting.ShuffleMusic,Shuffle Music,배경음 랜덤 재생
 setting.Language,Language,언어
 setting.FpsLimit,FPS Limit,프레임 제한
 setting.TextSize,Text Size,글자 크기
 setting.ShowMoneyText,Show Money Text,골드 획득 표시
 setting.ShowDamage,Show Damage,피해량 표시
 setting.ScreenShake,Screen Shake,화면 흔들림
-setting.BlackHolePulse,Black Hole Pulse,블랙홀 맥동
+setting.BlackHolePulse,Black Hole Pulse,블랙홀 진동
 setting.MatterParticles,Matter Particles,물질 파편
 setting.NumberFormat,Number Format,숫자 표기
 setting.EnemyOrbit,Object Rotation,물체 공전
@@ -35,7 +35,7 @@ ModeSelectPanel.Title_Text,SELECT MODE,모드 선택
 ModeSelectPanel.ContinueBtn_Text,CONTINUE,이어하기
 ModeSelectPanel.NewGameBtn_Text,NEW GAME,새 게임
 mode.normal.title,Normal Mode,일반 모드
-mode.normal.description,"The main mode. Break asteroids, planets and stars and feed their matter to the black hole.",기본 모드입니다. 소행성·행성·별을 부수고 그 물질을 블랙홀에 먹이세요.
+mode.normal.description,"The main mode. Break asteroids, planets and stars and feed their matter to the black hole.",기본 모드입니다. \n 소행성·행성·별을 부수고 \n 그 물질을 블랙홀에 먹이세요.
 # 확인 창
 confirm.newGame.title,NEW GAME,새 게임
 confirm.newGame.body,"Start over from the beginning?
