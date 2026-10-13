@@ -25,18 +25,18 @@ MonoBehaviour:
       - asteroid.count-01
     - Id: breaker.radius-01
       Start: 0
-      X: -17
+      X: -18
       Y: 13
       Links:
       - asteroid.size-01
     - Id: asteroid.size-01
       Start: 0
-      X: -16
+      X: -17
       Y: 13
       Links: []
     - Id: breaker.critChance-01
       Start: 0
-      X: -16
+      X: -17
       Y: 12
       Links:
       - breaker.damage-01
@@ -44,39 +44,39 @@ MonoBehaviour:
       - breaker.damage-02
     - Id: breaker.damage-01
       Start: 0
-      X: -17
+      X: -18
       Y: 12
       Links:
       - asteroid.count-01
       - breaker.radius-01
     - Id: asteroid.count-01
       Start: 0
-      X: -17
+      X: -18
       Y: 11
       Links:
-      - breaker.damage-05
+      - asteroid.massScale-02
     - Id: breaker.damage-02
       Start: 0
-      X: -15
+      X: -16
       Y: 12
       Links:
       - breaker.radius-02
     - Id: breaker.radius-02
       Start: 0
-      X: -14
+      X: -15
       Y: 12
       Links:
       - breaker.critChance-02
     - Id: breaker.critChance-02
       Start: 0
-      X: -14
+      X: -15
       Y: 11
       Links:
       - asteroid.count-02
       - asteroid.massScale-01
     - Id: breaker.critBonus-01
       Start: 0
-      X: -14
+      X: -15
       Y: 6
       Links:
       - breaker.damage-03
@@ -89,7 +89,7 @@ MonoBehaviour:
       - asteroid.massScale-02
     - Id: asteroid.count-02
       Start: 0
-      X: -14
+      X: -15
       Y: 9
       Links: []
     - Id: breaker.damage-03
@@ -132,7 +132,7 @@ MonoBehaviour:
       Links: []
     - Id: asteroid.massScale-01
       Start: 0
-      X: -13
+      X: -14
       Y: 11
       Links: []
     - Id: asteroid.massScale-02
@@ -263,12 +263,12 @@ MonoBehaviour:
       - electricAsteroid.spawnChance-01
     - Id: electricAsteroid.spawnChance-01
       Start: 0
-      X: 2
+      X: 4
       Y: 15
       Links:
       - electricAsteroid.damage-01
-      - electricAsteroid.critChance-01
       - asteroid.massScale-05
+      - breaker.damage-11
     - Id: electricAsteroid.damage-01
       Start: 0
       X: 5
@@ -277,21 +277,22 @@ MonoBehaviour:
       - electricAsteroid.chain-01
     - Id: electricAsteroid.chain-01
       Start: 0
-      X: 6
-      Y: 16
+      X: 5
+      Y: 17
       Links:
       - electricAsteroid.damage-02
+      - electricAsteroid.chain-02
     - Id: electricAsteroid.critChance-01
       Start: 0
-      X: 5
-      Y: 14
-      Links:
-      - electricAsteroid.splitChance-01
+      X: 6
+      Y: 18
+      Links: []
     - Id: electricAsteroid.splitChance-01
       Start: 0
-      X: 6
-      Y: 14
-      Links: []
+      X: 7
+      Y: 18
+      Links:
+      - electricAsteroid.splitChance-02
     - Id: asteroid.massScale-05
       Start: 0
       X: 5
@@ -300,7 +301,7 @@ MonoBehaviour:
       - breaker.damage-09
     - Id: breaker.damage-09
       Start: 0
-      X: 7
+      X: 9
       Y: 15
       Links:
       - electricAsteroid.critBonus-01
@@ -310,14 +311,15 @@ MonoBehaviour:
       Y: 15
       Links:
       - breaker.radius-06
-      - asteroid.respawnChance-03
       - breaker.damage-10
+      - asteroid.respawnChance-03
     - Id: breaker.radius-06
       Start: 0
       X: 11
       Y: 16
       Links:
       - breaker.speed-07
+      - breaker.damage-10
     - Id: breaker.speed-07
       Start: 0
       X: 12
@@ -326,16 +328,16 @@ MonoBehaviour:
       - asteroid.massScale-06
     - Id: asteroid.respawnChance-03
       Start: 0
-      X: 11
-      Y: 14
+      X: 10
+      Y: 13
       Links:
-      - goldenAsteroid.rewardScale-01
+      - asteroid.massScale-07
     - Id: goldenAsteroid.rewardScale-01
       Start: 0
-      X: 12
-      Y: 14
+      X: 4
+      Y: 7
       Links:
-      - asteroid.massScale-06
+      - goldenAsteroid.critRewardScale-01
     - Id: breaker.damage-10
       Start: 0
       X: 11
@@ -346,114 +348,114 @@ MonoBehaviour:
       Start: 0
       X: 12
       Y: 15
-      Links:
-      - breaker.damage-11
+      Links: []
     - Id: breaker.damage-11
       Start: 0
-      X: 13
-      Y: 15
-      Links:
-      - asteroid.massScale-10
+      X: 4
+      Y: 12
+      Links: []
     - Id: electricAsteroid.damage-02
       Start: 0
-      X: 6
-      Y: 19
+      X: 5
+      Y: 18
       Links:
-      - goldenAsteroid.spawnChance-01
-      - goldenAsteroid.critChance-01
-      - asteroid.massScale-07
+      - electricAsteroid.critChance-01
     - Id: goldenAsteroid.spawnChance-01
       Start: 0
-      X: 7
-      Y: 20
+      X: 4
+      Y: 11
       Links:
-      - goldenAsteroid.critRewardScale-01
+      - breaker.damage-11
+      - asteroid.massScale-08
+      - goldenAsteroid.rewardScale-01
     - Id: goldenAsteroid.critRewardScale-01
       Start: 0
-      X: 8
-      Y: 20
-      Links:
-      - asteroid.massScale-08
+      X: 7
+      Y: 7
+      Links: []
     - Id: goldenAsteroid.critChance-01
       Start: 0
-      X: 7
-      Y: 18
+      X: 9
+      Y: 10
       Links:
       - growth.asteroids-03
     - Id: growth.asteroids-03
       Start: 0
-      X: 8
-      Y: 18
+      X: 10
+      Y: 10
       Links:
       - asteroid.massScale-08
+      - asteroid.massScale-09
     - Id: asteroid.massScale-07
       Start: 0
-      X: 7
-      Y: 19
+      X: 10
+      Y: 12
       Links:
+      - breaker.damage-11
       - asteroid.massScale-08
     - Id: asteroid.massScale-08
       Start: 0
-      X: 8
-      Y: 19
-      Links:
-      - asteroid.count-03
+      X: 10
+      Y: 11
+      Links: []
     - Id: asteroid.count-03
       Start: 0
       X: 9
-      Y: 19
+      Y: 9
       Links:
-      - electricAsteroid.chain-02
+      - goldenAsteroid.critChance-01
     - Id: electricAsteroid.chain-02
       Start: 0
-      X: 9
-      Y: 10
+      X: 6
+      Y: 17
       Links:
       - electricAsteroid.splitChance-02
-      - goldenAsteroid.rewardScale-02
-      - asteroid.massScale-09
+      - electricAsteroid.critChance-01
     - Id: electricAsteroid.splitChance-02
       Start: 0
-      X: 10
-      Y: 11
-      Links:
-      - goldenAsteroid.critChance-02
+      X: 7
+      Y: 17
+      Links: []
     - Id: goldenAsteroid.critChance-02
       Start: 0
-      X: 11
-      Y: 11
-      Links:
-      - breaker.damage-12
+      X: 14
+      Y: 7
+      Links: []
     - Id: goldenAsteroid.rewardScale-02
       Start: 0
-      X: 10
-      Y: 9
+      X: 8
+      Y: 7
       Links:
-      - goldenAsteroid.critRewardScale-02
+      - goldenAsteroid.critRewardScale-01
+      - electricAsteroid.critChance-02
     - Id: goldenAsteroid.critRewardScale-02
       Start: 0
-      X: 11
-      Y: 9
+      X: 14
+      Y: 10
       Links:
-      - breaker.damage-12
+      - goldenAsteroid.critChance-02
+      - asteroid.toPlanet-01
     - Id: asteroid.massScale-09
       Start: 0
       X: 10
-      Y: 10
+      Y: 9
       Links:
+      - asteroid.count-03
       - breaker.damage-12
     - Id: breaker.damage-12
       Start: 0
-      X: 11
-      Y: 10
+      X: 10
+      Y: 7
       Links:
-      - asteroid.massScale-10
+      - goldenAsteroid.critChance-02
+      - goldenAsteroid.rewardScale-02
     - Id: asteroid.massScale-10
       Start: 0
-      X: 13
-      Y: 10
+      X: 14
+      Y: 12
       Links:
-      - asteroid.toPlanet-01
+      - asteroid.massScale-07
+      - goldenAsteroid.critRewardScale-02
     - Id: growth.planets-01
       Start: 0
       X: 23
@@ -485,12 +487,14 @@ MonoBehaviour:
       Y: 9
       Links:
       - moonPlanet.duration-01
+      - breaker.damage-13
     - Id: moonPlanet.duration-01
       Start: 0
       X: 22
       Y: 8
       Links:
       - breaker.damage-13
+      - breaker.planetBonusDamage-02
     - Id: breaker.damage-13
       Start: 0
       X: 23
@@ -503,6 +507,7 @@ MonoBehaviour:
       Y: 9
       Links:
       - planet.respawnChance-01
+      - breaker.planetBonusDamage-02
     - Id: planet.respawnChance-01
       Start: 0
       X: 24
@@ -517,6 +522,7 @@ MonoBehaviour:
       Y: 5
       Links:
       - goldenAsteroid.rewardScale-03
+      - moonPlanet.speedScale-02
     - Id: goldenAsteroid.rewardScale-03
       Start: 0
       X: 25
@@ -555,82 +561,81 @@ MonoBehaviour:
       Start: 0
       X: 23
       Y: 4
-      Links:
-      - planet.massScale-02
+      Links: []
     - Id: planet.massScale-02
       Start: 0
       X: 22
-      Y: 4
-      Links:
-      - breaker.planetBonusDamage-02
-    - Id: breaker.planetBonusDamage-02
-      Start: 0
-      X: 22
       Y: 3
       Links:
-      - comet.rainChance-01
       - planet.massScale-03
-    - Id: goldenAsteroid.critChance-03
+      - planet.massScale-04
+    - Id: breaker.planetBonusDamage-02
       Start: 0
       X: 23
-      Y: 1
+      Y: 8
       Links:
-      - goldenAsteroid.critRewardScale-03
-      - planet.massScale-03
+      - breaker.damage-13
+    - Id: goldenAsteroid.critChance-03
+      Start: 0
+      X: 16
+      Y: 4
+      Links:
+      - asteroid.toPlanet-03
     - Id: goldenAsteroid.critRewardScale-03
       Start: 0
-      X: 24
-      Y: 1
+      X: 10
+      Y: 4
       Links:
-      - electricAsteroid.critChance-02
+      - breaker.damage-18
     - Id: electricAsteroid.critChance-02
       Start: 0
-      X: 25
-      Y: 1
-      Links: []
+      X: 8
+      Y: 5
+      Links:
+      - goldenAsteroid.critRewardScale-04
     - Id: comet.rainChance-01
       Start: 0
       X: 21
-      Y: 3
+      Y: 2
       Links:
       - electricAsteroid.damage-03
+      - planet.massScale-03
     - Id: electricAsteroid.damage-03
       Start: 0
       X: 20
-      Y: 3
+      Y: 2
       Links:
       - electricAsteroid.critBonus-02
     - Id: electricAsteroid.critBonus-02
       Start: 0
-      X: 20
-      Y: 4
+      X: 19
+      Y: 2
       Links: []
     - Id: planet.massScale-03
       Start: 0
       X: 22
-      Y: 1
-      Links:
-      - planet.massScale-04
+      Y: 2
+      Links: []
     - Id: planet.massScale-04
       Start: 0
-      X: 18
-      Y: 1
+      X: 17
+      Y: 3
       Links:
-      - moonPlanet.speedScale-02
+      - asteroid.toPlanet-03
     - Id: moonPlanet.speedScale-02
       Start: 0
-      X: 17
-      Y: 1
+      X: 24
+      Y: 4
       Links:
-      - moonPlanet.rangeScale-02
       - asteroid.toPlanet-02
-      - breaker.damage-16
     - Id: moonPlanet.rangeScale-02
       Start: 0
       X: 24
       Y: -3
       Links:
       - planet.size-02
+      - asteroid.toPlanet-02
+      - moonPlanet.spawnChance-02
     - Id: planet.size-02
       Start: 0
       X: 24
@@ -645,68 +650,74 @@ MonoBehaviour:
       - breaker.radius-09
     - Id: asteroid.toPlanet-02
       Start: 0
-      X: 15
-      Y: 1
-      Links:
-      - moonPlanet.spawnChance-02
+      X: 24
+      Y: 2
+      Links: []
     - Id: moonPlanet.spawnChance-02
       Start: 0
-      X: 14
-      Y: 1
+      X: 23
+      Y: -4
       Links:
       - moonPlanet.duration-02
+      - planet.size-02
     - Id: moonPlanet.duration-02
       Start: 0
-      X: 14
-      Y: 0
-      Links: []
+      X: 22
+      Y: -5
+      Links:
+      - breaker.planetBonusDamage-03
+      - breaker.radius-08
     - Id: breaker.damage-16
-      Start: 0
-      X: 16
-      Y: 1
-      Links:
-      - breaker.damage-17
-    - Id: breaker.damage-17
-      Start: 0
-      X: 16
-      Y: 2
-      Links:
-      - breaker.damage-18
-    - Id: breaker.damage-18
       Start: 0
       X: 16
       Y: 3
       Links:
-      - breaker.planetBonusDamage-03
-    - Id: breaker.planetBonusDamage-03
+      - breaker.damage-17
+      - planet.massScale-04
+      - goldenAsteroid.critChance-03
+    - Id: breaker.damage-17
       Start: 0
-      X: 16
-      Y: 4
+      X: 15
+      Y: 3
       Links:
-      - breaker.planetBonusDamage-04
-      - goldenAsteroid.rewardScale-04
-      - planet.massScale-05
-    - Id: breaker.planetBonusDamage-04
+      - breaker.damage-18
+    - Id: breaker.damage-18
       Start: 0
       X: 15
       Y: 4
       Links:
-      - asteroid.toPlanet-03
-    - Id: asteroid.toPlanet-03
+      - goldenAsteroid.critChance-03
+      - planet.massScale-05
+    - Id: breaker.planetBonusDamage-03
       Start: 0
-      X: 10
+      X: 23
+      Y: -5
+      Links:
+      - planet.respawnChance-02
+      - moonPlanet.spawnChance-02
+    - Id: breaker.planetBonusDamage-04
+      Start: 0
+      X: 22
       Y: 4
       Links:
-      - goldenAsteroid.critRewardScale-04
+      - breaker.damage-15
+      - planet.massScale-02
+    - Id: asteroid.toPlanet-03
+      Start: 0
+      X: 17
+      Y: 4
+      Links:
+      - goldenAsteroid.rewardScale-04
     - Id: goldenAsteroid.critRewardScale-04
       Start: 0
-      X: 9
+      X: 8
       Y: 4
-      Links: []
+      Links:
+      - goldenAsteroid.critRewardScale-03
     - Id: goldenAsteroid.rewardScale-04
       Start: 0
-      X: 16
-      Y: 6
+      X: 17
+      Y: 5
       Links:
       - moonPlanet.duration-03
     - Id: moonPlanet.duration-03
@@ -1483,50 +1494,51 @@ MonoBehaviour:
       - star.toGalaxy-01
     - Id: star.toGalaxy-01
       Start: 0
-      X: -21
+      X: -10
       Y: -2
       Links:
       - growth.galaxies-01
       - galaxy.size-01
       - galaxy.massScale-01
+      - growth.time-01
     - Id: growth.galaxies-01
       Start: 0
-      X: -20
+      X: -9
       Y: -1
       Links:
       - breaker.galaxyBonusDamage-01
     - Id: breaker.galaxyBonusDamage-01
       Start: 0
-      X: -19
+      X: -8
       Y: 0
       Links:
       - gravityGalaxy.spawnChance-01
     - Id: gravityGalaxy.spawnChance-01
       Start: 0
-      X: -18
+      X: -7
       Y: 1
       Links: []
     - Id: galaxy.size-01
       Start: 0
-      X: -20
+      X: -9
       Y: -3
       Links:
       - galaxy.timeChance-01
     - Id: galaxy.timeChance-01
       Start: 0
-      X: -19
+      X: -8
       Y: -4
       Links:
       - galaxy.massScale-01
     - Id: galaxy.massScale-01
       Start: 0
-      X: -18
+      X: -7
       Y: -2
       Links:
       - gravityGalaxy.radius-01
     - Id: gravityGalaxy.radius-01
       Start: 0
-      X: -17
+      X: -6
       Y: -2
       Links:
       - gravityGalaxy.force-01
@@ -1534,42 +1546,42 @@ MonoBehaviour:
       - galaxy.massScale-02
     - Id: gravityGalaxy.force-01
       Start: 0
-      X: -16
+      X: -5
       Y: -1
       Links:
       - gravityGalaxy.duration-01
     - Id: gravityGalaxy.duration-01
       Start: 0
-      X: -15
+      X: -4
       Y: 0
       Links:
       - galaxy.size-02
     - Id: galaxy.size-02
       Start: 0
-      X: -14
+      X: -3
       Y: 1
       Links: []
     - Id: galaxy.respawnChance-01
       Start: 0
-      X: -16
+      X: -5
       Y: -3
       Links:
       - star.toGalaxy-02
     - Id: star.toGalaxy-02
       Start: 0
-      X: -15
+      X: -4
       Y: -4
       Links:
       - galaxy.massScale-02
     - Id: galaxy.massScale-02
       Start: 0
-      X: -14
+      X: -3
       Y: -2
       Links:
       - breaker.galaxyBonusDamage-02
     - Id: breaker.galaxyBonusDamage-02
       Start: 0
-      X: -13
+      X: -2
       Y: -2
       Links:
       - gravityGalaxy.radius-02
@@ -1577,42 +1589,42 @@ MonoBehaviour:
       - galaxy.massScale-03
     - Id: gravityGalaxy.radius-02
       Start: 0
-      X: -12
+      X: -1
       Y: -1
       Links:
       - gravityGalaxy.spawnChance-02
     - Id: gravityGalaxy.spawnChance-02
       Start: 0
-      X: -11
+      X: 0
       Y: 0
       Links:
       - gravityGalaxy.duration-02
     - Id: gravityGalaxy.duration-02
       Start: 0
-      X: -10
+      X: 1
       Y: 1
       Links: []
     - Id: growth.galaxies-02
       Start: 0
-      X: -12
+      X: -1
       Y: -3
       Links:
       - gravityGalaxy.force-02
     - Id: gravityGalaxy.force-02
       Start: 0
-      X: -11
+      X: 0
       Y: -4
       Links:
       - galaxy.massScale-03
     - Id: galaxy.massScale-03
       Start: 0
-      X: -10
+      X: 1
       Y: -2
       Links:
       - galaxy.respawnChance-02
     - Id: galaxy.respawnChance-02
       Start: 0
-      X: -9
+      X: 2
       Y: -2
       Links:
       - star.toGalaxy-03
@@ -1620,89 +1632,89 @@ MonoBehaviour:
       - galaxy.massScale-04
     - Id: star.toGalaxy-03
       Start: 0
-      X: -8
+      X: 3
       Y: -1
       Links:
       - breaker.galaxyBonusDamage-03
     - Id: breaker.galaxyBonusDamage-03
       Start: 0
-      X: -7
+      X: 4
       Y: 0
       Links:
       - gravityGalaxy.spawnChance-03
     - Id: gravityGalaxy.spawnChance-03
       Start: 0
-      X: -6
+      X: 5
       Y: 1
       Links: []
     - Id: galaxy.size-03
       Start: 0
-      X: -8
+      X: 3
       Y: -3
       Links:
       - gravityGalaxy.radius-03
     - Id: gravityGalaxy.radius-03
       Start: 0
-      X: -7
+      X: 4
       Y: -4
       Links:
       - gravityGalaxy.duration-03
     - Id: gravityGalaxy.duration-03
       Start: 0
-      X: -6
+      X: 5
       Y: -5
       Links: []
     - Id: galaxy.massScale-04
       Start: 0
-      X: -6
+      X: 5
       Y: -2
       Links:
       - laserStar.width-10
     - Id: breaker.speed-12
       Start: 0
-      X: -3
+      X: 7
       Y: -1
       Links:
       - breaker.critBonus-05
     - Id: breaker.critBonus-05
       Start: 0
-      X: -2
+      X: 8
       Y: -1
       Links:
       - asteroid.toPlanet-05
     - Id: asteroid.toPlanet-05
       Start: 0
-      X: -1
+      X: 9
       Y: -1
       Links:
       - planet.toStar-06
     - Id: planet.toStar-06
       Start: 0
-      X: -1
+      X: 9
       Y: -2
       Links:
       - star.size-03
     - Id: star.size-03
       Start: 0
-      X: -1
+      X: 9
       Y: -3
       Links:
       - star.massScale-10
     - Id: star.massScale-10
       Start: 0
-      X: -2
+      X: 8
       Y: -3
       Links:
       - electricStar.critBonus-02
     - Id: electricStar.critBonus-02
       Start: 0
-      X: -3
+      X: 7
       Y: -3
       Links:
       - laserStar.width-10
     - Id: laserStar.width-10
       Start: 0
-      X: -3
+      X: 7
       Y: -2
       Links:
       - breaker.speed-12
