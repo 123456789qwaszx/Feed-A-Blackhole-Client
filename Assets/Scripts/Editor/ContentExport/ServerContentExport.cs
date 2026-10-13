@@ -1,6 +1,5 @@
 using System.IO;
 using BlackHole.ContentExport;
-using BlackHole.Core;
 using BlackHole.Unity;
 using UnityEditor;
 using UnityEngine;
@@ -79,19 +78,8 @@ namespace BlackHole.EditorTools
                 return null;
             }
 
-            NodeContentSource sheets = setup.Nodes.Content;
-            NodeContent nodes = sheets.Load().Content;
-
-            var source = new ServerContentSource(
-                sheets.UpgradeStatsCsv.text,
-                sheets.NodesCsv.text,
-                sheets.NodeCostCsv.text,
-                sheets.NodeEffectsCsv.text,
-                setup.Nodes.ToData(),
-                setup.ToData(),
-                nodes);
-
-            return ServerContentExporter.Export(source);
+            // 게임 실행 중의 버전 계산(LoadedContent.ServerContentVersion)과 같은 입력을 쓴다.
+            return ServerContentExporter.Export(ServerContent.SourceOf(setup));
         }
 
         private static void Write(string folder, BundleFile file)
