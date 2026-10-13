@@ -14,6 +14,8 @@ namespace BlackHole.Core
         // 픽업(혜성)이 맞았는가. 화면은 픽업의 피격 연출을 하지 않는다.
         public bool IsPickup { get; }
         public Point2 Position { get; }
+        // 맞은 적의 반지름(크기가 반영된 값). 피격 파편의 크기가 쓴다.
+        public float Radius { get; }
         public float Amount { get; }
         public bool IsCritical { get; }
         public DamageSource Source { get; }
@@ -28,6 +30,7 @@ namespace BlackHole.Core
             Tier = enemy.Tier;
             IsPickup = enemy.Definition.IsPickup;
             Position = enemy.Position;
+            Radius = enemy.Stats.Radius;
             Amount = damage.Amount;
             IsCritical = damage.IsCritical;
             Source = damage.Source;
