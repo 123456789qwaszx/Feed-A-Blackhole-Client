@@ -12,5 +12,8 @@ namespace BlackHole.Core
     public sealed class NodeTreeData
     {
         public List<NodeData> Nodes = new();
+
+        // 구역(우주 구역). 화면 표시용이며 비어 있어도 된다.
+        public List<NodeRegionData> Regions = new();
     }
 }

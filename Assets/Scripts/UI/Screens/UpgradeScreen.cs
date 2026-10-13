@@ -59,6 +59,8 @@ namespace BlackHole.Unity
         private float _tooltipWidth;
         private long? _shownGold;
         private (int Stage, int GoalLevel)? _shownHq;
+        // 트리에서 보고 있는 구역의 열쇠(번역표 node.region.<열쇠>). 있으면 블랙홀 글자 자리에 구역 이름을 보인다.
+        private string _shownRegion;
 
         protected override void OnInitialize()
         {
@@ -95,8 +97,29 @@ namespace BlackHole.Unity
         public void ShowHq(int stage, int goalLevel)
         {
             _shownHq = (stage, goalLevel);
+            PaintHeader();
+        }
 
+        // 트리에서 보고 있는 구역(열쇠). null이면 블랙홀 글자로 돌아간다. 트리 보기가 열려 있는 동안 ScreenFlow가 넣는다.
+        public void ShowRegion(string key)
+        {
+            _shownRegion = key;
+            PaintHeader();
+        }
+
+        // 위쪽 가운데 글자: 보고 있는 구역이 있으면 그 이름, 없으면 블랙홀 성장도·목표 Level.
+        private void PaintHeader()
+        {
             if (_hq == null)
+                return;
+
+            if (!string.IsNullOrEmpty(_shownRegion))
+            {
+                _hq.text = Localized("node.region." + _shownRegion);
+                return;
+            }
+
+            if (_shownHq is not (int stage, int goalLevel))
                 return;
 
             string shownStage = stage.ToString(CultureInfo.InvariantCulture);
@@ -121,8 +144,7 @@ namespace BlackHole.Unity
             if (_shownGold is long gold)
                 ShowGold(gold);
 
-            if (_shownHq is (int stage, int goalLevel))
-                ShowHq(stage, goalLevel);
+            PaintHeader();
         }
 
         // 글자 크기·언어별 글꼴. TextBindings에 등록되지 않은 글자만 여기서 맞춘다(등록된 글자는 Theme가 맞춘다).

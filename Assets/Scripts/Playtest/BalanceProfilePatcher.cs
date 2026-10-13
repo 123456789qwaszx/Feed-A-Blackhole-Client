@@ -12,7 +12,7 @@ namespace BlackHole.Unity
     // 로컬 테스트 프로필에서 경로별 값을 덧씌운다.
     //
     // 경로는 슬래시로 나눈다. 종류·성질은 계약 ID처럼 열거형 이름의 첫 글자만 소문자다(asteroid, golden).
-    //   battle/<timeLimit|killTimeBonus>
+    //   battle/<timeLimit|killTimeBonus|maxKillTimeBonus>
     //   breaker/<damage|interval|radius|critChance|critDamage|moonDuration|moonSpeedBonus|moonRadiusBonus|cometDuration|cometCritDamageBonus|planetBonusDamage|starBonusDamage|galaxyBonusDamage|holdSlow>
     //   placement/<minDistance|maxDistance>           적 출현 띠(HQ로부터 거리, 전장 배율 1 기준)
     //   enemy/<종류>/<moveSpeed|radius|radiusStep|spawnPeriod|rainCount>
@@ -54,7 +54,7 @@ namespace BlackHole.Unity
             { EnemyTraitType.Gravity, new[] { "radius", "force", "duration" } },
         };
 
-        private static readonly string[] BattleFields = { "timeLimit", "killTimeBonus" };
+        private static readonly string[] BattleFields = { "timeLimit", "killTimeBonus", "maxKillTimeBonus" };
 
         private static readonly string[] BreakerFields =
         {
@@ -271,6 +271,7 @@ namespace BlackHole.Unity
             {
                 case "timeLimit": return Real(() => rules.TimeLimit, v => rules.TimeLimit = v, out error);
                 case "killTimeBonus": return Real(() => rules.KillTimeBonus, v => rules.KillTimeBonus = v, out error);
+                case "maxKillTimeBonus": return Real(() => rules.MaxKillTimeBonus, v => rules.MaxKillTimeBonus = v, out error);
                 default: return Unknown(field, out error);
             }
         }

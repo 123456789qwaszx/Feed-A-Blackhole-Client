@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace BlackHole.Core
@@ -10,6 +11,8 @@ namespace BlackHole.Core
     public sealed class GameSession
     {
         private readonly TimeLimitRule _timeLimit;
+        // 이 판에서 파괴로 더한 시간의 합(초). 판 설정의 상한(MaxKillTimeBonus)까지만 쌓인다.
+        private float _killTimeAdded;
         private readonly int _seed;
         private readonly ProgressState _progress;
         private readonly IReadOnlyList<SupplyRequest> _startSupply;
@@ -144,6 +147,12 @@ namespace BlackHole.Core
         {
             float growth = raised * World.Hq.GrowthTime;
             float kills = World.TakeTimeBonuses() * _timeLimit.Definition.KillTimeBonus;
+            float cap = _timeLimit.Definition.MaxKillTimeBonus;
+
+            if (cap > 0)
+                kills = Math.Min(kills, Math.Max(0, cap - _killTimeAdded));
+
+            _killTimeAdded += kills;
             _timeLimit.Extend(growth + kills);
         }
     }

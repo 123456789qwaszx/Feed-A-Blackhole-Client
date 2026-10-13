@@ -92,3 +92,15 @@ settlement.stat.collectedMoons,Moons Collected,모은 달
 settlement.stat.collectedComets,Comets Collected,모은 혜성
 settlement.stat.destroyedAsteroids,Asteroids Destroyed,파괴한 소행성
 settlement.stat.addedTime,Time Added,추가된 시간
+
+# 업그레이드 화면 구역(우주 구역) 이름 — 열쇠는 NodeCatalog 배치의 Regions.Id
+node.region.dust,Dust Belt,먼지 띠
+node.region.belt,Asteroid Belt,소행성대
+node.region.nebula,Electric Nebula · Gold Vein,전기 성운 · 황금 광맥
+node.region.planets,Planetary System,행성계
+node.region.comets,Comet Orbit,혜성 궤도
+node.region.cradle,Stellar Cradle,항성 요람
+node.region.pulsar,Pulsar · Supernova,펄서 · 초신성
+node.region.remnant,Supernova Remnant,초신성 잔해
+node.region.core,Galactic Core,은하핵
+node.region.blackhole,Black Hole,블랙홀

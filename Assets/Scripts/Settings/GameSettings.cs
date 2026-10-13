@@ -83,7 +83,7 @@ namespace BlackHole.Unity
         // 번역을 먼저 쓰고, 표에 없으면 이 원문을 쓴다(숫자·퍼센트 선택지는 표에 넣지 않는다).
         public static IReadOnlyList<Definition> Definitions { get; } = new[]
         {
-            Toggle(DarkMode, "Dark Mode", false),
+            Toggle(DarkMode, "Dark Mode", true),
             Slider(MasterVolume, "Master Volume", 0.5f),
             Slider(EffectsVolume, "Effects Volume", 0.5f),
             Slider(MusicVolume, "Music Volume", 0.25f),

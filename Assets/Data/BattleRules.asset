@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlackHole.Unity.BattleRules
   timeLimit: 12
   killTimeBonus: 0.3
+  maxKillTimeBonus: 40

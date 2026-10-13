@@ -137,6 +137,11 @@ namespace BlackHole.Unity
         private readonly Dictionary<string, NodeVisual> _nodes = new Dictionary<string, NodeVisual>(StringComparer.Ordinal);
         private readonly Dictionary<GameObject, NodeVisual> _nodesByObject = new Dictionary<GameObject, NodeVisual>();
         private readonly List<LinkVisual> _links = new List<LinkVisual>();
+        // 구역(우주 구역): 노드 칸들의 경계. 그리지 않고, 보이는 창 가운데가 어느 구역인지 알리는 데만 쓴다(RegionViewed).
+        private readonly List<RegionBounds> _regions = new List<RegionBounds>();
+        private string _viewedRegion;
+        private Vector2 _viewedAt;
+        private float _viewedZoom;
 
         private RectTransform _viewport;
         private RectTransform _content;
@@ -149,6 +154,9 @@ namespace BlackHole.Unity
         private readonly List<(int Id, Vector2 Position)> _drags = new List<(int Id, Vector2 Position)>(2);
 
         public event Action<string> NodeClicked;
+
+        // 보이는 창의 가운데가 든 구역이 바뀜(구역 열쇠, 구역이 없으면 null). 이동·확대·처음 맞춤 뒤에 알린다.
+        public event Action<string> RegionViewed;
 
         // 포인터가 노드 위에 올라감(노드 ID, 노드 칸)과 벗어남(노드 ID). 올라간 노드는 하나뿐이고, 벗어남이 먼저 온다.
         public event Action<string, RectTransform> NodeHovered;
@@ -173,7 +181,8 @@ namespace BlackHole.Unity
         }
 
         // 트리를 새로 만든다. 선의 양 끝 가운데 하나라도 노드 목록에 없으면 그 선은 그리지 않음.
-        public void Build(IReadOnlyList<NodeItem> nodes, IReadOnlyList<(string A, string B)> links)
+        // regions: 구역(비어 있어도 된다). 구역 노드들의 칸 경계를 기억해 두고, 보이는 창 가운데의 구역을 RegionViewed로 알린다.
+        public void Build(IReadOnlyList<NodeItem> nodes, IReadOnlyList<(string A, string B)> links, IReadOnlyList<NodeRegionItem> regions = null)
         {
             Clear();
 
@@ -190,7 +199,79 @@ namespace BlackHole.Unity
                     _links.Add(CreateLink(from, to));
             }
 
+            if (regions != null)
+            {
+                foreach (NodeRegionItem region in regions)
+                {
+                    if (TryBounds(region, out RegionBounds bounds))
+                        _regions.Add(bounds);
+                }
+            }
+
+            _viewedRegion = null;
             _framePending = true;
+        }
+
+        // 구역 노드 칸들의 경계(트리 공간). 노드가 하나도 없으면 false.
+        private bool TryBounds(NodeRegionItem region, out RegionBounds bounds)
+        {
+            bool any = false;
+            Vector2 min = Vector2.zero;
+            Vector2 max = Vector2.zero;
+
+            foreach (string id in region.Nodes)
+            {
+                if (!_nodes.TryGetValue(id, out NodeVisual node))
+                    continue;
+
+                if (!any)
+                {
+                    min = max = node.Position;
+                    any = true;
+                    continue;
+                }
+
+                min = Vector2.Min(min, node.Position);
+                max = Vector2.Max(max, node.Position);
+            }
+
+            bounds = any ? new RegionBounds(region.Key, min - Vector2.one * (CellSize * 0.5f), max + Vector2.one * (CellSize * 0.5f)) : default;
+            return any;
+        }
+
+        // 보이는 창의 가운데(트리 공간)가 든 구역, 없으면 가장 가까운 구역을 찾아 바뀌었으면 알린다. 이동·확대 뒤 LateUpdate가 부른다.
+        private void NotifyRegion()
+        {
+            if (_regions.Count == 0 || _content == null)
+                return;
+
+            Vector2 center = -_content.anchoredPosition / Mathf.Max(_zoom, 0.0001f);
+
+            if (center == _viewedAt && _zoom == _viewedZoom && _viewedRegion != null)
+                return;
+
+            _viewedAt = center;
+            _viewedZoom = _zoom;
+
+            string nearest = null;
+            float best = float.MaxValue;
+
+            foreach (RegionBounds region in _regions)
+            {
+                float distance = region.DistanceTo(center);
+
+                if (distance < best)
+                {
+                    best = distance;
+                    nearest = region.Key;
+                }
+            }
+
+            if (nearest == _viewedRegion)
+                return;
+
+            _viewedRegion = nearest;
+            RegionViewed?.Invoke(nearest);
         }
 
         // 노드마다 상태(와 다음 Rank 비용, 산 Rank)를 받아 칠한다. 바뀐 프레임에만 호출.
@@ -206,7 +287,8 @@ namespace BlackHole.Unity
                 if (costs.TryGetValue(node.Id, out long cost))
                     node.Price = cost;
 
-                bool visible = node.State != NodeState.Hidden;
+                // 아직 닿지 않은 노드: 안개 설정(NodeTreeLook.ShowHidden)이 켜져 있으면 흐린 윤곽으로 보이고, 아니면 숨긴다.
+                bool visible = node.State != NodeState.Hidden || ShowHidden;
                 node.Root.SetActive(visible);
 
                 if (!visible)
@@ -223,18 +305,23 @@ namespace BlackHole.Unity
             PaintLinks();
         }
 
-        // 선: 양 끝이 보일 때만 보이고, 양 끝 상태에 따른 색.
+        // 선: 양 끝이 보일 때만 보이고, 양 끝 상태에 따른 색. 한쪽이라도 안개 속이면 안개 선 색.
         private void PaintLinks()
         {
             foreach (LinkVisual link in _links)
             {
-                bool visible = link.From.State != NodeState.Hidden && link.To.State != NodeState.Hidden;
+                bool fogged = link.From.State == NodeState.Hidden || link.To.State == NodeState.Hidden;
+                bool visible = !fogged || ShowHidden;
                 link.Root.SetActive(visible);
 
-                if (visible)
-                    link.Image.color = LinkColorOf(LinkStateOf(link.From), LinkStateOf(link.To));
+                if (!visible)
+                    continue;
+
+                link.Image.color = fogged ? _look.HiddenLinkColor : LinkColorOf(LinkStateOf(link.From), LinkStateOf(link.To));
             }
         }
+
+        private bool ShowHidden => _look != null && _look.ShowHidden;
 
         // 모든 노드(숨은 노드 포함)의 범위가 보이게 맞춘다. 저작한 모양의 가운데가 화면 가운데임.
         public void FrameAll()
@@ -341,6 +428,8 @@ namespace BlackHole.Unity
                 _framePending = false;
                 FrameFocus();
             }
+
+            NotifyRegion();
         }
 
         public void OnBeginDrag(PointerEventData eventData)
@@ -501,7 +590,25 @@ namespace BlackHole.Unity
         private void Paint(NodeVisual node)
         {
             if (node.State == NodeState.Hidden)
+            {
+                // 안개 속: 그림만 흐리게, 가격·Rank 딱지는 숨긴다.
+                if (_look != null)
+                {
+                    node.Image.sprite = _style.SpriteFor(_look.SpriteOf(node.Stat, node.State, false));
+                    node.Image.color = _look.TintOf(node.State);
+                }
+
+                if (node.Badge != null && node.Badge.gameObject.activeSelf)
+                    node.Badge.gameObject.SetActive(false);
+
+                if (node.RankLabel != null && node.RankLabel.transform.parent.gameObject.activeSelf)
+                    node.RankLabel.transform.parent.gameObject.SetActive(false);
+
                 return;
+            }
+
+            if (node.RankLabel != null && !node.RankLabel.transform.parent.gameObject.activeSelf)
+                node.RankLabel.transform.parent.gameObject.SetActive(true);
 
             string price = NumberText.Compact(node.Price);
             bool partial = node.Rank > 0 && node.State != NodeState.Owned;
@@ -675,6 +782,8 @@ namespace BlackHole.Unity
             _nodes.Clear();
             _nodesByObject.Clear();
             _links.Clear();
+            _regions.Clear();
+            _viewedRegion = null;
         }
 
         private static RectTransform Layer(RectTransform parent, string name)
@@ -730,6 +839,28 @@ namespace BlackHole.Unity
                 Button = button;
                 Label = label;
                 Badge = badge;
+            }
+        }
+
+        private readonly struct RegionBounds
+        {
+            public readonly string Key;
+            public readonly Vector2 Min;
+            public readonly Vector2 Max;
+
+            public RegionBounds(string key, Vector2 min, Vector2 max)
+            {
+                Key = key;
+                Min = min;
+                Max = max;
+            }
+
+            // 점에서 경계 사각형까지의 거리. 안이면 0.
+            public float DistanceTo(Vector2 point)
+            {
+                float dx = Mathf.Max(Min.x - point.x, 0, point.x - Max.x);
+                float dy = Mathf.Max(Min.y - point.y, 0, point.y - Max.y);
+                return Mathf.Sqrt(dx * dx + dy * dy);
             }
         }
 
