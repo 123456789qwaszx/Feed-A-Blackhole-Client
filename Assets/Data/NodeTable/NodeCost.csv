@@ -22,12 +22,12 @@ asteroid.massScale-02,1,70
 breaker.damage-05,1,80
 growth.time-01,1,300
 growth.asteroids-01,1,350
-asteroid.respawnChance-01,1,600
-breaker.speed-04,1,900
+asteroid.respawnChance-01,1,400
+breaker.speed-04,1,450
 asteroid.timeChance-01,1,350
-breaker.radius-03,1,900
-breaker.damage-06,1,400
-asteroid.massScale-03,1,425
+breaker.radius-03,1,450
+breaker.damage-06,1,500
+asteroid.massScale-03,1,600
 growth.asteroids-02,1,425
 asteroid.timeChance-02,1,450
 breaker.speed-05,1,1000
