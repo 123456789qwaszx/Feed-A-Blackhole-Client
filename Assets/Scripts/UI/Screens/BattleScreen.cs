@@ -12,7 +12,7 @@ namespace BlackHole.Unity
     // 막대 아래의 마름모 10칸(MilestoneRow)은 이번 구간에서 오른 Level 수다. 이정표에 닿으면 달성 연출을 하고, 그동안 GameHost가 결산 전환을 미룬다.
     // 전투 Session을 모른다 — GameHost가 전투 Step 뒤 표시 값을 넘긴다. 진행 중인 판이 없으면 비어 있는 표시(ShowIdle)다.
     // 번 Gold는 이 판의 합계일 뿐이다. 진행 상태의 Gold는 판이 끝난 뒤 결산이 바꾼다.
-    public sealed class BattleScreen : UIRoot<BattleScreen.Refs>, ILocalizedView
+    public sealed class BattleScreen : UIRoot<BattleScreen.Refs>, ILocalizedView, INumberFormatView
     {
         public enum Refs
         {
@@ -224,7 +224,14 @@ namespace BlackHole.Unity
                 _pauseLabel.text = PauseLabel(paused);
         }
 
-        private string EarnedText(long earnedGold) => Localized("battle.earned", OverThousand.GoldThousand(earnedGold));
+        // Gold 표기 설정이 바뀌었다. 보이는 번 Gold를 다시 쓴다.
+        public void RefreshNumbers()
+        {
+            if (_earned != null && _shownEarned >= 0)
+                _earned.text = EarnedText(_shownEarned);
+        }
+
+        private string EarnedText(long earnedGold) => Localized("battle.earned", GoldText.Of(earnedGold));
 
         // 남은 시간 글자. 0.1초마다 바뀌므로 흔들림을 줄인다.
         // - 숫자는 칸 폭을 고정한다(<mspace>). 1과 8의 폭이 달라 가운데 정렬에서 숫자 묶음이 좌우로 움직이지 않게 한다.

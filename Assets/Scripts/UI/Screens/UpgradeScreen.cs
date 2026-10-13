@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class UpgradeScreen : UIRoot<UpgradeScreen.Refs>, IUIPageOwner, ILocalizedView, ITextStyleView
+    public sealed class UpgradeScreen : UIRoot<UpgradeScreen.Refs>, IUIPageOwner, ILocalizedView, IStyleView, INumberFormatView
     {
         public enum Refs
         {
@@ -20,6 +20,8 @@ namespace BlackHole.Unity
             NodeTooltipBody_Text,
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
+            // 배경 위의 별빛·궤도 문양(UIScreenAmbient). 테마에 따라 머티리얼만 바뀐다.
+            Ambient,
             // 조작 안내. 코드는 쓰지 않고 UI 글자 표가 언어에 맞게 바꾼다(ViewTexts).
             Hint_Text,
 
@@ -51,10 +53,14 @@ namespace BlackHole.Unity
         // 언어가 바뀌면 다시 쓸 마지막 값. 아직 보이지 않았으면 null.
         private Localizer _localizer;
         private readonly StyledTexts _styled = new();
+        // 테마 색: 화면 바탕색(배경 그림 뒤).
+        private readonly ThemedImages _themed = new();
         // 노드 툴팁의 프리팹 폭. 글자 크기 설정만큼 넓힌다(원작처럼 상자가 글자를 따라 커진다).
         private float _tooltipWidth;
         private long? _shownGold;
         private (int Stage, int GoalLevel)? _shownHq;
+        // 트리에서 보고 있는 구역의 열쇠(번역표 node.region.<열쇠>). 있으면 블랙홀 글자 자리에 구역 이름을 보인다.
+        private string _shownRegion;
 
         protected override void OnInitialize()
         {
@@ -66,6 +72,7 @@ namespace BlackHole.Unity
             _tooltipTitle = View.Text(Refs.NodeTooltipTitle_Text);
             _tooltipBody = View.Text(Refs.NodeTooltipBody_Text);
             _styled.Add(View.Text(Refs.Hint_Text), UITextRole.Caption);
+            _themed.AddColor(GetComponent<Image>(), UIColorRole.Backdrop);
             _tooltipWidth = _tooltip != null ? _tooltip.sizeDelta.x : 0;
             HideNodeTooltip();
 
@@ -82,7 +89,7 @@ namespace BlackHole.Unity
             _shownGold = gold;
 
             if (_gold != null)
-                _gold.text = Localized("upgrade.gold", OverThousand.GoldThousand(gold));
+                _gold.text = Localized("upgrade.gold", GoldText.Of(gold));
         }
 
         // 블랙홀(판 밖 진행): 성장도(도달한 이정표 수)와 다음 판의 목표 Level(다음 이정표의 Level, 0이면 마지막 이정표 뒤).
@@ -90,8 +97,29 @@ namespace BlackHole.Unity
         public void ShowHq(int stage, int goalLevel)
         {
             _shownHq = (stage, goalLevel);
+            PaintHeader();
+        }
 
+        // 트리에서 보고 있는 구역(열쇠). null이면 블랙홀 글자로 돌아간다. 트리 보기가 열려 있는 동안 ScreenFlow가 넣는다.
+        public void ShowRegion(string key)
+        {
+            _shownRegion = key;
+            PaintHeader();
+        }
+
+        // 위쪽 가운데 글자: 보고 있는 구역이 있으면 그 이름, 없으면 블랙홀 성장도·목표 Level.
+        private void PaintHeader()
+        {
             if (_hq == null)
+                return;
+
+            if (!string.IsNullOrEmpty(_shownRegion))
+            {
+                _hq.text = Localized("node.region." + _shownRegion);
+                return;
+            }
+
+            if (_shownHq is not (int stage, int goalLevel))
                 return;
 
             string shownStage = stage.ToString(CultureInfo.InvariantCulture);
@@ -101,6 +129,13 @@ namespace BlackHole.Unity
         }
 
         // 마지막으로 보인 Gold·블랙홀 글자를 지금 언어로 다시 쓴다. 노드 툴팁은 닫는다(다시 올리면 새 언어로 뜬다).
+        // Gold 표기 설정이 바뀌었다. 보이는 Gold를 다시 쓴다.
+        public void RefreshNumbers()
+        {
+            if (_shownGold is long gold)
+                ShowGold(gold);
+        }
+
         public void Relocalize(Localizer localizer)
         {
             _localizer = localizer;
@@ -109,14 +144,17 @@ namespace BlackHole.Unity
             if (_shownGold is long gold)
                 ShowGold(gold);
 
-            if (_shownHq is (int stage, int goalLevel))
-                ShowHq(stage, goalLevel);
+            PaintHeader();
         }
 
         // 글자 크기·언어별 글꼴. TextBindings에 등록되지 않은 글자만 여기서 맞춘다(등록된 글자는 Theme가 맞춘다).
-        public void ApplyTextStyle(in UITextStyle style)
+        private UIScreenAmbient Ambient => View.Component<UIScreenAmbient>(Refs.Ambient);
+
+        public void ApplyStyle(in UIStyle style)
         {
+            Ambient?.Apply(style.ThemeId);
             _styled.SetStyle(style);
+            _themed.SetStyle(style);
 
             if (_tooltip != null)
                 _tooltip.sizeDelta = new Vector2(_tooltipWidth * style.Scale, _tooltip.sizeDelta.y);

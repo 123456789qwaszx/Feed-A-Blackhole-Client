@@ -87,7 +87,37 @@ namespace BlackHole.Unity
             if (fits.Count > 0)
                 return null;
 
-            return new LoadedContent(content.Content, tree.Tree, NodeItemsOf(layout, tree.Tree));
+            return new LoadedContent(content.Content, tree.Tree, NodeItemsOf(layout, tree.Tree), RegionsOf(layout));
+        }
+
+        // 업그레이드 화면에 그릴 구역. 배치에 없는 노드 ID는 뺀다(빈 구역은 들지 않는다).
+        private static IReadOnlyList<NodeRegionItem> RegionsOf(NodeTreeData layout)
+        {
+            var placed = new HashSet<string>(System.StringComparer.Ordinal);
+
+            foreach (NodeData node in layout.Nodes)
+                placed.Add(node.Id);
+
+            var regions = new List<NodeRegionItem>();
+
+            foreach (NodeRegionData region in layout.Regions ?? new List<NodeRegionData>())
+            {
+                if (region == null || string.IsNullOrEmpty(region.Id))
+                    continue;
+
+                var members = new List<string>();
+
+                foreach (string id in region.Nodes)
+                {
+                    if (placed.Contains(id))
+                        members.Add(id);
+                }
+
+                if (members.Count > 0)
+                    regions.Add(new NodeRegionItem(region.Id, members.AsReadOnly()));
+            }
+
+            return regions.AsReadOnly();
         }
 
         // 업그레이드 화면에 그릴 노드(배치 순서). 칸은 화면 배치용이라 노드 트리가 아니라 배치 데이터에서 읽는다.

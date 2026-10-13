@@ -34,7 +34,7 @@ namespace BlackHole.Unity
             // 황금 성질로 Gold를 더 받은 사망만 고정된 금색으로 띄운다. 황금 치명타는 피해 텍스트의 치명타처럼 기울인다.
             Color color = death.IsGolden ? GoldenColor : NormalColor;
             FontStyles style = death.Reward.IsCritical ? (FontStyles.Bold | FontStyles.Italic) : FontStyles.Bold;
-            Show(new Vector3(death.Position.X, death.Position.Y, 0), $"+${gold}", color, death.IsGolden, style);
+            Show(new Vector3(death.Position.X, death.Position.Y, 0), "+$" + GoldText.Of(gold), color, death.IsGolden, style);
         }
     }
 }

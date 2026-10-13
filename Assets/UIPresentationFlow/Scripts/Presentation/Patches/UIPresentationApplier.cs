@@ -376,12 +376,23 @@ public sealed class UIPresentationApplier
         private Sprite _sprite;
         private bool _ownsSprite;
 
+        // Sprite Swap states of a Selectable on the same object (a theme may replace them with the sprite).
+        private bool _hasSpriteState;
+        private SpriteState _spriteState;
+
         public void CaptureAndOwn(Image image)
         {
             if (!_hasSprite)
             {
                 _sprite = image.sprite;
                 _hasSprite = true;
+
+                Selectable selectable = UIImageThemePatch.SelectableOf(image);
+                if (selectable != null)
+                {
+                    _spriteState = selectable.spriteState;
+                    _hasSpriteState = true;
+                }
             }
 
             _ownsSprite = true;
@@ -390,7 +401,16 @@ public sealed class UIPresentationApplier
         public void RestoreOwned(Image image)
         {
             if (_ownsSprite && _hasSprite)
+            {
                 image.sprite = _sprite;
+
+                if (_hasSpriteState)
+                {
+                    Selectable selectable = UIImageThemePatch.SelectableOf(image);
+                    if (selectable != null)
+                        selectable.spriteState = _spriteState;
+                }
+            }
 
             ReleaseOwnership();
         }

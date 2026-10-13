@@ -24,7 +24,8 @@ namespace BlackHole.Unity
         public NodeTreeData ToData() =>
             new NodeTreeData
             {
-                Nodes = new List<NodeData>(_layout.Nodes)
+                Nodes = new List<NodeData>(_layout.Nodes),
+                Regions = new List<NodeRegionData>(_layout.Regions)
             };
     }
 }

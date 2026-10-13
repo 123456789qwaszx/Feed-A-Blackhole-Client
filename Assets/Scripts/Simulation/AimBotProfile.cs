@@ -9,6 +9,14 @@ namespace BlackHole.Simulation
         // 화면 세로 반 폭(월드 단위, 전장 배율 1). GameScene 전투 카메라의 orthographic size와 같다.
         public const float ScreenHalfHeight = 10f;
 
+        // 봇 이름(기록에 남는다).
+        public string Name { get; set; } = "greedy";
+
+        // 손가락처럼: 목표로 옮기는 동안은 화면에서 손을 뗀다(조준점 없음 → Breaker가 치지 않고 붙잡지도 않는다).
+        // 목표에서 LandDistanceScreens(화면 높이 비율) 안에 들어오면 다시 누른다. 마우스(false)는 옮기는 동안에도 조준한다.
+        public bool LiftWhileMoving { get; set; }
+        public float LandDistanceScreens { get; set; } = 0.02f;
+
         // 다음 목표를 고르는 간격(초)과 그 흔들림(±초). 사람은 매 프레임 다시 고르지 않는다.
         public float DecisionSeconds { get; set; } = 0.3f;
         public float DecisionJitter { get; set; } = 0.1f;
@@ -42,6 +50,16 @@ namespace BlackHole.Simulation
 
         public static AimBotProfile Default => new AimBotProfile();
 
+        // 휴대폰 터치를 흉내 낸 [임시] 값: 옮길 때 손을 떼고, 손가락은 마우스보다 빨리 자리를 옮기지만 반응이 조금 늦고 굵어서 오차가 크다.
+        public static AimBotProfile Touch => new AimBotProfile
+        {
+            Name = "touch",
+            LiftWhileMoving = true,
+            ReactionSeconds = 0.25f,
+            MaxSpeedScreens = 3f,
+            AimErrorScreens = 0.015f,
+        };
+
         // 값 검사. 잘못된 값이면 예외.
         public void Validate()
         {
@@ -58,6 +76,8 @@ namespace BlackHole.Simulation
 
             if (DecisionJitter >= DecisionSeconds)
                 throw new ArgumentOutOfRangeException(nameof(DecisionJitter), "판단 간격보다 작아야 한다.");
+
+            NotNegative(LandDistanceScreens, nameof(LandDistanceScreens));
 
             if (RefineCount < 0)
                 throw new ArgumentOutOfRangeException(nameof(RefineCount), "0 이상이어야 한다.");

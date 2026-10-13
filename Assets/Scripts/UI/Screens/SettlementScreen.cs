@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    public sealed class SettlementScreen : UIRoot<SettlementScreen.Refs>, ILocalizedView, ITextStyleView
+    public sealed class SettlementScreen : UIRoot<SettlementScreen.Refs>, ILocalizedView, IStyleView, INumberFormatView
     {
         public enum Refs
         {
@@ -33,11 +33,15 @@ namespace BlackHole.Unity
             Tooltip_Text,
             // 노치·둥근 모서리를 피하는 영역. 화면을 열 때와 해상도가 바뀔 때 UIManager가 Safe Area에 맞춘다(SafeAreaUtility).
             SafeAreaRoot,
+            // 배경 위의 별빛·궤도 문양(UIScreenAmbient). 테마에 따라 머티리얼만 바뀐다.
+            Ambient,
             // 오른쪽 통계 칸(스킬별 피해·수집). 칸에 손을 올리면 툴팁으로 이름을 보인다.
             // 칸은 두 그룹(격자)에 들어 있고 그룹 사이에 구분선이 있다. 값이 0인 칸·빈 그룹·구분선은 숨긴다.
             SkillStats,
             CountStats,
             StatsDivider,
+            // 물질 행과 Gold 사이의 구분선(단색). 테마의 글자색을 옅게 쓴다.
+            Divider,
             ElectricStarDamage_Button,
             ElectricStarDamage_Text,
             LaserDamage_Button,
@@ -186,6 +190,8 @@ namespace BlackHole.Unity
         // 언어가 바뀌면 다시 쓸 마지막 값. 아직 보이지 않았으면 null.
         private Localizer _localizer;
         private readonly StyledTexts _styled = new();
+        // 테마 색: 화면 바탕색과 구분선.
+        private readonly ThemedImages _themed = new();
         private bool? _shownMilestone;
         private (int Stage, int NextStage, int MaxStage)? _shownStage;
         private bool? _shownReward;
@@ -259,6 +265,10 @@ namespace BlackHole.Unity
             _styled.Add(View.Text(Refs.StarName_Text), UITextRole.Caption);
             _styled.Add(View.Text(Refs.GoldCaption_Text), UITextRole.Caption);
             _styled.Add(View.Text(Refs.GrowthCaption_Text), UITextRole.Caption);
+
+            _themed.AddColor(GetComponent<Image>(), UIColorRole.Backdrop);
+            _themed.AddColor(View.Image(Refs.Divider), UIColorRole.TextMain);
+            _themed.AddColor(View.Image(Refs.StatsDivider), UIColorRole.TextMain);
 
             _asteroidRow = View.Button(Refs.AsteroidRow_Button);
             _planetRow = View.Button(Refs.PlanetRow_Button);
@@ -579,7 +589,24 @@ namespace BlackHole.Unity
         }
 
         // 글자 크기·언어별 글꼴. TextBindings에 등록되지 않은 글자만 여기서 맞춘다(등록된 글자는 Theme가 맞춘다).
-        public void ApplyTextStyle(in UITextStyle style) => _styled.SetStyle(style);
+        private UIScreenAmbient Ambient => View.Component<UIScreenAmbient>(Refs.Ambient);
+
+        public void ApplyStyle(in UIStyle style)
+        {
+            Ambient?.Apply(style.ThemeId);
+            _styled.SetStyle(style);
+            _themed.SetStyle(style);
+        }
+
+        // Gold 표기 설정이 바뀌었다. 증가 연출이 마지막으로 쓴 값을 지금 표기로 다시 쓴다(연출 중이면 다음 프레임이 이어 쓴다).
+        public void RefreshNumbers()
+        {
+            foreach (KeyValuePair<TMP_Text, long> pair in _previousGolds)
+            {
+                if (pair.Key != null)
+                    pair.Key.text = Money(pair.Value);
+            }
+        }
 
         private string Localized(string key, params object[] args) =>
             _localizer != null ? _localizer.Format(key, args) : key;
@@ -630,7 +657,7 @@ namespace BlackHole.Unity
         private static string Whole(int count) => count.ToString(CultureInfo.InvariantCulture);
 
         private static string Money(long gold) =>
-            "$" + OverThousand.GoldThousand(gold);/*gold.ToString("N0", CultureInfo.InvariantCulture);*/
+            "$" + GoldText.Of(gold);
 
         // MonoBehavior
         private void Update()

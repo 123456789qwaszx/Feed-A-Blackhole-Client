@@ -24,6 +24,8 @@ namespace BlackHole.Simulation
     // - 목표는 "기준 적 + 어긋남"이다. 적이 공전해도 그 적을 따라간다(사람이 움직이는 무리를 쫓는 것처럼).
     // - 커서는 최대 속도(MaxSpeedScreens)와 목표 근처의 감속(ApproachGain)으로 움직인다. 목표를 고를 때마다 조준 오차(AimErrorScreens)를 새로 뽑는다.
     //
+    // 터치 프로필(LiftWhileMoving): 목표로 옮기는 동안 조준점을 내지 않는다(손을 뗀 상태). 닿으면 누른다 — 누른 Step에 Breaker가 곧바로 친다.
+    //
     // 판의 모든 적이 보인다(카메라가 전장 전체를 보여 준다). 남은 HP·Gold도 안다고 본다(화면의 색 등급·크기로 사람이 어림하는 값).
     public sealed class GreedyAimBot : IAimBot
     {
@@ -71,7 +73,7 @@ namespace BlackHole.Simulation
             _profile.Validate();
         }
 
-        public string Name => "greedy";
+        public string Name => _profile.Name;
 
         public AimBotProfile Profile => _profile;
 
@@ -123,8 +125,21 @@ namespace BlackHole.Simulation
                 _sinceDecision = 0;
             }
 
-            if (_current.Exists)
-                MoveCursor(_current.PointNow, ScreenHeight(world), delta);
+            if (!_current.Exists)
+                return _profile.LiftWhileMoving ? null : _cursor;
+
+            float screenHeight = ScreenHeight(world);
+            Point2 target = _current.PointNow;
+            MoveCursor(target, screenHeight, delta);
+
+            // 손가락: 목표에 닿을 때까지는 떼고 있다.
+            if (_profile.LiftWhileMoving)
+            {
+                float land = _profile.LandDistanceScreens * screenHeight;
+
+                if (_cursor.DistanceSquared(target) > land * land)
+                    return null;
+            }
 
             return _cursor;
         }

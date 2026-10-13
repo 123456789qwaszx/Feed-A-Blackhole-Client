@@ -10,8 +10,8 @@ using BlackHole.Core;
 namespace BlackHole.Simulation.Tool
 {
     // 판 시뮬레이션 실행기. 레포 맨 위에서:
-    //   dotnet run -c Release --project Tools/Simulation -- campaign [--bot greedy|circle] [--seed 1] [--runs 1] [--max-battles 5000] [--out 폴더]
-    //   dotnet run -c Release --project Tools/Simulation -- battle [--bot greedy|circle|both] [--nodes none|all] [--scenario 파일] [--stage N] [--seeds 3]
+    //   dotnet run -c Release --project Tools/Simulation -- campaign [--bot greedy|touch|circle] [--seed 1] [--runs 1] [--max-battles 5000] [--out 폴더]
+    //   dotnet run -c Release --project Tools/Simulation -- battle [--bot greedy|touch|circle|both] [--nodes none|all] [--scenario 파일] [--stage N] [--seeds 3]
     // 설명: Docs/Simulation/README.md
     internal static class Program
     {
@@ -57,7 +57,7 @@ namespace BlackHole.Simulation.Tool
 @"판 시뮬레이션 (Docs/Simulation/README.md)
 
   campaign  처음부터 클리어까지 전체 루프: 판 → 결산 → 가장 싼 노드부터 구매 → 다음 판
-    --bot greedy|circle    조준 봇(기본 greedy)
+    --bot greedy|touch|circle    조준 봇(기본 greedy)
     --seed N               시드(기본 1)
     --runs N               시드를 1씩 올리며 N번 돌고 runs.csv·runs.md로 모은다(기본 1)
     --max-battles N        판 상한(기본 5000)
@@ -67,7 +67,7 @@ namespace BlackHole.Simulation.Tool
     --out 폴더             결과 폴더(기본 PlaytestData/sim/<시각>-<봇>-s<시드>[x<실행 수>])
 
   battle    고정한 세팅으로 판 몇 개
-    --bot greedy|circle|both
+    --bot greedy|touch|circle|both
     --nodes none|all       노드 없음(기본) / 모두 최대 Rank
     --scenario 파일        테스트 세팅 JSON(Assets/Playtest/Scenarios/*.json)의 노드·성장도
     --stage N              성장도(기본: none은 0, all은 마지막, 세팅은 그 값)
@@ -229,8 +229,9 @@ namespace BlackHole.Simulation.Tool
             switch (name)
             {
                 case "greedy": return () => new GreedyAimBot();
+                case "touch": return () => new GreedyAimBot(AimBotProfile.Touch);
                 case "circle": return () => new CircleAimBot();
-                default: throw new ArgumentException($"모르는 봇: {name} (greedy, circle)");
+                default: throw new ArgumentException($"모르는 봇: {name} (greedy, touch, circle)");
             }
         }
 

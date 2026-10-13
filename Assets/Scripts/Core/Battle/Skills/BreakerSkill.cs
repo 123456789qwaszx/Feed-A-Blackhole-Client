@@ -4,7 +4,9 @@ using System.Collections.Generic;
 namespace BlackHole.Core
 {
     // 공격 Tick(World.Step의 2. Passive Attack 자리):
-    // 빈 Tick도 주기를 소비.
+    // 누르고 있는 동안(조준점이 있는 동안)만 친다. 조준점이 생기는 Step에 곧바로 한 번 치고, 그 뒤 주기마다 친다.
+    // 조준점이 없으면 치지 않고 주기도 흐르지 않는다 — 다음에 누르면 또 곧바로 친다. 빈 Tick(조준점 없음)은 없다.
+    // 누르고 있는 동안 공격 원 안의 적은 거의 멈춘다(Definition.HoldSlow, World.MoveEnemies). 손가락이 링을 가리는 터치에서 적을 붙잡아 두는 방식이다.
     // 처치 버프(달·혜성)는 받은 것마다 중첩으로 따로 보관하고 따로 끝난다. 중첩당 수치는 이 Breaker의 정의(판마다 고정)가 정하고,
     // 같은 버프의 중첩은 합연산한다(보너스 합 = 중첩 수 × 중첩당 보너스). 합은 노드가 반영된 수치에 (1 + 합)으로 곱한다.
     // - 달: 공격 속도와 공격 범위를 함께 올린다.
@@ -29,7 +31,8 @@ namespace BlackHole.Core
         private readonly List<BreakerBuff> _moon = new();
         private readonly List<BreakerBuff> _comet = new();
 
-        // 다음 Tick까지 남은 주기(기본 주기 기준).
+        // 다음 Tick까지 남은 주기(기본 주기 기준). 조준점이 없는 동안에도 흘러서 0에서 멈춘다 — 식은 뒤 누르면 곧바로 치고,
+        // 식기 전에 다시 누르면 남은 만큼 기다린다(빠르게 두드려도 주기보다 자주 치지 못한다).
         private float _untilNextTick;
         // 마지막으로 받은 버프의 번호(BreakerBuff.Number).
         private int _buffCount;
@@ -81,19 +84,31 @@ namespace BlackHole.Core
 
         internal void BeginStep() => _ticks.Clear();
 
-        // 한 Step 동안 주기가 여러 번 차면 그만큼 Tick한다. 같은 Step 안의 Tick은 같은 조준점과 같은 적 위치를 본다.
+        // 주기는 조준점이 있든 없든 흐르지만, 치는 것은 조준점이 있는 Step뿐이다. 한 Step 동안 주기가 여러 번 차면 그만큼 Tick한다.
+        // 같은 Step 안의 Tick은 같은 조준점과 같은 적 위치를 본다. 조준점이 없는 동안 주기는 0에서 멈춘다(미리 쌓이지 않는다).
         internal void Advance(float delta, World world)
         {
             _untilNextTick -= delta * (1 + MoonSpeedBonus);
 
-            while (_untilNextTick <= TimeEpsilon)
+            if (world.AimPoint.HasValue)
             {
-                Tick(world);
-                _untilNextTick += Definition.Interval;
+                while (_untilNextTick <= TimeEpsilon)
+                {
+                    Tick(world);
+                    _untilNextTick += Definition.Interval;
+                }
+            }
+            else if (_untilNextTick < 0)
+            {
+                _untilNextTick = 0;
             }
 
             AgeBuffs(delta);
         }
+
+        // 조준점이 있고 이 적이 공격 원 안에 있는가(붙잡혀 거의 멈추는 적).
+        internal bool IsHolding(World world, Enemy enemy) =>
+            world.AimPoint is Point2 center && enemy.IsWithin(center, CurrentRadius);
 
         // 새 중첩을 더한다. 이미 있는 중첩의 시간은 바꾸지 않는다. 중첩의 시간은 이 Breaker의 정의(이 판의 고정값)가 정한다.
         internal void GrantMoon() => _moon.Add(new BreakerBuff(++_buffCount, Definition.MoonDuration));
