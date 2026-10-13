@@ -57,10 +57,10 @@ electricAsteroid.damage-02,1,electricAsteroid.damage,3,Flat,+3
 goldenAsteroid.spawnChance-01,1,goldenAsteroid.spawnChance,10,Percent,+10%
 goldenAsteroid.critRewardScale-01,1,goldenAsteroid.critRewardScale,100,Percent,+100%
 goldenAsteroid.critChance-01,1,goldenAsteroid.critChance,10,Percent,+10%
-growth.asteroids-03,1,growth.asteroids,50,Percent,+50%
+growth.asteroids-03,1,growth.asteroids,25,Percent,+25%
 asteroid.massScale-07,1,asteroid.massScale,50,Percent,+50%
 asteroid.massScale-08,1,asteroid.massScale,50,Percent,+50%
-asteroid.count-03,1,asteroid.count,30,Flat,+30
+asteroid.count-03,1,asteroid.count,20,Flat,+20
 electricAsteroid.chain-02,1,electricAsteroid.chain,1,Flat,+1
 electricAsteroid.splitChance-02,1,electricAsteroid.splitChance,20,Percent,+20%
 goldenAsteroid.critChance-02,1,goldenAsteroid.critChance,15,Percent,+15%
