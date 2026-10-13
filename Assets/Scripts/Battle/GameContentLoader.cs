@@ -87,7 +87,8 @@ namespace BlackHole.Unity
             if (fits.Count > 0)
                 return null;
 
-            return new LoadedContent(content.Content, tree.Tree, NodeItemsOf(layout, tree.Tree), RegionsOf(layout));
+            return new LoadedContent(content.Content, tree.Tree, NodeItemsOf(layout, tree.Tree), RegionsOf(layout),
+                ServerContent.VersionOf(setup));
         }
 
         // 업그레이드 화면에 그릴 구역. 배치에 없는 노드 ID는 뺀다(빈 구역은 들지 않는다).
