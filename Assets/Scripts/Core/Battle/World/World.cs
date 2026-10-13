@@ -47,6 +47,7 @@ namespace BlackHole.Core
             Hq hq,
             BreakerDefinition breaker,
             IReadOnlyList<SupplyRequest> growthSupply,
+            float killTimeBonus = 0,
             float killTimeCooldown = 0)
         {
             BattleRandom goldenCritRandom = new(seed, RandomStream.GoldenCrit);
@@ -68,7 +69,7 @@ namespace BlackHole.Core
                 growthSupply,
                 CountActive);
 
-            _deathBonuses = new DeathBonuses(seed, stats, _supply, killTimeCooldown);
+            _deathBonuses = new DeathBonuses(seed, stats, _supply, killTimeBonus, killTimeCooldown);
         }
 
         internal void SetAimPoint(Point2? aimPoint) => AimPoint = aimPoint;
@@ -85,7 +86,7 @@ namespace BlackHole.Core
         internal void ProcessSpawnRequests() => _supply.ProcessRequests();
 
         // 판(GameSession)이 Step 뒤에 가져가는 시간 추가 성공 수. 가져가면 0이 된다.
-        internal int TakeTimeBonuses() => _deathBonuses.TakeTimeBonuses();
+        internal float TakeTimeBonusSeconds() => _deathBonuses.TakeTimeBonusSeconds();
 
         // 판이 끝난 뒤 남은 적과 처리되지 않은 생성 요청·사망 효과를 치운다.
         // 처치가 아니다(사망 기록·처치 수·Gold 없음).

@@ -40,6 +40,7 @@ namespace BlackHole.Core
                 hq,
                 content.Breaker.Upgraded(upgrades),
                 GrowthSupplyOf(startSupply, stats),
+                content.TimeLimit.KillTimeBonus,
                 content.TimeLimit.KillTimeCooldown);
 
             TimeLimitRule timeLimit = new(content.TimeLimit.Upgraded(upgrades));

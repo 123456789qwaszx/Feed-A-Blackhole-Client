@@ -94,6 +94,7 @@ electricAsteroid.critChance-02,1,행성계
 comet.rainChance-01,1,행성계
 electricAsteroid.damage-03,1,행성계
 electricAsteroid.critBonus-02,1,행성계
+growth.asteroids-04,1,행성계
 planet.massScale-03,1,행성계
 planet.massScale-04,1,행성계
 moonPlanet.speedScale-02,1,행성계
@@ -115,23 +116,17 @@ moonPlanet.duration-03,1,행성계
 goldenAsteroid.rewardScale-05,1,행성계
 planet.massScale-05,1,행성계
 planet.massScale-06,1,행성계
-breaker.damage-19,1,행성계
 growth.planets-02,1,혜성 궤도
 breaker.radius-07,1,혜성 궤도
 planet.respawnChance-03,1,혜성 궤도
 moonPlanet.rangeScale-03,1,혜성 궤도
-comet.rainChance-02,1,혜성 궤도
 planet.massScale-07,1,혜성 궤도
 breaker.damage-20,1,혜성 궤도
 breaker.radius-08,1,혜성 궤도
 breaker.critChance-04,1,혜성 궤도
-moonPlanet.rangeScale-04,1,혜성 궤도
 breaker.radius-09,1,혜성 궤도
-breaker.critChance-05,1,혜성 궤도
 comet.rainChance-03,1,혜성 궤도
 asteroid.count-04,1,혜성 궤도
-asteroid.count-05,1,혜성 궤도
-planet.massScale-08,1,혜성 궤도
 breaker.speed-08,1,항성 요람
 electricStar.damage-01,1,항성 요람
 breaker.radius-10,1,항성 요람

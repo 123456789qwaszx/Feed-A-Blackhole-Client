@@ -45,6 +45,9 @@ namespace BlackHole.Core
         // 주기 출현 한 번이 혜성 비일 때 한꺼번에 나오는 수(원작 "혜성이 내릴 확률"). 0이면 혜성 비가 없다 — 혜성 비 확률 노드를 사도 하나씩 나온다.
         public int RainCount { get; }
 
+        // 이 종류가 파괴될 때 시간 추가가 성공하면 더하는 초. 0이면 판 설정(TimeLimitDefinition.KillTimeBonus)을 쓴다.
+        public float KillTimeBonus { get; }
+
         public EnemyDefinition(
             EnemyType type,
             float moveSpeed,
@@ -54,7 +57,8 @@ namespace BlackHole.Core
             IReadOnlyList<EnemyTraitDefinition> traits = null,
             EnemyType? upgradesTo = null,
             float spawnPeriod = 0,
-            int rainCount = 0)
+            int rainCount = 0,
+            float killTimeBonus = 0)
         {
             if (!Enum.IsDefined(typeof(EnemyType), type))
                 throw new ArgumentOutOfRangeException(nameof(type), $"알 수 없는 적 종류 {(int)type}.");
@@ -106,6 +110,11 @@ namespace BlackHole.Core
             UpgradesTo = upgradesTo;
             SpawnPeriod = spawnPeriod;
             RainCount = rainCount;
+
+            if (float.IsNaN(killTimeBonus) || float.IsInfinity(killTimeBonus) || killTimeBonus < 0)
+                throw new ArgumentOutOfRangeException(nameof(killTimeBonus), "0 이상의 유한한 값이 필요하다(0 = 판 설정).");
+
+            KillTimeBonus = killTimeBonus;
         }
 
         // 판 구성 composition에서 색 등급 tier·크기 size(1부터)·성질 trait(없으면 null)의 실행 수치.

@@ -19,6 +19,7 @@ MonoBehaviour:
   upgradesTo: {fileID: 11400000, guid: 3875f6a9833f4cf2893d251eb303b445, type: 2}
   spawnPeriod: 0
   rainCount: 0
+  killTimeBonus: 0.2
   tiers:
   - color: {r: 0.62, g: 0.32, b: 0.26, a: 1}
     maxHealth: 3

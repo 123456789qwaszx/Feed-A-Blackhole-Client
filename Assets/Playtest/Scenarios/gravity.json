@@ -1,6 +1,6 @@
 {
     "name": "gravity",
-    "note": "노드 1~8단계 전부와 은하핵 노드 19개(총 258개, 구매 비용 합계 7,419,186,463,717,762 Gold)를 산 상태. Level 30 시작, 은하·중력장 확인용.",
+    "note": "노드 1~8단계 전부와 은하핵 노드 19개(총 253개, 구매 비용 합계 7,418,923,275,046,937 Gold)를 산 상태. Level 30 시작, 은하·중력장 확인용.",
     "category": "QA/은하",
     "expected": "은하 출현·별→은하 변환·중력장(반경·출현)·은하 보너스 피해가 확정 정보 수치대로 나오는지 확인.",
     "contentFingerprint": "",
@@ -124,10 +124,6 @@
             "rank": 1
         },
         {
-            "nodeId": "breaker.damage-19",
-            "rank": 1
-        },
-        {
             "nodeId": "breaker.damage-20",
             "rank": 1
         },
@@ -189,6 +185,10 @@
         },
         {
             "nodeId": "breaker.radius-07",
+            "rank": 1
+        },
+        {
+            "nodeId": "breaker.critChance-04",
             "rank": 1
         },
         {
@@ -272,14 +272,6 @@
             "rank": 1
         },
         {
-            "nodeId": "breaker.critChance-04",
-            "rank": 1
-        },
-        {
-            "nodeId": "breaker.critChance-05",
-            "rank": 1
-        },
-        {
             "nodeId": "breaker.critBonus-01",
             "rank": 1
         },
@@ -333,10 +325,6 @@
         },
         {
             "nodeId": "asteroid.count-04",
-            "rank": 1
-        },
-        {
-            "nodeId": "asteroid.count-05",
             "rank": 1
         },
         {
@@ -588,10 +576,6 @@
             "rank": 1
         },
         {
-            "nodeId": "moonPlanet.rangeScale-04",
-            "rank": 1
-        },
-        {
             "nodeId": "moonPlanet.rangeScale-05",
             "rank": 1
         },
@@ -676,10 +660,6 @@
             "rank": 1
         },
         {
-            "nodeId": "planet.massScale-08",
-            "rank": 1
-        },
-        {
             "nodeId": "planet.timeChance-01",
             "rank": 1
         },
@@ -713,10 +693,6 @@
         },
         {
             "nodeId": "comet.rainChance-01",
-            "rank": 1
-        },
-        {
-            "nodeId": "comet.rainChance-02",
             "rank": 1
         },
         {
@@ -1037,6 +1013,10 @@
         },
         {
             "nodeId": "gravityGalaxy.radius-01",
+            "rank": 1
+        },
+        {
+            "nodeId": "growth.asteroids-04",
             "rank": 1
         }
     ],

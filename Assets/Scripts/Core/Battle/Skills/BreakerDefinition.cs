@@ -5,13 +5,21 @@ namespace BlackHole.Core
     public sealed class BreakerDefinition
     {
         public float Damage { get; }
-        public float Interval { get; } // 공격 주기(초).
+        public float Interval { get; } // 공격 주기(초). 노드 속도 배율(Speed)만 반영한 값이다.
+
+        // 노드가 반영된 공격 속도 배율(기본 1). Interval은 이미 이 배율로 나눈 값이다.
+        // 달 속도 보너스는 이 배율에 더한다(곱하지 않는다): BreakerSkill.CurrentSpeed = Speed + 달 보너스 합.
+        public float Speed { get; }
         public float Radius { get; } // 공격 원의 기본 반지름(노드 반영).
         public float CritChance { get; }
         public float CritDamage { get; }
         public float MoonDuration { get; } // 달 버프 중첩 하나의 지속 시간(초)
         public float MoonSpeedBonus { get; }
         public float MoonRadiusBonus { get; }
+
+        // 달 중첩의 공격 속도 체감(0 ~ 1 미만). 0이면 선형(중첩 수 × 보너스).
+        // d면 n번째 달은 보너스 × d^(n−1)만 더해 합이 보너스 / (1 − d)에 수렴한다 — 한 개는 제값, 여덟 개는 과하지 않게.
+        public float MoonSpeedDecay { get; }
         public float CometDuration { get; } // 혜성 버프 중첩 하나의 지속 시간(초)
         public float CometCritDamageBonus { get; }
         public float PlanetBonusDamage { get; } // 행성 보너스 피해
@@ -34,7 +42,9 @@ namespace BlackHole.Core
             float planetBonusDamage,
             float starBonusDamage,
             float galaxyBonusDamage,
-            float holdSlow = 0.05f)
+            float holdSlow = 0.05f,
+            float moonSpeedDecay = 0,
+            float speed = 1)
         {
             Damage = DefinitionGuard.Positive(damage, nameof(damage));
             Interval = DefinitionGuard.Positive(interval, nameof(interval));
@@ -48,6 +58,11 @@ namespace BlackHole.Core
             MoonDuration = DefinitionGuard.Positive(moonDuration, nameof(moonDuration));
             MoonSpeedBonus = NotNegative(moonSpeedBonus, nameof(moonSpeedBonus));
             MoonRadiusBonus = NotNegative(moonRadiusBonus, nameof(moonRadiusBonus));
+
+            if (float.IsNaN(moonSpeedDecay) || moonSpeedDecay < 0 || moonSpeedDecay >= 1)
+                throw new ArgumentOutOfRangeException(nameof(moonSpeedDecay), "0 이상 1 미만이어야 한다(0 = 선형 중첩).");
+
+            MoonSpeedDecay = moonSpeedDecay;
             CometDuration = DefinitionGuard.Positive(cometDuration, nameof(cometDuration));
             CometCritDamageBonus = NotNegative(cometCritDamageBonus, nameof(cometCritDamageBonus));
             PlanetBonusDamage = NotNegative(planetBonusDamage, nameof(planetBonusDamage));
@@ -58,6 +73,7 @@ namespace BlackHole.Core
                 throw new ArgumentOutOfRangeException(nameof(holdSlow), "0부터 1까지의 값이 필요하다.");
 
             HoldSlow = holdSlow;
+            Speed = DefinitionGuard.Positive(speed, nameof(speed));
         }
 
         private static float NotNegative(float value, string name)
@@ -89,7 +105,9 @@ namespace BlackHole.Core
                 PlanetBonusDamage + upgrades.GainOf(UpgradeStat.BreakerPlanetBonusDamage),
                 StarBonusDamage + upgrades.GainOf(UpgradeStat.BreakerStarBonusDamage),
                 GalaxyBonusDamage + upgrades.GainOf(UpgradeStat.BreakerGalaxyBonusDamage),
-                HoldSlow);
+                HoldSlow,
+                MoonSpeedDecay,
+                Speed * speed);
         }
     }
 }

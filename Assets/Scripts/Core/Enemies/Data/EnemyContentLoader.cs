@@ -74,7 +74,7 @@ namespace BlackHole.Core
 
                 EnemyDefinition enemy = Guard(at, into, () =>
                     new EnemyDefinition(item.Type, item.MoveSpeed, item.Radius, item.RadiusStep, tiers, traits, item.UpgradesTo, item.SpawnPeriod,
-                        item.RainCount));
+                        item.RainCount, item.KillTimeBonus));
 
                 if (enemy != null)
                     enemies.Add(enemy);

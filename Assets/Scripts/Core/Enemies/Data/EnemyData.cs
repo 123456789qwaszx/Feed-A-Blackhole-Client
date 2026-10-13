@@ -24,5 +24,7 @@ namespace BlackHole.Core
         public float SpawnPeriod;
         // 혜성 비 한 번에 나오는 수. 0이면 혜성 비가 없다.
         public int RainCount;
+        // 파괴 때 시간 추가가 성공하면 더하는 초. 0이면 판 설정(BattleRules.killTimeBonus)을 쓴다.
+        public float KillTimeBonus;
     }
 }
