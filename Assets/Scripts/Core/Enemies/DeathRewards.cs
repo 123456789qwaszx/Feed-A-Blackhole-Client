@@ -18,7 +18,7 @@ namespace BlackHole.Core
         {
             long gold = dead.Stats.Gold;
 
-            if (dead.Trait?.Effect is GoldenDefinition golden && _goldenCritRandom.Roll(golden.CritChance))
+            if (TryGetGolden(dead, out GoldenDefinition golden) && _goldenCritRandom.Roll(golden.CritChance))
             {
                 long bonus = (long)Math.Round(gold * golden.CritRewardScale, MidpointRounding.AwayFromZero);
                 return new DeathReward(gold, bonus, true);
@@ -28,7 +28,7 @@ namespace BlackHole.Core
         }
 
         // 이 적의 성질이 황금이면 그 정의를 준다. 처치 보상(황금 치명타)과 처치 장부의 칸(KillBucket.Golden)이 이 판정 하나를 같이 쓴다.
-        internal static bool TryGetColumn(Enemy enemy, out GoldenDefinition golden)
+        internal static bool TryGetGolden(Enemy enemy, out GoldenDefinition golden)
         {
             if (enemy.Trait?.Effect is GoldenDefinition found)
             {
@@ -40,6 +40,6 @@ namespace BlackHole.Core
             return false;
         }
 
-        internal static bool IsGolden(Enemy enemy) => TryGetColumn(enemy, out _);
+        internal static bool IsGolden(Enemy enemy) => TryGetGolden(enemy, out _);
     }
 }

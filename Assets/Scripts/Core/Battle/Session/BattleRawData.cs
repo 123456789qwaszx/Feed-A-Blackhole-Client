@@ -14,20 +14,17 @@ namespace BlackHole.Core
 
         public int TotalKills { get; }
 
-        // 칸(종류, 색 등급, 크기, 황금 여부)별 처치 수(처음 처치한 순서). 결산 로그(SETTLEMENT)의 kills.
+        // 칸(종류, 색 등급, 크기, 황금 여부)별 처치 수(처음 처치한 순서). 결산 로그(SETTLEMENT)의 kills, 서버 결산 검증의 장부다(계약 5.3).
         // 칸은 중복되지 않고 처치 수는 1 이상이다. 합계는 TotalKills와 같다.
         public IReadOnlyList<KillBucketCount> KillBuckets { get; }
 
-        // SyncLogFactoryTests 클래스에 아래 필드들이 set이 안되어 있어 일부러 set을 설정
-        // 확인하시고 고칠 부분 있으면 수정하셔도 됩니다.
-
         // 황금 치명타 횟수와 보너스 Gold 합계. 보너스는 EarnedGold에 이미 들어 있다.
         // EarnedGold == Σ(칸 처치 수 × 칸 Gold) + GoldenCritBonusGold.
-        public int GoldenCritCount { get; internal set; }
-        public long GoldenCritBonusGold { get; internal set; }
+        public int GoldenCritCount { get; }
+        public long GoldenCritBonusGold { get; }
 
-        // 시간 추가 성공 수
-        public int TimeBonusCount { get; internal set; }
+        // 처치 때 시간 추가에 성공한 횟수(쿨타임으로 건너뛴 판정과 수거형은 세지 않는다).
+        public int TimeBonusCount { get; }
 
         // 이 판에서 번 Gold. 사망 순간마다 그 적의 Gold가 더해진 합계다. 이정표로 끝나지 않았으면 결산이 진행 상태에 더한 값(SettledGold)과 같다.
         public long EarnedGold { get; }
