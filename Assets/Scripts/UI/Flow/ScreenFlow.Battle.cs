@@ -50,9 +50,6 @@ namespace BlackHole.Unity
         {
             if (_battle.TryStart(NodePurchase.StatsFor(_progress, _tree)))
             {
-                // 판이 흐르기 전에 시작 조건을 적는다.
-                _analytics.BattleStarted(_battle.Session, _progress);
-
                 // 판 시작 로그. 시작 Gold는 이 판을 시작할 때의 진행도 값이다.
                 string runId = Guid.NewGuid().ToString();
                 _runId = runId;
@@ -87,7 +84,6 @@ namespace BlackHole.Unity
             {
                 // 결산이 진행 상태(Gold·성장도)를 바꿨다. 결산 로그와 함께 저장한다.
                 CommitSettlement(raw);
-                _analytics.BattleEnded(raw);
                 ShowSettlement(raw);
             }
         }

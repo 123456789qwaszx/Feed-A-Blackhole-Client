@@ -79,10 +79,7 @@ namespace BlackHole.Unity
                 _settingsOpen = false;
 
                 if (await _battle.TryAbandonAsync())
-                {
-                    _analytics.BattleAbandoned();
                     _runId = null;
-                }
 
                 if (!prepare())
                 {
@@ -93,7 +90,6 @@ namespace BlackHole.Unity
                 if (!_battle.TryStart(NodePurchase.StatsFor(_progress, _tree)))
                     return;
 
-                _analytics.BattleStarted(_battle.Session, _progress);
                 afterStart?.Invoke(_battle.Session);
                 ShowBattle();
             });
