@@ -36,7 +36,7 @@ namespace BlackHole.Core
         internal float EnemyMoveScale { get; set; } = 1f;
 
         // 적이 블랙홀을 중심으로 공전하는가. 플레이어 설정(Object Rotation)이 정한다 — 끄면 적이 제자리에 머물고 중력장의 끌림만 받는다.
-        // 기본은 켜짐이라 시뮬레이션·테스트는 바뀌지 않는다.
+        // 기본은 켜짐이라 테스트는 바뀌지 않는다.
         internal bool OrbitEnabled { get; set; } = true;
 
         internal World(
