@@ -25,13 +25,12 @@ namespace BlackHole.Unity
 
         private static string TextOf(TextAsset csv) => csv != null ? csv.text : null;
 
-#if UNITY_EDITOR
-        // 테스트 도구의 승격·되돌리기(M4)가 행을 고치고, 시트 연동(M5)이 덮어쓸 CSV.
+        // 원본 CSV. 서버 콘텐츠 묶음의 버전 계산(ServerContent)이 실행 중에도 읽고,
+        // 에디터에서는 테스트 도구의 승격·되돌리기(M4)가 행을 고치고 시트 연동(M5)이 덮어쓴다.
         internal TextAsset UpgradeStatsCsv => _upgradeStats;
         internal TextAsset NodesCsv => _nodes;
         internal TextAsset NodeCostCsv => _nodeCost;
         internal TextAsset NodeEffectsCsv => _nodeEffects;
-#endif
 
         // 에셋 인스펙터의 ⋮ 메뉴 > 검사: 불러와서 개수나 진단을 콘솔에 낸다.
         [ContextMenu("검사")]

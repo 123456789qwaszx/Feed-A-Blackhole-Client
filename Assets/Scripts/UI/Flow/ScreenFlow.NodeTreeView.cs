@@ -71,7 +71,17 @@ namespace BlackHole.Unity
         private void HandleNodeTreeNodeHovered(string id, RectTransform node)
         {
             if (_ui.CurrentRoot is UpgradeScreen root)
-                root.ShowNodeTooltip(node, id, NodeTooltipBody(id));
+                //root.ShowNodeTooltip(node, id, NodeTooltipBody(id));
+                root.ShowNodeTooltip(node, NodeTooltipTitle(id), NodeTooltipBody(id));
+        }
+
+        private string NodeTooltipTitle(string id)
+        {
+            if (!_tree.TryGet(id, out NodeDefinition node))
+                return id;
+
+            string statId = StatIdOf(node.RankAt(1).Effects[0].Stat);
+            return statId != null && _localizer.TryGet($"stat.{statId}.name", out string name) ? name : id;
         }
 
         // 툴팁 본문: 산 Rank, 다음 Rank의 효과(지금 값 → 산 뒤 값), 다음 비용.
@@ -85,8 +95,16 @@ namespace BlackHole.Unity
             bool maxed = rank >= node.MaxRank;
             NodeRankDefinition shown = node.RankAt(maxed ? node.MaxRank : rank + 1);
             UpgradeStatValues values = NodePurchase.StatsFor(_progress, _tree);
+            //추가코드, 효과줄 이름이 보이게 설정, 만약에 원하지 않으면 주석처리된 코드를 활성화하고 밑에 코드를 주석처리
+            //bool named = shown.Effects.Count > 1;
+            bool named = true;
             var text = new StringBuilder();
 
+            //추가코드
+            string titleStat = StatIdOf(node.RankAt(1).Effects[0].Stat);
+            if (titleStat != null && _localizer.TryGet($"stat.{titleStat}.desc", out string description))
+                text.Append(description).Append('\n');
+            
             if (node.MaxRank > 1)
                 text.Append(_localizer.Format("node.rank", rank, node.MaxRank)).Append('\n');
 
@@ -95,7 +113,13 @@ namespace BlackHole.Unity
                 UpgradeStatDefinition stat = values.DefinitionOf(effect.Stat);
                 string unit = stat.Unit == UpgradeStatUnit.Percent ? "%" : string.Empty;
                 float now = values.ValueOf(effect.Stat);
-                text.Append(stat.StatId).Append(' ').Append(NumberText.Signed(effect.Value)).Append(unit);
+
+                //추가코드
+                if (named)
+                    text.Append(StatName(stat.StatId)).Append(' ');
+                
+                text.Append(NumberText.Signed(effect.Value)).Append(unit);
+                //text.Append(stat.StatId).Append(' ').Append(NumberText.Signed(effect.Value)).Append(unit);
 
                 if (maxed)
                 {
@@ -119,5 +143,13 @@ namespace BlackHole.Unity
             if (_ui.CurrentRoot is UpgradeScreen root)
                 root.HideNodeTooltip();
         }
+
+        // 수치 이름: 번역표 stat.{StatId}.name. 표에 없으면 StatId 그대로.
+        private string StatName(string statId) =>
+            _localizer.TryGet($"stat.{statId}.name", out string name) ? name : statId;
+
+        // UpgradeStat → 시트의 StatId("timer"). 정의가 없으면 null.
+        private string StatIdOf(UpgradeStat stat) =>
+            NodePurchase.StatsFor(_progress, _tree).DefinitionOf(stat)?.StatId;
     }
 }
