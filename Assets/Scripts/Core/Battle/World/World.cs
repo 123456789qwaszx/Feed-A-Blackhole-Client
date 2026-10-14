@@ -29,7 +29,7 @@ namespace BlackHole.Core
         public long EarnedGold => _enemies.KillGold;
 
         // 이 판의 종류별 판 구성과 (종류, 색 등급, 성질, 크기)별 수치. 판 조립 때 정해졌다.
-        // 밖에서는 읽기만 한다(표는 읽기 API만 연다). 전투 통계가 이 판에 적용된 성질 확률·황금 배율을 읽는다.
+        // 밖에서는 읽기만 한다(표는 읽기 API만 연다). 테스트 도구(메모·소환)가 이 판에 적용된 수치를 읽는다.
         public EnemyStatTable Stats { get; }
 
         // 적 이동 배율. 게임에서는 늘 1이고, 테스트 도구(BattleCheats)만 바꾼다(0이면 멈춤).

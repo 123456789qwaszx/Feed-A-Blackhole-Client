@@ -49,9 +49,6 @@ namespace BlackHole.Unity
         [Header("Localization")]
         [SerializeField] private TextAsset _texts;
 
-        [Header("Analytics")]
-        [SerializeField] private AnalyticsSettings _analyticsSettings;
-
         // 테스트 도구(개발 패널)의 밸런스 프로필·시나리오 목록. 에디터와 개발 빌드만 쓴다. 비워 두면 기기 폴더의 파일만 읽는다.
         // 장면 직렬화가 빌드마다 같도록 #if로 감싸지 않는다. 릴리스 빌드는 읽지 않는다(CS0169).
         [Header("Playtest")]
@@ -75,7 +72,6 @@ namespace BlackHole.Unity
         private ProgressState _progress;
         private ProgressStore _progressStore;
         private GameSettings _settings;
-        private BattleAnalytics _analytics;
         private ViewTexts _viewTexts;
         private UISettingsSync _uiSettings;
         private FrameRateLimiter _frameRate;
@@ -83,10 +79,9 @@ namespace BlackHole.Unity
 
         private void Awake()
         {
-            // 판의 콘텐츠 표시(밸런스 프로필 이름, 테스트 표시). 릴리스는 늘 비어 있다.
-            ContentTag contentTag = new();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            PlaytestSession playtest = PlaytestSession.Create(_playtest, contentTag);
+            // 판의 콘텐츠 표시(밸런스 프로필 이름, 테스트 표시)는 개발 HUD·메모가 보여 준다.
+            PlaytestSession playtest = PlaytestSession.Create(_playtest, new ContentTag());
             LoadedContent loaded = LoadContent(playtest);
             // 프로필을 적용했으면 그 프로필의 저장을 따로 쓴다. 테스트 값으로 번 진행이 실제 저장을 덮지 않는다.
             string saveDirectory = playtest.SaveDirectory(Application.persistentDataPath);
@@ -128,12 +123,6 @@ namespace BlackHole.Unity
                 loaded.NodeTree.Content,
                 loaded.Content.Growth);
             Localizer localizer = Localizer.Create(_texts, _settings);
-            _analytics = BattleAnalytics.Create(
-                _analyticsSettings,
-                Application.persistentDataPath,
-                Application.version,
-                Application.platform.ToString(),
-                contentTag);
 
             BattleSystem battle = new(
                 loaded.Content,
@@ -166,8 +155,7 @@ namespace BlackHole.Unity
                 _settings,
                 localizer,
                 transition,
-                keyInput,
-                _analytics);
+                keyInput);
 
             _host = new GameHost(
                 ui,
@@ -184,7 +172,7 @@ namespace BlackHole.Unity
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             PlaytestPanel panel = GetOrAdd<PlaytestPanel>(gameObject);
-            panel.Initialize(playtest, battle, screens, loaded.Content, loaded.NodeTree, _progress, _analytics);
+            panel.Initialize(playtest, battle, screens, loaded.Content, loaded.NodeTree, _progress);
 #endif
         }
 
@@ -207,8 +195,6 @@ namespace BlackHole.Unity
         {
             _host.Start();
             SoundManager.Instance.Bind(_settings);
-            // 지난 실행에서 보내지 못한 통계를 보낸다.
-            _analytics.Flush();
         }
 
         private void Update() => _host.Tick(Time.deltaTime);
@@ -219,13 +205,7 @@ namespace BlackHole.Unity
                 return;
 
             if (paused)
-            {
                 _progressStore.Save(_progress);
-                return;
-            }
-
-            // 앱으로 돌아왔다. 내려가 있는 동안 보내지 못한 통계를 보낸다.
-            _analytics.Flush();
         }
 
         private void OnDestroy()
