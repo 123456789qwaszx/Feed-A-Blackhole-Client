@@ -165,7 +165,6 @@ namespace BlackHole.Simulation.Tool
                         BranchChance = trait.Float("branchChance"),
                         CritChance = trait.Float("critChance"),
                         CritMultiplier = trait.Float("critMultiplier"),
-                        HealthFraction = trait.Float("healthFraction"),
                         Width = trait.Float("width"),
                         Force = trait.Float("force"),
                         Duration = trait.Float("duration"),

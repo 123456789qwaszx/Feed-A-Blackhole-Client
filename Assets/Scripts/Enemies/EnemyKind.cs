@@ -34,7 +34,7 @@ namespace BlackHole.Unity
             public float multiplier;
             [Tooltip("Golden: 치명타 Gold 배율.")]
             public float critRewardScale;
-            [Tooltip("Electric·Laser: 피해.")]
+            [Tooltip("Electric·Laser: 피해 · Supernova: 폭발 고정 피해.")]
             public float damage;
             [Tooltip("Electric: 번개가 한 번 옮겨 가는 최대 거리. Supernova: 폭발 반경(크기 1 기준, 죽은 별의 크기 배율만큼 넓어진다). Gravity: 끌어들이는 범위(은하 크기와 무관).")]
             public float radius;
@@ -46,8 +46,6 @@ namespace BlackHole.Unity
             public float critChance;
             [Tooltip("Electric·Laser: 치명타일 때 피해 배율.")]
             public float critMultiplier;
-            [Tooltip("Supernova: 맞는 순간 대상의 현재 HP에 대한 피해 비율(0 ~ 1). 올림, 최소 1.")]
-            public float healthFraction;
             [Tooltip("Laser: 레이저 너비.")]
             public float width;
             [Tooltip("이 성질의 동시 상한: 살아 있는 그 성질 적 + Breaker에 남은 그 버프 중첩. 0이면 상한 없음. 다 찼으면 뽑혀도 붙지 않는다(원작 달 최대 개수, 노드 moonPlanet.maxCount).")]
@@ -162,7 +160,6 @@ namespace BlackHole.Unity
                         BranchChance = trait.branchChance,
                         CritChance = trait.critChance,
                         CritMultiplier = trait.critMultiplier,
-                        HealthFraction = trait.healthFraction,
                         Width = trait.width,
                         Force = trait.force,
                         Duration = trait.duration,
