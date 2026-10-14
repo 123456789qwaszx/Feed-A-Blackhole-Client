@@ -1143,7 +1143,7 @@ MonoBehaviour:
       Y: -19
       Links:
       - breaker.damage-25
-    - Id: supernovaStar.hpDamage-01
+    - Id: supernovaStar.damage-01
       Start: 0
       X: -14
       Y: -28
@@ -1191,7 +1191,7 @@ MonoBehaviour:
       X: -14
       Y: -30
       Links: []
-    - Id: supernovaStar.hpDamage-02
+    - Id: supernovaStar.damage-02
       Start: 0
       X: -13
       Y: -30
@@ -1203,7 +1203,7 @@ MonoBehaviour:
       X: -11
       Y: -29
       Links:
-      - supernovaStar.hpDamage-01
+      - supernovaStar.damage-01
     - Id: laserStar.width-03
       Start: 0
       X: 3
@@ -1253,7 +1253,7 @@ MonoBehaviour:
       Y: -30
       Links:
       - laserStar.damage-05
-    - Id: supernovaStar.hpDamage-03
+    - Id: supernovaStar.damage-03
       Start: 0
       X: -17
       Y: -28
@@ -1264,7 +1264,7 @@ MonoBehaviour:
       X: -18
       Y: -32
       Links:
-      - supernovaStar.hpDamage-03
+      - supernovaStar.damage-03
       - breaker.critBonus-04
     - Id: planet.toStar-03
       Start: 0
@@ -1356,7 +1356,7 @@ MonoBehaviour:
       Y: -23
       Links:
       - moonPlanet.rangeScale-06
-      - supernovaStar.hpDamage-06
+      - supernovaStar.damage-06
       - supernovaStar.range-03
     - Id: supernovaStar.range-04
       Start: 0
@@ -1365,26 +1365,26 @@ MonoBehaviour:
       Links:
       - moonPlanet.rangeScale-07
       - timer-04
-    - Id: supernovaStar.hpDamage-04
+    - Id: supernovaStar.damage-04
       Start: 0
       X: -19
       Y: -20
       Links:
-      - supernovaStar.hpDamage-05
+      - supernovaStar.damage-05
     - Id: planet.toStar-05
       Start: 0
       X: -18
       Y: -21
       Links:
-      - supernovaStar.hpDamage-04
+      - supernovaStar.damage-04
       - star.massScale-09
-    - Id: supernovaStar.hpDamage-05
+    - Id: supernovaStar.damage-05
       Start: 0
       X: -19
       Y: -18
       Links:
       - star.toGalaxy-01
-    - Id: supernovaStar.hpDamage-06
+    - Id: supernovaStar.damage-06
       Start: 0
       X: -18
       Y: -23
@@ -1408,7 +1408,7 @@ MonoBehaviour:
       Y: -20
       Links:
       - galaxy.size-01
-      - supernovaStar.hpDamage-04
+      - supernovaStar.damage-04
     - Id: star.toGalaxy-01
       Start: 0
       X: -19
@@ -1451,7 +1451,7 @@ MonoBehaviour:
       X: -17
       Y: -18
       Links:
-      - supernovaStar.hpDamage-05
+      - supernovaStar.damage-05
     - Id: gravityGalaxy.radius-01
       Start: 0
       X: -16
@@ -1844,7 +1844,7 @@ MonoBehaviour:
       - breaker.radius-12
       - asteroid.respawnChance-05
       - laserStar.width-02
-      - supernovaStar.hpDamage-01
+      - supernovaStar.damage-01
       - star.respawnChance-04
       - laserStar.damage-02
       - supernovaStar.spawnChance-01
@@ -1852,7 +1852,7 @@ MonoBehaviour:
       - laserStar.critBonus-02
       - supernovaStar.range-02
       - comet.spawnChance-03
-      - supernovaStar.hpDamage-02
+      - supernovaStar.damage-02
       - breaker.damage-27
       - laserStar.width-03
       - laserStar.damage-03
@@ -1864,7 +1864,7 @@ MonoBehaviour:
       - laserStar.width-06
     - Id: remnant
       Nodes:
-      - supernovaStar.hpDamage-03
+      - supernovaStar.damage-03
       - timer-03
       - planet.toStar-03
       - comet.spawnChance-04
@@ -1882,10 +1882,10 @@ MonoBehaviour:
       - breaker.damage-28
       - laserStar.width-08
       - supernovaStar.range-04
-      - supernovaStar.hpDamage-04
+      - supernovaStar.damage-04
       - planet.toStar-05
-      - supernovaStar.hpDamage-05
-      - supernovaStar.hpDamage-06
+      - supernovaStar.damage-05
+      - supernovaStar.damage-06
       - timer-04
       - laserStar.width-09
       - star.massScale-09

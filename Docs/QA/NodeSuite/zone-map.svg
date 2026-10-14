@@ -1087,22 +1087,22 @@
 <text x="3265" y="1109" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.range-04</text>
 <text x="3265" y="1133" fill="#0b1020" font-size="15" text-anchor="middle">[8] 300T</text>
 <rect x="772" y="1085" width="176" height="60" rx="6" fill="#8f9be8" fill-opacity="0.85" stroke="none" stroke-width="3"/>
-<text x="860" y="1109" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.hpDamage-01</text>
+<text x="860" y="1109" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.damage-01</text>
 <text x="860" y="1133" fill="#0b1020" font-size="15" text-anchor="middle">[7] 45T</text>
 <rect x="587" y="895" width="176" height="60" rx="6" fill="#8f9be8" fill-opacity="0.85" stroke="none" stroke-width="3"/>
-<text x="675" y="919" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.hpDamage-02</text>
+<text x="675" y="919" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.damage-02</text>
 <text x="675" y="943" fill="#0b1020" font-size="15" text-anchor="middle">[7] 45T</text>
 <rect x="957" y="1085" width="176" height="60" rx="6" fill="#b5c95a" fill-opacity="0.85" stroke="none" stroke-width="3"/>
-<text x="1045" y="1109" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.hpDamage-03</text>
+<text x="1045" y="1109" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.damage-03</text>
 <text x="1045" y="1133" fill="#0b1020" font-size="15" text-anchor="middle">[8] 45T</text>
 <rect x="2992" y="800" width="176" height="60" rx="6" fill="#b5c95a" fill-opacity="0.85" stroke="none" stroke-width="3"/>
-<text x="3080" y="824" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.hpDamage-04</text>
+<text x="3080" y="824" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.damage-04</text>
 <text x="3080" y="848" fill="#0b1020" font-size="15" text-anchor="middle">[8] 300T</text>
 <rect x="2992" y="1085" width="176" height="60" rx="6" fill="#b5c95a" fill-opacity="0.85" stroke="none" stroke-width="3"/>
-<text x="3080" y="1109" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.hpDamage-05</text>
+<text x="3080" y="1109" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.damage-05</text>
 <text x="3080" y="1133" fill="#0b1020" font-size="15" text-anchor="middle">[8] 300T</text>
 <rect x="3177" y="895" width="176" height="60" rx="6" fill="#b5c95a" fill-opacity="0.85" stroke="white" stroke-width="3"/>
-<text x="3265" y="919" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.hpDamage-06</text>
+<text x="3265" y="919" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.damage-06</text>
 <text x="3265" y="943" fill="#0b1020" font-size="15" text-anchor="middle">[8] 1P</text>
 <rect x="587" y="990" width="176" height="60" rx="6" fill="#8f9be8" fill-opacity="0.85" stroke="none" stroke-width="3"/>
 <text x="675" y="1014" fill="#0b1020" font-size="15" text-anchor="middle">supernovaStar.spawnChance-01</text>

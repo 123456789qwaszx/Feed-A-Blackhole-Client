@@ -120,13 +120,13 @@ namespace BlackHole.Core
             _ => null,
         };
 
-        // 피해(번개·레이저·슈퍼노바 폭발). 더한다. 슈퍼노바는 원작 수치 ID(supernovaStar.hpDamage)를 고정 피해로 쓴다.
+        // 피해(번개·레이저·슈퍼노바 폭발). 더한다. 슈퍼노바도 고정 피해다.
         public static UpgradeStat? TraitDamage(EnemyType kind, EnemyTraitType trait) => (kind, trait) switch
         {
             (EnemyType.Asteroid, EnemyTraitType.Electric) => UpgradeStat.ElectricAsteroidDamage,
             (EnemyType.Star, EnemyTraitType.Electric) => UpgradeStat.ElectricStarDamage,
             (EnemyType.Star, EnemyTraitType.Laser) => UpgradeStat.LaserStarDamage,
-            (EnemyType.Star, EnemyTraitType.Supernova) => UpgradeStat.SupernovaStarHpDamage,
+            (EnemyType.Star, EnemyTraitType.Supernova) => UpgradeStat.SupernovaStarDamage,
             _ => null,
         };
 
