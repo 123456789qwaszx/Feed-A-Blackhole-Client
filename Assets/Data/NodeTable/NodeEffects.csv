@@ -200,7 +200,6 @@ laserStar.damage-05,1,laserStar.damage,800,Flat,+800
 laserStar.width-05,1,laserStar.width,50,Percent,+50%
 breaker.radius-13,1,breaker.radius,30,Percent,+30%
 laserStar.width-06,1,laserStar.width,100,Percent,+100%
-star.massScale-06,1,star.massScale,50,Percent,+50%
 supernovaStar.hpDamage-03,1,supernovaStar.hpDamage,10,Percent,+10%
 timer-03,1,timer,10,Flat,+10
 planet.toStar-03,1,planet.toStar,5,Flat,+5
@@ -208,7 +207,6 @@ comet.spawnChance-04,1,comet.spawnChance,25,Percent,+25%
 breaker.critBonus-04,1,breaker.critBonus,200,Percent,+200%
 planet.timeChance-02,1,planet.timeChance,85,Percent,+85%
 star.timeChance-02,1,star.timeChance,50,Percent,+50%
-star.massScale-07,1,star.massScale,50,Percent,+50%
 laserStar.width-07,1,laserStar.width,200,Percent,+200%
 laserStar.damage-06,1,laserStar.damage,4000,Flat,+4000
 planet.toStar-04,1,planet.toStar,5,Flat,+5
@@ -226,7 +224,6 @@ supernovaStar.hpDamage-05,1,supernovaStar.hpDamage,30,Percent,+30%
 supernovaStar.hpDamage-06,1,supernovaStar.hpDamage,10,Percent,+10%
 timer-04,1,timer,5,Flat,+5
 laserStar.width-09,1,laserStar.width,100,Percent,+100%
-star.massScale-08,1,star.massScale,75,Percent,+75%
 star.massScale-09,1,star.massScale,150,Percent,+150%
 star.toGalaxy-01,1,star.toGalaxy,3,Flat,+3
 growth.galaxies-01,1,growth.galaxies,50,Percent,+50%

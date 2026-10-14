@@ -1183,9 +1183,9 @@ MonoBehaviour:
     - Id: supernovaStar.range-02
       Start: 0
       X: -13
-      Y: -32
+      Y: -31
       Links:
-      - star.massScale-06
+      - moonPlanet.speedScale-04
     - Id: comet.spawnChance-03
       Start: 0
       X: -14
@@ -1204,7 +1204,6 @@ MonoBehaviour:
       Y: -29
       Links:
       - supernovaStar.hpDamage-01
-      - star.massScale-08
     - Id: laserStar.width-03
       Start: 0
       X: 3
@@ -1254,17 +1253,12 @@ MonoBehaviour:
       Y: -30
       Links:
       - laserStar.damage-05
-    - Id: star.massScale-06
-      Start: 0
-      X: -16
-      Y: -31
-      Links: []
     - Id: supernovaStar.hpDamage-03
       Start: 0
       X: -17
       Y: -28
       Links:
-      - star.massScale-07
+      - star.timeChance-02
     - Id: timer-03
       Start: 0
       X: -18
@@ -1300,13 +1294,6 @@ MonoBehaviour:
       Y: -26
       Links:
       - planet.timeChance-02
-    - Id: star.massScale-07
-      Start: 0
-      X: -16
-      Y: -28
-      Links:
-      - star.timeChance-02
-      - star.massScale-06
     - Id: laserStar.width-07
       Start: 0
       X: -13
@@ -1351,17 +1338,15 @@ MonoBehaviour:
       Y: -31
       Links:
       - supernovaStar.range-03
-      - star.massScale-06
     - Id: supernovaStar.range-03
       Start: 0
       X: -19
       Y: -25
-      Links:
-      - star.massScale-08
+      Links: []
     - Id: breaker.damage-28
       Start: 0
       X: -11
-      Y: -32
+      Y: -33
       Links:
       - laserStar.damage-06
       - breaker.damage-27
@@ -1416,11 +1401,6 @@ MonoBehaviour:
       Start: 0
       X: -17
       Y: -22
-      Links: []
-    - Id: star.massScale-08
-      Start: 0
-      X: -11
-      Y: -25
       Links: []
     - Id: star.massScale-09
       Start: 0
@@ -1882,7 +1862,6 @@ MonoBehaviour:
       - laserStar.width-05
       - breaker.radius-13
       - laserStar.width-06
-      - star.massScale-06
     - Id: remnant
       Nodes:
       - supernovaStar.hpDamage-03
@@ -1892,7 +1871,6 @@ MonoBehaviour:
       - breaker.critBonus-04
       - planet.timeChance-02
       - star.timeChance-02
-      - star.massScale-07
       - laserStar.width-07
       - laserStar.damage-06
       - planet.toStar-04
@@ -1910,7 +1888,6 @@ MonoBehaviour:
       - supernovaStar.hpDamage-06
       - timer-04
       - laserStar.width-09
-      - star.massScale-08
       - star.massScale-09
     - Id: core
       Nodes:

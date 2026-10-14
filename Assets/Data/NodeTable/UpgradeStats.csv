@@ -44,7 +44,7 @@ comet.rainChance,Float,Percent,0,Add,0,100,TRUE,,혜성이 내릴 확률,%,0,4,[
 star.respawnChance,Float,Percent,0,Add,0,100,TRUE,,별이 파괴될 때 새로운 별을 생성할 확률,%,0,4,[2]동일한것,4,OK
 star.timeChance,Float,Percent,0,Add,0,100,TRUE,,별이 파괴될 때 시간이 추가될 확률,%,0,2,[2]동일한것,2,OK
 star.size,Int,Flat,1,Add,0,,TRUE,,별 크기,값,1,3,[2]동일한것,12,OK
-star.massScale,Float,Percent,100,Add,0,,TRUE,,별 질량,%,100,10,[2]동일한것,19,OK
+star.massScale,Float,Percent,100,Add,0,,TRUE,,별 질량,%,100,10,[2]동일한것,16,OK
 electricStar.spawnChance,Float,Percent,0,Add,0,100,TRUE,,전기 별 생성 확률,%,0,1,[2]동일한것,1,OK
 electricStar.damage,Float,Flat,1800,Add,0,,TRUE,,전기 별 대미지,값,1800,2,[2]동일한것,2,OK
 electricStar.critChance,Float,Percent,0,Add,0,100,TRUE,,전기 별 치명타 확률,%,0,1,[2]동일한것,1,OK
