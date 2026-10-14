@@ -924,6 +924,7 @@ MonoBehaviour:
       Y: -17
       Links:
       - asteroid.toPlanet-04
+      - moonPlanet.speedScale-03
     - Id: electricStar.chain-02
       Start: 0
       X: 22
