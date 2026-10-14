@@ -78,7 +78,8 @@ namespace BlackHole.Unity
                 _pauseOpen = false;
                 _settingsOpen = false;
 
-                await _battle.TryAbandonAsync();
+                if (await _battle.TryAbandonAsync())
+                    _runId = null;
 
                 if (!prepare())
                 {

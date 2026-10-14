@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using BlackHole.Core;
+using BlackHole.Net.Unity;
+using BlackHole.Sync;
 using UnityEngine;
 
 namespace BlackHole.Unity
@@ -121,7 +123,10 @@ namespace BlackHole.Unity
             _progressStore = ProgressStore.Load(
                 saveDirectory,
                 loaded.NodeTree.Content,
-                loaded.Content.Growth);
+                loaded.Content.Growth,
+                _progress);
+            // 서버 동기화 로그를 만든다. 로그는 빌드 버전과 이 콘텐츠의 서버 콘텐츠 버전을 싣는다.
+            SyncLogFactory syncLogs = new(new UnityJsonSerializer(), Application.version, loaded.ServerContentVersion, () => DateTime.UtcNow);
             Localizer localizer = Localizer.Create(_texts, _settings);
 
             BattleSystem battle = new(
@@ -155,7 +160,8 @@ namespace BlackHole.Unity
                 _settings,
                 localizer,
                 transition,
-                keyInput);
+                keyInput,
+                syncLogs);
 
             _host = new GameHost(
                 ui,
