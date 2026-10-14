@@ -140,6 +140,8 @@ namespace BlackHole.Simulation.Tool
                 UpgradesTo = next != null ? (EnemyType)Asset(next, "변환 대상(upgradesTo)").Int("type") : (EnemyType?)null,
                 SpawnPeriod = Float(kind, "spawnPeriod", 0),
                 RainCount = kind.Int("rainCount"),
+                KillTimeBonus = Float(kind, "killTimeBonus", 0),
+                RespawnDecay = Float(kind, "respawnDecay", 0),
             };
 
             foreach (YamlNode trait in kind["traits"]?.Items ?? Array.Empty<YamlNode>())

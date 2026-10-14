@@ -150,7 +150,7 @@ namespace BlackHole.Core
                         size,
                         _stats.Of(kind, tier, trait, size),
                         _placement.Pick(_placementRandom),
-                        request.Respawn);
+                        request.RespawnGeneration);
                 }
             }
 

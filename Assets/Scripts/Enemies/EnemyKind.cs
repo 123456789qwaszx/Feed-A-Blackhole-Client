@@ -92,6 +92,9 @@ namespace BlackHole.Unity
         [Tooltip("파괴 때 시간 추가(노드 timeChance)가 성공하면 더하는 초. 0이면 판 설정(BattleRules.killTimeBonus)을 쓴다.")]
         [Min(0)]
         [SerializeField] private float killTimeBonus;
+        [Tooltip("재생성 세대 감쇠(0~1). 재생성으로 나온 적이 죽을 때 재생성 확률(노드 respawnChance)에 세대마다 이 값을 곱한다. 0이면 1세대까지만(사슬 금지), 1이면 감쇠 없음.")]
+        [Range(0, 1)]
+        [SerializeField] private float respawnDecay;
         [Header("색 등급 (번호가 적의 색 등급, 빨주노초파보)")]
         [SerializeField] private List<Tier> tiers = new List<Tier>();
 
@@ -132,6 +135,7 @@ namespace BlackHole.Unity
                 SpawnPeriod = spawnPeriod,
                 RainCount = rainCount,
                 KillTimeBonus = killTimeBonus,
+                RespawnDecay = respawnDecay,
             };
 
             foreach (Trait trait in traits)

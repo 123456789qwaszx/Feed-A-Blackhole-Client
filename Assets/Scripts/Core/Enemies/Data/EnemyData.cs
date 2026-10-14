@@ -26,5 +26,7 @@ namespace BlackHole.Core
         public int RainCount;
         // 파괴 때 시간 추가가 성공하면 더하는 초. 0이면 판 설정(BattleRules.killTimeBonus)을 쓴다.
         public float KillTimeBonus;
+        // 재생성 세대 감쇠(0~1). 재생성으로 나온 적이 죽을 때 재생성 확률에 세대마다 이 값을 곱한다. 0이면 1세대까지만(사슬 금지), 1이면 감쇠 없음.
+        public float RespawnDecay;
     }
 }

@@ -48,6 +48,9 @@ namespace BlackHole.Core
         // 이 종류가 파괴될 때 시간 추가가 성공하면 더하는 초. 0이면 판 설정(TimeLimitDefinition.KillTimeBonus)을 쓴다.
         public float KillTimeBonus { get; }
 
+        // 재생성 세대 감쇠(0~1). n세대(재생성으로 n번 거쳐 나온) 적의 재생성 확률 = RespawnChance × RespawnDecay^n. 0이면 1세대까지만, 1이면 감쇠 없음.
+        public float RespawnDecay { get; }
+
         public EnemyDefinition(
             EnemyType type,
             float moveSpeed,
@@ -58,7 +61,8 @@ namespace BlackHole.Core
             EnemyType? upgradesTo = null,
             float spawnPeriod = 0,
             int rainCount = 0,
-            float killTimeBonus = 0)
+            float killTimeBonus = 0,
+            float respawnDecay = 0)
         {
             if (!Enum.IsDefined(typeof(EnemyType), type))
                 throw new ArgumentOutOfRangeException(nameof(type), $"알 수 없는 적 종류 {(int)type}.");
@@ -115,6 +119,11 @@ namespace BlackHole.Core
                 throw new ArgumentOutOfRangeException(nameof(killTimeBonus), "0 이상의 유한한 값이 필요하다(0 = 판 설정).");
 
             KillTimeBonus = killTimeBonus;
+
+            if (float.IsNaN(respawnDecay) || respawnDecay < 0 || respawnDecay > 1)
+                throw new ArgumentOutOfRangeException(nameof(respawnDecay), "0 이상 1 이하가 필요하다(0 = 1세대까지만).");
+
+            RespawnDecay = respawnDecay;
         }
 
         // 판 구성 composition에서 색 등급 tier·크기 size(1부터)·성질 trait(없으면 null)의 실행 수치.
