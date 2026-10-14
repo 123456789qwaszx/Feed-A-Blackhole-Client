@@ -1,7 +1,9 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System;
 using System.Collections.Generic;
+using System.IO;
 using BlackHole.Core;
+using BlackHole.Net.Unity;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -86,6 +88,9 @@ namespace BlackHole.Unity
 
         // 프로필: 확인을 기다리는 프로필 이름(""는 원본). null이면 없다.
         private string _pendingProfile;
+
+        // 판: 계정·진행 초기화의 확인을 기다리는 중인가.
+        private bool _confirmReset;
 
         // 적
         private int _kindIndex;
@@ -802,6 +807,7 @@ namespace BlackHole.Unity
                 }
 
                 DrawReplay();
+                DrawAccountReset();
                 return;
             }
 
@@ -839,6 +845,56 @@ namespace BlackHole.Unity
             GUILayout.EndHorizontal();
 
             DrawReplay();
+            DrawAccountReset();
+        }
+
+        // 계정·진행 초기화(계약 2.7의 개발 중 복구). 서버 DB를 초기화해 저장된 계정이 거부될 때 쓴다.
+        // 진행 저장 폴더(프로필을 적용했으면 그 프로필의 폴더)의 계정 정보와 진행 저장을 지우고 장면을 다시 부른다.
+        private void DrawAccountReset()
+        {
+            GUILayout.Space(12);
+            string directory = _session.SaveDirectory(Application.persistentDataPath);
+
+            if (!_confirmReset)
+            {
+                if (GUILayout.Button("계정·진행 초기화"))
+                    _confirmReset = true;
+
+                return;
+            }
+
+            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.Label("계정 정보와 진행 저장을 지우고 다시 시작한다. 진행 중인 판은 버린다(결산·통계 없음). 되돌릴 수 없다.", _label);
+            GUILayout.Label(directory, _small);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("지우고 다시 시작"))
+                ResetAccountAndProgress(directory);
+            if (GUILayout.Button("취소"))
+                _confirmReset = false;
+            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
+        }
+
+        private void ResetAccountAndProgress(string directory)
+        {
+            _confirmReset = false;
+
+            try
+            {
+                new FileCredentialStore(directory).Delete();
+                new ProgressSaveFile(directory).Delete();
+            }
+            catch (Exception error) when (error is IOException || error is UnauthorizedAccessException)
+            {
+                _status = $"지우지 못했다: {error.Message}";
+                return;
+            }
+
+            // 다시 부르기 전에 이번 실행이 진행을 다시 저장하지 않게 막는다.
+            _screens.StopSaving();
+            Debug.Log($"[테스트] 계정 정보와 진행 저장을 지웠다: {directory}");
+            SetOpen(false, resume: false);
+            ReloadScene();
         }
 
         // 같은 시드로 다시: 마지막 시나리오가 있으면 그 시점부터, 없으면 지금 진행 상태로.
