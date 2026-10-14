@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlackHole.Net.Unity;
@@ -15,6 +16,9 @@ namespace BlackHole.Net.Tests
         // 넣어 둔 응답보다 많이 받은 요청 수. 호출하는 쪽이 예외를 삼킬 수 있어서 던지지 않고 센다.
         public int UnexpectedRequests { get; private set; }
 
+        // 요청을 받을 때마다 부른다. 요청 사이에 시계를 움직일 때 쓴다.
+        public Action<HttpRequest> Sent { get; set; }
+
         public void Enqueue(HttpResult result) => _responses.Enqueue(Task.FromResult(result));
 
         // 테스트가 직접 끝내는 응답. 요청이 겹치는 경우(갱신 단일 비행 등)를 흉내 낸다.
@@ -28,6 +32,7 @@ namespace BlackHole.Net.Tests
         public Task<HttpResult> SendAsync(HttpRequest request)
         {
             _requests.Add(request);
+            Sent?.Invoke(request);
 
             if (_responses.Count > 0) return _responses.Dequeue();
 

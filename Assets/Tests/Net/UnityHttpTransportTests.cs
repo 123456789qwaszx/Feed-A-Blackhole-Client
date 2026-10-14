@@ -95,7 +95,7 @@ namespace BlackHole.Net.Tests
                 Task<HttpResult> sending = transport.SendAsync(
                     new HttpRequest(HttpRequest.Post, ApiPaths.Sync, "{\"logs\":[]}", "token-1", 5));
 
-                yield return Wait(sending, 10);
+                yield return TestTasks.Wait(sending, 10);
 
                 HttpResult result = sending.Result;
                 Assert.AreEqual(HttpOutcome.Response, result.Outcome, result.TransportMessage);
@@ -125,7 +125,7 @@ namespace BlackHole.Net.Tests
                 var transport = new UnityHttpTransport($"http://127.0.0.1:{Port(listener)}");
                 Task<HttpResult> sending = transport.SendAsync(new HttpRequest(HttpRequest.Get, "/", null, null, 1));
 
-                yield return Wait(sending, 10);
+                yield return TestTasks.Wait(sending, 10);
 
                 Assert.AreEqual(HttpOutcome.Timeout, sending.Result.Outcome, sending.Result.TransportMessage);
             }
@@ -147,7 +147,7 @@ namespace BlackHole.Net.Tests
             var transport = new UnityHttpTransport($"http://127.0.0.1:{port}");
             Task<HttpResult> sending = transport.SendAsync(new HttpRequest(HttpRequest.Get, "/", null, null, 10));
 
-            yield return Wait(sending, 15);
+            yield return TestTasks.Wait(sending, 15);
 
             Assert.AreEqual(HttpOutcome.NetworkError, sending.Result.Outcome, sending.Result.TransportMessage);
             Assert.IsNotEmpty(sending.Result.TransportMessage);
@@ -163,16 +163,6 @@ namespace BlackHole.Net.Tests
         }
 
         private static int Port(TcpListener listener) => ((IPEndPoint)listener.LocalEndpoint).Port;
-
-        private static IEnumerator Wait(Task task, double seconds)
-        {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(seconds);
-            while (!task.IsCompleted)
-            {
-                if (DateTime.UtcNow > deadline) Assert.Fail($"{seconds}초 안에 끝나지 않았다.");
-                yield return null;
-            }
-        }
 
         // 요청 하나를 받아 그대로 돌려주고(검사용), 정해 둔 상태·본문으로 답한다.
         private static Task<string> AnswerOnceAsync(TcpListener listener, string status, string body) => Task.Run(async () =>
