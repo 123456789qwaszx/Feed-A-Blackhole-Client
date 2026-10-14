@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using BlackHole.Analytics;
 using BlackHole.Core;
 
 namespace BlackHole.Unity
@@ -181,12 +180,12 @@ namespace BlackHole.Unity
             foreach (SupplyData supply in content.Enemies.StartSupply)
             {
                 if (supply?.Enemy != null)
-                    paths.Add($"supply/{ContractIds.Of(supply.Enemy.Value.ToString())}/count");
+                    paths.Add($"supply/{PlaytestIds.Of(supply.Enemy.Value.ToString())}/count");
             }
 
             foreach (EnemyData enemy in content.Enemies.Enemies)
             {
-                string kind = "enemy/" + ContractIds.Of(enemy.Type.ToString());
+                string kind = "enemy/" + PlaytestIds.Of(enemy.Type.ToString());
 
                 foreach (string field in EnemyFields)
                     paths.Add($"{kind}/{field}");
@@ -199,7 +198,7 @@ namespace BlackHole.Unity
 
                 foreach (EnemyTraitData trait in enemy.Traits)
                 {
-                    string at = $"{kind}/trait/{ContractIds.Of(trait.Type.ToString())}";
+                    string at = $"{kind}/trait/{PlaytestIds.Of(trait.Type.ToString())}";
 
                     if (trait.Effect != null && TraitFields.TryGetValue(trait.Type, out string[] fields))
                     {
@@ -325,7 +324,7 @@ namespace BlackHole.Unity
             if (path.Length < 3)
                 return Unknown(string.Join("/", path), out error);
 
-            EnemyData enemy = enemies.Enemies.Find(e => ContractIds.Of(e.Type.ToString()) == path[1]);
+            EnemyData enemy = enemies.Enemies.Find(e => PlaytestIds.Of(e.Type.ToString()) == path[1]);
 
             if (enemy == null)
             {
@@ -368,7 +367,7 @@ namespace BlackHole.Unity
 
             if (path.Length == 5 && path[2] == "trait")
             {
-                EnemyTraitData trait = enemy.Traits.Find(t => ContractIds.Of(t.Type.ToString()) == path[3]);
+                EnemyTraitData trait = enemy.Traits.Find(t => PlaytestIds.Of(t.Type.ToString()) == path[3]);
 
                 if (trait == null)
                 {
@@ -413,7 +412,7 @@ namespace BlackHole.Unity
 
             foreach (EnemyType candidate in Enum.GetValues(typeof(EnemyType)))
             {
-                if (ContractIds.Of(candidate.ToString()) == kind)
+                if (PlaytestIds.Of(candidate.ToString()) == kind)
                     type = candidate;
             }
 

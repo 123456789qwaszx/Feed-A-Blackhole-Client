@@ -19,7 +19,6 @@ namespace BlackHole.Unity
         private readonly Localizer _localizer;// 코드가 쓰는 UI 글자의 번역.
         private readonly ScreenTransition _transition;
         private readonly KeyInput _keyInput;
-        private readonly BattleAnalytics _analytics;// 판의 시작·끝을 통계 서버로 보낸다.
         private readonly Dictionary<UIBase, List<Action>> _cleanupByScreen = new();
 
         public ScreenFlow(
@@ -35,8 +34,7 @@ namespace BlackHole.Unity
             GameSettings settings,
             Localizer localizer,
             ScreenTransition transition,
-            KeyInput keyInput,
-            BattleAnalytics analytics)
+            KeyInput keyInput)
         {
             _ui = ui;
             _presentations = presentations;
@@ -51,7 +49,6 @@ namespace BlackHole.Unity
             _localizer = localizer;
             _transition = transition;
             _keyInput = keyInput;
-            _analytics = analytics;
 
             _keyInput.ContinuePressed += HandleKeyActionSpace;
             _keyInput.UpgradePressed += HandleKeyActionShift;

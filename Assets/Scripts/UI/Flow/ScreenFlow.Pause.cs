@@ -70,10 +70,7 @@ namespace BlackHole.Unity
             }
 
             if (await _battle.TryAbandonAsync())
-            {
-                _analytics.BattleAbandoned();
                 ShowTitle();
-            }
         }
 
         private static void HandlePauseQuitClicked() => QuitGame();
