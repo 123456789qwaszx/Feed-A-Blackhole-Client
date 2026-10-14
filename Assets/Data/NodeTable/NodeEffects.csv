@@ -126,11 +126,11 @@ breaker.radius-08,1,breaker.radius,30,Percent,+30%
 breaker.critChance-04,1,breaker.critChance,40,Percent,+40%
 breaker.radius-09,1,breaker.radius,75,Percent,+75%
 comet.rainChance-03,1,comet.rainChance,20,Percent,+20%
-asteroid.count-04,1,asteroid.count,72,Flat,+72
+asteroid.count-04,1,asteroid.count,92,Flat,+92
 breaker.speed-08,1,breaker.speed,25,Percent,+25%
 electricStar.damage-01,1,electricStar.damage,500,Flat,+500
 breaker.radius-10,1,breaker.radius,45,Percent,+45%
-planet.toStar-01,1,planet.toStar,4,Flat,+4
+planet.toStar-01,1,planet.toStar,10,Flat,+10
 electricStar.chain-01,1,electricStar.chain,1,Flat,+1
 asteroid.toPlanet-04,1,asteroid.toPlanet,70,Flat,+70
 star.respawnChance-01,1,star.respawnChance,50,Percent,+50%
