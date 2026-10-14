@@ -15,6 +15,48 @@ namespace BlackHole.EditorTools.SyncFixtures
         [MenuItem("BlackHole/Sync Fixtures/Smoke Run")]
         private static void SmokeRunMenu() => Debug.Log(SmokeRun(battles: 5, maxBattleSeconds: 600));
 
+        // 캠페인: 이정표에 닿지 못한 채 300판이면 막힌 것으로 보고 멈춘다. 지금 봇은 성장도 3(Lv30)까지 가서 거기서 막힌다(약 600판, 1분 안팎).
+        // 판 루프는 백그라운드에서 돌고, 에디터에는 취소할 수 있는 진행 막대가 뜬다. 끝나면 보고서를 콘솔에 남긴다.
+        [MenuItem("BlackHole/Sync Fixtures/Campaign Run (성장도 3까지)")]
+        private static void CampaignRunMenu()
+        {
+            if (Running)
+            {
+                Debug.LogWarning("[SyncFixtures] 이미 캠페인이 돌고 있다.");
+                return;
+            }
+
+            CancelRequested = false;
+            string message = StartBackgroundSmoke(battles: 3000, maxBattleSeconds: 600, printEvery: 25, stallBattles: 300);
+
+            if (!Running)
+            {
+                Debug.LogError("[SyncFixtures] " + message);
+                return;
+            }
+
+            EditorApplication.update += PollCampaign;
+        }
+
+        // 진행 막대를 갱신하고, 끝나면 보고서를 남긴다.
+        private static void PollCampaign()
+        {
+            if (Running)
+            {
+                // 전체 판 수를 미리 알 수 없다(막힘 규칙으로 끝난다). 막대는 진행 중임만 보여 주고 글자로 판 번호를 알린다.
+                float pulse = (float)(EditorApplication.timeSinceStartup % 2) / 2;
+
+                if (EditorUtility.DisplayCancelableProgressBar("Sync Fixtures: 캠페인", Progress, pulse))
+                    CancelRequested = true;
+
+                return;
+            }
+
+            EditorApplication.update -= PollCampaign;
+            EditorUtility.ClearProgressBar();
+            Debug.Log(BackgroundReport);
+        }
+
         // 지금 콘텐츠로 빈 진행도에서 [판 → 결산 → 구매]를 battles번 돌리고 보고서를 돌려준다.
         // - 같은 시드로 첫 판을 두 번 돌려 결과가 같은지 확인한다(재현성).
         // - 판마다 걸린 실제 시간을 적는다(픽스처를 만드는 데 걸릴 시간을 가늠한다).
@@ -34,6 +76,12 @@ namespace BlackHole.EditorTools.SyncFixtures
         // 돌고 있는 판의 진행 상황(판 번호, 성장도, 마지막 판의 소요). 긴 실행이 어디쯤인지 본다.
         public static volatile string Progress = "";
 
+        // 백그라운드 실행이 돌고 있는가. 끝나면(보고서가 담긴 뒤) false다.
+        public static volatile bool Running;
+
+        // true로 두면 돌고 있는 실행이 다음 판 앞에서 멈추고 그때까지의 보고서를 남긴다.
+        public static volatile bool CancelRequested;
+
         public static string StartBackgroundSmoke(int battles, float maxBattleSeconds, int printEvery, int stallBattles = 300)
         {
             LoadedContent loaded = LoadContent(out string error);
@@ -42,10 +90,13 @@ namespace BlackHole.EditorTools.SyncFixtures
                 return error;
 
             BackgroundReport = null;
+            CancelRequested = false;
+            Running = true;
             System.Threading.Tasks.Task.Run(() =>
             {
                 try { BackgroundReport = Run(loaded, battles, maxBattleSeconds, printEvery, stallBattles); }
                 catch (System.Exception exception) { BackgroundReport = "실패: " + exception; }
+                finally { Running = false; }
             });
 
             return "시작했다. 끝나면 BackgroundReport에 보고서가 담긴다.";
@@ -96,6 +147,13 @@ namespace BlackHole.EditorTools.SyncFixtures
 
             for (int index = 1; index <= battles; index++)
             {
+                if (CancelRequested)
+                {
+                    report.AppendLine($"취소됨: {index - 1}판까지 돌았다.");
+                    battles = index - 1;
+                    break;
+                }
+
                 int seed = unchecked(1 * 100003 + index);
                 UpgradeStatValues upgrades = NodePurchase.StatsFor(progress, loaded.NodeTree);
 
@@ -130,7 +188,7 @@ namespace BlackHole.EditorTools.SyncFixtures
 
             report.AppendLine($"상한에서 끊긴 판 {capped}개, 마지막 이정표 뒤 {sinceMilestone}판, 가장 오래 걸린 판 {maxBattleMs}ms");
 
-            report.AppendLine($"합계 {total.ElapsedMilliseconds}ms, 판당 평균 {total.ElapsedMilliseconds / (double)battles:F0}ms, 성장도 {progress.GrowthStage}");
+            report.AppendLine($"합계 {total.ElapsedMilliseconds}ms, 판당 평균 {total.ElapsedMilliseconds / (double)System.Math.Max(1, battles):F0}ms, 성장도 {progress.GrowthStage}");
             return report.ToString();
         }
 
