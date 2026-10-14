@@ -62,8 +62,11 @@ namespace BlackHole.Simulation.Tool
                 MoonDuration = Float(skills, "breakerMoonDuration", 5),
                 MoonSpeedBonus = Float(skills, "breakerMoonSpeedBonus", 0.2f),
                 MoonRadiusBonus = Float(skills, "breakerMoonRadiusBonus", 0.1f),
+                MoonRadiusDecay = Float(skills, "breakerMoonRadiusDecay", 0),
                 CometDuration = Float(skills, "breakerCometDuration", 5),
                 CometCritDamageBonus = Float(skills, "breakerCometCritDamageBonus", 0.5f),
+                MoonSpeedDecay = Float(skills, "breakerMoonSpeedDecay", 0),
+                CometCritDecay = Float(skills, "breakerCometCritDecay", 0),
                 HoldSlow = Float(skills, "breakerHoldSlow", 0.05f),
             };
 
@@ -140,6 +143,10 @@ namespace BlackHole.Simulation.Tool
                 UpgradesTo = next != null ? (EnemyType)Asset(next, "변환 대상(upgradesTo)").Int("type") : (EnemyType?)null,
                 SpawnPeriod = Float(kind, "spawnPeriod", 0),
                 RainCount = kind.Int("rainCount"),
+                KillTimeBonus = Float(kind, "killTimeBonus", 0),
+                RespawnDecay = Float(kind, "respawnDecay", 0),
+                RainCooldown = Float(kind, "rainCooldown", 0),
+                RainDelay = Float(kind, "rainDelay", 0),
             };
 
             foreach (YamlNode trait in kind["traits"]?.Items ?? Array.Empty<YamlNode>())

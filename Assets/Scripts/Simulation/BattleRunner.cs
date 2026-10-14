@@ -80,6 +80,7 @@ namespace BlackHole.Simulation
                 CollectedMoons = raw.Stats.CollectedMoons,
                 CollectedComets = raw.Stats.CollectedComets,
                 AddedSeconds = raw.Stats.AddedSeconds,
+                Exp = raw.Exp,
             };
 
             foreach (EnemyKillCount kill in raw.Kills)

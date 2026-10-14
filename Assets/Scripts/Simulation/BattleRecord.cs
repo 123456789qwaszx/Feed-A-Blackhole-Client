@@ -44,6 +44,9 @@ namespace BlackHole.Simulation
         public int CollectedComets { get; set; }
         public float AddedSeconds { get; set; }
 
+        // 이 판에서 번 EXP(시작 Level에 닿는 EXP부터 센 누적값. BattleRawData.Exp).
+        public long Exp { get; set; }
+
         public int KillsOf(EnemyType type) => Kills.TryGetValue(type, out int count) ? count : 0;
     }
 }

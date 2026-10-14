@@ -194,7 +194,9 @@ namespace BlackHole.Simulation.Tool
                     UpgradeStatValues upgrades = NodePurchase.StatsFor(state, tree);
                     BattleRecord b = BattleRunner.Run(assets.Content, state, upgrades, make(), seed, frame, maxSeconds);
                     Console.WriteLine($"  시드 {seed}: {b.PlayedSeconds,5:0.0}초{(b.Capped ? "(상한에서 끊음)" : "")} · Level {b.StartLevel}→{b.ReachedLevel}{(b.ReachedMilestone ? " 이정표" : "")}" +
-                        $" · 번 Gold {b.EarnedGold,22:N0} · 처치 {b.TotalKills,6} · Breaker 피해 {b.BreakerDamage:0.###E+0}");
+                        $" · 번 Gold {b.EarnedGold,22:N0} · 처치 {b.TotalKills,6} · Breaker 피해 {b.BreakerDamage:0.###E+0}" +
+                        $" · EXP {b.Exp:N0} · 소/행/별/은/혜 {b.KillsOf(EnemyType.Asteroid)}/{b.KillsOf(EnemyType.Planet)}/{b.KillsOf(EnemyType.Star)}/{b.KillsOf(EnemyType.Galaxy)}/{b.KillsOf(EnemyType.Comet)}" +
+                        $" · 추가 시간 {b.AddedSeconds:0.0}초 · 달 {b.CollectedMoons} · 혜성 {b.CollectedComets} · 공격 {b.BreakerTicks}");
                 }
             }
 

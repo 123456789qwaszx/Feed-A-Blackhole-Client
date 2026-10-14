@@ -115,7 +115,7 @@ namespace BlackHole.Simulation
             text.Append("battle,seed,bot,stage,next_stage,start_level,goal_level,reached_level,milestone,capped,seconds,elapsed_seconds,")
                 .Append("earned_gold,settled_gold,gold_before,gold_after_settle,bought,spent,gold_after_buy,owned_ranks,next_cheapest_cost,")
                 .Append("kills_total,kills_asteroid,kills_planet,kills_star,kills_galaxy,kills_comet,")
-                .Append("breaker_damage,laser_damage,supernova_damage,electric_asteroid_damage,electric_star_damage,breaker_ticks,moons,comets,added_seconds\n");
+                .Append("breaker_damage,laser_damage,supernova_damage,electric_asteroid_damage,electric_star_damage,breaker_ticks,moons,comets,added_seconds,exp\n");
 
             foreach (CampaignBattle entry in result.Battles)
             {
@@ -132,7 +132,7 @@ namespace BlackHole.Simulation
                 text.Append(',').Append(F(b.BreakerDamage)).Append(',').Append(F(b.LaserDamage)).Append(',').Append(F(b.SupernovaDamage))
                     .Append(',').Append(F(b.ElectricAsteroidDamage)).Append(',').Append(F(b.ElectricStarDamage))
                     .Append(',').Append(b.BreakerTicks.ToString(Invariant)).Append(',').Append(b.CollectedMoons.ToString(Invariant))
-                    .Append(',').Append(b.CollectedComets.ToString(Invariant)).Append(',').Append(F(b.AddedSeconds)).Append('\n');
+                    .Append(',').Append(b.CollectedComets.ToString(Invariant)).Append(',').Append(F(b.AddedSeconds)).Append(',').Append(b.Exp.ToString(Invariant)).Append('\n');
             }
 
             return text.ToString();

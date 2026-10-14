@@ -13,9 +13,9 @@ namespace BlackHole.Unity
     //
     // 경로는 슬래시로 나눈다. 종류·성질은 계약 ID처럼 열거형 이름의 첫 글자만 소문자다(asteroid, golden).
     //   battle/<timeLimit|killTimeBonus|maxKillTimeBonus|killTimeCooldown>
-    //   breaker/<damage|interval|radius|critChance|critDamage|moonDuration|moonSpeedBonus|moonRadiusBonus|moonSpeedDecay|cometDuration|cometCritDamageBonus|planetBonusDamage|starBonusDamage|galaxyBonusDamage|holdSlow>
+    //   breaker/<damage|interval|radius|critChance|critDamage|moonDuration|moonSpeedBonus|moonRadiusBonus|moonRadiusDecay|moonSpeedDecay|cometDuration|cometCritDamageBonus|cometCritDecay|planetBonusDamage|starBonusDamage|galaxyBonusDamage|holdSlow>
     //   placement/<minDistance|maxDistance>           적 출현 띠(HQ로부터 거리, 전장 배율 1 기준)
-    //   enemy/<종류>/<moveSpeed|radius|radiusStep|spawnPeriod|rainCount|killTimeBonus>
+    //   enemy/<종류>/<moveSpeed|radius|radiusStep|spawnPeriod|rainCount|killTimeBonus|respawnDecay|rainCooldown|rainDelay>
     //   enemy/<종류>/tier/<색 등급, 1부터>/<hp|gold|exp>
     //   enemy/<종류>/trait/<성질>/<multiplier|critRewardScale|damage|radius|maxTargets|branchChance|critChance|critMultiplier|healthFraction|width|force|duration|maxActive>
     //   supply/<종류>/count                       시작 공급에 없는 종류면 더한다(없는 종류의 지금 값은 0)
@@ -58,12 +58,12 @@ namespace BlackHole.Unity
 
         private static readonly string[] BreakerFields =
         {
-            "damage", "interval", "radius", "critChance", "critDamage", "moonDuration", "moonSpeedBonus", "moonRadiusBonus", "moonSpeedDecay",
-            "cometDuration", "cometCritDamageBonus", "planetBonusDamage", "starBonusDamage", "galaxyBonusDamage", "holdSlow",
+            "damage", "interval", "radius", "critChance", "critDamage", "moonDuration", "moonSpeedBonus", "moonRadiusBonus", "moonRadiusDecay", "moonSpeedDecay",
+            "cometDuration", "cometCritDamageBonus", "cometCritDecay", "planetBonusDamage", "starBonusDamage", "galaxyBonusDamage", "holdSlow",
         };
 
         private static readonly string[] PlacementFields = { "minDistance", "maxDistance" };
-        private static readonly string[] EnemyFields = { "moveSpeed", "radius", "radiusStep", "spawnPeriod", "rainCount", "killTimeBonus" };
+        private static readonly string[] EnemyFields = { "moveSpeed", "radius", "radiusStep", "spawnPeriod", "rainCount", "killTimeBonus", "respawnDecay", "rainCooldown", "rainDelay" };
         private static readonly string[] TierFields = { "hp", "gold", "exp" };
         private static readonly string[] MilestoneFields = { "level", "targetGold", "fieldScale" };
 
@@ -289,7 +289,9 @@ namespace BlackHole.Unity
                 case "moonDuration": return Real(() => breaker.MoonDuration, v => breaker.MoonDuration = v, out error);
                 case "moonSpeedBonus": return Real(() => breaker.MoonSpeedBonus, v => breaker.MoonSpeedBonus = v, out error);
                 case "moonSpeedDecay": return Real(() => breaker.MoonSpeedDecay, v => breaker.MoonSpeedDecay = v, out error);
+                case "cometCritDecay": return Real(() => breaker.CometCritDecay, v => breaker.CometCritDecay = v, out error);
                 case "moonRadiusBonus": return Real(() => breaker.MoonRadiusBonus, v => breaker.MoonRadiusBonus = v, out error);
+                case "moonRadiusDecay": return Real(() => breaker.MoonRadiusDecay, v => breaker.MoonRadiusDecay = v, out error);
                 case "cometDuration": return Real(() => breaker.CometDuration, v => breaker.CometDuration = v, out error);
                 case "cometCritDamageBonus": return Real(() => breaker.CometCritDamageBonus, v => breaker.CometCritDamageBonus = v, out error);
                 case "planetBonusDamage": return Real(() => breaker.PlanetBonusDamage, v => breaker.PlanetBonusDamage = v, out error);
@@ -341,6 +343,9 @@ namespace BlackHole.Unity
                     case "spawnPeriod": return Real(() => enemy.SpawnPeriod, v => enemy.SpawnPeriod = v, out error);
                     case "rainCount": return Int(() => enemy.RainCount, v => enemy.RainCount = v, out error);
                     case "killTimeBonus": return Real(() => enemy.KillTimeBonus, v => enemy.KillTimeBonus = v, out error);
+                    case "respawnDecay": return Real(() => enemy.RespawnDecay, v => enemy.RespawnDecay = v, out error);
+                    case "rainCooldown": return Real(() => enemy.RainCooldown, v => enemy.RainCooldown = v, out error);
+                    case "rainDelay": return Real(() => enemy.RainDelay, v => enemy.RainDelay = v, out error);
                     default: return Unknown(path[2], out error);
                 }
             }
