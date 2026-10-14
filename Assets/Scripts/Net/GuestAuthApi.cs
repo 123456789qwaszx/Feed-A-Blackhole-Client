@@ -3,96 +3,98 @@ using System.Threading.Tasks;
 
 namespace BlackHole.Net
 {
-    // Unreachable: 흐름을 멈추고 오프라인(사유는 UnreachableReason). Rejected: 흐름이 코드를 보고 다음 단계를 정한다.
-    internal enum AuthResultKind { Success, Rejected, Unreachable }
+    // 인증 요청 하나가 AuthSession에 돌려주는 세 갈래.
+    // Rejected: 서버가 4xx로 거부했다. 흐름이 오류 코드를 보고 다음 단계를 정한다.
+    // Offline: 흐름을 멈추고 이번 실행은 오프라인이다(서버에 닿지 않음, 형식이 맞지 않는 2xx).
+    internal enum AuthResultKind { Success, Rejected, Offline }
 
-    // 인증 요청 하나의 결과. AuthSession은 이 세 갈래만 본다.
     internal sealed class AuthResult
     {
         public AuthResultKind Kind { get; private set; }
-        public string ErrorCode { get; private set; } // Rejected : 서버 오류
-        public OfflineReason UnreachableReason { get; private set; } // Unreachable : 사유
-        public string GuestId { get; private set; } // 등록 응답
-        public string Secret { get; private set; }
-        public string AccessToken { get; private set; } // 로그인 갱신/응답
+
+        // Rejected일 때. 오류 본문이 아니면 ErrorCode는 null.
+        public long StatusCode { get; private set; }
+        public string ErrorCode { get; private set; }
+
+        // Offline일 때의 까닭(Unreachable 또는 ProtocolError).
+        public OfflineReason OfflineReason { get; private set; }
+
+        // 등록 응답.
+        public string GuestId { get; private set; }
+        public string GuestSecret { get; private set; }
+
+        // 로그인·갱신 응답.
+        public string AccessToken { get; private set; }
         public string RefreshToken { get; private set; }
 
-        public static AuthResult Registered(string guestId, string secret) =>
-            new AuthResult { Kind = AuthResultKind.Success, GuestId = guestId, Secret = secret };
-        public static AuthResult Tokens(string access, string refresh) =>
-            new AuthResult { Kind = AuthResultKind.Success, AccessToken = access, RefreshToken = refresh };
-        public static AuthResult Rejected(string code) =>
-            new AuthResult { Kind = AuthResultKind.Rejected, ErrorCode = code };
-        public static AuthResult Unreachable(OfflineReason reason) =>
-            new AuthResult { Kind = AuthResultKind.Unreachable, UnreachableReason = reason };
+        public static AuthResult Registered(string guestId, string guestSecret) =>
+            new() { Kind = AuthResultKind.Success, GuestId = guestId, GuestSecret = guestSecret };
+
+        public static AuthResult Tokens(string accessToken, string refreshToken) =>
+            new() { Kind = AuthResultKind.Success, AccessToken = accessToken, RefreshToken = refreshToken };
+
+        public static AuthResult Rejected(long statusCode, string errorCode) =>
+            new() { Kind = AuthResultKind.Rejected, StatusCode = statusCode, ErrorCode = errorCode };
+
+        public static AuthResult Offline(OfflineReason reason) =>
+            new() { Kind = AuthResultKind.Offline, OfflineReason = reason };
     }
 
-    // API 명세 "인증"의 세 요청. HttpResult를 성공 / 거절 / 서버에 닿지 않음으로 나눈다.
+    // API 명세 "인증"의 세 요청(등록, 로그인, 갱신). 토큰 없이 보낸다.
     internal sealed class GuestAuthApi
     {
-        const string RegisterPath = "/api/v1/auth/guest/register";
-        const string LoginPath = "/api/v1/auth/guest/login";
-        const string RefreshPath = "/api/v1/auth/refresh";
+        private readonly IHttpTransport _transport;
+        private readonly IJsonSerializer _json;
+        private readonly Action<string> _logError;
 
-        readonly IHttpTransport _transport;
-        readonly IJsonSerializer _json;
-
-        public GuestAuthApi(IHttpTransport transport, IJsonSerializer json)
+        public GuestAuthApi(IHttpTransport transport, IJsonSerializer json, Action<string> logError)
         {
             _transport = transport;
             _json = json;
+            _logError = logError;
         }
 
+        // 요청 본문은 없다(API 명세).
         public Task<AuthResult> RegisterAsync(int timeoutSeconds) =>
-            PostAsync<RegisterResponse>(RegisterPath, "{}", timeoutSeconds,
-                d => Has(d.guestId) && Has(d.secret) ? AuthResult.Registered(d.guestId, d.secret) : null);
+            SendAsync<GuestRegisterResponseDto>(ApiPaths.GuestRegister, null, timeoutSeconds,
+                dto => Has(dto.guestId) && Has(dto.guestSecret) ? AuthResult.Registered(dto.guestId, dto.guestSecret) : null);
 
-        public Task<AuthResult> LoginAsync(string guestId, string secret, int timeoutSeconds) =>
-            PostAsync<TokenResponse>(LoginPath,
-                _json.ToJson(new LoginRequest { guestId = guestId, secret = secret }),
-                timeoutSeconds, ToTokens);
+        public Task<AuthResult> LoginAsync(GuestCredentials credentials, int timeoutSeconds) =>
+            SendAsync<TokenResponseDto>(ApiPaths.GuestLogin,
+                _json.ToJson(new GuestLoginRequestDto { guestId = credentials.GuestId, guestSecret = credentials.GuestSecret }),
+                timeoutSeconds, ReadTokens);
 
         public Task<AuthResult> RefreshAsync(string refreshToken, int timeoutSeconds) =>
-            PostAsync<TokenResponse>(RefreshPath,
-                _json.ToJson(new RefreshRequest { refreshToken = refreshToken }),
-                timeoutSeconds, ToTokens);
+            SendAsync<TokenResponseDto>(ApiPaths.Refresh,
+                _json.ToJson(new RefreshTokenRequestDto { refreshToken = refreshToken }),
+                timeoutSeconds, ReadTokens);
 
-        async Task<AuthResult> PostAsync<TResponse>(string path, string jsonBody, int timeoutSeconds, Func<TResponse, AuthResult> onOk) where TResponse : class
+        private async Task<AuthResult> SendAsync<T>(string path, string jsonBody, int timeoutSeconds, Func<T, AuthResult> read)
+            where T : class
         {
-            // 인증 요청은 토큰 없이 보낸다(bearerToken: null).
-            // timeoutSeconds는 AuthSession.WithinBudget이 1 이상만 넘긴다 — 생성자의 1초 이상 조건과 맞는다.
-            var request = new HttpRequest(HttpRequest.Post, path, jsonBody, bearerToken: null, timeoutSeconds: timeoutSeconds);
+            HttpResult result = await _transport.SendAsync(new HttpRequest(HttpRequest.Post, path, jsonBody, null, timeoutSeconds));
 
-            HttpResult r = await _transport.SendAsync(request);
+            // 네트워크 오류, 타임아웃, 5xx. 계정 정보는 건드리지 않는다.
+            if (!result.Reached)
+                return AuthResult.Offline(OfflineReason.Unreachable);
 
+            if (!result.IsSuccess)
+                return AuthResult.Rejected(result.StatusCode, result.Error?.Code);
 
-            // 실제 멤버에 맞추기 (타임아웃, 네트워크에러, 응답 구분)
-            // 네트워크 오류, 타임아웃, 5xx -> Unreachable
-            if(!r.Reached) return AuthResult.Unreachable(OfflineReason.Unreachable);
+            T dto = _json.FromJson<T>(result.Body);
+            AuthResult success = dto != null ? read(dto) : null;
 
-            if (r.IsSuccess)
-            {
-                var dto = _json.FromJson<TResponse>(r.Body);
-                var ok = dto == null ? null : onOk(dto);
-                // 2xx인데 형식이 맞지 않는 본문 → ProtocolError. 흐름을 멈추고 계정 정보를 건드리지 않는다.
-                return ok ?? AuthResult.Unreachable(OfflineReason.ProtocolError);
-            }
+            if (success != null)
+                return success;
 
-            // 서버가 답했지만 2xx가 아님(4xx 등) → 거절. 코드를 보고 다음 단계는 AuthSession이 정한다.
-            // 오류 본문이 아니면 Error가 null이라 코드도 null — AuthSession에서 ProtocolError로 끝난다.
-            // TODO: ApiError의 코드 멤버 이름 확인
-            return AuthResult.Rejected(r.Error?.Code);
+            // 본문에 토큰·시크릿이 있으므로 로그에 남기지 않는다.
+            _logError($"[인증] {path} {result.StatusCode} 응답의 형식이 맞지 않는다.");
+            return AuthResult.Offline(OfflineReason.ProtocolError);
         }
 
-        static AuthResult ToTokens(TokenResponse d) =>
-            Has(d.accessToken) && Has(d.refreshToken) ? AuthResult.Tokens(d.accessToken, d.refreshToken) : null;
-        static bool Has(string s) => !string.IsNullOrEmpty(s);
+        private static AuthResult ReadTokens(TokenResponseDto dto) =>
+            Has(dto.accessToken) && Has(dto.refreshToken) ? AuthResult.Tokens(dto.accessToken, dto.refreshToken) : null;
 
-        #region DTO (JsonUtility 규칙: [Serializable] + public 필드). 필드 이름은 API 명세에 맞춘다.
-        [Serializable] sealed class LoginRequest { public string guestId; public string secret; }
-        [Serializable] sealed class RefreshRequest { public string refreshToken; }
-        [Serializable] sealed class RegisterResponse { public string guestId; public string secret; }
-        [Serializable] sealed class TokenResponse { public string accessToken; public string refreshToken; }
-        #endregion
+        private static bool Has(string value) => !string.IsNullOrEmpty(value);
     }
 }

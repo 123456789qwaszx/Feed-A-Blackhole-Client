@@ -54,6 +54,9 @@ namespace BlackHole.Unity
             }, afterStart);
         }
 
+        // 이번 실행은 더 저장하지 않는다. 테스트 도구가 저장 파일을 지운 뒤 장면을 다시 부르기 전에 부른다.
+        internal void StopSaving() => _progressStore.EnterTestSession();
+
         // 진행 중인 판을 지금 끝내고 결산한다(시간 종료와 같은 길).
         internal void EndBattleNow()
         {

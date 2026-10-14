@@ -1,219 +1,280 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityPipeline.Microsoft.CodeAnalysis.Operations;
 
 namespace BlackHole.Net
 {
+    // IAuthSession 구현(계약 2.4, 2.6). 앱 시작 시 갱신 → 로그인 → (계정 정보가 없으면) 등록 후 로그인.
+    // 저장 순서: 등록에 성공하면 로그인하기 전에 아이디·시크릿을, 새 refresh 토큰은 다른 일을 하기 전에 저장한다.
+    // 서버에 닿지 않으면(네트워크 오류, 타임아웃, 5xx) 이번 실행은 오프라인이고 계정 정보는 그대로 둔다.
     public sealed class AuthSession : IAuthSession
     {
-        public static readonly TimeSpan LoginBudget = TimeSpan.FromSeconds(8);
-        const string InvalidCredentialCode = "INVALID_CREDENTIALS";
+        private readonly GuestAuthApi _api;
+        private readonly ICredentialStore _store;
+        private readonly int _requestTimeoutSeconds;
+        private readonly TimeSpan _loginBudget;
+        private readonly Action<string> _log;
+        private readonly Action<string> _logError;
+        private readonly Func<DateTime> _now;
+        private readonly SynchronizationContext _mainThread;
+        private readonly object _gate = new();
 
-        readonly GuestAuthApi _api;
-        readonly ICredentialStore _store;
-        readonly Action<string> _log;
-        readonly Func<DateTime> _now;
-        readonly SynchronizationContext _mainThread;
-        readonly object _gate = new object();
-
-        GuestCredentials _creds; //저장소 내용의 메모리 사본 (실패해도 최신상태 유지)
-        string _accessToken;
-        Task<bool> _recoverInFlight; // 401 복구 단일 비행
+        // 저장소 내용의 메모리 사본. 저장에 실패해도 이번 실행은 이 값으로 이어 간다.
+        private GuestCredentials _credentials;
+        private string _accessToken;
+        private bool _started;
+        // 진행 중인 401 복구. 겹친 호출은 이것을 함께 기다린다.
+        private Task<bool> _recovering;
 
         public ConnectionState State { get; private set; } = ConnectionState.Connecting;
         public OfflineReason OfflineReason { get; private set; } = OfflineReason.None;
         public string AccessToken => State == ConnectionState.Online ? _accessToken : null;
         public event Action<ConnectionState> StateChanged;
 
-
-        // 메인 스레드에서 생성한다(StateChanged를 메인 스레드로 보내기 위해).
-        // now는 테스트에서 시간 예산을 흉내 낼 때 넣는다.
-        public AuthSession(IHttpTransport transport, IJsonSerializer json, ICredentialStore store,
-            Action<string> log = null, Func<DateTime> now = null)
+        // 메인 스레드에서 만든다(StateChanged를 메인 스레드로 보낸다). 시간은 ServerSettings의 값을 넘긴다.
+        // now는 테스트가 시간 예산을 흉내 낼 때 넣는다.
+        public AuthSession(
+            IHttpTransport transport,
+            IJsonSerializer json,
+            ICredentialStore store,
+            int requestTimeoutSeconds,
+            int loginBudgetSeconds,
+            Action<string> log = null,
+            Action<string> logError = null,
+            Func<DateTime> now = null)
         {
             if (transport == null) throw new ArgumentNullException(nameof(transport));
             if (json == null) throw new ArgumentNullException(nameof(json));
+            if (requestTimeoutSeconds < 1) throw new ArgumentOutOfRangeException(nameof(requestTimeoutSeconds), "1초 이상이어야 한다.");
+            if (loginBudgetSeconds < 1) throw new ArgumentOutOfRangeException(nameof(loginBudgetSeconds), "1초 이상이어야 한다.");
+
             _store = store ?? throw new ArgumentNullException(nameof(store));
-            _api = new GuestAuthApi(transport, json);
             _log = log ?? (_ => { });
+            _logError = logError ?? (_ => { });
+            _api = new GuestAuthApi(transport, json, _logError);
+            _requestTimeoutSeconds = requestTimeoutSeconds;
+            _loginBudget = TimeSpan.FromSeconds(loginBudgetSeconds);
             _now = now ?? (() => DateTime.UtcNow);
             _mainThread = SynchronizationContext.Current;
         }
 
-        #region 앱 시작
         public async Task StartAsync()
-        {
-            OfflineReason reason;
-            try
-            {
-                _creds = _store.Load(); // 없음/깨짐 (백업처리)이면 null
-                reason = await SignInAsync(allowRegister: true, deadline: _now() + LoginBudget);
-            }
-            catch (Exception ex)
-            {
-                _log("[Auth] 시작중 예외 : " + ex);
-                reason = OfflineReason.ProtocolError; // 예상하지 못한 예외는 버그
-            }
-
-            if (reason == OfflineReason.None) SetOnline();
-            else SetOffline(reason);
-        }
-        #endregion
-
-        #region 앱 실행 401
-        public Task<bool> RefreshAfterUnauthorizedAsync()
         {
             lock (_gate)
             {
-                if (State != ConnectionState.Online) return Task.FromResult(false);
+                // 로그인은 앱 시작 시 한 번만 한다(계획서 D9).
+                if (_started)
+                    return;
 
-                // 진행 중인 복구가 있으면 같이 기다린다 → 갱신 요청은 하나만 나간다.
-                // 완료된 Task는 재사용하지 않는다(지난 결과가 남지 않도록).
-                if (_recoverInFlight != null && !_recoverInFlight.IsCompleted)
-                    return _recoverInFlight;
-
-                _recoverInFlight = RecoverAsync();
-                return _recoverInFlight;
+                _started = true;
             }
-        }
 
-        async Task<bool> RecoverAsync()
-        {
             OfflineReason reason;
             try
             {
-                // 갱신 한번, 안되면 로그인 한번, 등록은 안함
-                reason = await SignInAsync(allowRegister: false, deadline: _now() + LoginBudget);
+                _credentials = _store.Load();
+                DateTime deadline = _now() + _loginBudget;
+                reason = await SignInAsync(true, () => TimeoutWithin(deadline));
             }
-            catch (Exception ex)
+            catch (Exception error)
             {
-                _log("[Auth] 401 복구중 예외! " + ex);
+                // 예상하지 못한 예외는 버그다.
+                _logError("[인증] 로그인 중 예외: " + error);
                 reason = OfflineReason.ProtocolError;
             }
 
             if (reason == OfflineReason.None)
-                return State == ConnectionState.Online; // 그 사이 GoOffline 됐으면 false
-
-            SetOffline(reason);
-            return false;
+                SetOnline();
+            else
+                SetOffline(reason);
         }
 
-        public void GoOffline(OfflineReason reason) => SetOffline(reason);
-        #endregion
-
-        #region 흐름 본체
-
-        // 성공이면 OfflineReason.None 실패면 왜 오프라인인지?
-        async Task<OfflineReason> SignInAsync(bool allowRegister, DateTime deadline)
-        {
-            // 1. refresh 갱신
-            string refreshToken = RefreshTokenOf(_creds);
-            if (!string.IsNullOrEmpty(refreshToken))
-            {
-                var r = await WithInBudget(deadline, t => _api.RefreshAsync(refreshToken, t));
-                if (r.Kind == AuthResultKind.Success) return Accept(r);
-                if (r.Kind == AuthResultKind.Unreachable) return r.UnreachableReason; // 계정 정보는 그래도 유지
-                // 거절(만료, 재사용 탐지 등) → 아이디/시크릿 로그인으로.
-                // 저장 전 종료로 refresh가 어긋난 경우도 여기서 로그인으로 복구된다.
-            }
-
-            // 2. 계정 정보가 없으면 등록
-            if (!HasAccount(_creds))
-            {
-                if (!allowRegister) return OfflineReason.ProtocolError; // 온라인인데 계정이 없으면 버그
-
-                var reg = await WithInBudget(deadline, t => _api.RegisterAsync(t));
-                if (reg.Kind == AuthResultKind.Unreachable) return reg.UnreachableReason;
-                if (reg.Kind != AuthResultKind.Success) return OfflineReason.ProtocolError; //등록 거절은 예상못한 4xx
-
-                var registred = MakeCredentials(reg.GuestId, reg.Secret, refreshToken: null);
-                // 로그인 전 아이디/시크릿을 저장. 저장 못한 계정은 진행하지 않음
-                // 맞는 사유가 없어 Unreachable로 둔다 (다음 실행에 등록부터 다시 시도). 로그로 구분
-                if (!TrySave(registred)) return OfflineReason.Unreachable;
-                _creds = registred;
-            }
-
-            // 3. 아이디/시크릿 로그인
-            var login = await WithInBudget(deadline, t =>
-                _api.LoginAsync(GuestIdOf(_creds), SecretOf(_creds), t
-            ));
-            if (login.Kind == AuthResultKind.Success) return Accept(login);
-            if (login.Kind == AuthResultKind.Unreachable) return login.UnreachableReason;
-
-            // INVALID_CREDENTIALS먄, 새 계정을 만들지 않고 오프라인
-            if (login.ErrorCode == InvalidCredentialCode) return OfflineReason.CredentialsRejected;
-            return OfflineReason.ProtocolError; // 그외 4xx
-        }
-
-        // 새 refresh 토큰은 다른 일을 하기 전에 저장
-        OfflineReason Accept(AuthResult r)
-        {
-            var updated = MakeCredentials(GuestIdOf(_creds), SecretOf(_creds), r.RefreshToken);
-            _creds = updated; // 디스크 저장이 실패해도 이번 실행은 메모리 값으로 계속 진행
-            if (!TrySave(updated))
-                _log("[Auth] refresh 토큰 저장 실패. 다음 실행은 재사용 탐지 후 로그인으로 복구된다.");
-
-            _accessToken = r.AccessToken;
-            return OfflineReason.None;
-        }
-
-        bool TrySave(GuestCredentials creds)
-        {
-            try { _store.Save(creds); return true; }
-            catch (Exception e) { _log("[Auth] 계정 정보 저장 실패 : " + e); return false; }
-        }
-
-        /*
-         * 남은 예산을 요청 타임이웃(s)으로 넘어간다. 전송이 취소를 지원하지 않으므로
-         * 요청마다 남은 시간 이상 걸리지 않게 하는 방식으로 예산을 지킨다.
-         * 1초 미만이면 보내지 않는다 - UnityWebRequest에서 timeout 0은 무제한
-         */
-        Task<AuthResult> WithInBudget(DateTime deadline, Func<int, Task<AuthResult>> call)
-        {
-            double remaining = (deadline - _now()).TotalSeconds;
-            int seconds = (int)Math.Floor((deadline - _now()).TotalSeconds);
-            if (seconds < 1)
-            {
-                // 로그인 시간 예산 초과
-                _log($"[Auth] 남은 예산 {remaining:F2}초 — 요청을 보내지 않고 오프라인");
-                return Task.FromResult(AuthResult.Unreachable(OfflineReason.Unreachable));
-            }
-            return call(seconds);
-        }
-        #endregion
-
-        #region Guest Credentials 접근 - 실제 필드 이름에 맞춰 여기만 고친다
-        static string GuestIdOf(GuestCredentials c) => c?.GuestId;
-        static string SecretOf(GuestCredentials c) => c?.GuestSecret;
-        static string RefreshTokenOf(GuestCredentials c) => c?.RefreshToken;
-
-        static bool HasAccount(GuestCredentials c) =>
-            !string.IsNullOrEmpty(GuestIdOf(c)) && !string.IsNullOrEmpty(SecretOf(c));
-        static GuestCredentials MakeCredentials(string guestId, string secret, string refreshToken) =>
-            new GuestCredentials(guestId, secret, refreshToken);
-        #endregion
-
-        #region 상태
-        private void SetOnline()
-        {
-            lock(_gate)
-            {
-                if (State != ConnectionState.Connecting) return; // 오프라인은 이번 실행동안 유지
-                State = ConnectionState.Online;
-            }
-            Raise(ConnectionState.Online);
-        }
-
-        public void SetOffline(OfflineReason reason)
+        public Task<bool> RefreshAfterUnauthorizedAsync()
         {
             lock (_gate)
             {
-                if (State == ConnectionState.Offline) return; // 처음 사유를 유지
+                if (State != ConnectionState.Online)
+                    return Task.FromResult(false);
+
+                // 갱신 요청은 동시에 하나만 보낸다(겹치면 서버의 재사용 탐지에 걸린다). 끝난 복구는 다시 쓰지 않는다.
+                if (_recovering == null || _recovering.IsCompleted)
+                    _recovering = RecoverAsync();
+
+                return _recovering;
+            }
+        }
+
+        public void GoOffline(OfflineReason reason) => SetOffline(reason);
+
+        // 갱신 한 번, 갱신이 거부되면 로그인 한 번. 등록은 하지 않는다. 시간 예산 없이 요청마다 요청 타임아웃만 건다.
+        private async Task<bool> RecoverAsync()
+        {
+            OfflineReason reason;
+            try
+            {
+                reason = await SignInAsync(false, () => _requestTimeoutSeconds);
+            }
+            catch (Exception error)
+            {
+                _logError("[인증] 401 복구 중 예외: " + error);
+                reason = OfflineReason.ProtocolError;
+            }
+
+            if (reason != OfflineReason.None)
+            {
+                SetOffline(reason);
+                return false;
+            }
+
+            // 기다리는 사이 GoOffline이 불렸으면 false.
+            return State == ConnectionState.Online;
+        }
+
+        // 계약 2.6의 흐름. 성공이면 None, 아니면 오프라인 까닭. timeout은 다음 요청의 타임아웃(초)이고 null이면 보내지 않는다.
+        private async Task<OfflineReason> SignInAsync(bool allowRegister, Func<int?> timeout)
+        {
+            if (_credentials?.RefreshToken != null)
+            {
+                string refreshToken = _credentials.RefreshToken;
+                AuthResult refreshed = await SendAsync(seconds => _api.RefreshAsync(refreshToken, seconds), timeout);
+
+                if (refreshed.Kind == AuthResultKind.Success)
+                    return Accept(refreshed);
+
+                if (refreshed.Kind == AuthResultKind.Offline)
+                    return refreshed.OfflineReason;
+
+                if (refreshed.ErrorCode != ApiErrorCodes.InvalidRefreshToken)
+                    return Unexpected("갱신", refreshed);
+
+                // 만료·폐기·재사용 탐지(저장 전 종료 포함). 토큰을 지우고 아이디·시크릿 로그인으로 넘어간다.
+                _credentials = _credentials.WithRefreshToken(null);
+                TrySave(_credentials);
+            }
+
+            if (_credentials == null)
+            {
+                // 온라인이었다면 계정 정보가 있다. 복구 중에 없으면 버그다.
+                if (!allowRegister)
+                    return OfflineReason.ProtocolError;
+
+                AuthResult registered = await SendAsync(seconds => _api.RegisterAsync(seconds), timeout);
+
+                if (registered.Kind == AuthResultKind.Offline)
+                    return registered.OfflineReason;
+
+                if (registered.Kind == AuthResultKind.Rejected)
+                    return Unexpected("등록", registered);
+
+                var credentials = new GuestCredentials(registered.GuestId, registered.GuestSecret);
+
+                // 로그인하기 전에 저장한다. 저장하지 못한 계정으로는 진행하지 않는다(다음 실행에서 다시 등록한다).
+                if (!TrySave(credentials))
+                    return OfflineReason.Unreachable;
+
+                _credentials = credentials;
+            }
+
+            GuestCredentials current = _credentials;
+            AuthResult login = await SendAsync(seconds => _api.LoginAsync(current, seconds), timeout);
+
+            if (login.Kind == AuthResultKind.Success)
+                return Accept(login);
+
+            if (login.Kind == AuthResultKind.Offline)
+                return login.OfflineReason;
+
+            if (login.ErrorCode == ApiErrorCodes.InvalidCredentials)
+            {
+                // 새 계정을 자동으로 만들지 않는다(계약 2.7). 로컬 진행도가 빈 서버 진행도로 덮어써지는 것을 막는다.
+                _logError("[인증] 저장된 계정이 거부됐다. 새 계정을 만들지 않고 오프라인으로 둔다. 개발 중이면 테스트 도구의 '계정·진행 초기화'를 쓴다.");
+                return OfflineReason.CredentialsRejected;
+            }
+
+            return Unexpected("로그인", login);
+        }
+
+        private async Task<AuthResult> SendAsync(Func<int, Task<AuthResult>> send, Func<int?> timeout)
+        {
+            int? seconds = timeout();
+
+            if (seconds == null)
+            {
+                _log("[인증] 로그인 시간 예산을 다 써서 요청을 보내지 않는다.");
+                return AuthResult.Offline(OfflineReason.Unreachable);
+            }
+
+            return await send(seconds.Value);
+        }
+
+        // 요청 하나의 타임아웃: min(요청 타임아웃, 남은 예산), 정수 초, 최소 1. 예산이 남지 않았으면 null.
+        private int? TimeoutWithin(DateTime deadline)
+        {
+            double remaining = (deadline - _now()).TotalSeconds;
+
+            if (remaining <= 0)
+                return null;
+
+            return Math.Max(1, Math.Min(_requestTimeoutSeconds, (int)Math.Floor(remaining)));
+        }
+
+        // 새 refresh 토큰은 다른 일을 하기 전에 저장한다. 저장에 실패해도 이번 실행은 이어 간다
+        // (다음 실행에서 옛 토큰이 재사용 탐지에 걸리고 아이디·시크릿 로그인으로 복구된다).
+        private OfflineReason Accept(AuthResult tokens)
+        {
+            _credentials = _credentials.WithRefreshToken(tokens.RefreshToken);
+            TrySave(_credentials);
+            _accessToken = tokens.AccessToken;
+            return OfflineReason.None;
+        }
+
+        private OfflineReason Unexpected(string request, AuthResult result)
+        {
+            _logError($"[인증] {request} 요청이 예상하지 못한 응답을 받았다: {result.StatusCode} {result.ErrorCode ?? "(오류 본문 없음)"}");
+            return OfflineReason.ProtocolError;
+        }
+
+        private bool TrySave(GuestCredentials credentials)
+        {
+            try
+            {
+                _store.Save(credentials);
+                return true;
+            }
+            catch (Exception error)
+            {
+                _logError("[인증] 계정 정보를 저장하지 못했다: " + error.Message);
+                return false;
+            }
+        }
+
+        private void SetOnline()
+        {
+            lock (_gate)
+            {
+                // 오프라인은 이번 실행 동안 그대로다.
+                if (State != ConnectionState.Connecting)
+                    return;
+
+                State = ConnectionState.Online;
+            }
+
+            Raise(ConnectionState.Online);
+        }
+
+        private void SetOffline(OfflineReason reason)
+        {
+            lock (_gate)
+            {
+                // 처음 사유를 유지한다.
+                if (State == ConnectionState.Offline)
+                    return;
+
                 State = ConnectionState.Offline;
                 OfflineReason = reason;
                 _accessToken = null;
             }
+
             Raise(ConnectionState.Offline);
         }
 
@@ -224,6 +285,5 @@ namespace BlackHole.Net
             else
                 _mainThread.Post(_ => StateChanged?.Invoke(state), null);
         }
-        #endregion
     }
 }

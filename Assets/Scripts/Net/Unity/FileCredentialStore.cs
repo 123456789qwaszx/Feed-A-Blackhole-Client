@@ -1,125 +1,126 @@
 using System;
+using System.Globalization;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace BlackHole.Net.Unity
 {
-    /// <summary>
-    /// account.json에 게스트 계정 정보를 저장한다.
-    /// 손상된 파일은 백업으로 옮기며, 저장은 임시 파일 작성 후 교체
-    /// </summary>
+    // 계정 정보 파일(계약 2.5). 진행 저장과 같은 폴더의 account.json — 진행 저장과 계정이 늘 짝을 이룬다.
+    // 쓰기: 임시 파일에 다 쓴 뒤 바꿔치기한다. 직전 파일은 남기지 않는다(옛 refresh 토큰은 이미 폐기됐다).
+    // 읽지 못하는 파일(깨진 JSON, guestId·guestSecret 누락)은 시각을 붙여 보관하고 "계정 정보 없음"으로 본다.
     public sealed class FileCredentialStore : ICredentialStore
     {
-        private readonly string _accountPath;
-        private readonly string _backupPath;
-        private readonly string _tempPath;
+        private const string FileName = "account.json";
+        private const int FormatVersion = 1;
+        private static readonly UTF8Encoding _utf8NoBom = new(false);
 
-        public FileCredentialStore(string saveDirectory)
+        private readonly string _path;
+        private readonly Func<DateTime> _now;
+
+        // directory: 진행 저장 폴더. now는 테스트가 savedAtUtc와 보관 이름의 시각을 정할 때 넣는다.
+        public FileCredentialStore(string directory, Func<DateTime> now = null)
         {
-            if (string.IsNullOrWhiteSpace(saveDirectory))
-                throw new ArgumentException("저장 폴더 경로가 필요합니다.", nameof(saveDirectory));
+            if (string.IsNullOrWhiteSpace(directory))
+                throw new ArgumentException("저장 폴더가 필요하다.", nameof(directory));
 
-            _accountPath = Path.Combine(saveDirectory, "account.json");
-            _backupPath = _accountPath + ".bak";
-            _tempPath = _accountPath + ".tmp";
+            _path = Path.Combine(directory, FileName);
+            _now = now ?? (() => DateTime.UtcNow);
         }
 
         public GuestCredentials Load()
         {
-            if (!File.Exists(_accountPath)) return null;
-
-            try
-            {
-                string json = File.ReadAllText(_accountPath);
-                var data = JsonUtility.FromJson<CredentialData>(json);
-
-                if (data == null ||
-                    string.IsNullOrEmpty(data.guestId) ||
-                    string.IsNullOrEmpty(data.guestSecret))
-                {
-                    BackupCorruptedFile();
-                    return null;
-                }
-
-                return new GuestCredentials(data.guestId, data.guestSecret, data.refreshToken);
-            }
-            catch (Exception e)
-            {
-                // 계약: 읽지 못하는 파일은 백업으로 옮기고 계정 정보 없음으로 처리한다.
-                BackupCorruptedFile();
+            if (!File.Exists(_path))
                 return null;
-            }
+
+            // 파일을 읽는 것 자체가 실패하면(잠김 등) 예외를 그대로 낸다. null로 보면 새 계정을 등록해 이 파일을 덮어쓴다.
+            AccountFileData data = Parse(File.ReadAllText(_path, Encoding.UTF8));
+
+            if (data != null)
+                return new GuestCredentials(data.guestId, data.guestSecret, data.refreshToken);
+
+            string backup = MoveToBackup();
+            Debug.LogWarning($"[인증] 읽지 못한 계정 정보 파일을 보관했다: {backup ?? _path}");
+            return null;
         }
 
         public void Save(GuestCredentials credentials)
         {
-            if (credentials == null) throw new ArgumentNullException(nameof(credentials));
+            if (credentials == null)
+                throw new ArgumentNullException(nameof(credentials));
 
-            string directory = Path.GetDirectoryName(_accountPath);
-            Directory.CreateDirectory(directory);
-
-            string json = JsonUtility.ToJson(new CredentialData
+            var data = new AccountFileData
             {
+                formatVersion = FormatVersion,
                 guestId = credentials.GuestId,
                 guestSecret = credentials.GuestSecret,
-                refreshToken = credentials.RefreshToken,
-            });
+                refreshToken = credentials.RefreshToken ?? "",
+                savedAtUtc = _now().ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture),
+            };
 
-            // 같은 디렉터리에 임시 파일을 작성해 같은 볼륨 안에서 교체한다.
-            File.WriteAllText(_tempPath, json);
+            Directory.CreateDirectory(Path.GetDirectoryName(_path));
+            string tmp = _path + ".tmp";
+            File.WriteAllText(tmp, JsonUtility.ToJson(data, true), _utf8NoBom);
 
-            try
-            {
-                if (File.Exists(_accountPath))
-                {
-                    // File.Replace는 대상 파일이 존재할 때 원자적 교체를 지원한다.
-                    File.Replace(_tempPath, _accountPath, null);
-                }
-                else
-                {
-                    // 최초 저장: 대상이 없을 때 같은 디렉터리에서 이동한다.
-                    File.Move(_tempPath, _accountPath);
-                }
-            }
-            finally
-            {
-                // 교체 실패 시 남은 임시 파일을 정리한다.
-                if (File.Exists(_tempPath))
-                    File.Delete(_tempPath);
-            }
+            if (File.Exists(_path))
+                File.Replace(tmp, _path, null);
+            else
+                File.Move(tmp, _path);
         }
 
-        private void BackupCorruptedFile()
+        // 계정 정보 파일을 지운다. 테스트 도구의 "계정·진행 초기화"가 부른다. 보관한 .bak은 남긴다.
+        public void Delete()
         {
-            if (!File.Exists(_accountPath)) return;
-
-            try
+            foreach (string path in new[] { _path, _path + ".tmp" })
             {
-                string backupPath = _backupPath;
-                if (File.Exists(backupPath))
-                {
-                    string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
-                    backupPath = $"{_accountPath}.{timestamp}.bak";
-                }
-
-                File.Move(_accountPath, backupPath);
-            }
-            catch (IOException)
-            {
-                // 백업 이동 자체가 실패해도 Load 계약상 null을 반환
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // 파일 권한 문제로 백업할 수 없어도 계정 정보를 로드하지 않는다
+                if (File.Exists(path))
+                    File.Delete(path);
             }
         }
 
+        private static AccountFileData Parse(string json)
+        {
+            try
+            {
+                AccountFileData data = JsonUtility.FromJson<AccountFileData>(json);
+                return data != null && !string.IsNullOrEmpty(data.guestId) && !string.IsNullOrEmpty(data.guestSecret) ? data : null;
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+        }
+
+        // 보관 이름에 시각(같은 초에 또 보관하면 번호까지)을 붙인다(ProgressSaveFile과 같은 규칙). 옮기지 못하면 null.
+        // 옮기지 못한 파일은 다음 등록이 덮어쓴다 — 어차피 읽지 못하는 파일이다.
+        private string MoveToBackup()
+        {
+            try
+            {
+                string stamp = _now().ToUniversalTime().ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+                string backup = $"{_path}.{stamp}.bak";
+
+                for (int n = 1; File.Exists(backup); n++)
+                    backup = $"{_path}.{stamp}-{n}.bak";
+
+                File.Move(_path, backup);
+                return backup;
+            }
+            catch (Exception error) when (error is IOException || error is UnauthorizedAccessException)
+            {
+                return null;
+            }
+        }
+
+        // 필드 이름이 JSON 키다(계약 2.5).
         [Serializable]
-        private sealed class CredentialData
+        private sealed class AccountFileData
         {
+            public int formatVersion;
             public string guestId;
             public string guestSecret;
             public string refreshToken;
+            public string savedAtUtc;
         }
     }
 }

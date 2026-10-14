@@ -47,6 +47,16 @@ namespace BlackHole.Unity
 
         public string MovePreviousToBackup() => MoveToBackup(_previousPath);
 
+        // 본 파일과 직전 저장을 지운다. 테스트 도구의 "계정·진행 초기화"가 부른다. 보관한 .bak은 남긴다.
+        public void Delete()
+        {
+            foreach (string path in new[] { _path, _previousPath, _path + ".tmp" })
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+        }
+
         private static bool TryRead(string path, out ProgressSaveData data)
         {
             data = null;
