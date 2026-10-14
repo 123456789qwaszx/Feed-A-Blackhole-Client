@@ -449,6 +449,7 @@ MonoBehaviour:
   _revealedAsLocked: 0
   _showHidden: 1
   _lockedTint: {r: 1, g: 1, b: 1, a: 0.6}
+  _lockAhead: 1
   _farSprite: {fileID: 21300000, guid: a1c7502f42d54ba4c2e60f0707019a05, type: 3}
   _farScale: 0.3
   _farTint: {r: 1, g: 1, b: 1, a: 0.35}

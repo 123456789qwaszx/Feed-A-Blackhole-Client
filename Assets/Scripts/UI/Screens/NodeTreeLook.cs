@@ -9,6 +9,7 @@ namespace BlackHole.Unity
     // 노드는 Rank 1 첫 효과의 StatId(UpgradeStats 시트)로 그림을 찾는다. 모르는 스탯은 기본 그림을 쓴다.
     // 보이는 단계: 산 노드 → 그 이웃(살 수 있음·Gold 모자람, 노드 그림을 조금 어둡게) → 열린 구역의 닿지 않은 노드(자물쇠)
     //   → 먼 구역의 닿지 않은 노드(흐린 점). 열린 구역은 산 노드나 시작 노드가 든 구역이다(NodeTreeView가 가린다).
+    //   보이는 노드에서 선으로 LockAhead칸 안의 노드는 구역이 닫혀 있어도 자물쇠다(다음 구역 입구 너머 미리 보기).
     // 트리 보기(NodeTreeView)가 들고 있고, 비어 있으면 트리 보기는 예전처럼 색 칸으로 그린다.
     [CreateAssetMenu(fileName = "NodeTreeLook", menuName = "BlackHole/Node Tree Look")]
     public sealed class NodeTreeLook : ScriptableObject
@@ -47,6 +48,9 @@ namespace BlackHole.Unity
         [SerializeField] private bool _showHidden = true;
         [Tooltip("열린 구역(산 노드나 시작 노드가 든 구역)의 닿지 않은 노드: 자물쇠(locked) 그림에 곱하는 색. 올리면 이름만 보인다.")]
         [SerializeField] private Color _lockedTint = new Color(1, 1, 1, 0.6f);
+        [Tooltip("보이는 노드(산 노드와 다음 노드)에서 선으로 이 칸 수 안의 닿지 않은 노드는 구역이 닫혀 있어도 자물쇠로 보인다. 0이면 구역만 본다.")]
+        [Min(0)]
+        [SerializeField] private int _lockAhead = 1;
         [Tooltip("먼 구역(아직 열리지 않은 구역)의 노드를 그리는 점. 비우면 기본 그림의 locked를 쓴다. 올림·누름을 받지 않는다.")]
         [SerializeField] private Sprite _farSprite;
         [Tooltip("먼 노드 점의 크기(노드 크기에 대한 비율).")]
@@ -84,6 +88,8 @@ namespace BlackHole.Unity
         public Sprite FarSprite => _farSprite != null ? _farSprite : _fallback.locked;
         public Color FarTint => _farTint;
         public float FarScale => _farScale;
+        // 보이는 노드에서 선으로 이 칸 수 안의 닿지 않은 노드는 자물쇠(구역과 상관없이).
+        public int LockAhead => _lockAhead;
 
         // 노드 그림. hovered는 손을 올린 노드(샀으면 무시한다).
         public Sprite SpriteOf(string stat, NodeState state, bool hovered)

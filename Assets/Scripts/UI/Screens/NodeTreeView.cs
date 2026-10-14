@@ -14,7 +14,8 @@ namespace BlackHole.Unity
     // 좌표: 칸 (X, Y)의 노드는 트리 공간의 (X × 칸 크기, Y × 칸 크기)에 놓인다.
     // 보이기: 산 노드와 그 이웃(살 수 있음·Gold 모자람)은 노드 그림으로 그린다(이웃은 조금 어둡게).
     //   아직 닿지 않은 노드(Hidden)는 안개 설정(NodeTreeLook.ShowHidden)을 따른다 — 끄면 그리지 않고, 켜면 구역으로 나눈다.
-    //   열린 구역(산 노드나 시작 노드가 든 구역)이면 자물쇠(올리면 이름만), 아니면 먼 노드로 작고 흐린 점(올림·누름을 받지 않는다).
+    //   열린 구역(산 노드나 시작 노드가 든 구역)이거나 보이는 노드에서 선으로 몇 칸 안(NodeTreeLook.LockAhead)이면 자물쇠(올리면 이름만),
+    //   아니면 먼 노드로 작고 흐린 점(올림·누름을 받지 않는다).
     //   구역에 들지 않은 노드는 열린 구역이 없는 것으로 본다. 선은 양 끝이 모두 보일 때만 그리고, 한쪽이라도 안개 속이면 안개 선 색.
     // 모양: 노드 그림·선 색·가격 색은 NodeTreeLook이 정한다(스탯마다의 노드 그림). 가격(다음 Rank 비용)은 노드 아래에 줄여 쓴다(1.5T).
     //   Look이 비어 있으면 예전처럼 상태 색 칸에 ID·가격을 쓴다.
@@ -140,8 +141,8 @@ namespace BlackHole.Unity
         private readonly Dictionary<string, NodeVisual> _nodes = new Dictionary<string, NodeVisual>(StringComparer.Ordinal);
         private readonly Dictionary<GameObject, NodeVisual> _nodesByObject = new Dictionary<GameObject, NodeVisual>();
         private readonly List<LinkVisual> _links = new List<LinkVisual>();
-        // 구역(우주 구역): 노드 칸들의 경계. 그리지 않고, 보이는 창 가운데가 어느 구역인지 알리는 데만 쓴다(RegionViewed).
-        private readonly List<RegionBounds> _regions = new List<RegionBounds>();
+        // 구역(우주 구역)이 하나라도 있는가. 구역은 그리지 않고, 보이는 창 가운데가 어느 구역인지 알리는 데(RegionViewed)와 열린 구역을 가리는 데 쓴다.
+        private bool _hasRegions;
         // 열린 구역의 열쇠: 산 노드(Rank 하나라도)나 시작 노드가 든 구역. Show마다 다시 모은다.
         private readonly HashSet<string> _openRegions = new HashSet<string>(StringComparer.Ordinal);
         private string _viewedRegion;
@@ -186,7 +187,7 @@ namespace BlackHole.Unity
         }
 
         // 트리를 새로 만든다. 선의 양 끝 가운데 하나라도 노드 목록에 없으면 그 선은 그리지 않음.
-        // regions: 구역(비어 있어도 된다). 구역 노드들의 칸 경계를 기억해 두고, 보이는 창 가운데의 구역을 RegionViewed로 알린다.
+        // regions: 구역(비어 있어도 된다). 노드마다 든 구역을 기억해 두고, 보이는 창 가운데에서 가장 가까운 노드의 구역을 RegionViewed로 알린다.
         public void Build(IReadOnlyList<NodeItem> nodes, IReadOnlyList<(string A, string B)> links, IReadOnlyList<NodeRegionItem> regions = null)
         {
             Clear();
@@ -201,21 +202,25 @@ namespace BlackHole.Unity
             foreach ((string a, string b) in links)
             {
                 if (_nodes.TryGetValue(a, out NodeVisual from) && _nodes.TryGetValue(b, out NodeVisual to))
+                {
                     _links.Add(CreateLink(from, to));
+                    from.Neighbors.Add(to);
+                    to.Neighbors.Add(from);
+                }
             }
 
             if (regions != null)
             {
                 foreach (NodeRegionItem region in regions)
                 {
-                    if (TryBounds(region, out RegionBounds bounds))
-                        _regions.Add(bounds);
-
-                    // 노드가 든 구역(둘 이상이면 먼저 나온 구역). 열린 구역을 가리는 데 쓴다(Show).
+                    // 노드가 든 구역(둘 이상이면 먼저 나온 구역).
                     foreach (string id in region.Nodes)
                     {
                         if (_nodes.TryGetValue(id, out NodeVisual member) && member.Region == null)
+                        {
                             member.Region = region.Key;
+                            _hasRegions = true;
+                        }
                     }
                 }
             }
@@ -224,37 +229,11 @@ namespace BlackHole.Unity
             _framePending = true;
         }
 
-        // 구역 노드 칸들의 경계(트리 공간). 노드가 하나도 없으면 false.
-        private bool TryBounds(NodeRegionItem region, out RegionBounds bounds)
-        {
-            bool any = false;
-            Vector2 min = Vector2.zero;
-            Vector2 max = Vector2.zero;
-
-            foreach (string id in region.Nodes)
-            {
-                if (!_nodes.TryGetValue(id, out NodeVisual node))
-                    continue;
-
-                if (!any)
-                {
-                    min = max = node.Position;
-                    any = true;
-                    continue;
-                }
-
-                min = Vector2.Min(min, node.Position);
-                max = Vector2.Max(max, node.Position);
-            }
-
-            bounds = any ? new RegionBounds(region.Key, min - Vector2.one * (CellSize * 0.5f), max + Vector2.one * (CellSize * 0.5f)) : default;
-            return any;
-        }
-
-        // 보이는 창의 가운데(트리 공간)가 든 구역, 없으면 가장 가까운 구역을 찾아 바뀌었으면 알린다. 이동·확대 뒤 LateUpdate가 부른다.
+        // 보이는 창의 가운데(트리 공간)에서 가장 가까운 노드의 구역을 찾아 바뀌었으면 알린다. 이동·확대 뒤 LateUpdate가 부른다.
+        // 구역의 경계 상자로 찾지 않는다 — 구역 모양이 들쭉날쭉하면 상자끼리 겹쳐 가운데 노드와 다른 구역을 알린다.
         private void NotifyRegion()
         {
-            if (_regions.Count == 0 || _content == null)
+            if (!_hasRegions || _content == null)
                 return;
 
             Vector2 center = -_content.anchoredPosition / Mathf.Max(_zoom, 0.0001f);
@@ -268,14 +247,17 @@ namespace BlackHole.Unity
             string nearest = null;
             float best = float.MaxValue;
 
-            foreach (RegionBounds region in _regions)
+            foreach (NodeVisual node in _nodes.Values)
             {
-                float distance = region.DistanceTo(center);
+                if (node.Region == null)
+                    continue;
+
+                float distance = (node.Position - center).sqrMagnitude;
 
                 if (distance < best)
                 {
                     best = distance;
-                    nearest = region.Key;
+                    nearest = node.Region;
                 }
             }
 
@@ -308,10 +290,12 @@ namespace BlackHole.Unity
                     _openRegions.Add(node.Region);
             }
 
+            MarkAhead(_look != null ? _look.LockAhead : 0);
+
             foreach (NodeVisual node in _nodes.Values)
             {
-                // 먼 노드: 열린 구역 밖의 안개 속 노드. 점으로만 그리고 올림·누름을 받지 않는다.
-                node.Far = node.State == NodeState.Hidden && (node.Region == null || !_openRegions.Contains(node.Region));
+                // 먼 노드: 열린 구역 밖이고 미리 보기 거리 밖인 안개 속 노드. 점으로만 그리고 올림·누름을 받지 않는다.
+                node.Far = node.State == NodeState.Hidden && !node.Ahead && (node.Region == null || !_openRegions.Contains(node.Region));
 
                 // 아직 닿지 않은 노드: 안개 설정(NodeTreeLook.ShowHidden)이 켜져 있으면 자물쇠나 점으로 보이고, 아니면 숨긴다.
                 bool visible = node.State != NodeState.Hidden || ShowHidden;
@@ -329,6 +313,40 @@ namespace BlackHole.Unity
                 SetHovered(null);
 
             PaintLinks();
+        }
+
+        // 미리 보기: 보이는 노드(안개 밖)에서 선으로 reach칸 안의 안개 속 노드에 표시한다. 구역이 닫혀 있어도 자물쇠로 보인다
+        // (다음 구역 입구 너머 몇 칸). reach가 0이면 표시하지 않는다.
+        private void MarkAhead(int reach)
+        {
+            var frontier = new List<NodeVisual>();
+
+            foreach (NodeVisual node in _nodes.Values)
+            {
+                node.Ahead = false;
+
+                if (node.State != NodeState.Hidden)
+                    frontier.Add(node);
+            }
+
+            for (int step = 0; step < reach && frontier.Count > 0; step++)
+            {
+                var next = new List<NodeVisual>();
+
+                foreach (NodeVisual node in frontier)
+                {
+                    foreach (NodeVisual neighbor in node.Neighbors)
+                    {
+                        if (neighbor.State != NodeState.Hidden || neighbor.Ahead)
+                            continue;
+
+                        neighbor.Ahead = true;
+                        next.Add(neighbor);
+                    }
+                }
+
+                frontier = next;
+            }
         }
 
         // 선: 양 끝이 보일 때만 보이고, 양 끝 상태에 따른 색. 한쪽이라도 안개 속이면 안개 선 색.
@@ -822,7 +840,7 @@ namespace BlackHole.Unity
             _nodes.Clear();
             _nodesByObject.Clear();
             _links.Clear();
-            _regions.Clear();
+            _hasRegions = false;
             _openRegions.Clear();
             _viewedRegion = null;
         }
@@ -855,7 +873,11 @@ namespace BlackHole.Unity
             public readonly bool Start;
             // 든 구역의 열쇠. 구역에 들지 않았으면 null.
             public string Region;
-            // 먼 노드(열린 구역 밖의 안개 속 노드). Show가 정한다.
+            // 선으로 이어진 노드.
+            public readonly List<NodeVisual> Neighbors = new List<NodeVisual>();
+            // 미리 보기 거리 안의 안개 속 노드(MarkAhead).
+            public bool Ahead;
+            // 먼 노드(열린 구역 밖이고 미리 보기 거리 밖인 안개 속 노드). Show가 정한다.
             public bool Far;
             // 다음 Rank의 비용.
             public long Price;
@@ -887,28 +909,6 @@ namespace BlackHole.Unity
                 Button = button;
                 Label = label;
                 Badge = badge;
-            }
-        }
-
-        private readonly struct RegionBounds
-        {
-            public readonly string Key;
-            public readonly Vector2 Min;
-            public readonly Vector2 Max;
-
-            public RegionBounds(string key, Vector2 min, Vector2 max)
-            {
-                Key = key;
-                Min = min;
-                Max = max;
-            }
-
-            // 점에서 경계 사각형까지의 거리. 안이면 0.
-            public float DistanceTo(Vector2 point)
-            {
-                float dx = Mathf.Max(Min.x - point.x, 0, point.x - Max.x);
-                float dy = Mathf.Max(Min.y - point.y, 0, point.y - Max.y);
-                return Mathf.Sqrt(dx * dx + dy * dy);
             }
         }
 
