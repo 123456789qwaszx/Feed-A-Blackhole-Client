@@ -12,7 +12,10 @@ namespace BlackHole.Unity
     // 업그레이드 화면의 트리 보기(uGUI).
     //
     // 좌표: 칸 (X, Y)의 노드는 트리 공간의 (X × 칸 크기, Y × 칸 크기)에 놓인다.
-    // 보이기: 숨은 노드는 그리지 않는다. 선은 양 끝이 모두 보일 때만 그린다.
+    // 보이기: 산 노드와 그 이웃(살 수 있음·Gold 모자람)은 노드 그림으로 그린다(이웃은 조금 어둡게).
+    //   아직 닿지 않은 노드(Hidden)는 안개 설정(NodeTreeLook.ShowHidden)을 따른다 — 끄면 그리지 않고, 켜면 구역으로 나눈다.
+    //   열린 구역(산 노드나 시작 노드가 든 구역)이면 자물쇠(올리면 이름만), 아니면 먼 노드로 작고 흐린 점(올림·누름을 받지 않는다).
+    //   구역에 들지 않은 노드는 열린 구역이 없는 것으로 본다. 선은 양 끝이 모두 보일 때만 그리고, 한쪽이라도 안개 속이면 안개 선 색.
     // 모양: 노드 그림·선 색·가격 색은 NodeTreeLook이 정한다(스탯마다의 노드 그림). 가격(다음 Rank 비용)은 노드 아래에 줄여 쓴다(1.5T).
     //   Look이 비어 있으면 예전처럼 상태 색 칸에 ID·가격을 쓴다.
     // Rank: Rank가 둘 이상인 노드는 오른쪽 위에 "산 Rank/최대 Rank" 딱지를 단다. 일부만 산 노드는 산 색을 엷게 섞는다.
@@ -81,7 +84,7 @@ namespace BlackHole.Unity
         {
             foreach (NodeVisual node in _nodes.Values)
             {
-                if (node.State == NodeState.Hidden)
+                if (!node.Root.activeSelf)
                     continue;
 
                 Paint(node);
@@ -139,6 +142,8 @@ namespace BlackHole.Unity
         private readonly List<LinkVisual> _links = new List<LinkVisual>();
         // 구역(우주 구역): 노드 칸들의 경계. 그리지 않고, 보이는 창 가운데가 어느 구역인지 알리는 데만 쓴다(RegionViewed).
         private readonly List<RegionBounds> _regions = new List<RegionBounds>();
+        // 열린 구역의 열쇠: 산 노드(Rank 하나라도)나 시작 노드가 든 구역. Show마다 다시 모은다.
+        private readonly HashSet<string> _openRegions = new HashSet<string>(StringComparer.Ordinal);
         private string _viewedRegion;
         private Vector2 _viewedAt;
         private float _viewedZoom;
@@ -205,6 +210,13 @@ namespace BlackHole.Unity
                 {
                     if (TryBounds(region, out RegionBounds bounds))
                         _regions.Add(bounds);
+
+                    // 노드가 든 구역(둘 이상이면 먼저 나온 구역). 열린 구역을 가리는 데 쓴다(Show).
+                    foreach (string id in region.Nodes)
+                    {
+                        if (_nodes.TryGetValue(id, out NodeVisual member) && member.Region == null)
+                            member.Region = region.Key;
+                    }
                 }
             }
 
@@ -286,8 +298,22 @@ namespace BlackHole.Unity
 
                 if (costs.TryGetValue(node.Id, out long cost))
                     node.Price = cost;
+            }
 
-                // 아직 닿지 않은 노드: 안개 설정(NodeTreeLook.ShowHidden)이 켜져 있으면 흐린 윤곽으로 보이고, 아니면 숨긴다.
+            // 열린 구역: 산 노드(Rank 하나라도)나 시작 노드가 든 구역.
+            _openRegions.Clear();
+            foreach (NodeVisual node in _nodes.Values)
+            {
+                if (node.Region != null && (node.Rank > 0 || node.Start))
+                    _openRegions.Add(node.Region);
+            }
+
+            foreach (NodeVisual node in _nodes.Values)
+            {
+                // 먼 노드: 열린 구역 밖의 안개 속 노드. 점으로만 그리고 올림·누름을 받지 않는다.
+                node.Far = node.State == NodeState.Hidden && (node.Region == null || !_openRegions.Contains(node.Region));
+
+                // 아직 닿지 않은 노드: 안개 설정(NodeTreeLook.ShowHidden)이 켜져 있으면 자물쇠나 점으로 보이고, 아니면 숨긴다.
                 bool visible = node.State != NodeState.Hidden || ShowHidden;
                 node.Root.SetActive(visible);
 
@@ -298,8 +324,8 @@ namespace BlackHole.Unity
                 Paint(node);
             }
 
-            // 올라가 있던 노드가 숨으면 올림을 푼다.
-            if (_hovered != null && _hovered.State == NodeState.Hidden)
+            // 올라가 있던 노드가 숨거나 먼 노드가 되면 올림을 푼다(먼 노드는 툴팁을 띄우지 않는다).
+            if (_hovered != null && (!_hovered.Root.activeSelf || _hovered.Far))
                 SetHovered(null);
 
             PaintLinks();
@@ -591,11 +617,13 @@ namespace BlackHole.Unity
         {
             if (node.State == NodeState.Hidden)
             {
-                // 안개 속: 그림만 흐리게, 가격·Rank 딱지는 숨긴다.
+                // 안개 속: 가격·Rank 딱지는 숨긴다. 열린 구역이면 흐린 자물쇠, 먼 노드면 작고 흐린 점(레이캐스트를 받지 않아 올림·누름이 없다).
                 if (_look != null)
                 {
-                    node.Image.sprite = _style.SpriteFor(_look.SpriteOf(node.Stat, node.State, false));
-                    node.Image.color = _look.TintOf(node.State);
+                    node.Image.sprite = _style.SpriteFor(node.Far ? _look.FarSprite : _look.SpriteOf(node.Stat, node.State, false));
+                    node.Image.color = node.Far ? _look.FarTint : _look.TintOf(node.State, false);
+                    SetSize(node, node.Far ? NodeSize * _look.FarScale : NodeSize);
+                    node.Image.raycastTarget = !node.Far;
                 }
 
                 if (node.Badge != null && node.Badge.gameObject.activeSelf)
@@ -606,6 +634,9 @@ namespace BlackHole.Unity
 
                 return;
             }
+
+            SetSize(node, NodeSize);
+            node.Image.raycastTarget = true;
 
             if (node.RankLabel != null && !node.RankLabel.transform.parent.gameObject.activeSelf)
                 node.RankLabel.transform.parent.gameObject.SetActive(true);
@@ -627,7 +658,7 @@ namespace BlackHole.Unity
             }
 
             node.Image.sprite = _style.SpriteFor(_look.SpriteOf(node.Stat, node.State, node == _hovered));
-            Color tint = _look.TintOf(node.State);
+            Color tint = _look.TintOf(node.State, node == _hovered);
             node.Image.color = partial ? Color.Lerp(tint, OwnedColor, PartialMix) : tint;
 
             bool showPrice = node.State != NodeState.Owned;
@@ -645,6 +676,15 @@ namespace BlackHole.Unity
 
             if (node.Badge != null)
                 node.Badge.sizeDelta = new Vector2(node.Label.GetPreferredValues(price).x + PricePadding, PriceHeight);
+        }
+
+        // 노드 칸 크기(먼 노드는 점으로 줄인다). 바뀔 때만 쓴다.
+        private static void SetSize(NodeVisual node, float size)
+        {
+            var rect = (RectTransform)node.Root.transform;
+
+            if (!Mathf.Approximately(rect.sizeDelta.x, size))
+                rect.sizeDelta = new Vector2(size, size);
         }
 
         private static Color ColorOf(NodeState state)
@@ -724,7 +764,7 @@ namespace BlackHole.Unity
             label.overflowMode = TextOverflowModes.Ellipsis;
             label.raycastTarget = false;
 
-            return new NodeVisual(item.Id, item.Stat, item.Price, item.MaxRank, position, rect.gameObject, image, button, label, badge, rankLabel);
+            return new NodeVisual(item.Id, item.Stat, item.Price, item.MaxRank, item.Start, position, rect.gameObject, image, button, label, badge, rankLabel);
         }
 
         // Rank 딱지: 노드 오른쪽 위 모서리에 걸친다. 글자는 칠할 때 쓴다("3/10").
@@ -783,6 +823,7 @@ namespace BlackHole.Unity
             _nodesByObject.Clear();
             _links.Clear();
             _regions.Clear();
+            _openRegions.Clear();
             _viewedRegion = null;
         }
 
@@ -810,6 +851,12 @@ namespace BlackHole.Unity
             public readonly string Id;
             public readonly string Stat;
             public readonly int MaxRank;
+            // 시작 노드. 그 구역은 처음부터 열린 구역이다.
+            public readonly bool Start;
+            // 든 구역의 열쇠. 구역에 들지 않았으면 null.
+            public string Region;
+            // 먼 노드(열린 구역 밖의 안개 속 노드). Show가 정한다.
+            public bool Far;
             // 다음 Rank의 비용.
             public long Price;
             // 산 Rank.
@@ -825,13 +872,14 @@ namespace BlackHole.Unity
             public readonly TMP_Text RankLabel;
             public NodeState State = NodeState.Hidden;
 
-            public NodeVisual(string id, string stat, long price, int maxRank, Vector2 position, GameObject root, Image image, Button button,
-                TMP_Text label, RectTransform badge, TMP_Text rankLabel)
+            public NodeVisual(string id, string stat, long price, int maxRank, bool start, Vector2 position, GameObject root, Image image,
+                Button button, TMP_Text label, RectTransform badge, TMP_Text rankLabel)
             {
                 Id = id;
                 Stat = stat;
                 Price = price;
                 MaxRank = maxRank;
+                Start = start;
                 RankLabel = rankLabel;
                 Position = position;
                 Root = root;
