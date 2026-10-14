@@ -1467,7 +1467,6 @@ MonoBehaviour:
       Y: -17
       Links:
       - growth.galaxies-01
-      - timer-01
     - Id: growth.galaxies-01
       Start: 0
       X: -18
