@@ -95,6 +95,12 @@ namespace BlackHole.Unity
         [Tooltip("재생성 세대 감쇠(0~1). 재생성으로 나온 적이 죽을 때 재생성 확률(노드 respawnChance)에 세대마다 이 값을 곱한다. 0이면 1세대까지만(사슬 금지), 1이면 감쇠 없음.")]
         [Range(0, 1)]
         [SerializeField] private float respawnDecay;
+        [Tooltip("픽업: 혜성 비가 한 번 내린 뒤 다시 내릴 수 있을 때까지의 쿨타임(초). 그동안은 하나씩만 나온다. 0이면 없음.")]
+        [Min(0)]
+        [SerializeField] private float rainCooldown;
+        [Tooltip("픽업: 판 시작 뒤 이 시간(초)까지는 혜성 비가 내리지 않는다. 0이면 없음.")]
+        [Min(0)]
+        [SerializeField] private float rainDelay;
         [Header("색 등급 (번호가 적의 색 등급, 빨주노초파보)")]
         [SerializeField] private List<Tier> tiers = new List<Tier>();
 
@@ -136,6 +142,8 @@ namespace BlackHole.Unity
                 RainCount = rainCount,
                 KillTimeBonus = killTimeBonus,
                 RespawnDecay = respawnDecay,
+                RainCooldown = rainCooldown,
+                RainDelay = rainDelay,
             };
 
             foreach (Trait trait in traits)

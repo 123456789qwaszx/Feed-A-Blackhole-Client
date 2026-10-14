@@ -144,6 +144,8 @@ namespace BlackHole.Simulation.Tool
                 RainCount = kind.Int("rainCount"),
                 KillTimeBonus = Float(kind, "killTimeBonus", 0),
                 RespawnDecay = Float(kind, "respawnDecay", 0),
+                RainCooldown = Float(kind, "rainCooldown", 0),
+                RainDelay = Float(kind, "rainDelay", 0),
             };
 
             foreach (YamlNode trait in kind["traits"]?.Items ?? Array.Empty<YamlNode>())
