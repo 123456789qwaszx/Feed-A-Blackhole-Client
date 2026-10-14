@@ -1,0 +1,24 @@
+{
+  "name": "BlackHole.Net.Tests",
+  "rootNamespace": "BlackHole.Net.Tests",
+  "references": [
+    "BlackHole.Net",
+    "BlackHole.Net.Unity",
+    "BlackHole.Sync",
+    "BlackHole.Core.Common",
+    "BlackHole.Core.Enemies",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ]
+}
