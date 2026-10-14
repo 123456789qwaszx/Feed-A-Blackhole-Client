@@ -174,10 +174,8 @@ laserStar.damage-01,1,28000000000000
 breaker.damage-25,1,28000000000000
 laserStar.critBonus-01,1,28000000000000
 breaker.speed-10,1,57000000000000
-moonPlanet.duration-04,1,57000000000000
 electricStar.splitChance-02,1,57000000000000
 supernovaStar.range-01,1,93000000000000
-breaker.critBonus-02,1,57000000000000
 moonPlanet.maxCount-01,1,57000000000000
 electricStar.chain-03,1,63000000000000
 breaker.damage-26,1,28000000000000
@@ -190,10 +188,7 @@ laserStar.damage-02,1,28000000000000
 supernovaStar.spawnChance-01,1,160000000000000
 star.massScale-05,1,57000000000000
 laserStar.critBonus-02,1,28000000000000
-breaker.speed-11,1,57000000000000
-electricStar.splitChance-03,1,57000000000000
 supernovaStar.range-02,1,160000000000000
-breaker.critBonus-03,1,57000000000000
 comet.spawnChance-03,1,160000000000000
 supernovaStar.hpDamage-02,1,160000000000000
 breaker.damage-27,1,110000000000000

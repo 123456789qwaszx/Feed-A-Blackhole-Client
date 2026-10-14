@@ -174,10 +174,8 @@ laserStar.damage-01,1,laserStar.damage,500,Flat,+500
 breaker.damage-25,1,breaker.damage,250,Flat,+250
 laserStar.critBonus-01,1,laserStar.critBonus,100,Percent,+100%
 breaker.speed-10,1,breaker.speed,25,Percent,+25%
-moonPlanet.duration-04,1,moonPlanet.duration,3,Flat,+3
-electricStar.splitChance-02,1,electricStar.splitChance,15,Percent,+15%
+electricStar.splitChance-02,1,electricStar.splitChance,30,Percent,+30%
 supernovaStar.range-01,1,supernovaStar.range,50,Percent,+50%
-breaker.critBonus-02,1,breaker.critBonus,25,Percent,+25%
 moonPlanet.maxCount-01,1,moonPlanet.maxCount,5,Flat,+5
 electricStar.chain-03,1,electricStar.chain,5,Flat,+5
 breaker.damage-26,1,breaker.damage,250,Flat,+250
@@ -190,10 +188,7 @@ laserStar.damage-02,1,laserStar.damage,500,Flat,+500
 supernovaStar.spawnChance-01,1,supernovaStar.spawnChance,10,Percent,+10%
 star.massScale-05,1,star.massScale,75,Percent,+75%
 laserStar.critBonus-02,1,laserStar.critBonus,100,Percent,+100%
-breaker.speed-11,1,breaker.speed,25,Percent,+25%
-electricStar.splitChance-03,1,electricStar.splitChance,15,Percent,+15%
 supernovaStar.range-02,1,supernovaStar.range,25,Percent,+25%
-breaker.critBonus-03,1,breaker.critBonus,25,Percent,+25%
 comet.spawnChance-03,1,comet.spawnChance,20,Percent,+20%
 supernovaStar.hpDamage-02,1,supernovaStar.hpDamage,10,Percent,+10%
 breaker.damage-27,1,breaker.damage,1400,Flat,+1400
