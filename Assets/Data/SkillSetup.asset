@@ -23,4 +23,5 @@ MonoBehaviour:
   breakerMoonSpeedDecay: 0.7
   breakerCometDuration: 3.5
   breakerCometCritDamageBonus: 0.5
+  breakerCometCritDecay: 0.7
   breakerHoldSlow: 0.05

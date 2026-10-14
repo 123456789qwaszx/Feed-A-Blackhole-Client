@@ -16,6 +16,7 @@ namespace BlackHole.Core
         public float MoonSpeedDecay;       // 달 공격 속도 체감(0 ~ 1 미만). 0이면 선형 중첩
         public float CometDuration;        // 혜성 버프 중첩 하나의 지속 시간(초)
         public float CometCritDamageBonus; //
+        public float CometCritDecay;       // 혜성 치명타 피해 체감(0 ~ 1 미만). 0이면 선형 중첩
         public float PlanetBonusDamage;    // 행성에 주는 추가 피해
         public float StarBonusDamage;      // 별에 주는 추가 피해
         public float GalaxyBonusDamage;    // 은하에 주는 추가 피해

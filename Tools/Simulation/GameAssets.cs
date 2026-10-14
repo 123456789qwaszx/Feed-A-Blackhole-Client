@@ -64,6 +64,8 @@ namespace BlackHole.Simulation.Tool
                 MoonRadiusBonus = Float(skills, "breakerMoonRadiusBonus", 0.1f),
                 CometDuration = Float(skills, "breakerCometDuration", 5),
                 CometCritDamageBonus = Float(skills, "breakerCometCritDamageBonus", 0.5f),
+                MoonSpeedDecay = Float(skills, "breakerMoonSpeedDecay", 0),
+                CometCritDecay = Float(skills, "breakerCometCritDecay", 0),
                 HoldSlow = Float(skills, "breakerHoldSlow", 0.05f),
             };
 

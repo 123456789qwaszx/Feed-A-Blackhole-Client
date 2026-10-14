@@ -71,6 +71,7 @@ namespace BlackHole.Unity
                 { "moonDuration", R(d.MoonDuration) },
                 { "moonSpeedBonus", R(d.MoonSpeedBonus) },
                 { "moonSpeedDecay", R(d.MoonSpeedDecay) },
+                { "cometCritDecay", R(d.CometCritDecay) },
                 { "moonRadiusBonus", R(d.MoonRadiusBonus) },
                 { "cometDuration", R(d.CometDuration) },
                 { "cometCritDamageBonus", R(d.CometCritDamageBonus) },

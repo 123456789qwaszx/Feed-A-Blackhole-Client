@@ -13,7 +13,7 @@ namespace BlackHole.Unity
     //
     // 경로는 슬래시로 나눈다. 종류·성질은 계약 ID처럼 열거형 이름의 첫 글자만 소문자다(asteroid, golden).
     //   battle/<timeLimit|killTimeBonus|maxKillTimeBonus|killTimeCooldown>
-    //   breaker/<damage|interval|radius|critChance|critDamage|moonDuration|moonSpeedBonus|moonRadiusBonus|moonSpeedDecay|cometDuration|cometCritDamageBonus|planetBonusDamage|starBonusDamage|galaxyBonusDamage|holdSlow>
+    //   breaker/<damage|interval|radius|critChance|critDamage|moonDuration|moonSpeedBonus|moonRadiusBonus|moonSpeedDecay|cometDuration|cometCritDamageBonus|cometCritDecay|planetBonusDamage|starBonusDamage|galaxyBonusDamage|holdSlow>
     //   placement/<minDistance|maxDistance>           적 출현 띠(HQ로부터 거리, 전장 배율 1 기준)
     //   enemy/<종류>/<moveSpeed|radius|radiusStep|spawnPeriod|rainCount|killTimeBonus|respawnDecay>
     //   enemy/<종류>/tier/<색 등급, 1부터>/<hp|gold|exp>
@@ -59,7 +59,7 @@ namespace BlackHole.Unity
         private static readonly string[] BreakerFields =
         {
             "damage", "interval", "radius", "critChance", "critDamage", "moonDuration", "moonSpeedBonus", "moonRadiusBonus", "moonSpeedDecay",
-            "cometDuration", "cometCritDamageBonus", "planetBonusDamage", "starBonusDamage", "galaxyBonusDamage", "holdSlow",
+            "cometDuration", "cometCritDamageBonus", "cometCritDecay", "planetBonusDamage", "starBonusDamage", "galaxyBonusDamage", "holdSlow",
         };
 
         private static readonly string[] PlacementFields = { "minDistance", "maxDistance" };
@@ -289,6 +289,7 @@ namespace BlackHole.Unity
                 case "moonDuration": return Real(() => breaker.MoonDuration, v => breaker.MoonDuration = v, out error);
                 case "moonSpeedBonus": return Real(() => breaker.MoonSpeedBonus, v => breaker.MoonSpeedBonus = v, out error);
                 case "moonSpeedDecay": return Real(() => breaker.MoonSpeedDecay, v => breaker.MoonSpeedDecay = v, out error);
+                case "cometCritDecay": return Real(() => breaker.CometCritDecay, v => breaker.CometCritDecay = v, out error);
                 case "moonRadiusBonus": return Real(() => breaker.MoonRadiusBonus, v => breaker.MoonRadiusBonus = v, out error);
                 case "cometDuration": return Real(() => breaker.CometDuration, v => breaker.CometDuration = v, out error);
                 case "cometCritDamageBonus": return Real(() => breaker.CometCritDamageBonus, v => breaker.CometCritDamageBonus = v, out error);

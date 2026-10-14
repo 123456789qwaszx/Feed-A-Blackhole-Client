@@ -22,6 +22,7 @@ namespace BlackHole.Core
         public float MoonSpeedDecay { get; }
         public float CometDuration { get; } // 혜성 버프 중첩 하나의 지속 시간(초)
         public float CometCritDamageBonus { get; }
+        public float CometCritDecay { get; } // 혜성 치명타 피해 보너스의 체감(0 ~ 1 미만). 0이면 선형(중첩 수 × 보너스)
         public float PlanetBonusDamage { get; } // 행성 보너스 피해
         public float StarBonusDamage { get; } // 별 보너스 피해
         public float GalaxyBonusDamage { get; } // 은하 보너스 피해
@@ -44,7 +45,8 @@ namespace BlackHole.Core
             float galaxyBonusDamage,
             float holdSlow = 0.05f,
             float moonSpeedDecay = 0,
-            float speed = 1)
+            float speed = 1,
+            float cometCritDecay = 0)
         {
             Damage = DefinitionGuard.Positive(damage, nameof(damage));
             Interval = DefinitionGuard.Positive(interval, nameof(interval));
@@ -65,6 +67,11 @@ namespace BlackHole.Core
             MoonSpeedDecay = moonSpeedDecay;
             CometDuration = DefinitionGuard.Positive(cometDuration, nameof(cometDuration));
             CometCritDamageBonus = NotNegative(cometCritDamageBonus, nameof(cometCritDamageBonus));
+
+            if (float.IsNaN(cometCritDecay) || cometCritDecay < 0 || cometCritDecay >= 1)
+                throw new ArgumentOutOfRangeException(nameof(cometCritDecay), "0 이상 1 미만이어야 한다(0 = 선형 중첩).");
+
+            CometCritDecay = cometCritDecay;
             PlanetBonusDamage = NotNegative(planetBonusDamage, nameof(planetBonusDamage));
             StarBonusDamage = NotNegative(starBonusDamage, nameof(starBonusDamage));
             GalaxyBonusDamage = NotNegative(galaxyBonusDamage, nameof(galaxyBonusDamage));
@@ -107,7 +114,8 @@ namespace BlackHole.Core
                 GalaxyBonusDamage + upgrades.GainOf(UpgradeStat.BreakerGalaxyBonusDamage),
                 HoldSlow,
                 MoonSpeedDecay,
-                Speed * speed);
+                Speed * speed,
+                CometCritDecay);
         }
     }
 }

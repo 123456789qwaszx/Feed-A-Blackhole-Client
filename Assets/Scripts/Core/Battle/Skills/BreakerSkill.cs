@@ -84,7 +84,23 @@ namespace BlackHole.Core
         public IReadOnlyList<BreakerBuff> CometBuffs { get; }
 
         // 혜성 중첩의 치명타 피해 보너스 증가 합. 중첩이 없으면 0이다.
-        public float CometCritDamageBonus => _comet.Count * Definition.CometCritDamageBonus;
+        // 체감(CometCritDecay = d)이 있으면 n개의 합은 보너스 × (1 − d^n) / (1 − d) — 상한 보너스 / (1 − d)에 수렴한다(달 속도와 같은 식). 0이면 선형.
+        public float CometCritDamageBonus
+        {
+            get
+            {
+                int n = _comet.Count;
+                float d = Definition.CometCritDecay;
+
+                if (n == 0)
+                    return 0;
+
+                if (d <= 0)
+                    return n * Definition.CometCritDamageBonus;
+
+                return Definition.CometCritDamageBonus * (1 - (float)Math.Pow(d, n)) / (1 - d);
+            }
+        }
 
         // 혜성 중첩이 하나라도 있는가(확정 치명타).
         public bool IsGuaranteedCritical => _comet.Count > 0;
