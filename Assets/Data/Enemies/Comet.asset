@@ -36,6 +36,5 @@ MonoBehaviour:
     branchChance: 0
     critChance: 0
     critMultiplier: 0
-    healthFraction: 0
     width: 0
   sprite: {fileID: 0}

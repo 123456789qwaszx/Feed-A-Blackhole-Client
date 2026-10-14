@@ -182,7 +182,7 @@ breaker.damage-26,1,28000000000000
 breaker.radius-12,1,7000000000000
 asteroid.respawnChance-05,1,7000000000000
 laserStar.width-02,1,28000000000000
-supernovaStar.hpDamage-01,1,160000000000000
+supernovaStar.damage-01,1,160000000000000
 star.respawnChance-04,1,15000000000000
 laserStar.damage-02,1,28000000000000
 supernovaStar.spawnChance-01,1,160000000000000
@@ -190,7 +190,7 @@ star.massScale-05,1,57000000000000
 laserStar.critBonus-02,1,28000000000000
 supernovaStar.range-02,1,160000000000000
 comet.spawnChance-03,1,160000000000000
-supernovaStar.hpDamage-02,1,160000000000000
+supernovaStar.damage-02,1,160000000000000
 breaker.damage-27,1,110000000000000
 laserStar.width-03,1,28000000000000
 laserStar.damage-03,1,28000000000000
@@ -200,7 +200,7 @@ laserStar.damage-05,1,63000000000000
 laserStar.width-05,1,28000000000000
 breaker.radius-13,1,57000000000000
 laserStar.width-06,1,57000000000000
-supernovaStar.hpDamage-03,1,84000000000000
+supernovaStar.damage-03,1,84000000000000
 timer-03,1,100000000000000
 planet.toStar-03,1,100000000000000
 comet.spawnChance-04,1,100000000000000
@@ -218,10 +218,10 @@ supernovaStar.range-03,1,570000000000000
 breaker.damage-28,1,100000000000000
 laserStar.width-08,1,570000000000000
 supernovaStar.range-04,1,570000000000000
-supernovaStar.hpDamage-04,1,570000000000000
+supernovaStar.damage-04,1,570000000000000
 planet.toStar-05,1,930000000000000
-supernovaStar.hpDamage-05,1,1800000000000000
-supernovaStar.hpDamage-06,1,570000000000000
+supernovaStar.damage-05,1,1800000000000000
+supernovaStar.damage-06,1,570000000000000
 timer-04,1,930000000000000
 laserStar.width-09,1,1300000000000000
 star.massScale-09,1,1300000000000000

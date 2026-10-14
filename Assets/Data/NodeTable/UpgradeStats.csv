@@ -57,7 +57,7 @@ laserStar.critChance,Float,Percent,0,Add,0,100,TRUE,,레이저 치명타 확률,
 laserStar.damage,Float,Flat,2000,Add,0,,TRUE,,레이저 대미지,값,2000,6,[2]동일한것,6,OK
 laserStar.critBonus,Float,Percent,200,Add,0,,TRUE,,레이저 치명타 보너스,%,200,3,[2]동일한것,3,OK
 supernovaStar.range,Float,Percent,100,Add,0,,TRUE,,슈퍼노바 범위,%,100,4,[2]동일한것,4,OK
-supernovaStar.hpDamage,Float,Percent,20,Add,0,100,TRUE,,현재체력 비례 슈퍼노바 대미지,%,20,6,[2]동일한것,6,OK
+supernovaStar.damage,Float,Flat,12000,Add,0,,TRUE,고정 피해(원작은 현재체력 비례),현재체력 비례 슈퍼노바 대미지,%,20,6,[2]동일한것,6,OK
 supernovaStar.spawnChance,Float,Percent,0,Add,0,100,TRUE,,슈퍼노바 별 생성 확률,%,0,1,[2]동일한것,1,OK
 growth.galaxies,Float,Percent,0,Add,0,,TRUE,신규,블랙홀 성장 시 생성되는 은하 수,%,,,[신규],2,
 star.toGalaxy,Float,Flat,0,Add,0,,TRUE,신규,별을 은하로 업그레이드,값,,,[신규],3,
