@@ -13,6 +13,7 @@ namespace BlackHole.Core
         public float MoonDuration;         // 달 버프 중첩 하나의 지속 시간(초)
         public float MoonSpeedBonus;       //
         public float MoonRadiusBonus;      //
+        public float MoonRadiusDecay;      // 달 범위 체감(0 ~ 1 미만). 0이면 선형(달 수 × 보너스), 0보다 크면 보너스가 상한이 되고 달 n개는 상한 × (1 − d^n)
         public float MoonSpeedDecay;       // 달 공격 속도 체감(0 ~ 1 미만). 0이면 선형 중첩
         public float CometDuration;        // 혜성 버프 중첩 하나의 지속 시간(초)
         public float CometCritDamageBonus; //

@@ -29,6 +29,8 @@ namespace BlackHole.Unity
         [SerializeField] private float breakerMoonSpeedBonus = 0.2f;
         [Tooltip("달 중첩 하나의 공격 범위(반지름) 보너스(0 이상). 0.1이면 +10%. 중첩끼리 더한 뒤 노드가 반영된 반지름에 곱한다. 반지름은 2배(BreakerSkill.MoonRadiusMaxScale)를 넘지 않는다.")]
         [SerializeField] private float breakerMoonRadiusBonus = 0.1f;
+        [Tooltip("달 범위 보너스의 체감(0 ~ 1 미만). 0이면 선형(달 수 × 보너스). 0보다 크면 범위 보너스(이 값 + 노드 moonPlanet.rangeScale)가 상한이 되고, 달 n개는 상한 × (1 − d^n)만큼 커진다. 0.7이면 첫 달 30%, 둘째 51%, 셋째 66%.")]
+        [SerializeField, Range(0, 0.95f)] private float breakerMoonRadiusDecay = 0f;
         [Tooltip("달 공격 속도 보너스의 체감(0 ~ 1 미만). 0이면 선형(달 수 × 보너스). 0.7이면 n번째 달은 보너스 × 0.7^(n−1)만 더해, 합이 보너스 ÷ 0.3에 수렴한다.")]
         [SerializeField, Range(0, 0.95f)] private float breakerMoonSpeedDecay = 0f;
 
@@ -56,6 +58,7 @@ namespace BlackHole.Unity
                 MoonDuration = breakerMoonDuration,
                 MoonSpeedBonus = breakerMoonSpeedBonus,
                 MoonRadiusBonus = breakerMoonRadiusBonus,
+                MoonRadiusDecay = breakerMoonRadiusDecay,
                 MoonSpeedDecay = breakerMoonSpeedDecay,
                 CometDuration = breakerCometDuration,
                 CometCritDamageBonus = breakerCometCritDamageBonus,
