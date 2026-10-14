@@ -17,6 +17,8 @@ namespace BlackHole.Unity
     // 판 시작 연출 동안에는 원점에서 RevealRadius 안의 적만 화면을 만든다. 반경이 넓어지면 바깥 적이 그때 출현 연출과 함께 나타난다(BattleSystem).
     // 픽업(혜성)은 CometView가 통째로 맡는다(스프라이트가 아니라 셰이더). 사망 파편·골드·피해량 텍스트도 없다 — 한 방에 부서지는 버프 아이템이라 필요 없다.
     // 목록에서 빠진 적(사망)의 스프라이트는 바로 지운다.
+    // 체력 음영: 몸체(와 성질 속 채움)는 '남은 체력 비율'만큼의 면적에 음영(검정 α ShadeStrength를 덮은 색)이 씌워져 있고,
+    //   피해를 입은 만큼 몸체의 한쪽(로컬 위)부터 기본색이 드러나며, 경계선은 자전과 함께 돈다(BlackHole/Enemy Shade 셰이더, UpdateShade). 체력 50%면 절반은 기본색, 절반은 음영.
     // 피격·사망 연출(흔들림·파편·피해량·Gold 텍스트·파괴음)은 Step이 끝난 뒤 판의 피격 기록(World.Hits)과 사망 기록(World.Deaths)을 읽어 낸다.
     // 일시정지 중에는 판이 기록을 비우지 않으므로, 기록마다 번호(Sequence)로 걸러 한 번씩만 낸다.
     // 규칙 평면은 장면의 z = 0이고 x·y는 같다. HQ(원점)가 장면의 원점이다.
@@ -55,6 +57,10 @@ namespace BlackHole.Unity
             public float Hold;
             // 떨림의 위상(적마다 다르게).
             public float HoldPhase;
+            // 성질 속 채움(황금 등). 없으면 null. 체력 음영을 몸체와 같이 받는다.
+            public SpriteRenderer Fill;
+            // 마지막으로 음영 문턱값을 계산한 체력 비율(처음엔 −1 = 아직 계산 안 함)과 그 문턱값.
+            public float ShadeRatio = -1;
         }
 
         // 출현 연출 [임시]: SpawnSeconds 동안 크기 0(점)에서 제 크기로 키운다. OutBack 곡선이라 도중에 제 크기를 살짝 넘었다가 돌아온다.
@@ -96,6 +102,14 @@ namespace BlackHole.Unity
         private static readonly int _outlineWidthId = Shader.PropertyToID("_OutlineWidth");
         private static readonly int _orbKindsId = Shader.PropertyToID("_OrbKinds");
 
+        // 체력 음영(BlackHole/Enemy Shade). 셰이더를 못 찾으면(빌드에 셰이더가 빠진 경우 등) 음영 없이 기존처럼 그린다.
+        private const string ShadeShaderName = "BlackHole/Enemy Shade";
+        private static readonly int _shadeCenterId = Shader.PropertyToID("_ShadeCenter");
+        private static readonly int _shadeRadiusId = Shader.PropertyToID("_ShadeRadius");
+        private static readonly int _shadeThresholdId = Shader.PropertyToID("_ShadeThreshold");
+        // 문턱값이 이 값이면 경계(부드러움 포함)가 몸체 밖이라 전부 음영 / 전부 기본색이다.
+        private const float ShadeAllThreshold = 2f;
+
         private readonly Transform _root;
         private readonly EnemyLooks _looks;
         // 표시 설정(피해량·Gold 텍스트, 물질 파편). 끄면 그다음 기록부터 내지 않는다 — 이미 떠 있는 것은 제 수명대로 사라진다.
@@ -104,6 +118,8 @@ namespace BlackHole.Unity
         private readonly CometView _comets;
         private readonly Mesh _quad;
         private readonly MaterialPropertyBlock _properties = new MaterialPropertyBlock();
+        private readonly MaterialPropertyBlock _shade = new MaterialPropertyBlock();
+        private readonly Material _shadeMaterial;
         private readonly float[] _moonKinds = new float[MaxOrbs];
         private readonly EnemyHitParticles _hitParticles;
         private readonly EnemyGoldText _goldText;
@@ -139,6 +155,12 @@ namespace BlackHole.Unity
             _hitParticles = _root.gameObject.AddComponent<EnemyHitParticles>();
             _goldText = new EnemyGoldText(_root);
             _damageText = new EnemyDamageText(_root);
+
+            Shader shadeShader = Shader.Find(ShadeShaderName);
+            if (shadeShader != null)
+                _shadeMaterial = new Material(shadeShader) { name = "Enemy Shade" };
+            else
+                Debug.LogWarning($"[적 화면] '{ShadeShaderName}' 셰이더를 찾지 못해 체력 음영 없이 그린다. 빌드라면 Project Settings > Graphics > Always Included Shaders에 추가할 것.");
         }
 
         // paused: 일시정지 중이면 달 공전을 멈춘다.
@@ -196,6 +218,8 @@ namespace BlackHole.Unity
                 // 회전(Renderer.transform)과 서로 다른 트랜스폼이라 부딪히지 않는다.
                 if (visual.SpinSpeed != 0 && !paused)
                     visual.Container.Rotate(0, 0, visual.SpinSpeed * delta);
+
+                UpdateShade(visual, enemy);
             }
 
             // 이번 Step의 피격·사망 연출. 피격 흔들림은 아직 살아 있는 적에만 낸다(죽은 적의 스프라이트는 아래에서 지운다).
@@ -257,7 +281,7 @@ namespace BlackHole.Unity
                     visual.Hit.Play();
 
                 if (particles)
-                    _hitParticles.EmitHit(new Vector3(hit.Position.X, hit.Position.Y, 0), _looks.ColorOf(hit.EnemyType, hit.Tier));
+                    _hitParticles.EmitHit(new Vector3(hit.Position.X, hit.Position.Y, 0), _looks.ColorOf(hit.EnemyType, hit.Tier), hit.Radius);
 
                 if (damageText)
                     _damageText.Show(hit);
@@ -287,7 +311,7 @@ namespace BlackHole.Unity
                 if (particles)
                 {
                     _hitParticles.EmitDeath(new Vector3(death.Position.X, death.Position.Y, 0),
-                        _looks.ColorOf(death.EnemyType, death.Tier), death.EnemyType, death.Tier, death.Size);
+                        _looks.ColorOf(death.EnemyType, death.Tier), death.EnemyType, death.Tier, death.Size, death.Radius);
                 }
 
                 if (goldText)
@@ -327,6 +351,9 @@ namespace BlackHole.Unity
             _comets.Dispose();
             Object.Destroy(_root.gameObject);
             Object.Destroy(_quad);
+
+            if (_shadeMaterial != null)
+                Object.Destroy(_shadeMaterial);
         }
 
         private bool IsRevealed(Enemy enemy)
@@ -388,6 +415,7 @@ namespace BlackHole.Unity
             container.localScale = Vector3.one * (enemy.Stats.Radius * 2 / longest);
 
             Color marker = _looks.TraitColorOf(kind, trait);
+            SpriteRenderer traitFill = null;
 
             if (marker.a > 0)
             {
@@ -399,6 +427,7 @@ namespace BlackHole.Unity
                 fillRenderer.sprite = renderer.sprite;
                 fillRenderer.color = marker;
                 fillRenderer.sortingOrder = renderer.sortingOrder + 1;
+                traitFill = fillRenderer;
             }
 
             var visual = new EnemyVisual
@@ -409,6 +438,7 @@ namespace BlackHole.Unity
                 Body = renderer,
                 BaseColor = renderer.color,
                 HoldPhase = UnityEngine.Random.Range(0f, Mathf.PI * 2),
+                Fill = traitFill,
             };
 
             if (spins)
@@ -421,6 +451,22 @@ namespace BlackHole.Unity
             {
                 CreateGalaxyArms(visual, enemy);
                 visual.Body = visual.Arms.GetComponent<SpriteRenderer>();
+            }
+
+            // 체력 음영: 색을 내는 몸체(은하는 실루엣 팔)와 성질 속 채움에 음영 셰이더를 쓴다.
+            // 중심·반지름은 렌더러 자신의 좌표(오브젝트 공간)라 출현 때 한 번만 넣고, 이후엔 체력이 바뀔 때 문턱값만 고친다(UpdateShade).
+            // 처음부터 프로퍼티 블록이 붙어 있어야 셰이더가 오브젝트 공간을 믿을 수 있다(블록이 붙은 렌더러는 정점을 미리 합치는 배칭에서 빠진다).
+            if (_shadeMaterial != null)
+            {
+                visual.Body.sharedMaterial = _shadeMaterial;
+                InitShade(visual.Body, 1);
+
+                // 성질 속 채움은 같은 스프라이트를 TraitFillScale로 줄인 자식이다. 반지름을 그만큼 키워 잡아야 경계선이 몸체와 같은 높이에 온다.
+                if (visual.Fill != null)
+                {
+                    visual.Fill.sharedMaterial = _shadeMaterial;
+                    InitShade(visual.Fill, 1 / EnemyLooks.TraitFillScale);
+                }
             }
 
             // 출현 연출은 점에서 시작한다(AdvanceSpawn). 자식(성질 표식·은하 실루엣)은 부모 크기를 따라 함께 커진다.
@@ -476,6 +522,77 @@ namespace BlackHole.Unity
                 Vector3 moon = visual.MoonBaseScale;
                 visual.Moon.transform.localScale = new Vector3(moon.x * scale, moon.y * scale, moon.z);
             }
+        }
+
+        // 체력 음영: 체력이 바뀐 프레임에만 문턱값을 다시 넣는다(평소 프레임에는 아무것도 하지 않는다).
+        // 음영 면적 = 남은 체력 비율, 기본색 면적 = 잃은 체력 비율. 기본색 쪽은 몸체의 로컬 위쪽이고,
+        // 셰이더가 오브젝트 공간에서 재므로 경계선은 자전·피격 흔들림·출현 크기 변화를 저절로 따라간다.
+        private void UpdateShade(EnemyVisual visual, Enemy enemy)
+        {
+            if (_shadeMaterial == null)
+                return;
+
+            float ratio = Mathf.Clamp01(enemy.Health / enemy.Stats.MaxHealth);
+            if (ratio == visual.ShadeRatio)
+                return;
+
+            visual.ShadeRatio = ratio;
+            float threshold = ShadeThresholdOf(1 - ratio);
+            SetShadeThreshold(visual.Body, threshold);
+
+            if (visual.Fill != null)
+                SetShadeThreshold(visual.Fill, threshold);
+        }
+
+        // 출현 때 한 번: 스프라이트 중심과 반지름(긴 변의 절반 — Create가 크기를 맞추는 기준과 같다)을 오브젝트 공간으로 넣는다.
+        // 문턱값은 '전부 음영'으로 시작하고, 첫 Synchronize의 UpdateShade가 실제 체력으로 고친다.
+        private void InitShade(SpriteRenderer renderer, float radiusScale)
+        {
+            Bounds bounds = renderer.sprite.bounds;
+            float radius = Mathf.Max(bounds.extents.x, bounds.extents.y) * radiusScale;
+
+            renderer.GetPropertyBlock(_shade);
+            _shade.SetVector(_shadeCenterId, new Vector4(bounds.center.x, bounds.center.y, 0, 0));
+            _shade.SetFloat(_shadeRadiusId, Mathf.Max(radius, 1e-4f));
+            _shade.SetFloat(_shadeThresholdId, ShadeAllThreshold);
+            renderer.SetPropertyBlock(_shade);
+        }
+
+        private void SetShadeThreshold(SpriteRenderer renderer, float threshold)
+        {
+            renderer.GetPropertyBlock(_shade);
+            _shade.SetFloat(_shadeThresholdId, threshold);
+            renderer.SetPropertyBlock(_shade);
+        }
+
+        // 기본색이 드러날 면적 비율(0 ~ 1) → 셰이더 문턱값 t(−1 ~ 1, 축 방향 거리 ÷ 반지름).
+        // 단순히 t = 1 − 2·비율로 두면 원 모양에서 '높이' 비율이 되어 50%일 때만 맞고 10%·90%에서 면적이 크게 어긋난다.
+        // 그래서 원에서 축 방향 t 바깥 활꼴의 면적 비율 (acos t − t·√(1 − t²)) / π 가 목표 비율이 되는 t를 이분법으로 구한다
+        // (체력이 바뀐 프레임에만 계산한다). 적 도형은 대부분 원에 가까운 다각형이라 체감상 면적 비율과 맞는다.
+        private static float ShadeThresholdOf(float brightFraction)
+        {
+            if (brightFraction <= 0)
+                return ShadeAllThreshold;
+
+            if (brightFraction >= 1)
+                return -ShadeAllThreshold;
+
+            float low = -1;
+            float high = 1;
+
+            for (int i = 0; i < 20; i++)
+            {
+                float t = (low + high) * 0.5f;
+                float segment = (Mathf.Acos(t) - t * Mathf.Sqrt(1 - t * t)) / Mathf.PI;
+
+                // 활꼴 면적은 t가 커질수록 줄어든다.
+                if (segment > brightFraction)
+                    low = t;
+                else
+                    high = t;
+            }
+
+            return (low + high) * 0.5f;
         }
 
         // 0 → 1로 가며 끝 무렵 1을 살짝 넘었다가 1에서 멈추는 곡선.

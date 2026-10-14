@@ -57,6 +57,7 @@ namespace BlackHole.Unity
                 TimeLimitDefinition limit = content.TimeLimit.Upgraded(upgrades);
                 player.Add("timeLimit", R(limit.Duration));
                 player.Add("killTimeBonus", R(limit.KillTimeBonus));
+                player.Add("killTimeCooldown", R(limit.KillTimeCooldown));
             }
 
             BreakerDefinition d = session.World.Breaker.Definition;
@@ -69,6 +70,7 @@ namespace BlackHole.Unity
                 { "critDamage", R(d.CritDamage) },
                 { "moonDuration", R(d.MoonDuration) },
                 { "moonSpeedBonus", R(d.MoonSpeedBonus) },
+                { "moonSpeedDecay", R(d.MoonSpeedDecay) },
                 { "moonRadiusBonus", R(d.MoonRadiusBonus) },
                 { "cometDuration", R(d.CometDuration) },
                 { "cometCritDamageBonus", R(d.CometCritDamageBonus) },

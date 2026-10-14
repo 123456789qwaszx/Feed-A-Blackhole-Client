@@ -37,7 +37,7 @@ namespace BlackHole.Core
                 return null;
             }
 
-            return Guard("BattleRules.TimeLimit", into, () => new TimeLimitDefinition(item.TimeLimit, item.KillTimeBonus, item.MaxKillTimeBonus));
+            return Guard("BattleRules.TimeLimit", into, () => new TimeLimitDefinition(item.TimeLimit, item.KillTimeBonus, item.MaxKillTimeBonus, item.KillTimeCooldown));
         }
 
         private static BreakerDefinition LoadBreaker(BreakerData item, List<ContentDiagnostic> into)
@@ -51,7 +51,7 @@ namespace BlackHole.Core
             return Guard("Breaker", into, () =>
                 new BreakerDefinition(item.Damage, item.Interval, item.Radius, item.CritChance, item.CritDamage,
                     item.MoonDuration, item.MoonSpeedBonus, item.MoonRadiusBonus, item.CometDuration, item.CometCritDamageBonus,
-                    item.PlanetBonusDamage, item.StarBonusDamage, item.GalaxyBonusDamage, item.HoldSlow));
+                    item.PlanetBonusDamage, item.StarBonusDamage, item.GalaxyBonusDamage, item.HoldSlow, item.MoonSpeedDecay));
         }
 
         private static T Guard<T>(string at, List<ContentDiagnostic> into, Func<T> create) where T : class

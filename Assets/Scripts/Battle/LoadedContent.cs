@@ -14,12 +14,18 @@ namespace BlackHole.Unity
         // 업그레이드 화면에 그릴 구역(이름 열쇠, 노드 ID). 비어 있을 수 있다.
         public IReadOnlyList<NodeRegionItem> NodeRegions { get; }
 
-        internal LoadedContent(GameContent content, NodeTree nodeTree, IReadOnlyList<NodeItem> nodeItems, IReadOnlyList<NodeRegionItem> nodeRegions)
+        // 서버 콘텐츠 묶음의 버전(계약 1.3). 동기화 로그에 싣고, 서버 목차의 값과 같아야 로그가 받아들여진다.
+        // 원본 콘텐츠(밸런스 프로필 적용 전)로 계산한다. 계산하지 못했으면 ""다(서버가 로그를 거부한다).
+        public string ServerContentVersion { get; }
+
+        internal LoadedContent(GameContent content, NodeTree nodeTree, IReadOnlyList<NodeItem> nodeItems,
+            IReadOnlyList<NodeRegionItem> nodeRegions, string serverContentVersion)
         {
             Content = content;
             NodeTree = nodeTree;
             NodeItems = nodeItems;
             NodeRegions = nodeRegions;
+            ServerContentVersion = serverContentVersion ?? "";
         }
     }
 }

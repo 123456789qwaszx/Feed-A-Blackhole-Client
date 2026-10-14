@@ -8,11 +8,13 @@ namespace BlackHole.Core
     // 조준점이 없으면 치지 않고 주기도 흐르지 않는다 — 다음에 누르면 또 곧바로 친다. 빈 Tick(조준점 없음)은 없다.
     // 누르고 있는 동안 공격 원 안의 적은 거의 멈춘다(Definition.HoldSlow, World.MoveEnemies). 손가락이 링을 가리는 터치에서 적을 붙잡아 두는 방식이다.
     // 처치 버프(달·혜성)는 받은 것마다 중첩으로 따로 보관하고 따로 끝난다. 중첩당 수치는 이 Breaker의 정의(판마다 고정)가 정하고,
-    // 같은 버프의 중첩은 합연산한다(보너스 합 = 중첩 수 × 중첩당 보너스). 합은 노드가 반영된 수치에 (1 + 합)으로 곱한다.
+    // 같은 버프의 중첩은 합연산한다(보너스 합 = 중첩 수 × 중첩당 보너스, 달 속도는 체감 적용). 범위·치명타는 노드가 반영된 수치에 (1 + 합)으로 곱하고,
+    // 공격 속도는 노드 배율에 더한다.
     // - 달: 공격 속도와 공격 범위를 함께 올린다.
     //   중첩 수는 따로 막지 않는다. 달 성질의 동시 상한(EnemyTraitDefinition.MaxActive, 원작 "달 최대 개수")이 화면의 달과 남은 중첩을
     //   합쳐 세어 달 출현을 막으므로(World.CountActive) 중첩도 그 수를 넘지 않는다.
-    //   공격 속도 = 노드가 반영된 공격 속도 × (1 + 달 속도 보너스 합), 반지름 = 노드가 반영된 반지름 × (1 + 달 범위 보너스 합).
+    //   공격 속도 배율 = 노드 배율(Definition.Speed) + 달 속도 보너스 합 — 덧셈이다. 곱하면 노드 속도와 달이 서로를 키워 후반에 폭주한다.
+    //   반지름 = 노드가 반영된 반지름 × (1 + 달 범위 보너스 합).
     //   반지름 배율은 MoonRadiusMaxScale(2배)에서 멈춘다 — 원작도 달 몇 개로 지름이 2배가 되면 더 먹어도 커지지 않는다. 중첩 수·공격 속도는 그대로 오른다.
     // - 혜성: 중첩이 하나라도 있으면 모든 Tick이 치명타다.
     //   치명타 피해 보너스 = 노드가 반영된 치명타 피해 보너스 × (1 + 혜성 보너스 합). 치명타 피해 = 피해 × (1 + 치명타 피해 보너스).
@@ -51,8 +53,30 @@ namespace BlackHole.Core
         // 달 버프의 중첩(받은 순서). 중첩 수가 곧 목록의 길이다.
         public IReadOnlyList<BreakerBuff> MoonBuffs { get; }
 
-        // 달 중첩의 공격 속도·공격 범위 보너스 합. 중첩이 없으면 0이다.
-        public float MoonSpeedBonus => _moon.Count * Definition.MoonSpeedBonus;
+        // 지금 공격 속도 배율: 노드 배율 + 달 속도 보너스 합(덧셈). 1이면 기본 주기마다 친다.
+        public float CurrentSpeed => Definition.Speed + MoonSpeedBonus;
+
+        // 지금 공격 주기(초, 달 버프 포함). Definition.Interval은 노드 배율만 반영한 주기다.
+        public float CurrentInterval => Definition.Interval * Definition.Speed / CurrentSpeed;
+
+        // 달 중첩의 공격 속도 보너스 합. 중첩이 없으면 0이다.
+        // 체감(MoonSpeedDecay = d)이 있으면 n개의 합은 보너스 × (1 − d^n) / (1 − d) — 상한 보너스 / (1 − d)에 수렴한다. 0이면 선형.
+        public float MoonSpeedBonus
+        {
+            get
+            {
+                int n = _moon.Count;
+                float d = Definition.MoonSpeedDecay;
+
+                if (n == 0)
+                    return 0;
+
+                if (d <= 0)
+                    return n * Definition.MoonSpeedBonus;
+
+                return Definition.MoonSpeedBonus * (1 - (float)Math.Pow(d, n)) / (1 - d);
+            }
+        }
 
         public float MoonRadiusBonus => _moon.Count * Definition.MoonRadiusBonus;
 
@@ -88,7 +112,8 @@ namespace BlackHole.Core
         // 같은 Step 안의 Tick은 같은 조준점과 같은 적 위치를 본다. 조준점이 없는 동안 주기는 0에서 멈춘다(미리 쌓이지 않는다).
         internal void Advance(float delta, World world)
         {
-            _untilNextTick -= delta * (1 + MoonSpeedBonus);
+            // 주기는 Definition.Interval(노드 배율 반영) 단위로 쌓으므로, 달 보너스는 노드 배율에 더한 만큼의 비율로 시간을 흘린다.
+            _untilNextTick -= delta * (CurrentSpeed / Definition.Speed);
 
             if (world.AimPoint.HasValue)
             {

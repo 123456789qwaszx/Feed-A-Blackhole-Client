@@ -1,9 +1,9 @@
 {
   "name": "qa-nodes-4",
   "category": "QA/노드 단계",
-  "note": "노드 1~4단계를 모두 산 상태(구매 비용 합계 112,937,772,307 Gold). 성장 단계는 이 금액이 넘은 이정표 목표 잔액 수로 추정.",
+  "note": "노드 1~4단계를 모두 산 상태(구매 비용 합계 63,275,046,937 Gold). 성장 단계는 이 금액이 넘은 이정표 목표 잔액 수로 추정.",
   "expected": "4단계에서 새로 열리는 것: 소행성→행성 변환, 행성 성장 공급, 달, 치명타 혜성, 행성 보너스 피해. 확정 정보의 수치와 실제 화면·피해·사운드가 맞는지 확인.",
-  "growthStage": 3,
+  "growthStage": 1,
   "gold": 0,
   "nodes": [
     {
@@ -187,23 +187,19 @@
       "rank": 1
     },
     {
-      "nodeId": "breaker.damage-19",
+      "nodeId": "breaker.planetBonusDamage-01",
       "rank": 1
     },
     {
-      "nodeId": "breaker.planetBonus-01",
+      "nodeId": "breaker.planetBonusDamage-02",
       "rank": 1
     },
     {
-      "nodeId": "breaker.planetBonus-02",
+      "nodeId": "breaker.planetBonusDamage-03",
       "rank": 1
     },
     {
-      "nodeId": "breaker.planetBonus-03",
-      "rank": 1
-    },
-    {
-      "nodeId": "breaker.planetBonus-04",
+      "nodeId": "breaker.planetBonusDamage-04",
       "rank": 1
     },
     {
@@ -384,6 +380,10 @@
     },
     {
       "nodeId": "growth.asteroids-03",
+      "rank": 1
+    },
+    {
+      "nodeId": "growth.asteroids-04",
       "rank": 1
     },
     {

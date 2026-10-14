@@ -1,9 +1,9 @@
 {
   "name": "qa-nodes-8",
   "category": "QA/노드 단계",
-  "note": "노드 1~8단계를 모두 산 상태(구매 비용 합계 7,326,272,937,772,307 Gold). 성장 단계는 이 금액이 넘은 이정표 목표 잔액 수로 추정.",
+  "note": "노드 1~8단계를 모두 산 상태(구매 비용 합계 3,988,923,275,046,937 Gold). 성장 단계는 이 금액이 넘은 이정표 목표 잔액 수로 추정.",
   "expected": "8단계에서 새로 열리는 것: 슈퍼노바 범위·피해, 레이저 너비·피해 후반, 행성→별 변환 추가. 확정 정보의 수치와 실제 화면·피해·사운드가 맞는지 확인.",
-  "growthStage": 3,
+  "growthStage": 4,
   "gold": 0,
   "nodes": [
     {
@@ -20,10 +20,6 @@
     },
     {
       "nodeId": "asteroid.count-04",
-      "rank": 1
-    },
-    {
-      "nodeId": "asteroid.count-05",
       "rank": 1
     },
     {
@@ -147,14 +143,6 @@
       "rank": 1
     },
     {
-      "nodeId": "breaker.critChance-04",
-      "rank": 1
-    },
-    {
-      "nodeId": "breaker.critChance-05",
-      "rank": 1
-    },
-    {
       "nodeId": "breaker.damage-01",
       "rank": 1
     },
@@ -227,10 +215,6 @@
       "rank": 1
     },
     {
-      "nodeId": "breaker.damage-19",
-      "rank": 1
-    },
-    {
       "nodeId": "breaker.damage-20",
       "rank": 1
     },
@@ -267,19 +251,19 @@
       "rank": 1
     },
     {
-      "nodeId": "breaker.planetBonus-01",
+      "nodeId": "breaker.planetBonusDamage-01",
       "rank": 1
     },
     {
-      "nodeId": "breaker.planetBonus-02",
+      "nodeId": "breaker.planetBonusDamage-02",
       "rank": 1
     },
     {
-      "nodeId": "breaker.planetBonus-03",
+      "nodeId": "breaker.planetBonusDamage-03",
       "rank": 1
     },
     {
-      "nodeId": "breaker.planetBonus-04",
+      "nodeId": "breaker.planetBonusDamage-04",
       "rank": 1
     },
     {
@@ -308,6 +292,10 @@
     },
     {
       "nodeId": "breaker.radius-07",
+      "rank": 1
+    },
+    {
+      "nodeId": "breaker.critChance-04",
       "rank": 1
     },
     {
@@ -379,11 +367,11 @@
       "rank": 1
     },
     {
-      "nodeId": "breaker.starBonus-01",
+      "nodeId": "breaker.starBonusDamage-01",
       "rank": 1
     },
     {
-      "nodeId": "breaker.starBonus-02",
+      "nodeId": "breaker.starBonusDamage-02",
       "rank": 1
     },
     {
@@ -396,10 +384,6 @@
     },
     {
       "nodeId": "comet.rainChance-01",
-      "rank": 1
-    },
-    {
-      "nodeId": "comet.rainChance-02",
       "rank": 1
     },
     {
@@ -583,6 +567,10 @@
       "rank": 1
     },
     {
+      "nodeId": "growth.asteroids-04",
+      "rank": 1
+    },
+    {
       "nodeId": "growth.planets-01",
       "rank": 1
     },
@@ -711,10 +699,6 @@
       "rank": 1
     },
     {
-      "nodeId": "moonPlanet.rangeScale-04",
-      "rank": 1
-    },
-    {
       "nodeId": "moonPlanet.rangeScale-05",
       "rank": 1
     },
@@ -776,10 +760,6 @@
     },
     {
       "nodeId": "planet.massScale-07",
-      "rank": 1
-    },
-    {
-      "nodeId": "planet.massScale-08",
       "rank": 1
     },
     {

@@ -164,7 +164,7 @@ namespace BlackHole.Simulation
             IReadOnlyList<Enemy> enemies = world.Enemies;
             BreakerSkill breaker = world.Breaker;
             float reach = breaker.CurrentRadius;
-            float tickSeconds = breaker.Definition.Interval / (1 + breaker.MoonSpeedBonus);
+            float tickSeconds = breaker.CurrentInterval;
             float maxSpeed = _profile.MaxSpeedScreens * ScreenHeight(world);
             float critFactor = breaker.IsGuaranteedCritical
                 ? 1 + breaker.CurrentCritDamage
