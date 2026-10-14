@@ -13,7 +13,7 @@ namespace BlackHole.EditorTools.SyncFixtures
     internal static class SyncFixturesMenu
     {
         [MenuItem("BlackHole/Sync Fixtures/Smoke Run")]
-        private static void SmokeRunMenu() => Debug.Log(SmokeRun(battles: 5, maxBattleSeconds: 600));
+        private static void SmokeRunMenu() => Debug.Log(SmokeRun(battles: 30, maxBattleSeconds: 600));
 
         // 캠페인: 이정표에 닿지 못한 채 300판이면 막힌 것으로 보고 멈춘다. 지금 봇은 성장도 3(Lv30)까지 가서 거기서 막힌다(약 600판, 1분 안팎).
         // 판 루프는 백그라운드에서 돌고, 에디터에는 취소할 수 있는 진행 막대가 뜬다. 끝나면 보고서를 콘솔에 남긴다.
@@ -62,7 +62,7 @@ namespace BlackHole.EditorTools.SyncFixtures
         // - 판마다 걸린 실제 시간을 적는다(픽스처를 만드는 데 걸릴 시간을 가늠한다).
         // maxBattleSeconds: 판 하나의 상한(판 시간). 끝나지 않는 판을 이 시간에서 끊는다.
         // printEvery: 판 줄을 이 간격으로만 적는다(이정표에 닿은 판, 상한에서 끊긴 판, 마지막 판은 늘 적는다). 1이면 모두.
-        // stallBattles: 이정표에 닿지 못한 채 이만큼 판이 이어지면 막힌 것으로 보고 멈춘다. 봇이 마지막 이정표를 못 넘으면 Gold만 쌓여 long이 넘치기 때문이다.
+        // stallBattles: 이정표에 닿지 못한 채 이만큼 판이 이어지면 막힌 것으로 보고 멈춘다. 봇이 마지막 이정표를 못 넘으면 Gold만 쌓여 long이 넘치기 때문이다. 0 이하면 쓰지 않는다.
         public static string SmokeRun(int battles, float maxBattleSeconds, int printEvery = 1, int stallBattles = 300)
         {
             LoadedContent loaded = LoadContent(out string error);
@@ -178,7 +178,7 @@ namespace BlackHole.EditorTools.SyncFixtures
                     break;
                 }
 
-                if (sinceMilestone >= stallBattles)
+                if (stallBattles > 0 && sinceMilestone >= stallBattles)
                 {
                     report.AppendLine($"막힘: 성장도 {progress.GrowthStage}에서 {stallBattles}판 동안 이정표에 닿지 못해 {index}판째에 멈춘다(Gold {progress.Gold:N0}).");
                     battles = index;
