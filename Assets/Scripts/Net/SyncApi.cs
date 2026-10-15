@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Codice.Client.Common.WebApi.Responses;
 
 namespace BlackHole.Net
 {
@@ -12,20 +11,29 @@ namespace BlackHole.Net
     /// </summary>
     public sealed class SyncApi : ISyncApi
     {
-        private const int RequestTimeoutSeconds = 10;
-
         private readonly IHttpTransport _transport;
         private readonly IAuthSession _authSession;
         private readonly IJsonSerializer _jsonSerializer;
+        private readonly int _requestTimeoutSeconds;
 
         public SyncApi(
             IHttpTransport transport,
             IAuthSession authSession,
-            IJsonSerializer jsonSerializer)
+            IJsonSerializer jsonSerializer,
+            int requestTimeoutSeconds)
         {
             _transport = transport ?? throw new ArgumentNullException(nameof(transport));
             _authSession = authSession ?? throw new ArgumentNullException(nameof(authSession));
             _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
+
+            if (requestTimeoutSeconds < 1)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(requestTimeoutSeconds),
+                    "HTTP 요청 제한 시간은 1초 이상이어야 한다.");
+            }
+
+            _requestTimeoutSeconds = requestTimeoutSeconds;
         }
 
         public async Task<SyncCallResult> SendAsync(IReadOnlyList<PendingLog> logs)
@@ -72,7 +80,7 @@ namespace BlackHole.Net
                     // 같은 본문을 새 AccessToken으로 한 번 재전송
                     result = await SendRequestAsync(body);
 
-                    if (result.Outcome != HttpOutcome.Response)
+                    if (IsUnreachable(result))
                     {
                         _authSession.GoOffline(OfflineReason.Unreachable);
                         return SyncCallResult.Failed(SyncCallOutcome.Unreachable);
@@ -104,7 +112,7 @@ namespace BlackHole.Net
                 ApiPaths.Sync,
                 body,
                 _authSession.AccessToken,
-                RequestTimeoutSeconds);
+                _requestTimeoutSeconds);
 
             return _transport.SendAsync(reqeust);
         }
@@ -203,6 +211,12 @@ namespace BlackHole.Net
             }
 
             return SyncCallResult.Of(response);
+        }
+
+        private SyncCallResult ProtocolError(string message)
+        {
+            _authSession.GoOffline(OfflineReason.ProtocolError);
+            return SyncCallResult.Failed(SyncCallOutcome.ProtocolError);
         }
 
         private static bool IsValidResponse(SyncResponseDto response)

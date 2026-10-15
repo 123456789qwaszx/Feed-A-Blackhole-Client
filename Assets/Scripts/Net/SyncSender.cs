@@ -27,7 +27,7 @@ namespace BlackHole.Net
         private Task _pumpTask;
         private Task _startupTask;
 
-        private bool _startupAttemped;
+        private bool _startupAttempted;
         private bool _failedThisRun;
         private bool _sendRequested;
         private bool _sendEmptyOnNextPump;
@@ -75,10 +75,10 @@ namespace BlackHole.Net
         {
             ThrowIfDisposed();
 
-            if (_startupAttemped || _failedThisRun)
+            if (_startupAttempted || _failedThisRun)
                 return _pumpTask ?? Task.CompletedTask;
 
-            _startupAttemped = true;
+            _startupAttempted = true;
             _sendRequested = true;
             _sendEmptyOnNextPump = true;
 
@@ -104,8 +104,8 @@ namespace BlackHole.Net
         private void OnLogAppended()
         {
             if (_disposed ||
-                !_failedThisRun ||
-                !_startupAttemped ||
+                _failedThisRun ||
+                !_startupAttempted ||
                 _auth.State != ConnectionState.Online)
                 return;
 
@@ -281,16 +281,22 @@ namespace BlackHole.Net
         {
             var batch = new List<PendingLog>();
 
+            // {"logs":[]}의 UTF-8 바이트 수
+            int bytes = SyncJson.Utf8Length("{\"logs\":[]}");
+
             for (int i = 0; i < pending.Count && batch.Count < MaxLogsPerBatch; i++)
             {
-                batch.Add(pending[i]);
+                PendingLog log = pending[i];
+                int logBytes = SyncJson.Utf8Length(log.Json);
 
-                string body = ComposeArrayBody(batch);
-                if (SyncJson.Utf8Length(body) > MaxBatchBytes)
-                {
-                    batch.RemoveAt(batch.Count - 1);
+                // 로그 사이의 쉼표 1바이트를 포함한다.
+                int addedBytes = logBytes + (batch.Count > 0 ? 1 : 0);
+
+                if (bytes + addedBytes > 1024 * 1024)
                     break;
-                }
+
+                batch.Add(log);
+                bytes += addedBytes;
             }
 
             return batch;
@@ -334,7 +340,7 @@ namespace BlackHole.Net
             OfflineReason reason = outcome switch
             {
                 SyncCallOutcome.Unreachable => OfflineReason.Unreachable,
-                //SyncCallOutcome.Unauthorized => OfflineReason.ProtocolError, // OfflineReason.Unauthorized 이 없어서 스킵
+                SyncCallOutcome.Unauthorized => OfflineReason.Unauthorized, // OfflineReason.Unauthorized 이 없어서 스킵
                 _ => OfflineReason.ProtocolError
             };
 
