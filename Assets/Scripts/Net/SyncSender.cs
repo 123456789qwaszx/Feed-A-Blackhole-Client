@@ -78,12 +78,13 @@ namespace BlackHole.Net
             if (_startupAttemped || _failedThisRun)
                 return _pumpTask ?? Task.CompletedTask;
 
+            _startupAttemped = true;
             _sendRequested = true;
             _sendEmptyOnNextPump = true;
 
             Task pump = EnsurePumpAsync();
-
             _startupTask = WaitForStartupAsync(pump);
+
             return _startupTask;
         }
 

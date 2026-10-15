@@ -17,5 +17,7 @@ namespace BlackHole.Net
         Unreachable,         // 네트워크 오류, 타임아웃, 5xx, 로그인 시간 예산 초과
         CredentialsRejected, // 저장된 guestId·guestSecret이 거부됨(새 계정을 만들지 않는다, 계약 2.7)
         ProtocolError,       // 예상하지 못한 응답(그 밖의 4xx, 형식이 맞지 않는 본문). 버그
+
+        Unauthorized,       // 인증 실패 : AccessToken 갱신 실패 또는 갱신 후 재요청에서도 401 응답.
     }
 }
