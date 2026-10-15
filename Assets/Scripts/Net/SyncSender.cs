@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BlackHole.Net
@@ -15,9 +13,6 @@ namespace BlackHole.Net
     /// </summary>
     public class SyncSender : IDisposable
     {
-        private const int MaxLogsPerBatch = 500;
-        private const int MaxBatchBytes = 1024 * 1024;
-
         private readonly IAuthSession _auth;
         private readonly ISyncApi _api;
         private readonly ISyncStore _store;
@@ -27,7 +22,7 @@ namespace BlackHole.Net
         private Task _pumpTask;
         private Task _startupTask;
 
-        private bool _startupAttempted;
+        private bool _startupAttemped;
         private bool _failedThisRun;
         private bool _sendRequested;
         private bool _sendEmptyOnNextPump;
@@ -75,10 +70,10 @@ namespace BlackHole.Net
         {
             ThrowIfDisposed();
 
-            if (_startupAttempted || _failedThisRun)
+            if (_startupAttemped || _failedThisRun)
                 return _pumpTask ?? Task.CompletedTask;
 
-            _startupAttempted = true;
+            _startupAttemped = true;
             _sendRequested = true;
             _sendEmptyOnNextPump = true;
 
@@ -105,7 +100,7 @@ namespace BlackHole.Net
         {
             if (_disposed ||
                 _failedThisRun ||
-                !_startupAttempted ||
+                !_startupAttemped ||
                 _auth.State != ConnectionState.Online)
                 return;
 
@@ -231,15 +226,7 @@ namespace BlackHole.Net
                 return false;
             }
 
-            // 전송하지 않은 더 높은 순번까지 삭제하지 않도록 방어
-            // 빈 요청은 서버의 기존 순번을 반환할 수 있으므로 상한을 적용하지 않는다
-            if (sent.Count > 0 &&
-                response.appliedThroughSeq > sent[sent.Count - 1].Seq)
-            {
-                Fail(SyncCallOutcome.ProtocolError, "응답 순번이 전송한 로그의 마지막 수번보다 크다.");
-                return false;
-            }
-
+            
             try
             {
                 SyncApplyOutcome outcome = _store.ApplyResponse(response);
@@ -270,6 +257,10 @@ namespace BlackHole.Net
 
             RejectionReceived?.Invoke(_store.LastRejection);
         }
+        
+        // 빈 요청 본문 {"logs":[]}의 UTF-8 바이트 수. 본문은 SyncApi가 SyncJson.ComposeRequest로 만든다.
+        private static readonly int EmptyRequestBytes = SyncJson.Utf8Length(SyncJson.ComposeRequest(Array.Empty<string>()));
+
 
         /// <summary>
         /// 로그 개수와 JSON 배열 크기를 기준으로 전송 묶음을 만든다.
@@ -282,44 +273,23 @@ namespace BlackHole.Net
             var batch = new List<PendingLog>();
 
             // {"logs":[]}의 UTF-8 바이트 수
-            int bytes = SyncJson.Utf8Length("{\"logs\":[]}");
+            int bytes = EmptyRequestBytes;
 
-            for (int i = 0; i < pending.Count && batch.Count < MaxLogsPerBatch; i++)
+            for (int i = 0; i < pending.Count && batch.Count < SyncLimits.MaxLogsPerRequest; i++)
             {
                 PendingLog log = pending[i];
-                int logBytes = SyncJson.Utf8Length(log.Json);
 
-                // 로그 사이의 쉼표 1바이트를 포함한다.
-                int addedBytes = logBytes + (batch.Count > 0 ? 1 : 0);
+                // 두 번째 로그부터 앞에 쉼표 1바이트가 붙는다.
+                int added = SyncJson.Utf8Length(log.Json) + (batch.Count > 0 ? 1 : 0);
 
-                if (bytes + addedBytes > 1024 * 1024)
+                if (bytes + added > SyncLimits.MaxRequestBytes)
                     break;
 
                 batch.Add(log);
-                bytes += addedBytes;
+                bytes += added;
             }
 
             return batch;
-        }
-
-        /// <summary>
-        /// PendingLog.Json을 재직렬화하지 않고 JSON배열로 묶는다
-        /// </summary>
-        /// <param name="logs"></param>
-        /// <returns></returns>
-        private static string ComposeArrayBody(IReadOnlyList<PendingLog> logs)
-        {
-            var builder = new StringBuilder();
-            builder.Append('[');
-
-            for (int i=0;i<logs.Count;i++)
-            {
-                if (i > 0) builder.Append(',');
-                builder.Append(logs[i].Json);
-            }
-
-            builder.Append(']');
-            return builder.ToString();
         }
 
         private static bool ContainsSeq(IReadOnlyList<PendingLog> logs, long seq)
