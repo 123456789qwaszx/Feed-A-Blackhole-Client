@@ -84,7 +84,7 @@ namespace BlackHole.Net
             Task pump = EnsurePumpAsync();
 
             _startupTask = WaitForStartupAsync(pump);
-            return _startupTask
+            return _startupTask;
         }
 
         private async Task WaitForStartupAsync(Task pump)
