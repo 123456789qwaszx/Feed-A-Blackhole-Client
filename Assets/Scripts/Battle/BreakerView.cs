@@ -10,7 +10,9 @@ namespace BlackHole.Unity
     // 게임 상태를 바꾸지 않고, 피해를 다시 계산하지 않는다. 외형은 BreakerLook이 가진다.
     // - 링의 기본 반지름은 판정 반지름이다(GAME_RULES 6절). 달 버프로 판정 반지름이 바뀌면 매 프레임 따라간다(BreakerSkill.CurrentRadius).
     //   조준점이 없거나 일시정지 중이면 숨긴다.
-    // - 기본: 천천히 돈다.
+    // - 대기 링: 조준점은 없지만 호버 지점(마우스·펜이 가리키는 자리)이 있으면, 같은 반지름·굵기의 링을 BreakerLook.HoverColor로 그 자리에 그린다.
+    //   돌지 않고 튀지 않으며 구체·배경 원도 없다 — "누르면 여기를 친다"는 표시일 뿐 공격 중으로 보이지 않게. 터치는 호버가 없어 그대로 숨긴다.
+    // - 기본(공격 중): 천천히 돈다.
     // - 타격: Tick 기록마다 링이 빠르게 커졌다 돌아온다(반지름·굵기·밝기). 커지는 반지름은 화면에서만 커진다.
     //   헛친 Tick(맞은 적 없음)은 약하게 튄다. 치명타 Tick은 금색으로 번쩍인다. 빈 Tick(조준점 없음)은 튀지 않는다.
     // - 버프 구체: 달·혜성 중첩 하나마다 구체 하나가 링 바깥 궤도를 시계방향으로 돈다. 두 버프가 한 궤도를 나눠 쓰고,
@@ -93,9 +95,10 @@ namespace BlackHole.Unity
             _quad = QuadRenderers.CreateMesh();
         }
 
-        public void Synchronize(World world, bool paused, float delta)
+        // hoverPoint: 마우스·펜이 가리키는 자리(없으면 null). 조준점이 없을 때 대기 링을 그릴 곳.
+        public void Synchronize(World world, Point2? hoverPoint, bool paused, float delta)
         {
-            Show(world.AimPoint, world.Breaker, paused, delta, world.Hq.FieldScale);
+            Show(world.AimPoint, hoverPoint, world.Breaker, paused, delta, world.Hq.FieldScale);
         }
 
         // 판이 바뀌거나 판을 정리할 때 모든 링을 지운다.
@@ -114,14 +117,18 @@ namespace BlackHole.Unity
         }
 
         // fieldScale: 판의 전장 배율. 화면 크기가 고정인 구체에만 곱한다.
-        private void Show(Point2? aimPoint, BreakerSkill breaker, bool paused, float delta, float fieldScale)
+        private void Show(Point2? aimPoint, Point2? hoverPoint, BreakerSkill breaker, bool paused, float delta, float fieldScale)
         {
             _ring ??= Create();
             Ring ring = _ring;
+            bool attacking = !paused && aimPoint.HasValue;
 
             if (!paused)
             {
-                ring.Rotation = Mathf.Repeat(ring.Rotation + _look.RotationSpeed * delta, 1);
+                // 회전은 공격 중에만. 대기 링은 멈춰 있다.
+                if (attacking)
+                    ring.Rotation = Mathf.Repeat(ring.Rotation + _look.RotationSpeed * delta, 1);
+
                 ring.OrbPhase = Mathf.Repeat(ring.OrbPhase - _look.OrbitSpeed * delta, 1);
                 ring.PunchElapsed += delta;
             }
@@ -129,10 +136,11 @@ namespace BlackHole.Unity
             ReadTicks(ring, breaker);
             ReadBuffs(ring, breaker);
 
-            // 링·구체·혜성 배경 원의 표시 여부는 여기서만 정한다. 구체와 배경 원은 링이 보일 때만 보인다.
-            bool visible = !paused && aimPoint.HasValue;
-            int orbCount = visible ? FillOrbKinds(breaker) : 0;
-            bool aura = visible && breaker.IsGuaranteedCritical;
+            // 링·구체·혜성 배경 원의 표시 여부는 여기서만 정한다. 구체와 배경 원은 공격 중인 링에만 붙는다.
+            bool hovering = !paused && !attacking && hoverPoint.HasValue;
+            bool visible = attacking || hovering;
+            int orbCount = attacking ? FillOrbKinds(breaker) : 0;
+            bool aura = attacking && breaker.IsGuaranteedCritical;
             ring.Renderer.enabled = visible;
             ring.Orbs.enabled = orbCount > 0;
             ring.Aura.enabled = aura;
@@ -140,9 +148,9 @@ namespace BlackHole.Unity
             if (!visible)
                 return;
 
-            Point2 aim = aimPoint.Value;
-            ring.Root.localPosition = new Vector3(aim.X, aim.Y, 0);
-            Apply(ring, breaker.CurrentRadius, out float shownRadius, out float shownThickness);
+            Point2 at = attacking ? aimPoint.Value : hoverPoint.Value;
+            ring.Root.localPosition = new Vector3(at.X, at.Y, 0);
+            Apply(ring, breaker.CurrentRadius, attacking, out float shownRadius, out float shownThickness);
 
             float ringEdge = shownRadius + shownThickness * 0.5f;
 
@@ -193,10 +201,11 @@ namespace BlackHole.Unity
         }
 
         // radius: 판정 반지름(달 버프 포함). 튐으로 커지는 반지름은 화면에서만 커진다.
+        // attacking: false면 대기 링 — 튐 없이 HoverColor로 그린다. 반지름·굵기 계산은 같다.
         // 링의 화면 반지름·굵기(튐 포함)를 돌려준다. 구체 궤도가 이 링 바로 바깥을 따라간다.
-        private void Apply(Ring ring, float radius, out float shownRadius, out float shownThickness)
+        private void Apply(Ring ring, float radius, bool attacking, out float shownRadius, out float shownThickness)
         {
-            float punch = ring.PunchElapsed < _look.PunchDuration
+            float punch = attacking && ring.PunchElapsed < _look.PunchDuration
                 ? _look.Punch(ring.PunchElapsed / _look.PunchDuration) * ring.PunchStrength
                 : 0;
             shownRadius = radius * (1 + _look.PunchRadiusScale * punch);
@@ -218,7 +227,7 @@ namespace BlackHole.Unity
             _properties.SetFloat(_dashCountId, _look.DashCount);
             _properties.SetFloat(_dashRatioId, _look.DashRatio);
             _properties.SetFloat(_rotationId, ring.Rotation);
-            _properties.SetColor(_colorId, _look.Color);
+            _properties.SetColor(_colorId, attacking ? _look.Color : _look.HoverColor);
             _properties.SetColor(_flashColorId, ring.PunchCritical ? _look.CriticalFlashColor : _look.HitFlashColor);
             _properties.SetFloat(_flashId, Mathf.Clamp01(punch));
             ring.Renderer.SetPropertyBlock(_properties);

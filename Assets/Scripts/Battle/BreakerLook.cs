@@ -88,7 +88,12 @@ namespace BlackHole.Unity
         [Min(0.01f)]
         [SerializeField] private float _holdFadeSeconds = 0.08f;
 
+        [Header("대기 링: 마우스·펜이 가리키는 자리에 누르면 칠 범위를 보이는 정적 링(BreakerView)")]
+        [Tooltip("대기 링의 색. 공격 중인 링(Color)과 분명히 구분되도록 알파를 낮게 둔다. 반지름·굵기는 공격 링과 같다.")]
+        [SerializeField] private Color _hoverColor = new(0.92f, 0.92f, 0.92f, 0.3f);
+
         public Material Material => _material;
+        public Color HoverColor => _hoverColor;
         public float ThicknessRatio => _thicknessRatio;
         public int DashCount => _dashCount;
         public float DashRatio => _dashRatio;
