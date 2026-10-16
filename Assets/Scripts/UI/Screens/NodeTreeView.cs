@@ -58,6 +58,10 @@ namespace BlackHole.Unity
         private const float PartialMix = 0.35f;
         // 터치로 노드를 꾹 눌러 사는 데 필요한 시간(초).
         private const float HoldSeconds = 0.3f;
+        // 고른 노드의 링: 노드보다 이만큼 크다(지름). 살 수 있는 노드(초록)와 고른 노드를 가르는 표시.
+        private const float SelectRingExtra = 18;
+        private const int RingTextureSize = 64;
+        private const float RingThickness = 3;
         private const float MinZoom = 0.3f;
         private const float MaxZoom = 2.5f;
         private const float FitZoomLimit = 1.5f;
@@ -204,6 +208,10 @@ namespace BlackHole.Unity
         // 노드 칸(툴팁을 붙일 자리). 없으면 null.
         public RectTransform RectOf(string id) =>
             id != null && _nodes.TryGetValue(id, out NodeVisual node) ? (RectTransform)node.Root.transform : null;
+
+        // 노드에 지금 그려진 그림(상태·테마 반영). 없으면 null. 호스트가 고정 패널의 제목 옆에 같은 그림을 보인다.
+        public Sprite IconOf(string id) =>
+            id != null && _nodes.TryGetValue(id, out NodeVisual node) ? node.Image.sprite : null;
 
         public void SetSelected(string id)
         {
@@ -801,6 +809,9 @@ namespace BlackHole.Unity
         // 노드 하나를 지금 상태(와 올림)대로 칠한다. 가격은 마지막 Rank까지 사지 않은 노드에만 쓴다.
         private void Paint(NodeVisual node)
         {
+            if (node.SelectRing != null && node.SelectRing.activeSelf != (node == _selected))
+                node.SelectRing.SetActive(node == _selected);
+
             if (node.State == NodeState.Hidden)
             {
                 // 안개 속: 가격·Rank 딱지는 숨긴다. 열린 구역이면 흐린 자물쇠, 먼 노드면 작고 흐린 점(레이캐스트를 받지 않아 올림·누름이 없다).
@@ -897,6 +908,17 @@ namespace BlackHole.Unity
             var image = rect.gameObject.AddComponent<Image>();
             image.preserveAspect = true;
 
+            // 고른 노드의 링: 노드 위에 그리는 얇은 흰 고리(가운데는 비어 노드가 보인다). 고를 때만 켠다.
+            RectTransform ringRect = Child(rect, "Select");
+            ringRect.anchorMin = new Vector2(0.5f, 0.5f);
+            ringRect.anchorMax = new Vector2(0.5f, 0.5f);
+            ringRect.sizeDelta = new Vector2(NodeSize + SelectRingExtra, NodeSize + SelectRingExtra);
+            var ringImage = ringRect.gameObject.AddComponent<Image>();
+            ringImage.sprite = RingSprite();
+            ringImage.color = Color.white;
+            ringImage.raycastTarget = false;
+            ringRect.gameObject.SetActive(false);
+
             RectTransform badge = null;
             RectTransform labelRect;
 
@@ -946,7 +968,37 @@ namespace BlackHole.Unity
             label.overflowMode = TextOverflowModes.Ellipsis;
             label.raycastTarget = false;
 
-            return new NodeVisual(item.Id, item.Stat, item.Price, item.MaxRank, item.Start, position, rect.gameObject, image, label, badge, rankLabel);
+            return new NodeVisual(item.Id, item.Stat, item.Price, item.MaxRank, item.Start, position, rect.gameObject, image, label, badge, rankLabel,
+                ringRect.gameObject);
+        }
+
+        private static Sprite _ringSprite;
+
+        // 흰 고리 그림을 한 번 만든다(프로젝트에 고리 스프라이트가 없다). 가장자리는 1px 부드럽게.
+        private static Sprite RingSprite()
+        {
+            if (_ringSprite != null)
+                return _ringSprite;
+
+            int size = RingTextureSize;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+            float center = (size - 1) * 0.5f;
+            float outer = center - 1;
+            float inner = outer - RingThickness;
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float distance = Mathf.Sqrt((x - center) * (x - center) + (y - center) * (y - center));
+                    float alpha = Mathf.Clamp01(outer + 0.5f - distance) * Mathf.Clamp01(distance - inner + 0.5f);
+                    texture.SetPixel(x, y, new Color(1, 1, 1, alpha));
+                }
+            }
+
+            texture.Apply();
+            _ringSprite = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100);
+            return _ringSprite;
         }
 
         // Rank 딱지: 노드 오른쪽 위 모서리에 걸친다. 글자는 칠할 때 쓴다("3/10").
@@ -1056,10 +1108,12 @@ namespace BlackHole.Unity
             public readonly RectTransform Badge;
             // Rank 딱지의 글자(Rank가 둘 이상인 노드만).
             public readonly TMP_Text RankLabel;
+            // 고른 노드의 링. 고를 때만 켠다.
+            public readonly GameObject SelectRing;
             public NodeState State = NodeState.Hidden;
 
             public NodeVisual(string id, string stat, long price, int maxRank, bool start, Vector2 position, GameObject root, Image image,
-                TMP_Text label, RectTransform badge, TMP_Text rankLabel)
+                TMP_Text label, RectTransform badge, TMP_Text rankLabel, GameObject selectRing)
             {
                 Id = id;
                 Stat = stat;
@@ -1071,6 +1125,7 @@ namespace BlackHole.Unity
                 Root = root;
                 Image = image;
                 Label = label;
+                SelectRing = selectRing;
                 Badge = badge;
             }
         }

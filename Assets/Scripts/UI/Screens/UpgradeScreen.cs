@@ -38,10 +38,18 @@ namespace BlackHole.Unity
 
         // 툴팁과 노드 사이의 틈.
         private const float TooltipGap = 8;
-        // 툴팁 안 구매 버튼(터치로 고정했을 때만 보인다). 손가락 기준 최소 높이.
+        // 고정 패널(터치): 노드 위가 아니라 왼쪽 고정 영역. 골드 칩 아래부터 안내 글자 위까지, 왼쪽을 칩에 맞춘다. 위아래 틈.
+        private const float DockGap = 16;
+        // 패널 안 구매 줄(고정했을 때만 보인다): 비용 글자 + 버튼. 버튼은 손가락 기준 최소 높이.
         private const float BuyHeight = 48;
-        private const float BuyTopGap = 10;
         private const float BuyFontSize = 26;
+        // 비용 글자 칸: 두 줄(비용 + Gold 부족분)까지. 한 줄이면 아래(버튼 쪽)에 붙는다.
+        private const float CostHeight = 56;
+        private const float CostGap = 6;
+        // 패널 제목 왼쪽의 노드 그림 크기와 글자와의 틈.
+        private const float IconSize = 40;
+        private const float IconGap = 10;
+        private const float DividerWidth = 2;
 
         public event Action StartBattleClicked;
         // 고정한 툴팁의 구매 버튼을 눌렀다.
@@ -55,11 +63,25 @@ namespace BlackHole.Unity
         private TMP_Text _tooltipTitle;
         private TMP_Text _tooltipBody;
         private Image _tooltipImage;
-        // 툴팁 안 구매 버튼. 프리팹에 없고 코드가 툴팁 아래에 만든다(트리의 노드와 같은 방식). 누르는 즉시 산다.
+        private ContentSizeFitter _tooltipFitter;
+        private TMP_Text _hint;
+        // 올림 툴팁의 프리팹 모양(테두리 그림·색). 고정 패널은 그림을 떼고 단색 면으로 그리고, 풀면 되돌린다.
+        private Sprite _tooltipSprite;
+        private Color _tooltipColor;
+        // 고정 패널에서만 보이는 것들: 제목 옆 노드 그림, 오른쪽 구분선, 본문과 구매 줄 사이를 채우는 빈 칸(구매 줄을 바닥에 붙인다).
+        private Image _icon;
+        private Image _divider;
+        private GameObject _spacer;
+        // 패널 안 구매 줄. 프리팹에 없고 코드가 툴팁 아래에 만든다(트리의 노드와 같은 방식). 버튼은 누르는 즉시 산다.
         private RectTransform _buy;
         private Button _buyButton;
         private Image _buyBack;
         private TMP_Text _buyLabel;
+        private TMP_Text _buyCost;
+        private float _titleMarginLeft;
+        // 고정 패널 바탕(팔레트가 없을 때의 기본값): 바탕보다 살짝 밝은 면. 구분선은 글자색을 엷게.
+        private static readonly Color PanelColor = new(0.16f, 0.17f, 0.19f, 0.94f);
+        private static readonly Color DividerColor = new(1, 1, 1, 0.25f);
         // 구매 버튼 바탕: 살 수 있으면 강조색(초록), 아니면 글자색을 엷게 깐 회색. 팔레트가 없을 때의 기본값.
         private static readonly Color BuyReadyColor = new(0.34f, 0.59f, 0.41f, 0.9f);
         private static readonly Color BuyBlockedColor = new(1, 1, 1, 0.12f);
@@ -90,8 +112,9 @@ namespace BlackHole.Unity
             _tooltipImage = View.Image(Refs.NodeTooltip_Image);
             _tooltipTitle = View.Text(Refs.NodeTooltipTitle_Text);
             _tooltipBody = View.Text(Refs.NodeTooltipBody_Text);
-            CreateBuyButton();
-            _styled.Add(View.Text(Refs.Hint_Text), UITextRole.Caption);
+            _hint = View.Text(Refs.Hint_Text);
+            CreatePanelParts();
+            _styled.Add(_hint, UITextRole.Caption);
             _themed.AddColor(GetComponent<Image>(), UIColorRole.Backdrop);
             _tooltipWidth = _tooltip != null ? _tooltip.sizeDelta.x : 0;
             HideNodeTooltip();
@@ -194,11 +217,23 @@ namespace BlackHole.Unity
             Place(node, title, body, pinned: false);
         }
 
-        // 고정 툴팁(터치): 같은 자리에 붙이되 다른 곳을 누를 때까지 남고, 레이캐스트를 받아 뒤의 노드를 가리며, 구매 버튼이 보인다.
+        // 고정 툴팁(터치): 왼쪽 고정 영역(골드 칩 아래)에 두고 다른 곳을 누를 때까지 남는다. 레이캐스트를 받아 뒤의 노드를 가리며, 구매 버튼이 보인다.
+        // 손가락이 노드 주변을 가리는 터치에서는 노드 위에 띄우는 것보다 늘 같은 자리에 있는 편이 읽고 누르기 쉽다.
         // state: 버튼 글자·활성을 정한다(Purchasable 구매 / Revealed 구매(흐림) / Owned 최대 / Hidden 잠김).
-        public void PinNodeTooltip(RectTransform node, string title, string body, NodeState state)
+        // icon: 트리에 그려진 노드 그림(제목 옆). cost: 비용 줄("비용 70" / "최대" / 부족분). state: 버튼 글자·활성.
+        public void PinNodeTooltip(RectTransform node, Sprite icon, string title, string body, string cost, NodeState state)
         {
             _pinnedState = state;
+
+            if (_icon != null)
+            {
+                _icon.sprite = icon;
+                _icon.enabled = icon != null;
+            }
+
+            if (_buyCost != null)
+                _buyCost.text = cost;
+
             Place(node, title, body, pinned: true);
         }
 
@@ -219,16 +254,20 @@ namespace BlackHole.Unity
                 _tooltipBody.gameObject.SetActive(!string.IsNullOrEmpty(body));
             }
 
-            if (_tooltipImage != null)
-                _tooltipImage.raycastTarget = pinned;
-
+            SetPanelLook(pinned);
             PaintBuyButton();
 
             _tooltip.gameObject.SetActive(true);
             _tooltip.SetAsLastSibling();
             LayoutRebuilder.ForceRebuildLayoutImmediate(_tooltip);
 
-            // 자리: 노드 위 → (위로 넘치면) 노드 오른쪽 → (오른쪽으로 넘치면) 노드 아래. 화면 안에 드는 첫 자리를 쓴다.
+            if (pinned)
+            {
+                DockLeft();
+                return;
+            }
+
+            // 올림 툴팁의 자리: 노드 위 → (위로 넘치면) 노드 오른쪽 → (오른쪽으로 넘치면) 노드 아래. 화면 안에 드는 첫 자리를 쓴다.
             node.GetWorldCorners(_corners);
             Vector3 top = (_corners[1] + _corners[2]) * 0.5f;
             Vector3 bottom = (_corners[0] + _corners[3]) * 0.5f;
@@ -245,6 +284,39 @@ namespace BlackHole.Unity
                 return;
 
             Attach(new Vector2(0.5f, 1), bottom, new Vector2(0, -TooltipGap));
+        }
+
+        // 왼쪽 고정 자리: 위는 골드 칩 아래(틈만큼), 아래는 안내 글자 위(틈만큼), 왼쪽은 칩에 맞춘다. 높이는 그 사이를 다 쓴다
+        // — 설명 길이와 무관하게 구매 줄이 늘 바닥에 온다. 칩·안내가 없으면 화면 가장자리에서 틈만큼 안쪽.
+        private void DockLeft()
+        {
+            var parent = (RectTransform)_tooltip.parent;
+            var screen = (RectTransform)transform;
+            RectTransform chip = View.Rect(Refs.GoldChip_Image);
+
+            screen.GetWorldCorners(_corners);
+            Vector3 topLeft = parent.InverseTransformPoint(_corners[1]) + new Vector3(DockGap, -DockGap, 0);
+            float bottom = parent.InverseTransformPoint(_corners[0]).y + DockGap;
+
+            if (chip != null)
+            {
+                chip.GetWorldCorners(_corners);
+                topLeft = parent.InverseTransformPoint(_corners[0]) + new Vector3(0, -DockGap, 0);
+            }
+
+            if (_hint != null)
+            {
+                ((RectTransform)_hint.transform).GetWorldCorners(_corners);
+                bottom = parent.InverseTransformPoint(_corners[1]).y + DockGap;
+            }
+
+            float height = Mathf.Max(topLeft.y - bottom, LayoutUtility.GetPreferredHeight(_tooltip));
+
+            _tooltip.pivot = new Vector2(0, 1);
+            _tooltip.sizeDelta = new Vector2(_tooltip.sizeDelta.x, height);
+            _tooltip.localPosition = new Vector3(topLeft.x, topLeft.y, 0);
+            // 높이가 바뀌었으니 빈 칸이 늘어나 구매 줄이 바닥에 오도록 지금 다시 배치한다.
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_tooltip);
         }
 
         private enum Edge { Top, Right }
@@ -271,32 +343,142 @@ namespace BlackHole.Unity
         public void HideNodeTooltip()
         {
             IsTooltipPinned = false;
-
-            if (_tooltipImage != null)
-                _tooltipImage.raycastTarget = false;
+            SetPanelLook(false);
 
             if (_tooltip != null)
                 _tooltip.gameObject.SetActive(false);
         }
 
+        // 올림 툴팁 ↔ 고정 패널의 모양을 바꾼다. 패널: 테두리 그림 대신 단색 면, 레이캐스트 받음, 그림·구분선·빈 칸 켜고, 안내 글자 숨김,
+        // 높이는 DockLeft가 정하므로 크기 맞춤을 끈다. 툴팁: 전부 되돌린다.
+        private void SetPanelLook(bool panel)
+        {
+            if (_tooltipImage != null)
+            {
+                _tooltipImage.raycastTarget = panel;
+                _tooltipImage.sprite = panel ? null : _tooltipSprite;
+                _tooltipImage.color = panel ? PanelBackColor() : _tooltipColor;
+            }
+
+            if (_tooltipFitter != null)
+                _tooltipFitter.verticalFit = panel ? ContentSizeFitter.FitMode.Unconstrained : ContentSizeFitter.FitMode.PreferredSize;
+
+            if (_tooltipTitle != null)
+            {
+                Vector4 margin = _tooltipTitle.margin;
+                margin.x = panel ? _titleMarginLeft + IconSize + IconGap : _titleMarginLeft;
+                _tooltipTitle.margin = margin;
+            }
+
+            if (_icon != null && _icon.gameObject.activeSelf != panel)
+                _icon.gameObject.SetActive(panel);
+
+            if (_divider != null && _divider.gameObject.activeSelf != panel)
+                _divider.gameObject.SetActive(panel);
+
+            if (_spacer != null && _spacer.activeSelf != panel)
+                _spacer.SetActive(panel);
+
+            if (_hint != null && _hint.gameObject.activeSelf == panel)
+                _hint.gameObject.SetActive(!panel);
+        }
+
+        private Color PanelBackColor()
+        {
+            Color? themed = _themed.Style.ColorFor(UIColorRole.Surface);
+
+            if (themed is not Color color)
+                return PanelColor;
+
+            color.a = PanelColor.a;
+            return color;
+        }
+
         private void HandleBuyClicked(PointerEventData _) => BuyConfirmed?.Invoke();
 
-        // 구매 버튼: 툴팁의 세로 배치 끝에 들어가는 한 줄. 단색 바탕 위에 글자. 누르는 즉시 산다(꾹 누름은 노드 쪽이다).
-        // 그림 없이 단색으로 만들고 테마 색(ThemedImages)과 글꼴(StyledTexts)을 받는다. 올림 툴팁에서는 숨긴다.
-        private void CreateBuyButton()
+        // 고정 패널에서만 쓰는 부품을 프리팹 툴팁 아래에 만든다(트리의 노드와 같은 방식). 그림 없이 단색으로 만들고
+        // 테마 색(ThemedImages)과 글꼴(StyledTexts)을 받는다. 올림 툴팁에서는 모두 숨긴다.
+        // - 제목 옆 노드 그림(제목 글자의 왼쪽 여백에 놓는다)
+        // - 오른쪽 세로 구분선
+        // - 본문 뒤의 빈 칸(flexibleHeight): 구매 줄을 패널 바닥으로 민다
+        // - 구매 줄: 비용 글자 + 버튼. 버튼은 누르는 즉시 산다(꾹 누름은 노드 쪽이다).
+        private void CreatePanelParts()
         {
             if (_tooltip == null)
                 return;
+
+            _tooltipFitter = _tooltip.GetComponent<ContentSizeFitter>();
+
+            if (_tooltipImage != null)
+            {
+                _tooltipSprite = _tooltipImage.sprite;
+                _tooltipColor = _tooltipImage.color;
+            }
+
+            if (_tooltipTitle != null)
+            {
+                _titleMarginLeft = _tooltipTitle.margin.x;
+
+                RectTransform iconRect = Child((RectTransform)_tooltipTitle.transform, "Icon");
+                iconRect.anchorMin = new Vector2(0, 0.5f);
+                iconRect.anchorMax = new Vector2(0, 0.5f);
+                iconRect.pivot = new Vector2(0, 0.5f);
+                iconRect.anchoredPosition = new Vector2(_titleMarginLeft, 0);
+                iconRect.sizeDelta = new Vector2(IconSize, IconSize);
+                _icon = iconRect.gameObject.AddComponent<Image>();
+                _icon.preserveAspect = true;
+                _icon.raycastTarget = false;
+                iconRect.gameObject.SetActive(false);
+            }
+
+            RectTransform dividerRect = Child(_tooltip, "Divider");
+            dividerRect.anchorMin = new Vector2(1, 0);
+            dividerRect.anchorMax = new Vector2(1, 1);
+            dividerRect.pivot = new Vector2(1, 0.5f);
+            dividerRect.anchoredPosition = Vector2.zero;
+            dividerRect.sizeDelta = new Vector2(DividerWidth, 0);
+            var dividerLayout = dividerRect.gameObject.AddComponent<LayoutElement>();
+            dividerLayout.ignoreLayout = true;
+            _divider = dividerRect.gameObject.AddComponent<Image>();
+            _divider.color = DividerColor;
+            _divider.raycastTarget = false;
+            _themed.AddColor(_divider, UIColorRole.TextMain);
+            dividerRect.gameObject.SetActive(false);
+
+            RectTransform spacer = Child(_tooltip, "Spacer");
+            var spacerLayout = spacer.gameObject.AddComponent<LayoutElement>();
+            spacerLayout.flexibleHeight = 1;
+            spacerLayout.minHeight = 0;
+            _spacer = spacer.gameObject;
+            _spacer.SetActive(false);
 
             var buy = new GameObject("NodeTooltipBuy_Button", typeof(RectTransform));
             _buy = (RectTransform)buy.transform;
             _buy.SetParent(_tooltip, false);
 
             var layout = buy.AddComponent<LayoutElement>();
-            layout.minHeight = BuyHeight + BuyTopGap;
-            layout.preferredHeight = BuyHeight + BuyTopGap;
+            layout.minHeight = CostHeight + CostGap + BuyHeight;
+            layout.preferredHeight = CostHeight + CostGap + BuyHeight;
 
-            // 위 틈: 배치 칸은 틈을 포함하고, 보이는 바탕은 아래 BuyHeight만 차지한다.
+            // 비용 글자: 줄의 위쪽. 버튼: 줄의 아래쪽.
+            RectTransform costRect = Child(_buy, "Cost");
+            costRect.anchorMin = new Vector2(0, 1);
+            costRect.anchorMax = new Vector2(1, 1);
+            costRect.pivot = new Vector2(0.5f, 1);
+            costRect.sizeDelta = new Vector2(0, CostHeight);
+            _buyCost = costRect.gameObject.AddComponent<TextMeshProUGUI>();
+            _buyCost.alignment = TextAlignmentOptions.BottomLeft;
+            _buyCost.textWrappingMode = TextWrappingModes.Normal;
+            _buyCost.overflowMode = TextOverflowModes.Truncate;
+            _buyCost.raycastTarget = false;
+            if (_tooltipBody != null)
+            {
+                _buyCost.font = _tooltipBody.font;
+                _buyCost.fontSize = _tooltipBody.fontSize;
+                _buyCost.color = _tooltipBody.color;
+            }
+            _styled.Add(_buyCost, UITextRole.Body);
+
             RectTransform back = Child(_buy, "Back");
             back.anchorMin = new Vector2(0, 0);
             back.anchorMax = new Vector2(1, 0);
@@ -334,7 +516,7 @@ namespace BlackHole.Unity
             _buy.gameObject.SetActive(false);
         }
 
-        // 고정 상태에 맞춰 구매 버튼을 보이고 글자·활성을 정한다. 올림 툴팁이면 숨긴다.
+        // 고정 상태에 맞춰 구매 줄을 보이고 글자·활성을 정한다. 올림 툴팁이면 숨긴다.
         private void PaintBuyButton()
         {
             if (_buy == null)

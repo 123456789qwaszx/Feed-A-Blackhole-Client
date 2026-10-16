@@ -45,7 +45,7 @@ confirm.newGame.confirm,START,시작
 confirm.cancel,CANCEL,취소
 # 업그레이드 화면
 UpgradeScreen.StartBattleBtn_Text,Start Battle,전투 시작
-UpgradeScreen.Hint_Text,Tap a lit node to buy it  ·  drag to move  ·  scroll to zoom,밝은 노드를 눌러 구매  ·  끌어서 이동  ·  스크롤로 확대·축소
+UpgradeScreen.Hint_Text,Tap a node for details  ·  hold a lit node to buy  ·  drag to move  ·  scroll to zoom,노드를 눌러 설명  ·  밝은 노드를 길게 눌러 구매  ·  끌어서 이동  ·  스크롤로 확대·축소
 upgrade.gold,Gold {0},골드 {0}
 upgrade.hq.goal,Black hole  Stage {0}  (goal Lv {1}),블랙홀  {0}단계  (목표 Lv {1})
 upgrade.hq.last,Black hole  Stage {0}  (last stage),블랙홀  {0}단계  (마지막 단계)

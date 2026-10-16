@@ -148,7 +148,8 @@ namespace BlackHole.Unity
             }
 
             string id = _selectedNodeId;
-            root.PinNodeTooltip(rect, NodeTooltipTitle(id), NodeTooltipBody(id), NodePurchase.StateOf(_progress, _tree, id));
+            root.PinNodeTooltip(rect, page.IconOf(id), NodeTooltipTitle(id), NodeTooltipBody(id, withCost: false), NodeTooltipCost(id),
+                NodePurchase.StateOf(_progress, _tree, id));
         }
 
         private void ClearNodeSelection()
@@ -181,7 +182,10 @@ namespace BlackHole.Unity
 
         // 툴팁 본문: 산 Rank, 다음 Rank의 효과(지금 값 → 산 뒤 값), 다음 비용, Gold가 모자라면 모자란 만큼.
         // 마지막 Rank까지 샀으면 마지막 Rank의 효과와 지금 값. 아직 닿지 않은 노드(자물쇠)는 비운다(이름만).
-        private string NodeTooltipBody(string id)
+        // 올림 툴팁 본문: 설명·Rank·효과에 비용까지. 고정 패널은 비용을 따로 받는다(NodeTooltipCost).
+        private string NodeTooltipBody(string id) => NodeTooltipBody(id, withCost: true);
+
+        private string NodeTooltipBody(string id, bool withCost)
         {
             if (!_tree.TryGet(id, out NodeDefinition node))
                 return string.Empty;
@@ -238,14 +242,33 @@ namespace BlackHole.Unity
                 text.Append('\n');
             }
 
+            if (!withCost)
+                return text.ToString().TrimEnd('\n');
+
             // 설명·효과와 비용 사이 빈 줄 하나(가독성).
-            text.Append('\n').Append(maxed ? _localizer.Get("node.maxed") : _localizer.Format("node.cost", NumberText.Compact(shown.Cost)));
-
-            // 살 조건: Gold가 모자라면 모자란 만큼.
-            if (!maxed && _progress.Gold < shown.Cost)
-                text.Append('\n').Append(_localizer.Format("node.short", NumberText.Compact(shown.Cost - _progress.Gold)));
-
+            text.Append('\n').Append(NodeTooltipCost(id));
             return text.ToString();
+        }
+
+        // 비용 줄: "비용 70" / "최대", Gold가 모자라면 모자란 만큼을 한 줄 더. 아직 닿지 않은 노드는 빈 글자.
+        private string NodeTooltipCost(string id)
+        {
+            if (!_tree.TryGet(id, out NodeDefinition node) || NodePurchase.StateOf(_progress, _tree, id) == NodeState.Hidden)
+                return string.Empty;
+
+            int rank = _progress.RankOf(id);
+            bool maxed = rank >= node.MaxRank;
+
+            if (maxed)
+                return _localizer.Get("node.maxed");
+
+            long cost = node.RankAt(rank + 1).Cost;
+            string text = _localizer.Format("node.cost", NumberText.Compact(cost));
+
+            if (_progress.Gold < cost)
+                text += "\n" + _localizer.Format("node.short", NumberText.Compact(cost - _progress.Gold));
+
+            return text;
         }
 
         // 올림이 벗어났다. 고정 툴팁(터치)은 올림으로 닫지 않는다 — 터치 노트북에서 마우스가 지나가도 남는다.
