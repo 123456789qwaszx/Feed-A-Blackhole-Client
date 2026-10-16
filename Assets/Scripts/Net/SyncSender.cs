@@ -4,331 +4,74 @@ using System.Threading.Tasks;
 
 namespace BlackHole.Net
 {
-    /// <summary>
-    /// 로컬에 쌓인 로그를 서버로 전송하고 응답을 반영한다.
-    /// 메인 스레드에서 시작하며, 한번에 하나의 동기화 흐름만 실행
-    /// ===============================================================
-    /// 앱 시작 및 실행 중 발생한 로그를 서버에 순차 전송한다.
-    /// UnityEngine에 의존하지 않는다.
-    /// </summary>
-    public class SyncSender : IDisposable
+    // 대기 로그를 서버로 보내고 응답을 저장소에 반영한다(계약 5.8, W3-4). Unity에 의존하지 않는다.
+    // - 앱 시작: 로그인이 끝나면 쌓인 로그를 전부 보낸다(없으면 빈 배열 하나). 끝나거나 syncTimeoutSeconds가 지나면 시작을 푼다.
+    // - 온라인 중: LogAppended마다 보낸다. 요청은 동시에 하나만, 보내는 중에 쌓인 로그는 응답을 반영한 뒤 이어서 보낸다.
+    // - 나눠 보내기: 500개, 1 MB 이하. 앞 응답을 반영한 뒤 다음을 보내고, 거부가 나오면 멈춘다.
+    // - 실패: 로그를 그대로 두고 이번 실행은 더 보내지 않는다(계획서 D9). 오프라인 전환은 여기서만 한다.
+    // 메서드와 이벤트는 모두 메인 스레드에서 부른다.
+    public sealed class SyncSender : IDisposable
     {
+        // 빈 요청 본문 {"logs":[]}의 UTF-8 바이트 수. 본문은 SyncApi가 SyncJson.ComposeRequest로 만든다.
+        private static readonly int EmptyRequestBytes = SyncJson.Utf8Length(SyncJson.ComposeRequest(Array.Empty<string>()));
+
         private readonly IAuthSession _auth;
         private readonly ISyncApi _api;
         private readonly ISyncStore _store;
-        private readonly int _syncTimeoutSeconds;
+        private readonly int _startupTimeoutSeconds;
         private readonly Action<string> _log;
+        private readonly Action<string> _logError;
 
-        private Task _pumpTask;
-        private Task _startupTask;
-
-        private bool _startupAttemped;
+        private Task _pump;
+        private bool _startupAttempted;
         private bool _failedThisRun;
         private bool _sendRequested;
         private bool _sendEmptyOnNextPump;
         private bool _disposed;
 
-        public bool IsSending => _pumpTask != null && !_pumpTask.IsCompleted;
+        public bool IsSending => _pump != null && !_pump.IsCompleted;
         public bool FailedThisRun => _failedThisRun;
 
-        /// <summary>
-        /// UI는 RejectionReceived를 구독해 사용자에게 알릴 수 있다.
-        /// 알림을 실제로 표시한 뒤에는 Store.MarkLastRejectionShown()을 호출
-        /// </summary>
+        // 거부를 반영했을 때. 거부 기록은 ISyncStore.LastRejection에도 남는다(알림은 W3-5).
         public event Action<RejectedLogDto> RejectionReceived;
 
+        // startupTimeoutSeconds는 시작 동기화를 기다리는 최대 시간(ServerSettings.SyncTimeoutSeconds, 계약 2.8)이다.
         public SyncSender(
             IAuthSession auth,
             ISyncApi api,
             ISyncStore store,
-            int syncTimeoutSeconds,
-            Action<string> log = null)
+            int startupTimeoutSeconds,
+            Action<string> log = null,
+            Action<string> logError = null)
         {
             _auth = auth ?? throw new ArgumentNullException(nameof(auth));
             _api = api ?? throw new ArgumentNullException(nameof(api));
             _store = store ?? throw new ArgumentNullException(nameof(store));
 
-            if (syncTimeoutSeconds < 1)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(syncTimeoutSeconds),
-                    "1초 이상이어야 한다.");
-            }
+            if (startupTimeoutSeconds < 1)
+                throw new ArgumentOutOfRangeException(nameof(startupTimeoutSeconds), "1초 이상이어야 한다.");
 
-            _syncTimeoutSeconds = syncTimeoutSeconds;
-            _log = log;
+            _startupTimeoutSeconds = startupTimeoutSeconds;
+            _log = log ?? (_ => { });
+            _logError = logError ?? (_ => { });
 
             _store.LogAppended += OnLogAppended;
         }
 
-        /// <summary>
-        /// 로그인 초기화 후 한번만 호출
-        /// 대기 로그가 없더라도 빈 배열을 한번 전송
-        /// </summary>
-        /// <returns>동기화가 끝나거나 시작 대기 시간이 초과되면 완료</returns>
+        // 로그인(IAuthSession.StartAsync)이 끝난 뒤 한 번 부른다. 오프라인이면 보내지 않고 바로 끝난다.
+        // 동기화가 끝나거나 시작 대기 시간이 지나면 끝난다. 시간이 지나도 보내던 요청은 계속 처리한다.
         public Task SyncOnStartupAsync()
         {
             ThrowIfDisposed();
 
-            if (_startupAttemped || _failedThisRun)
-                return _pumpTask ?? Task.CompletedTask;
+            if (_startupAttempted)
+                return Task.CompletedTask;
 
-            _startupAttemped = true;
+            _startupAttempted = true;
             _sendRequested = true;
             _sendEmptyOnNextPump = true;
 
-            Task pump = EnsurePumpAsync();
-            _startupTask = WaitForStartupAsync(pump);
-
-            return _startupTask;
-        }
-
-        private async Task WaitForStartupAsync(Task pump)
-        {
-            Task timeout = Task.Delay(TimeSpan.FromSeconds(_syncTimeoutSeconds));
-
-            Task completed = await Task.WhenAny(pump, timeout);
-
-            if (completed == timeout)
-                Log("시작 동기화 대기 시간이 초과되었다. 시작 버튼을 해제한다. 전송 중인 요청은 계속 처리한다.");
-        }
-
-        /// <summary>
-        /// 새 로그가 추가되면 온라인 상태에서 전송을 요청한다.
-        /// </summary>
-        private void OnLogAppended()
-        {
-            if (_disposed ||
-                _failedThisRun ||
-                !_startupAttemped ||
-                _auth.State != ConnectionState.Online)
-                return;
-
-            _sendRequested = true;
-            _ = EnsurePumpAsync();
-        }
-
-        /// <summary>
-        /// 중복 호출을 하나의 전송 흐름을 합친다.
-        /// </summary>
-        /// <returns></returns>
-        private Task EnsurePumpAsync()
-        {
-            if (_disposed || _failedThisRun)
-                return Task.CompletedTask;
-
-            if (_pumpTask != null && !_pumpTask.IsCompleted)
-                return _pumpTask;
-
-            _pumpTask = PumpAsync();
-            return _pumpTask;
-        }
-
-        private async Task PumpAsync()
-        {
-            try
-            {
-                while (!_disposed && !_failedThisRun && _sendRequested)
-                {
-                    _sendRequested = false;
-
-                    bool sendEmpty = _sendEmptyOnNextPump;
-                    _sendEmptyOnNextPump = false;
-
-                    if (_auth.State != ConnectionState.Online)
-                        return;
-
-                    if (_store.Pending.Count == 0)
-                    {
-                        if (sendEmpty)
-                        {
-                            SyncCallResult emptyResult = await _api.SendAsync(Array.Empty<PendingLog>());
-
-                            if (!ApplyCallResult(emptyResult, Array.Empty<PendingLog>()))
-                                return;
-                        }
-
-                        continue;
-                    }
-
-                    while (!_disposed &&
-                        !_failedThisRun &&
-                        _auth.State == ConnectionState.Online &&
-                        _store.Pending.Count > 0)
-                    {
-                        List<PendingLog> batch = CreateBatch(_store.Pending);
-
-                        if (batch.Count == 0)
-                        {
-                            // 로그 하나만으로 제한 크기를 초과하면 전송중단
-                            Fail(SyncCallOutcome.ProtocolError, "단일 로그가 1MB 제한됐다.");
-                            return;
-                        }
-
-                        SyncCallResult result = await SendSafelyAsync(batch);
-
-                        if (!ApplyCallResult(result, batch))
-                            return;
-
-                        // 모든 거부는 동일하게 처리하고 전송중단
-                        if (result.Response.HasRejection)
-                            return;
-
-                        // 응답을 반영했는데 로그가 하나도 줄지 않는다면
-                        // 같은 로그를 무한 반복 전송하지 않도록 중단
-                        if (_store.Pending.Count > 0 &&
-                            ContainsSeq(_store.Pending, batch[0].Seq))
-                        {
-                            Fail(SyncCallOutcome.ProtocolError, "응답을 반영한 뒤에도 첫 로그가 처리되지 않았다.");
-                            return;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // 예상치 못한 내부 예외도 재시도 없이 중단
-                Fail(SyncCallOutcome.ProtocolError, $"동기화 처리 중 예외가 발생했다 : {ex.Message}");
-            }
-        }
-
-        private async Task<SyncCallResult> SendSafelyAsync(IReadOnlyList<PendingLog> logs)
-        {
-            try
-            {
-                return await _api.SendAsync(logs);
-            }
-            catch(Exception ex)
-            {
-                Log($"API 호출에서 예외가 발생했다 : {ex.Message}");
-                return SyncCallResult.Failed(SyncCallOutcome.Unreachable);
-            }
-        }
-
-        private bool ApplyCallResult(SyncCallResult result, IReadOnlyList<PendingLog> sent)
-        {
-            if (result == null)
-            {
-                Fail(SyncCallOutcome.ProtocolError, "동기화 결과가 null이다.");
-                return false;
-            }
-            if (result.Outcome != SyncCallOutcome.Response)
-            {
-                Fail(result.Outcome, $"요청 실패 : {result.Outcome}");
-                return false;
-            }
-
-            SyncResponseDto response = result.Response;
-
-            if (response == null || response.appliedThroughSeq < 0)
-            {
-                Fail(SyncCallOutcome.ProtocolError, "응답 본문 또는 적용 순번이 유효하지 않다.");
-                return false;
-            }
-
-            
-            try
-            {
-                SyncApplyOutcome outcome = _store.ApplyResponse(response);
-
-                if (outcome == SyncApplyOutcome.AppliedWithDrift)
-                    Log("서버 진행도와 로컬 진행도가 다르다. 서버 진행도를 적용했다.");
-
-                if (outcome == SyncApplyOutcome.Rejected)
-                {
-                    // CONTENT_VERSION_MISMATCH도 별도 분기 없이
-                    // 다른 거부와 같은 경로를 따른다
-                    NotifyRejectionOnce();
-                    return true;
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Fail(SyncCallOutcome.ProtocolError, $"응답 반영 실패 : {ex.Message}");
-                return false;
-            }
-        }
-
-        private void NotifyRejectionOnce()
-        {
-            if (_store.LastRejection == null || _store.LastRejectionShown) return;
-
-            RejectionReceived?.Invoke(_store.LastRejection);
-        }
-        
-        // 빈 요청 본문 {"logs":[]}의 UTF-8 바이트 수. 본문은 SyncApi가 SyncJson.ComposeRequest로 만든다.
-        private static readonly int EmptyRequestBytes = SyncJson.Utf8Length(SyncJson.ComposeRequest(Array.Empty<string>()));
-
-
-        /// <summary>
-        /// 로그 개수와 JSON 배열 크기를 기준으로 전송 묶음을 만든다.
-        /// PendingLog.Json은 원래 생성된 JSON 문자열을 그대로 사용
-        /// </summary>
-        /// <param name="pending"></param>
-        /// <returns></returns>
-        private static List<PendingLog> CreateBatch(IReadOnlyList<PendingLog> pending)
-        {
-            var batch = new List<PendingLog>();
-
-            // {"logs":[]}의 UTF-8 바이트 수
-            int bytes = EmptyRequestBytes;
-
-            for (int i = 0; i < pending.Count && batch.Count < SyncLimits.MaxLogsPerRequest; i++)
-            {
-                PendingLog log = pending[i];
-
-                // 두 번째 로그부터 앞에 쉼표 1바이트가 붙는다.
-                int added = SyncJson.Utf8Length(log.Json) + (batch.Count > 0 ? 1 : 0);
-
-                if (bytes + added > SyncLimits.MaxRequestBytes)
-                    break;
-
-                batch.Add(log);
-                bytes += added;
-            }
-
-            return batch;
-        }
-
-        private static bool ContainsSeq(IReadOnlyList<PendingLog> logs, long seq)
-        {
-            for (int i = 0; i < logs.Count; i++)
-                if (logs[i].Seq == seq) return true;
-
-            return false;
-        }
-
-        private void Fail(SyncCallOutcome outcome, string message)
-        {
-            if (_failedThisRun) return;
-
-            _failedThisRun = true;
-            _sendRequested = false;
-
-            OfflineReason reason = outcome switch
-            {
-                SyncCallOutcome.Unreachable => OfflineReason.Unreachable,
-                SyncCallOutcome.Unauthorized => OfflineReason.Unauthorized, // OfflineReason.Unauthorized 이 없어서 스킵
-                _ => OfflineReason.ProtocolError
-            };
-
-            Log(message);
-
-            // 이번 실행헤서 더 이상 전송하지 않는다
-            _auth.GoOffline(reason);
-        }
-
-        private void Log(string message)
-        {
-            _log?.Invoke($"[동기화] {message}");
-        }
-
-        private void ThrowIfDisposed()
-        {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(SyncSender));
+            return WaitForStartupAsync(EnsurePump());
         }
 
         public void Dispose()
@@ -339,6 +82,171 @@ namespace BlackHole.Net
             _disposed = true;
             _store.LogAppended -= OnLogAppended;
             RejectionReceived = null;
+        }
+
+        private async Task WaitForStartupAsync(Task pump)
+        {
+            Task timeout = Task.Delay(TimeSpan.FromSeconds(_startupTimeoutSeconds));
+
+            if (await Task.WhenAny(pump, timeout) == timeout)
+                _log("[동기화] 시작 동기화가 시간 안에 끝나지 않아 먼저 시작한다. 보내던 요청은 계속 처리한다.");
+        }
+
+        // 시작 동기화 전에 쌓인 로그는 시작 동기화가 함께 보낸다.
+        private void OnLogAppended()
+        {
+            if (_disposed || _failedThisRun || !_startupAttempted || _auth.State != ConnectionState.Online)
+                return;
+
+            _sendRequested = true;
+            EnsurePump();
+        }
+
+        // 보내는 중이면 그 흐름에 합친다(동시에 하나만, 계약 C26).
+        private Task EnsurePump()
+        {
+            if (_disposed || _failedThisRun)
+                return Task.CompletedTask;
+
+            if (_pump == null || _pump.IsCompleted)
+                _pump = PumpAsync();
+
+            return _pump;
+        }
+
+        private async Task PumpAsync()
+        {
+            try
+            {
+                while (!_disposed && !_failedThisRun && _sendRequested)
+                {
+                    _sendRequested = false;
+                    bool sendEmpty = _sendEmptyOnNextPump;
+                    _sendEmptyOnNextPump = false;
+
+                    if (_auth.State != ConnectionState.Online)
+                        return;
+
+                    // 시작 동기화는 로그가 없어도 빈 배열을 보내 서버 진행도를 받는다.
+                    if (_store.Pending.Count == 0)
+                    {
+                        if (sendEmpty && !await SendAndApplyAsync(Array.Empty<PendingLog>()))
+                            return;
+
+                        continue;
+                    }
+
+                    while (!_disposed && !_failedThisRun && _auth.State == ConnectionState.Online && _store.Pending.Count > 0)
+                    {
+                        List<PendingLog> batch = CreateBatch(_store.Pending);
+
+                        if (batch.Count == 0)
+                        {
+                            Fail(SyncCallOutcome.ProtocolError, $"로그 하나(seq {_store.Pending[0].Seq})가 요청 한도(1 MB)를 넘는다.");
+                            return;
+                        }
+
+                        // 거부가 나오면 남은 로그는 ApplyResponse가 이미 지웠다. 멈춘다.
+                        if (!await SendAndApplyAsync(batch))
+                            return;
+
+                        // 거부 없이 반영했는데 첫 로그가 그대로면 같은 요청을 되풀이하게 된다.
+                        if (_store.Pending.Count > 0 && _store.Pending[0].Seq <= batch[0].Seq)
+                        {
+                            Fail(SyncCallOutcome.ProtocolError, $"응답을 반영한 뒤에도 seq {batch[0].Seq}가 남아 있다.");
+                            return;
+                        }
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                Fail(SyncCallOutcome.ProtocolError, "동기화 중 예외: " + error);
+            }
+        }
+
+        // 요청 하나를 보내고 응답을 반영한다. 거부 없이 반영했으면 true(이어서 보내도 된다).
+        private async Task<bool> SendAndApplyAsync(IReadOnlyList<PendingLog> batch)
+        {
+            SyncCallResult result = await _api.SendAsync(batch);
+
+            if (result == null || result.Outcome != SyncCallOutcome.Response || result.Response == null)
+            {
+                SyncCallOutcome outcome = result == null || result.Outcome == SyncCallOutcome.Response
+                    ? SyncCallOutcome.ProtocolError
+                    : result.Outcome;
+                Fail(outcome, $"요청 실패: {outcome}");
+                return false;
+            }
+
+            // AppliedWithDrift의 경고 로그는 저장소가 남긴다.
+            if (_store.ApplyResponse(result.Response) != SyncApplyOutcome.Rejected)
+                return true;
+
+            // CONTENT_VERSION_MISMATCH도 다른 거부와 똑같이 처리한다(계약 3.6, ContentOutdated 전환은 추후).
+            RejectedLogDto rejection = _store.LastRejection;
+            _log($"[동기화] seq {rejection?.seq} {rejection?.type} 거부: {rejection?.code}. 남은 로그를 버리고 서버 진행도를 따른다.");
+
+            if (rejection != null && !_store.LastRejectionShown)
+            {
+                // 알림 쪽의 예외가 반영을 마친 동기화를 실패로 만들지 않게 한다.
+                try
+                {
+                    RejectionReceived?.Invoke(rejection);
+                }
+                catch (Exception error)
+                {
+                    _logError("[동기화] 거부 알림 처리 중 예외: " + error);
+                }
+            }
+
+            return false;
+        }
+
+        // seq 순서대로 500개, 본문 1 MB 이하(계약 3.5). 로그 글자는 그대로 이어 붙이므로 크기를 미리 셀 수 있다.
+        private static List<PendingLog> CreateBatch(IReadOnlyList<PendingLog> pending)
+        {
+            var batch = new List<PendingLog>();
+            int bytes = EmptyRequestBytes;
+
+            for (int i = 0; i < pending.Count && batch.Count < SyncLimits.MaxLogsPerRequest; i++)
+            {
+                // 두 번째 로그부터 앞에 쉼표 1바이트가 붙는다.
+                int added = SyncJson.Utf8Length(pending[i].Json) + (batch.Count > 0 ? 1 : 0);
+
+                if (bytes + added > SyncLimits.MaxRequestBytes)
+                    break;
+
+                batch.Add(pending[i]);
+                bytes += added;
+            }
+
+            return batch;
+        }
+
+        // 이번 실행은 더 보내지 않는다. 로그는 그대로 두어 다음 실행이 보낸다(계획서 D9).
+        private void Fail(SyncCallOutcome outcome, string message)
+        {
+            if (_failedThisRun)
+                return;
+
+            _failedThisRun = true;
+            _sendRequested = false;
+
+            if (outcome == SyncCallOutcome.ProtocolError)
+                _logError("[동기화] " + message);
+            else
+                _log("[동기화] " + message);
+
+            // 갱신 실패로 끝난 Unauthorized는 IAuthSession이 이미 오프라인이고 처음 사유를 유지한다.
+            // 갱신한 뒤에도 401인 경우만 아직 온라인이며, 예상하지 못한 응답이므로 ProtocolError다.
+            _auth.GoOffline(outcome == SyncCallOutcome.Unreachable ? OfflineReason.Unreachable : OfflineReason.ProtocolError);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(SyncSender));
         }
     }
 }
