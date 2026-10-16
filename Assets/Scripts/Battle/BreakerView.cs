@@ -10,9 +10,10 @@ namespace BlackHole.Unity
     // 게임 상태를 바꾸지 않고, 피해를 다시 계산하지 않는다. 외형은 BreakerLook이 가진다.
     // - 링의 기본 반지름은 판정 반지름이다(GAME_RULES 6절). 달 버프로 판정 반지름이 바뀌면 매 프레임 따라간다(BreakerSkill.CurrentRadius).
     //   조준점이 없거나 일시정지 중이면 숨긴다.
-    // - 대기 링: 조준점은 없지만 호버 지점(마우스·펜이 가리키는 자리)이 있으면, 같은 반지름·굵기의 링을 BreakerLook.HoverColor로 그 자리에 그린다.
-    //   돌지 않고 튀지 않으며 구체·배경 원도 없다 — "누르면 여기를 친다"는 표시일 뿐 공격 중으로 보이지 않게. 터치는 호버가 없어 그대로 숨긴다.
-    // - 기본(공격 중): 천천히 돈다.
+    // - 대기 링: 조준점은 없지만 호버 지점(마우스·펜이 가리키는 자리)이 있으면, 바깥 가장자리가 공격 링과 같은 링을 그 자리에 그린다.
+    //   가늘고 어두우며(HoverThicknessRatio·HoverColor) 공격 링보다 느리게 돈다(HoverRotationSpeed). 튀지 않고 구체·배경 원도 없다 — "누르면 여기를 친다"는 표시일 뿐이다. 터치는 호버가 없어 그대로 숨긴다.
+    // - 조임(Grip): 누르면 링이 GripSeconds 동안 안쪽으로 굵어지며 조여든다 — 바깥 가장자리는 그대로 두고 안쪽만 두꺼워져 공격 범위의 겉모습은 바뀌지 않는다.
+    //   색도 HoverColor → Color로 함께 넘어간다. 떼면 거꾸로 풀린다. 공격 중에는 기본 속도(RotationSpeed)로 돈다.
     // - 타격: Tick 기록마다 링이 빠르게 커졌다 돌아온다(반지름·굵기·밝기). 커지는 반지름은 화면에서만 커진다.
     //   헛친 Tick(맞은 적 없음)은 약하게 튄다. 치명타 Tick은 금색으로 번쩍인다. 빈 Tick(조준점 없음)은 튀지 않는다.
     // - 버프 구체: 달·혜성 중첩 하나마다 구체 하나가 링 바깥 궤도를 시계방향으로 돈다. 두 버프가 한 궤도를 나눠 쓰고,
@@ -72,6 +73,8 @@ namespace BlackHole.Unity
             public MeshRenderer Orbs;
             public MeshRenderer Aura;
             public float Rotation;
+            // 조임 정도(0 = 대기 링, 1 = 공격 링). GripSeconds에 걸쳐 목표로 간다.
+            public float Grip;
             // 구체 궤도의 위상(바퀴). 시계방향으로 돌므로 줄어든다.
             public float OrbPhase;
             // 사각형의 지금 한 변(월드 단위). 바뀔 때만 transform에 쓴다.
@@ -125,9 +128,12 @@ namespace BlackHole.Unity
 
             if (!paused)
             {
-                // 회전은 공격 중에만. 대기 링은 멈춰 있다.
-                if (attacking)
-                    ring.Rotation = Mathf.Repeat(ring.Rotation + _look.RotationSpeed * delta, 1);
+                // 공격 중에는 기본 속도로, 대기 중에는 더 느리게 돈다.
+                float rotationSpeed = attacking ? _look.RotationSpeed : _look.HoverRotationSpeed;
+                ring.Rotation = Mathf.Repeat(ring.Rotation + rotationSpeed * delta, 1);
+
+                float gripStep = _look.GripSeconds > 0 ? delta / _look.GripSeconds : 1;
+                ring.Grip = Mathf.MoveTowards(ring.Grip, attacking ? 1 : 0, gripStep);
 
                 ring.OrbPhase = Mathf.Repeat(ring.OrbPhase - _look.OrbitSpeed * delta, 1);
                 ring.PunchElapsed += delta;
@@ -201,15 +207,22 @@ namespace BlackHole.Unity
         }
 
         // radius: 판정 반지름(달 버프 포함). 튐으로 커지는 반지름은 화면에서만 커진다.
-        // attacking: false면 대기 링 — 튐 없이 HoverColor로 그린다. 반지름·굵기 계산은 같다.
+        // attacking: false면 튐을 얹지 않는다. 굵기·색은 ring.Grip(대기 0 ↔ 공격 1)으로 섞는다.
         // 링의 화면 반지름·굵기(튐 포함)를 돌려준다. 구체 궤도가 이 링 바로 바깥을 따라간다.
         private void Apply(Ring ring, float radius, bool attacking, out float shownRadius, out float shownThickness)
         {
             float punch = attacking && ring.PunchElapsed < _look.PunchDuration
                 ? _look.Punch(ring.PunchElapsed / _look.PunchDuration) * ring.PunchStrength
                 : 0;
-            shownRadius = radius * (1 + _look.PunchRadiusScale * punch);
-            shownThickness = radius * _look.ThicknessRatio * (1 + _look.PunchThicknessScale * punch);
+            // 조임: 바깥 가장자리(공격 링의 바깥, radius + 공격 굵기/2)는 고정하고, 굵기만 대기 ↔ 공격 사이를 오간다.
+            // 굵어진 만큼 중심선이 안쪽으로 들어와 "모여든다". 그 위에 튐을 얹는다.
+            float grip = Mathf.SmoothStep(0, 1, ring.Grip);
+            float attackThickness = radius * _look.ThicknessRatio;
+            float outerEdge = radius + attackThickness * 0.5f;
+            float baseThickness = Mathf.Lerp(radius * _look.HoverThicknessRatio, attackThickness, grip);
+            float baseRadius = outerEdge - baseThickness * 0.5f;
+            shownRadius = baseRadius * (1 + _look.PunchRadiusScale * punch);
+            shownThickness = baseThickness * (1 + _look.PunchThicknessScale * punch);
 
             // 셰이더는 링 중심에서의 월드 거리로 그리므로, 사각형 크기는 링의 크기가 아니라 셰이더가 도는 픽셀 범위만 정한다.
             // 그릴 링이 딱 들어가게 맞춘다. 대부분의 프레임은 크기가 그대로라 쓰지 않는다.
@@ -227,7 +240,7 @@ namespace BlackHole.Unity
             _properties.SetFloat(_dashCountId, _look.DashCount);
             _properties.SetFloat(_dashRatioId, _look.DashRatio);
             _properties.SetFloat(_rotationId, ring.Rotation);
-            _properties.SetColor(_colorId, attacking ? _look.Color : _look.HoverColor);
+            _properties.SetColor(_colorId, Color.Lerp(_look.HoverColor, _look.Color, grip));
             _properties.SetColor(_flashColorId, ring.PunchCritical ? _look.CriticalFlashColor : _look.HitFlashColor);
             _properties.SetFloat(_flashId, Mathf.Clamp01(punch));
             ring.Renderer.SetPropertyBlock(_properties);
