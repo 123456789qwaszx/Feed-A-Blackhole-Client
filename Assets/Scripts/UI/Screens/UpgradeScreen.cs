@@ -41,8 +41,8 @@ namespace BlackHole.Unity
         // 고정 패널(터치): 노드 위가 아니라 왼쪽 고정 영역. 골드 칩 아래부터 안내 글자 위까지, 왼쪽을 칩에 맞춘다. 위아래 틈.
         private const float DockGap = 16;
         // 패널 안 구매 줄(고정했을 때만 보인다): 비용 글자 + 버튼. 버튼은 손가락 기준 최소 높이.
-        private const float BuyHeight = 48;
-        private const float BuyFontSize = 26;
+        private const float BuyHeight = 72;
+        private const float BuyFontSize = 30;
         // 비용 글자 칸: 두 줄(비용 + Gold 부족분)까지. 한 줄이면 아래(버튼 쪽)에 붙는다.
         private const float CostHeight = 56;
         private const float CostGap = 6;
