@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace BlackHole.Unity
@@ -660,8 +661,18 @@ namespace BlackHole.Unity
             "$" + GoldText.Of(gold);
 
         // MonoBehavior
+        // 성장도 막대나 숫자가 아직 올라가는 중인가.
+        public bool IsAnimating => _isShowingStage || _isShowMatter;
+
         private void Update()
         {
+            // 연출 중에 화면 어디든 한 번 누르면(마우스·펜·터치) 바로 최종값으로 간다. 버튼·행 위를 눌러도 같다 — 자식이 사건을 먹어도 여기서는 입력 장치를 직접 본다.
+            if (IsAnimating && Pointer.current != null && Pointer.current.press.wasPressedThisFrame)
+            {
+                SkipAnimation();
+                return;
+            }
+
             if (_isShowingStage)
                 ShowingStage();
 
@@ -669,6 +680,50 @@ namespace BlackHole.Unity
                 ShowMatter();
 
             UpdateScaleEffect();
+        }
+
+        // 연출을 끝까지 돌린 것과 같은 상태로 만든다: 막대·숫자 다 최종값, 타이머·확대 효과 꺼짐, 슬라이더 소리 멈추고 종료음.
+        // Update의 상태 머신만 쓰므로 코루틴·비동기와 겹칠 것이 없다. 연출 중이 아니면 아무것도 하지 않는다.
+        public void SkipAnimation()
+        {
+            if (!IsAnimating)
+                return;
+
+            _isShowingStage = false;
+            if (_stageFill != null)
+                _stageFill.anchorMax = new Vector2(_stageFillTarget, _stageFill.anchorMax.y);
+
+            _isShowMatter = false;
+            _matterType = MatterType.Done;
+            _matterTimer = 0f;
+            WriteFinal(_asteroidText, _asteroidTarget);
+            WriteFinal(_planetText, _planetTarget);
+            WriteFinal(_starText, _starTarget);
+            WriteFinal(_earned, _earnedTarget);
+            WriteFinal(_totalGold, _totalTarget);
+
+            // 확대 중이던 글자를 원래 크기로 되돌린다.
+            if (_scaleTarget != null)
+                _scaleTarget.transform.localScale = Vector3.one;
+            _scaleTarget = null;
+            _isScaleEffect = false;
+
+            SoundManager.Instance?.StopSlider();
+            SoundManager.Instance?.PlayClosing();
+        }
+
+        private void WriteFinal(TMP_Text text, int target)
+        {
+            if (text == null) return;
+            text.text = Count(target);
+            _previousKills[text] = target;
+        }
+
+        private void WriteFinal(TMP_Text text, long target)
+        {
+            if (text == null) return;
+            text.text = Money(target);
+            _previousGolds[text] = target;
         }
 
         /// <summary>
