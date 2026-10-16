@@ -63,6 +63,10 @@ namespace BlackHole.Unity
                 p => p.NodeHoldArmed -= HandleNodeTreeNodeHoldArmed);
 
             AddBinding(page,
+                p => p.NodeHoldShort += HandleNodeTreeNodeHoldShort,
+                p => p.NodeHoldShort -= HandleNodeTreeNodeHoldShort);
+
+            AddBinding(page,
                 p => p.NodeHoldReleased += HandleNodeTreeNodeHoldReleased,
                 p => p.NodeHoldReleased -= HandleNodeTreeNodeHoldReleased);
 
@@ -145,10 +149,20 @@ namespace BlackHole.Unity
                 root.SetBuyPressed(true);
         }
 
-        private void HandleNodeTreeNodeHoldReleased(string id)
+        // Gold가 모자란 노드를 사려고 꾹 눌렀다(시간이 참): 골드와 구매 탭을 붉게. 떼면(NodeHoldReleased) 되돌린다.
+        private void HandleNodeTreeNodeHoldShort(string id)
         {
             if (_ui.CurrentRoot is UpgradeScreen root)
-                root.SetBuyPressed(false);
+                root.SetGoldShort(true);
+        }
+
+        private void HandleNodeTreeNodeHoldReleased(string id)
+        {
+            if (!(_ui.CurrentRoot is UpgradeScreen root))
+                return;
+
+            root.SetBuyPressed(false);
+            root.SetGoldShort(false);
         }
 
         // 터치로 노드를 꾹 눌렀다 뗐다. 산다. 패널의 구매 버튼도 누른 것과 같은 연출을 건다. 이어서 오는 탭(NodeTapped)이 패널을 새 내용으로 고정한다.

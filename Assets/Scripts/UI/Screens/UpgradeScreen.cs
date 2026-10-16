@@ -91,6 +91,17 @@ namespace BlackHole.Unity
         private const float GoldCountSeconds = 0.3f;
         private bool _goldPreviewing;
         private Coroutine _goldCount;
+        // 사려 했지만 Gold가 모자란 상태(노드를 꾹 눌러 시간이 참 / 그런 노드의 구매 탭을 누르는 중): 골드 숫자는 부드러운 붉은색으로 살짝 커졌다
+        // 돌아오고, 구매 탭은 어두운 붉은색. 떼면 원래 색으로 되돌아온다(0.15초). 점멸하지 않는다.
+        private static readonly Color ShortGoldColor = new(0.9f, 0.5f, 0.5f, 1);
+        private static readonly Color ShortBuyColor = new(0.66f, 0.31f, 0.31f, 0.96f);
+        private const float ShortBumpScale = 1.05f;
+        private const float ShortBumpSeconds = 0.1f;
+        private const float ShortRestoreSeconds = 0.15f;
+        private bool _goldShort;
+        // 숫자 색의 섞임(0 = 평소, 1 = 붉음). 들어갈 땐 바로 1, 나올 땐 0.15초에 걸쳐 0으로.
+        private float _goldShortMix;
+        private Coroutine _goldShortRoutine;
         // 구매 탭 바탕의 기준 색(상태별). 누르는 동안은 어둡게, 샀을 때 번쩍인 뒤 기준 색으로 돌아온다.
         private Color _buyBaseColor;
         private bool _buyPressed;
@@ -149,7 +160,18 @@ namespace BlackHole.Unity
         private void HandleStartBattleClicked(PointerEventData _) => StartBattleClicked?.Invoke();
 
         // 화면이 닫힐 때 툴팁도 닫는다. 다시 열 때 남아 있지 않게 한다.
-        private void OnDisable() => HideNodeTooltip();
+        private void OnDisable()
+        {
+            HideNodeTooltip();
+            // 꺼지면 코루틴이 죽는다. 붉은 색·크기가 남지 않게.
+            _goldShort = false;
+            _goldShortMix = 0;
+            _goldShortRoutine = null;
+            _goldCount = null;
+
+            if (_gold != null)
+                _gold.transform.localScale = Vector3.one;
+        }
 
         public void ShowGold(long gold)
         {
@@ -188,11 +210,84 @@ namespace BlackHole.Unity
             WriteGold(target, preview);
         }
 
-        // 글자색은 테마가 정하므로 숫자만 리치 텍스트로 칠한다.
+        // 글자색은 테마가 정하므로 숫자만 리치 텍스트로 칠한다. 모자람(붉게, 섞임만큼) > 미리보기(황금) > 평소.
         private void WriteGold(long amount, bool preview)
         {
-            string text = preview ? $"<color={PreviewGoldColor}>{GoldText.Of(amount)}</color>" : GoldText.Of(amount);
+            string number = GoldText.Of(amount);
+            string text;
+
+            if (_goldShortMix > 0)
+            {
+                Color mixed = Color.Lerp(_gold.color, ShortGoldColor, _goldShortMix);
+                text = $"<color=#{ColorUtility.ToHtmlStringRGB(mixed)}>{number}</color>";
+            }
+            else
+            {
+                text = preview ? $"<color={PreviewGoldColor}>{number}</color>" : number;
+            }
+
             _gold.text = Localized("upgrade.gold", text);
+        }
+
+        // 사려 했지만 Gold가 모자란 상태로 들어가거나(on) 나온다(off). 골드 숫자 색·살짝 커짐, 구매 탭 색을 함께 바꾼다.
+        public void SetGoldShort(bool on)
+        {
+            if (_goldShort == on || _gold == null)
+                return;
+
+            _goldShort = on;
+
+            if (_goldShortRoutine != null)
+                StopCoroutine(_goldShortRoutine);
+
+            _goldShortRoutine = isActiveAndEnabled ? StartCoroutine(on ? EnterGoldShort() : LeaveGoldShort()) : null;
+
+            if (!isActiveAndEnabled)
+            {
+                _goldShortMix = on ? 1 : 0;
+                PaintGold();
+            }
+
+            PaintBuyBack();
+        }
+
+        private System.Collections.IEnumerator EnterGoldShort()
+        {
+            _goldShortMix = 1;
+            PaintGold();
+            Transform scaled = _gold.transform;
+            float elapsed = 0;
+
+            // 살짝 커졌다 돌아온다.
+            while (elapsed < ShortBumpSeconds)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / ShortBumpSeconds);
+                float scale = 1 + (ShortBumpScale - 1) * Mathf.Sin(t * Mathf.PI);
+                scaled.localScale = new Vector3(scale, scale, 1);
+                yield return null;
+            }
+
+            scaled.localScale = Vector3.one;
+            _goldShortRoutine = null;
+        }
+
+        private System.Collections.IEnumerator LeaveGoldShort()
+        {
+            _gold.transform.localScale = Vector3.one;
+            float elapsed = 0;
+
+            while (elapsed < ShortRestoreSeconds)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                _goldShortMix = 1 - Mathf.Clamp01(elapsed / ShortRestoreSeconds);
+                PaintGold();
+                yield return null;
+            }
+
+            _goldShortMix = 0;
+            PaintGold();
+            _goldShortRoutine = null;
         }
 
         private System.Collections.IEnumerator CountGold(long from, long to)
@@ -464,6 +559,7 @@ namespace BlackHole.Unity
             }
 
             _buyPressed = false;
+            SetGoldShort(false);
             PaintGold();
             SetPanelLook(false);
 
@@ -543,9 +639,26 @@ namespace BlackHole.Unity
         }
 
         private void HandleBuyClicked(PointerEventData _) => BuyConfirmed?.Invoke();
-        private void HandleBuyPressed(PointerEventData _) => SetBuyPressed(true);
-        private void HandleBuyReleased(PointerEventData _) => SetBuyPressed(false);
-        private void HandleBuyLeft(PointerEventData _) => SetBuyPressed(false);
+        private void HandleBuyPressed(PointerEventData _)
+        {
+            // Gold가 모자란 노드의 탭을 누르면 누르는 동안 이유를 보인다. 최대·잠김은 탭 글자가 이미 말한다.
+            if (_pinnedState == NodeState.Revealed)
+                SetGoldShort(true);
+
+            SetBuyPressed(true);
+        }
+
+        private void HandleBuyReleased(PointerEventData _)
+        {
+            SetBuyPressed(false);
+            SetGoldShort(false);
+        }
+
+        private void HandleBuyLeft(PointerEventData _)
+        {
+            SetBuyPressed(false);
+            SetGoldShort(false);
+        }
 
         // 구매 버튼의 눌림 모양: 작아지고(스프링) 어두워진다. 손가락으로 직접 누를 때와, 노드를 꾹 눌러 살 수 있게 된 순간(호스트가 부른다) 둘 다.
         public void SetBuyPressed(bool pressed)
@@ -569,6 +682,12 @@ namespace BlackHole.Unity
         {
             if (_buyBack == null || _buyFlash != null)
                 return;
+
+            if (_goldShort && _pinnedState == NodeState.Revealed)
+            {
+                _buyBack.color = ShortBuyColor;
+                return;
+            }
 
             _buyBack.color = _buyPressed ? Darkened(_buyBaseColor) : _buyBaseColor;
         }

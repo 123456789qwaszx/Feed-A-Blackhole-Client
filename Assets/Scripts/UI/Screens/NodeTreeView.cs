@@ -220,6 +220,9 @@ namespace BlackHole.Unity
         public event Action<string> NodeHoldReleased;
         // 터치로 꾹 눌렀다가 같은 칸에서 뗐다(노드 ID). 호스트가 산다.
         public event Action<string> NodeHeld;
+        // 터치로 Gold가 모자란 노드(Revealed)를 HoldSeconds 이상 눌렀다(노드 ID) — 사려 했지만 못 산다. 호스트가 골드·구매 탭을 붉게 한다.
+        // 떼면 NodeHoldReleased가 온다. 정보만 보려는 짧은 누름에는 아무것도 알리지 않는다.
+        public event Action<string> NodeHoldShort;
 
         // 보이는 창의 가운데가 든 구역이 바뀜(구역 열쇠, 구역이 없으면 null). 이동·확대·처음 맞춤 뒤에 알린다.
         public event Action<string> RegionViewed;
@@ -759,7 +762,8 @@ namespace BlackHole.Unity
             _pendingSelect = node;
             _pendingAt = Time.unscaledTime;
 
-            if (node.State != NodeState.Purchasable)
+            // 꾹 누름 판정은 살 수 있는 노드와 Gold가 모자란 노드(사려는 시도) 둘 다. 잠긴·최대 노드는 정보만.
+            if (node.State != NodeState.Purchasable && node.State != NodeState.Revealed)
                 return;
 
             _pressed = node;
@@ -781,7 +785,7 @@ namespace BlackHole.Unity
                 return;
 
             NodeVisual node = _pressed;
-            bool buy = _holdArmed && eventData.pointerCurrentRaycast.gameObject == node.Root;
+            bool buy = _holdArmed && node.State == NodeState.Purchasable && eventData.pointerCurrentRaycast.gameObject == node.Root;
 
             if (buy)
             {
@@ -818,14 +822,24 @@ namespace BlackHole.Unity
             if (_pressed == null)
                 return;
 
-            // 초록 링이 차오른다. 꽉 차면 살 준비.
+            // 살 수 있는 노드: 초록 링이 차오른다. 꽉 차면 살 준비. Gold가 모자란 노드: 링 없이 시간만 재고, 차면 "못 산다"를 알린다.
+            bool affordable = _pressed.State == NodeState.Purchasable;
             float progress = Mathf.Clamp01((Time.unscaledTime - _pressedAt) / HoldSeconds);
-            SetFill(_pressed, progress);
+
+            if (affordable)
+                SetFill(_pressed, progress);
 
             if (_holdArmed || progress < 1)
                 return;
 
             _holdArmed = true;
+
+            if (!affordable)
+            {
+                NodeHoldShort?.Invoke(_pressed.Id);
+                return;
+            }
+
             _armedBumpUntil = Time.unscaledTime + ArmedBumpSeconds;
             Paint(_pressed);
             NodeHoldArmed?.Invoke(_pressed.Id);
@@ -840,7 +854,8 @@ namespace BlackHole.Unity
             {
                 if (_downHeld)
                 {
-                    float target = _downNode == _pressed ? PuffScale : PressScale;
+                    // 살 수 있는 노드를 누르면 부풀고, 그 밖(정보만·Gold 부족)은 살짝 눌린다.
+                    float target = _downNode == _pressed && _pressed.State == NodeState.Purchasable ? PuffScale : PressScale;
 
                     // 게이지가 꽉 찬 순간: 잠깐 더 부풀었다가 누름 크기로 돌아온다.
                     if (_downNode == _pressed && Time.unscaledTime < _armedBumpUntil)
@@ -1167,7 +1182,7 @@ namespace BlackHole.Unity
         // 꾹 눌러 게이지가 꽉 찬 노드는 초록 쪽으로 살짝 물든다(살 준비).
         private Color TintOf(NodeVisual node, bool lit)
         {
-            if (node == _pressed && _holdArmed)
+            if (node == _pressed && _holdArmed && node.State == NodeState.Purchasable)
                 return Color.Lerp(Color.white, FillRingColor, ArmedTint);
 
             return node == _selected ? Color.white : _look.TintOf(node.State, lit);
