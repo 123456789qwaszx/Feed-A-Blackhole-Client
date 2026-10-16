@@ -27,8 +27,13 @@ namespace BlackHole.Unity
         // 전투 시스템보다 먼저 부른다. 이번 프레임의 Step이 이 조준점으로 공격한다.
         public void Tick()
         {
+            // 판이 진행 중이 아니면(인트로·끝난 판·결산 대기) 호버도 없다 — 마지막 자리에 대기 링이 남지 않게 비운다.
             if (!_battle.IsRunning)
+            {
+                HoverPoint = null;
+                _battle.HoverPoint = null;
                 return;
+            }
 
             _battle.Session.SetAimPoint(Read());
             HoverPoint = ReadHover();
