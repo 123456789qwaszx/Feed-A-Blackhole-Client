@@ -81,7 +81,10 @@ namespace BlackHole.Unity
         // 눌림: 터치로 노드를 누르는 동안 살짝 작아진다(톡 치는 탭에도). 떼면 돌아온다. 펀치와는 곱으로 합친다.
         private const float PressScale = 0.94f;
         private const float PressSeconds = 0.07f;
-        private const float MinZoom = 0.3f;
+        // 축소 하한: 지도 전체가 창에 들어가는 배율(_fitZoom, 트리를 만들 때와 창 크기가 바뀔 때 다시 잰다)과 예전 하한(0.3) 중 작은 쪽.
+        // 그보다 더 작게는 MinZoomFloor가 바닥이다.
+        private const float MinZoomDefault = 0.3f;
+        private const float MinZoomFloor = 0.08f;
         private const float MaxZoom = 2.5f;
         private const float FitZoomLimit = 1.5f;
         // 열 때의 배율: 노드가 화면에서 이만큼(mm)은 되게 한다. 큰 화면(PC)에서는 FocusMinZoom 아래로 내리지 않는다. [임시]
@@ -187,6 +190,9 @@ namespace BlackHole.Unity
         private Canvas _canvas;
         private float _zoom = 1;
         private bool _framePending;
+        // 지도 전체(모든 노드 + 여백)가 창에 꼭 맞는 배율. 축소의 하한이다. 노드가 없거나 창 크기가 0이면 1.
+        private float _fitZoom = 1;
+        private float MinZoom => Mathf.Max(MinZoomFloor, Mathf.Min(MinZoomDefault, _fitZoom));
         // 끄는 중인 포인터(손가락)와 화면 위치. 둘 이상이면 앞의 둘로 핀치한다.
         private readonly List<(int Id, Vector2 Position)> _drags = new List<(int Id, Vector2 Position)>(2);
 
@@ -309,6 +315,47 @@ namespace BlackHole.Unity
 
             _viewedRegion = null;
             _framePending = true;
+            UpdateFitZoom();
+        }
+
+        // 창 크기가 바뀌면(회전·창 크기 조절) 전체가 들어가는 배율도 바뀐다. 지금 배율이 새 하한 아래면 끌어올린다.
+        private void OnRectTransformDimensionsChange()
+        {
+            if (_viewport == null || _content == null)
+                return;
+
+            UpdateFitZoom();
+
+            if (_zoom < MinZoom)
+                SetZoom(MinZoom);
+        }
+
+        // 모든 노드(숨은 노드 포함)의 범위에 노드 크기와 칸 하나의 여백을 더해 창에 맞는 배율을 잰다.
+        private void UpdateFitZoom()
+        {
+            Rect view = _viewport.rect;
+
+            if (_nodes.Count == 0 || view.width <= 0 || view.height <= 0)
+            {
+                _fitZoom = 1;
+                return;
+            }
+
+            Bounds(out Vector2 min, out Vector2 max);
+            Vector2 size = max - min + new Vector2(NodeSize + CellSize, NodeSize + CellSize);
+            _fitZoom = Mathf.Min(view.width / size.x, view.height / size.y);
+        }
+
+        private void Bounds(out Vector2 min, out Vector2 max)
+        {
+            min = new Vector2(float.MaxValue, float.MaxValue);
+            max = new Vector2(float.MinValue, float.MinValue);
+
+            foreach (NodeVisual node in _nodes.Values)
+            {
+                min = Vector2.Min(min, node.Position);
+                max = Vector2.Max(max, node.Position);
+            }
         }
 
         // 보이는 창의 가운데(트리 공간)에서 가장 가까운 노드의 구역을 찾아 바뀌었으면 알린다. 이동·확대 뒤 LateUpdate가 부른다.
@@ -463,17 +510,9 @@ namespace BlackHole.Unity
                 return;
             }
 
-            Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
-            Vector2 max = new Vector2(float.MinValue, float.MinValue);
-
-            foreach (NodeVisual node in _nodes.Values)
-            {
-                min = Vector2.Min(min, node.Position);
-                max = Vector2.Max(max, node.Position);
-            }
-
-            Vector2 size = max - min + new Vector2(NodeSize + CellSize, NodeSize + CellSize);
-            SetZoom(Mathf.Clamp(Mathf.Min(view.width / size.x, view.height / size.y), MinZoom, FitZoomLimit));
+            UpdateFitZoom();
+            Bounds(out Vector2 min, out Vector2 max);
+            SetZoom(Mathf.Clamp(_fitZoom, MinZoom, FitZoomLimit));
             _content.anchoredPosition = -(min + max) * 0.5f * _zoom;
         }
 
@@ -554,6 +593,7 @@ namespace BlackHole.Unity
             if (_framePending && _viewport.rect.width > 0)
             {
                 _framePending = false;
+                UpdateFitZoom();
                 FrameFocus();
             }
 
