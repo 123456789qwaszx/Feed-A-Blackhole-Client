@@ -47,8 +47,14 @@ namespace BlackHole.Unity
         private const float BuyTabPaddingX = 22;
         private const float BuyTabMinWidth = 120;
         private const float BuyFontSize = 28;
+        // 고정 패널의 글자 크기 배율(툴팁 글자 기준). 폰에서 읽히게 키운다. 본문 색은 흰색 쪽으로 이만큼 섞는다.
+        private const float PanelTitleScale = 1.3f;
+        private const float PanelBodyScale = 1.15f;
+        private const float PanelBodyBrighten = 0.35f;
+        // 고정 패널의 최소 높이. 짧은 노드도 이보다 작아지지 않아 노드마다 크기가 널뛰지 않는다. 최대는 안내 글자 위까지.
+        private const float PanelMinHeight = 300;
         // 패널 제목 왼쪽의 노드 그림 크기와 글자와의 틈.
-        private const float IconSize = 40;
+        private const float IconSize = 48;
         private const float IconGap = 10;
 
         public event Action StartBattleClicked;
@@ -89,6 +95,10 @@ namespace BlackHole.Unity
         // 누르는 동안 바탕 밝기(기준 색에 곱한다).
         private const float BuyPressedDarken = 0.72f;
         private float _titleMarginLeft;
+        // 툴팁의 프리팹 글자 크기·본문 색. 고정 패널은 키우고 밝히며, 풀면 되돌린다.
+        private float _titleBaseSize;
+        private float _bodyBaseSize;
+        private Color _bodyBaseColor;
         // 고정 패널 바탕(팔레트가 없을 때의 기본값): 바탕보다 살짝 밝은 면.
         private static readonly Color PanelColor = new(0.16f, 0.17f, 0.19f, 0.94f);
         // 구매 탭 바탕: 살 수 있으면 강조색(초록), 아니면 패널과 같은 어두운 면. 팔레트가 없을 때의 기본값.
@@ -340,12 +350,22 @@ namespace BlackHole.Unity
                 bottom = parent.InverseTransformPoint(_corners[1]).y + DockGap;
             }
 
-            float height = Mathf.Max(topLeft.y - bottom, LayoutUtility.GetPreferredHeight(_tooltip));
+            // 높이는 내용만큼(ContentSizeFitter). 안내 글자 위까지가 상한 — 넘으면 거기서 자른다.
+            float available = topLeft.y - bottom;
+            float preferred = LayoutUtility.GetPreferredHeight(_tooltip);
 
             _tooltip.pivot = new Vector2(0, 1);
-            _tooltip.sizeDelta = new Vector2(_tooltip.sizeDelta.x, height);
+
+            // 내용이 최소보다 짧거나 상한보다 길면 그 값으로 고정한다. 그 사이면 내용 높이 그대로.
+            float clamped = Mathf.Clamp(preferred, Mathf.Min(PanelMinHeight, available), available);
+
+            if (_tooltipFitter != null && !Mathf.Approximately(clamped, preferred))
+            {
+                _tooltipFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
+                _tooltip.sizeDelta = new Vector2(_tooltip.sizeDelta.x, clamped);
+            }
+
             _tooltip.localPosition = new Vector3(topLeft.x, topLeft.y, 0);
-            // 높이가 바뀌었으니 지금 다시 배치한다.
             LayoutRebuilder.ForceRebuildLayoutImmediate(_tooltip);
         }
 
@@ -399,14 +419,22 @@ namespace BlackHole.Unity
                 _tooltipImage.color = panel ? PanelBackColor() : _tooltipColor;
             }
 
+            // 높이는 내용에 맞춘다(패널도). 화면보다 길면 DockLeft가 상한으로 자른다.
             if (_tooltipFitter != null)
-                _tooltipFitter.verticalFit = panel ? ContentSizeFitter.FitMode.Unconstrained : ContentSizeFitter.FitMode.PreferredSize;
+                _tooltipFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             if (_tooltipTitle != null)
             {
                 Vector4 margin = _tooltipTitle.margin;
                 margin.x = panel ? _titleMarginLeft + IconSize + IconGap : _titleMarginLeft;
                 _tooltipTitle.margin = margin;
+                _tooltipTitle.fontSize = panel ? _titleBaseSize * PanelTitleScale : _titleBaseSize;
+            }
+
+            if (_tooltipBody != null)
+            {
+                _tooltipBody.fontSize = panel ? _bodyBaseSize * PanelBodyScale : _bodyBaseSize;
+                _tooltipBody.color = panel ? Color.Lerp(_bodyBaseColor, Color.white, PanelBodyBrighten) : _bodyBaseColor;
             }
 
             if (_icon != null && _icon.gameObject.activeSelf != panel)
@@ -511,6 +539,15 @@ namespace BlackHole.Unity
             {
                 _tooltipSprite = _tooltipImage.sprite;
                 _tooltipColor = _tooltipImage.color;
+            }
+
+            if (_tooltipTitle != null)
+                _titleBaseSize = _tooltipTitle.fontSize;
+
+            if (_tooltipBody != null)
+            {
+                _bodyBaseSize = _tooltipBody.fontSize;
+                _bodyBaseColor = _tooltipBody.color;
             }
 
             if (_tooltipTitle != null)

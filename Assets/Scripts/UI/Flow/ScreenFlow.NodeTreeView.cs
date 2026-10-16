@@ -222,6 +222,9 @@ namespace BlackHole.Unity
 
         // 툴팁 본문: 산 Rank, 다음 Rank의 효과(지금 값 → 산 뒤 값), 다음 비용, Gold가 모자라면 모자란 만큼.
         // 마지막 Rank까지 샀으면 마지막 Rank의 효과와 지금 값. 아직 닿지 않은 노드(자물쇠)는 비운다(이름만).
+        // 효과 줄에서 산 뒤 수치의 색(연한 녹색). 팔레트에 이 역할이 없어 상수로 둔다.
+        private const string AfterValueColor = "#8FC8A0";
+
         // 올림 툴팁 본문: 설명·Rank·효과에 비용까지. 고정 패널은 비용을 따로 받는다(NodeTooltipCost).
         private string NodeTooltipBody(string id) => NodeTooltipBody(id, withCost: true);
 
@@ -243,12 +246,10 @@ namespace BlackHole.Unity
             bool maxed = rank >= node.MaxRank;
             NodeRankDefinition shown = node.RankAt(maxed ? node.MaxRank : rank + 1);
             UpgradeStatValues values = NodePurchase.StatsFor(_progress, _tree);
-            //추가코드, 효과줄 이름이 보이게 설정, 만약에 원하지 않으면 주석처리된 코드를 활성화하고 밑에 코드를 주석처리
-            //bool named = shown.Effects.Count > 1;
-            bool named = true;
+            // 효과 이름은 효과가 둘 이상일 때만(하나면 제목과 같은 이름이 반복된다).
+            bool named = shown.Effects.Count > 1;
             var text = new StringBuilder();
 
-            //추가코드
             string titleStat = StatIdOf(node.RankAt(1).Effects[0].Stat);
             if (titleStat != null && _localizer.TryGet($"stat.{titleStat}.desc", out string description))
                 text.Append(description).Append('\n');
@@ -256,27 +257,30 @@ namespace BlackHole.Unity
             if (node.MaxRank > 1)
                 text.Append(_localizer.Format("node.rank", rank, node.MaxRank)).Append('\n');
 
+            // 설명과 효과 사이 빈 줄 하나.
+            text.Append('\n');
+
+            // 효과마다 두 줄: "[이름] +50%" 그리고 "140% → 190%"(산 뒤 수치만 녹색). 수치 줄은 안에서 줄바꿈되지 않게 <nobr>.
+            // 마지막 Rank까지 샀으면 증가량은 뜻이 없으니 "[이름] 현재 190%" 한 줄만.
             foreach (NodeEffect effect in shown.Effects)
             {
                 UpgradeStatDefinition stat = values.DefinitionOf(effect.Stat);
                 string unit = stat.Unit == UpgradeStatUnit.Percent ? "%" : string.Empty;
                 float now = values.ValueOf(effect.Stat);
 
-                //추가코드
                 if (named)
                     text.Append(StatName(stat.StatId)).Append(' ');
 
-                text.Append(NumberText.Signed(effect.Value)).Append(unit);
-                //text.Append(stat.StatId).Append(' ').Append(NumberText.Signed(effect.Value)).Append(unit);
-
                 if (maxed)
                 {
-                    text.Append("  (").Append(_localizer.Format("node.now", NumberText.Value(now) + unit)).Append(')');
+                    text.Append("<nobr>").Append(_localizer.Format("node.now", NumberText.Value(now) + unit)).Append("</nobr>");
                 }
                 else
                 {
+                    text.Append(NumberText.Signed(effect.Value)).Append(unit).Append('\n');
                     float after = Math.Min(stat.Max, Math.Max(stat.Min, now + effect.Value));
-                    text.Append("  (").Append(NumberText.Value(now)).Append(unit).Append(" -> ").Append(NumberText.Value(after)).Append(unit).Append(')');
+                    text.Append("<nobr>").Append(NumberText.Value(now)).Append(unit)
+                        .Append("  →  <color=").Append(AfterValueColor).Append('>').Append(NumberText.Value(after)).Append(unit).Append("</color></nobr>");
                 }
 
                 text.Append('\n');
