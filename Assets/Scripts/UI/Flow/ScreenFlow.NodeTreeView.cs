@@ -22,17 +22,36 @@ namespace BlackHole.Unity
                 afterClosed: page =>
                 {
                     Unbind(page);
+                    _selectedNodeId = null;
 
                     if (_ui.CurrentRoot is UpgradeScreen root)
+                    {
                         root.ShowRegion(null);
+                        root.HideNodeTooltip();
+                    }
                 });
         }
+
+        // 터치로 고른 노드(툴팁을 고정한 노드). 트리 페이지가 열려 있고 고정 중일 때만 값이 있다.
+        private string _selectedNodeId;
 
         private void ApplyBindings(NodeTreeView page)
         {
             AddBinding(page,
                 p => p.NodeClicked += HandleNodeTreeNodeClicked,
                 p => p.NodeClicked -= HandleNodeTreeNodeClicked);
+
+            AddBinding(page,
+                p => p.NodeTapped += HandleNodeTreeNodeTapped,
+                p => p.NodeTapped -= HandleNodeTreeNodeTapped);
+
+            AddBinding(page,
+                p => p.EmptyTapped += HandleNodeTreeEmptyTapped,
+                p => p.EmptyTapped -= HandleNodeTreeEmptyTapped);
+
+            AddBinding(page,
+                p => p.ViewMoved += HandleNodeTreeViewMoved,
+                p => p.ViewMoved -= HandleNodeTreeViewMoved);
 
             AddBinding(page,
                 p => p.NodeHovered += HandleNodeTreeNodeHovered,
@@ -53,7 +72,11 @@ namespace BlackHole.Unity
                 root.ShowRegion(key);
         }
 
-        private void HandleNodeTreeNodeClicked(string id)
+        // 마우스·펜: 노드를 누르면 바로 산다(올림 툴팁으로 읽는다).
+        private void HandleNodeTreeNodeClicked(string id) => Purchase(id);
+
+        // 구매의 유일한 진입점. 마우스 클릭과 고정 툴팁의 구매 버튼이 같은 길로 온다.
+        private void Purchase(string id)
         {
             // 비용은 사기 전에 읽는다. 산 뒤에는 다음 Rank의 비용이 된다.
             NodePurchase.TryGetNextCost(_progress, _tree, id, out long cost);
@@ -67,6 +90,63 @@ namespace BlackHole.Unity
             }
 
             RefreshUpgrade();
+        }
+
+        // 터치: 노드를 누르면 고르고 툴팁을 고정한다(바로 사지 않는다). 잠긴 노드도 설명은 보인다.
+        private void HandleNodeTreeNodeTapped(string id, RectTransform node)
+        {
+            _selectedNodeId = id;
+            PinSelectedTooltip();
+        }
+
+        // 빈 곳을 누르면 선택을 풀고 툴팁을 닫는다(고정 중일 때만 뜻이 있다).
+        private void HandleNodeTreeEmptyTapped()
+        {
+            if (_selectedNodeId == null)
+                return;
+
+            ClearNodeSelection();
+        }
+
+        // 지도를 옮기기 시작했다(끌기·휠·핀치). 트리는 선택을 이미 풀었고, 고정 툴팁을 닫는다.
+        private void HandleNodeTreeViewMoved() => ClearNodeSelection();
+
+        // 고정 툴팁의 구매 버튼을 꾹 눌러 확정했다. 사고 나서 같은 노드에 툴팁을 다시 고정한다(다음 Rank 비용·최대로 갱신).
+        private void HandleUpgradeBuyConfirmed()
+        {
+            if (_selectedNodeId == null)
+                return;
+
+            Purchase(_selectedNodeId);
+            PinSelectedTooltip();
+        }
+
+        // 고른 노드에 툴팁을 고정한다. 트리가 선택을 풀었으면(숨거나 먼 노드가 됨) 툴팁도 닫는다.
+        private void PinSelectedTooltip()
+        {
+            if (!(_ui.CurrentRoot is UpgradeScreen root))
+                return;
+
+            NodeTreeView page = _ui.GetUI<NodeTreeView>();
+            RectTransform rect = page != null ? page.RectOf(_selectedNodeId) : null;
+
+            if (rect == null || page.SelectedId != _selectedNodeId)
+            {
+                ClearNodeSelection();
+                return;
+            }
+
+            string id = _selectedNodeId;
+            root.PinNodeTooltip(rect, NodeTooltipTitle(id), NodeTooltipBody(id), NodePurchase.StateOf(_progress, _tree, id));
+        }
+
+        private void ClearNodeSelection()
+        {
+            _selectedNodeId = null;
+            _ui.GetUI<NodeTreeView>()?.ClearSelection();
+
+            if (_ui.CurrentRoot is UpgradeScreen root)
+                root.HideNodeTooltip();
         }
 
         // 툴팁은 호스트(업그레이드 화면)가 띄운다. 제목은 노드 ID, 본문은 Rank·효과·비용이다.
@@ -95,8 +175,14 @@ namespace BlackHole.Unity
             if (!_tree.TryGet(id, out NodeDefinition node))
                 return string.Empty;
 
+            // 아직 닿지 않은 노드(자물쇠): 수치·비용 없이 무엇을 주는지 한 줄만(새 요소를 미리 알 수 있게). 설명이 없으면 이름만.
             if (NodePurchase.StateOf(_progress, _tree, id) == NodeState.Hidden)
-                return string.Empty;
+            {
+                string hiddenStat = StatIdOf(node.RankAt(1).Effects[0].Stat);
+                return hiddenStat != null && _localizer.TryGet($"stat.{hiddenStat}.desc", out string hiddenDescription)
+                    ? hiddenDescription
+                    : string.Empty;
+            }
 
             int rank = _progress.RankOf(id);
             bool maxed = rank >= node.MaxRank;
@@ -151,9 +237,10 @@ namespace BlackHole.Unity
             return text.ToString();
         }
 
+        // 올림이 벗어났다. 고정 툴팁(터치)은 올림으로 닫지 않는다 — 터치 노트북에서 마우스가 지나가도 남는다.
         private void HandleNodeTreeNodeLeft(string id)
         {
-            if (_ui.CurrentRoot is UpgradeScreen root)
+            if (_ui.CurrentRoot is UpgradeScreen root && !root.IsTooltipPinned)
                 root.HideNodeTooltip();
         }
 

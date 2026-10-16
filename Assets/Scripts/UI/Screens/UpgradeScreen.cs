@@ -38,8 +38,14 @@ namespace BlackHole.Unity
 
         // 툴팁과 노드 사이의 틈.
         private const float TooltipGap = 8;
+        // 툴팁 안 구매 버튼(터치로 고정했을 때만 보인다). 손가락 기준 최소 높이.
+        private const float BuyHeight = 48;
+        private const float BuyTopGap = 10;
+        private const float BuyFontSize = 26;
 
         public event Action StartBattleClicked;
+        // 고정한 툴팁의 구매 버튼을 꾹 눌러 확정했다.
+        public event Action BuyConfirmed;
 
         public RectTransform PageRoot => (RectTransform)transform;
 
@@ -48,6 +54,15 @@ namespace BlackHole.Unity
         private RectTransform _tooltip;
         private TMP_Text _tooltipTitle;
         private TMP_Text _tooltipBody;
+        private Image _tooltipImage;
+        // 툴팁 안 구매 버튼. 프리팹에 없고 코드가 툴팁 아래에 만든다(트리의 노드와 같은 방식).
+        private RectTransform _buy;
+        private HoldToConfirmButton _buyHold;
+        private TMP_Text _buyLabel;
+        private Image _buyFill;
+        // 툴팁을 터치로 고정했는가. 고정 중에는 올림으로 바뀌지 않고 레이캐스트를 받아 뒤의 노드를 가린다.
+        public bool IsTooltipPinned { get; private set; }
+        private NodeState _pinnedState;
         private readonly Vector3[] _corners = new Vector3[4];
 
         // 언어가 바뀌면 다시 쓸 마지막 값. 아직 보이지 않았으면 null.
@@ -69,8 +84,10 @@ namespace BlackHole.Unity
             _gold = View.Text(Refs.Gold_Text);
             _hq = View.Text(Refs.Hq_Text);
             _tooltip = View.Rect(Refs.NodeTooltip_Image);
+            _tooltipImage = View.Image(Refs.NodeTooltip_Image);
             _tooltipTitle = View.Text(Refs.NodeTooltipTitle_Text);
             _tooltipBody = View.Text(Refs.NodeTooltipBody_Text);
+            CreateBuyButton();
             _styled.Add(View.Text(Refs.Hint_Text), UITextRole.Caption);
             _themed.AddColor(GetComponent<Image>(), UIColorRole.Backdrop);
             _tooltipWidth = _tooltip != null ? _tooltip.sizeDelta.x : 0;
@@ -163,12 +180,30 @@ namespace BlackHole.Unity
         private string Localized(string key, params object[] args) =>
             _localizer != null ? _localizer.Format(key, args) : key;
 
-        // 노드 위 가운데에 툴팁을 붙인다. 화면 위로 넘치면 노드 아래에 붙인다.
-        // 툴팁은 레이캐스트를 받지 않아 노드의 올림을 가로채지 않는다.
+        // 올림 툴팁: 노드 위 가운데에 붙인다. 화면 위로 넘치면 노드 아래에 붙인다.
+        // 레이캐스트를 받지 않아 노드의 올림을 가로채지 않는다. 구매 버튼은 없다(PC는 노드를 눌러 산다). 고정 중이면 무시한다.
         public void ShowNodeTooltip(RectTransform node, string title, string body)
+        {
+            if (IsTooltipPinned)
+                return;
+
+            Place(node, title, body, pinned: false);
+        }
+
+        // 고정 툴팁(터치): 같은 자리에 붙이되 다른 곳을 누를 때까지 남고, 레이캐스트를 받아 뒤의 노드를 가리며, 구매 버튼이 보인다.
+        // state: 버튼 글자·활성을 정한다(Purchasable 구매 / Revealed 구매(흐림) / Owned 최대 / Hidden 잠김).
+        public void PinNodeTooltip(RectTransform node, string title, string body, NodeState state)
+        {
+            _pinnedState = state;
+            Place(node, title, body, pinned: true);
+        }
+
+        private void Place(RectTransform node, string title, string body, bool pinned)
         {
             if (_tooltip == null || node == null)
                 return;
+
+            IsTooltipPinned = pinned;
 
             if (_tooltipTitle != null)
                 _tooltipTitle.text = title;
@@ -179,6 +214,11 @@ namespace BlackHole.Unity
                 // 본문이 없으면(아직 닿지 않은 노드는 이름만) 글자 칸을 접어 상자가 제목만큼만 되게 한다.
                 _tooltipBody.gameObject.SetActive(!string.IsNullOrEmpty(body));
             }
+
+            if (_tooltipImage != null)
+                _tooltipImage.raycastTarget = pinned;
+
+            PaintBuyButton();
 
             _tooltip.gameObject.SetActive(true);
             _tooltip.SetAsLastSibling();
@@ -206,8 +246,117 @@ namespace BlackHole.Unity
 
         public void HideNodeTooltip()
         {
+            IsTooltipPinned = false;
+            _buyHold?.Cancel();
+
+            if (_tooltipImage != null)
+                _tooltipImage.raycastTarget = false;
+
             if (_tooltip != null)
                 _tooltip.gameObject.SetActive(false);
+        }
+
+        private void HandleBuyConfirmed() => BuyConfirmed?.Invoke();
+
+        // 구매 버튼: 툴팁의 세로 배치 끝에 들어가는 한 줄. 테두리(바탕) 위에 차오르는 띠, 그 위에 글자.
+        // 그림 없이 단색으로 만들고 테마 색(ThemedImages)과 글꼴(StyledTexts)을 받는다. 올림 툴팁에서는 숨긴다.
+        private void CreateBuyButton()
+        {
+            if (_tooltip == null)
+                return;
+
+            var buy = new GameObject("NodeTooltipBuy_Button", typeof(RectTransform));
+            _buy = (RectTransform)buy.transform;
+            _buy.SetParent(_tooltip, false);
+
+            var layout = buy.AddComponent<LayoutElement>();
+            layout.minHeight = BuyHeight + BuyTopGap;
+            layout.preferredHeight = BuyHeight + BuyTopGap;
+
+            // 위 틈: 배치 칸은 틈을 포함하고, 보이는 바탕은 아래 BuyHeight만 차지한다.
+            RectTransform back = Child(_buy, "Back");
+            back.anchorMin = new Vector2(0, 0);
+            back.anchorMax = new Vector2(1, 0);
+            back.pivot = new Vector2(0.5f, 0);
+            back.sizeDelta = new Vector2(0, BuyHeight);
+
+            var backImage = back.gameObject.AddComponent<Image>();
+            backImage.color = new Color(1, 1, 1, 0.12f);
+            backImage.raycastTarget = true;
+            _themed.AddColor(backImage, UIColorRole.TextMain);
+
+            RectTransform fill = Child(back, "Fill");
+            fill.anchorMin = Vector2.zero;
+            fill.anchorMax = Vector2.one;
+            fill.sizeDelta = Vector2.zero;
+
+            _buyFill = fill.gameObject.AddComponent<Image>();
+            _buyFill.color = new Color(1, 1, 1, 0.5f);
+            _buyFill.type = Image.Type.Filled;
+            _buyFill.fillMethod = Image.FillMethod.Horizontal;
+            _buyFill.fillOrigin = (int)Image.OriginHorizontal.Left;
+            _buyFill.fillAmount = 0;
+            _buyFill.raycastTarget = false;
+            _themed.AddColor(_buyFill, UIColorRole.Accent);
+
+            RectTransform label = Child(back, "Label");
+            label.anchorMin = Vector2.zero;
+            label.anchorMax = Vector2.one;
+            label.sizeDelta = Vector2.zero;
+
+            _buyLabel = label.gameObject.AddComponent<TextMeshProUGUI>();
+            _buyLabel.fontSize = BuyFontSize;
+            _buyLabel.alignment = TextAlignmentOptions.Center;
+            _buyLabel.textWrappingMode = TextWrappingModes.NoWrap;
+            _buyLabel.raycastTarget = false;
+            if (_tooltipBody != null)
+            {
+                _buyLabel.font = _tooltipBody.font;
+                _buyLabel.color = _tooltipBody.color;
+            }
+            _styled.Add(_buyLabel, UITextRole.Body);
+
+            _buyHold = back.gameObject.AddComponent<HoldToConfirmButton>();
+            _buyHold.Fill = _buyFill;
+            _buyHold.Confirmed += HandleBuyConfirmed;
+
+            _buy.gameObject.SetActive(false);
+        }
+
+        // 고정 상태에 맞춰 구매 버튼을 보이고 글자·활성을 정한다. 올림 툴팁이면 숨긴다.
+        private void PaintBuyButton()
+        {
+            if (_buy == null)
+                return;
+
+            _buyHold.Cancel();
+
+            if (!IsTooltipPinned)
+            {
+                _buy.gameObject.SetActive(false);
+                return;
+            }
+
+            bool interactable = _pinnedState == NodeState.Purchasable;
+            string key = _pinnedState switch
+            {
+                NodeState.Owned => "node.maxed",
+                NodeState.Hidden => "node.locked",
+                _ => "node.buy",
+            };
+
+            _buyHold.Interactable = interactable;
+            _buyLabel.text = Localized(key);
+            _buyLabel.alpha = interactable ? 1 : 0.45f;
+            _buy.gameObject.SetActive(true);
+        }
+
+        private static RectTransform Child(RectTransform parent, string name)
+        {
+            var child = new GameObject(name, typeof(RectTransform));
+            var rect = (RectTransform)child.transform;
+            rect.SetParent(parent, false);
+            return rect;
         }
     }
 }

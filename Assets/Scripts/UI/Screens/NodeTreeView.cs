@@ -23,9 +23,13 @@ namespace BlackHole.Unity
     //   선 색은 Rank를 하나라도 산 노드를 산 것으로 본다(이웃이 드러나는 기준과 같다).
     // 조작: 빈 곳이나 노드 위를 끌면 이동. 휠(커서 중심)이나 두 손가락 벌리기·오므리기(손가락 사이 가운데 중심)로 확대·축소.
     // 열 때: 전체 대신 지금 살 수 있는 노드 쪽을 읽기 좋은 배율로 확대해 둔다(FrameFocus).
-    // 올림: 포인터 아래의 노드가 바뀌면 NodeHovered·NodeLeft로 알린다(툴팁은 호스트가 띄운다).
+    // 올림: 포인터 아래의 노드가 바뀌면 NodeHovered·NodeLeft로 알린다(툴팁은 호스트가 띄운다). 터치는 올림이 없다.
     //   노드마다 입력 컴포넌트를 붙이지 않고 트리 영역이 포인터 이동을 받아 찾는다 — UI_EventHandler를 노드에 붙이면
     //   노드 위에서 시작한 끌기를 그것이 가져가 트리가 움직이지 않는다. 끌기·휠이 시작되면 올림을 푼다.
+    // 누름: 노드에는 Button을 두지 않고 트리 영역이 클릭을 받는다(노드 칸에서 눌러 같은 칸에서 뗀 것만). 입력 장치로 가른다.
+    //   - 마우스·펜: 살 수 있는 노드면 NodeClicked(호스트가 바로 산다). PC는 올림 툴팁으로 읽고 클릭으로 산다.
+    //   - 터치: 먼 노드가 아니면 NodeTapped(선택). 호스트가 툴팁을 고정하고 그 안의 구매 버튼으로 산다 — 읽으려고 누른 손가락이 사지 않게.
+    //     선택한 노드는 올린 것처럼 칠한다(SetSelected). 빈 곳을 누르면 EmptyTapped(호스트가 선택을 푼다).
     //
     // 업그레이드 화면(UpgradeScreen)을 호스트로 두는 페이지(UIPage)다.
     // ScreenFlow가 업그레이드 화면을 연 뒤 SwitchPage로 염.
@@ -33,7 +37,7 @@ namespace BlackHole.Unity
     //
     // 영역은 가운데 기준(pivot 0.5)이어야 확대 계산이 맞음.
     public sealed class NodeTreeView : UIPage<NodeTreeView.Refs>, IStyleView, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler,
-        IPointerMoveHandler, IPointerExitHandler
+        IPointerMoveHandler, IPointerExitHandler, IPointerClickHandler
     {
         public enum Refs { }
 
@@ -159,7 +163,14 @@ namespace BlackHole.Unity
         // 끄는 중인 포인터(손가락)와 화면 위치. 둘 이상이면 앞의 둘로 핀치한다.
         private readonly List<(int Id, Vector2 Position)> _drags = new List<(int Id, Vector2 Position)>(2);
 
+        // 마우스·펜으로 살 수 있는 노드를 눌렀다(노드 ID).
         public event Action<string> NodeClicked;
+        // 터치로 노드를 눌렀다(노드 ID, 노드 칸). 먼 노드는 알리지 않는다. 선택은 이미 바뀐 뒤다.
+        public event Action<string, RectTransform> NodeTapped;
+        // 노드가 아닌 빈 곳을 눌렀다(어느 장치든).
+        public event Action EmptyTapped;
+        // 보는 곳을 옮기기 시작했다(끌기·휠·핀치). 선택은 이미 풀린 뒤다 — 고정 툴팁이 옛 자리에 남지 않게 호스트가 닫는다.
+        public event Action ViewMoved;
 
         // 보이는 창의 가운데가 든 구역이 바뀜(구역 열쇠, 구역이 없으면 null). 이동·확대·처음 맞춤 뒤에 알린다.
         public event Action<string> RegionViewed;
@@ -169,6 +180,23 @@ namespace BlackHole.Unity
         public event Action<string> NodeLeft;
 
         private NodeVisual _hovered;
+        // 터치로 고른 노드. 올린 것과 같은 그림·색으로 칠한다. 호스트가 SetSelected·ClearSelection으로 바꾼다.
+        private NodeVisual _selected;
+
+        // 터치로 고른 노드의 ID. 없으면 null.
+        public string SelectedId => _selected?.Id;
+
+        // 노드 칸(툴팁을 붙일 자리). 없으면 null.
+        public RectTransform RectOf(string id) =>
+            id != null && _nodes.TryGetValue(id, out NodeVisual node) ? (RectTransform)node.Root.transform : null;
+
+        public void SetSelected(string id)
+        {
+            NodeVisual node = id != null && _nodes.TryGetValue(id, out NodeVisual found) ? found : null;
+            SetSelected(node);
+        }
+
+        public void ClearSelection() => SetSelected((NodeVisual)null);
 
         protected override void OnInitialize()
         {
@@ -304,13 +332,15 @@ namespace BlackHole.Unity
                 if (!visible)
                     continue;
 
-                node.Button.interactable = node.State == NodeState.Purchasable;
                 Paint(node);
             }
 
-            // 올라가 있던 노드가 숨거나 먼 노드가 되면 올림을 푼다(먼 노드는 툴팁을 띄우지 않는다).
+            // 올라가 있던(고른) 노드가 숨거나 먼 노드가 되면 올림(선택)을 푼다(먼 노드는 툴팁을 띄우지 않는다).
             if (_hovered != null && (!_hovered.Root.activeSelf || _hovered.Far))
                 SetHovered(null);
+
+            if (_selected != null && (!_selected.Root.activeSelf || _selected.Far))
+                SetSelected((NodeVisual)null);
 
             PaintLinks();
         }
@@ -479,6 +509,7 @@ namespace BlackHole.Unity
         public void OnBeginDrag(PointerEventData eventData)
         {
             SetHovered(null);
+            DropSelectionForMove();
             RemoveDrag(eventData.pointerId);
             _drags.Add((eventData.pointerId, eventData.position));
         }
@@ -514,6 +545,7 @@ namespace BlackHole.Unity
         public void OnScroll(PointerEventData eventData)
         {
             SetHovered(null);
+            DropSelectionForMove();
 
             if (Mathf.Approximately(eventData.scrollDelta.y, 0))
                 return;
@@ -570,7 +602,8 @@ namespace BlackHole.Unity
         // 포인터 아래의 노드(레이캐스트를 받는 것은 노드 칸뿐이다). 끄는 중에는 바꾸지 않는다.
         public void OnPointerMove(PointerEventData eventData)
         {
-            if (eventData.dragging)
+            // 터치는 올림이 없다(손가락이 닿은 채 움직이는 것은 끌기의 시작이지 올림이 아니다).
+            if (eventData.dragging || IsTouch(eventData))
                 return;
 
             GameObject target = eventData.pointerCurrentRaycast.gameObject;
@@ -585,11 +618,78 @@ namespace BlackHole.Unity
                 SetHovered(null);
         }
 
-        // 페이지가 닫히면(비활성) 올림과 끄는 손가락을 푼다. 다시 열 때 남아 있지 않게 한다.
+        // 노드 칸에서 눌러 같은 칸에서 뗀 것만 누름으로 본다(노드에 클릭 핸들러가 없어 눌림·뗌이 모두 이 영역으로 올라온다).
+        // 끌기가 시작됐으면 EventSystem이 클릭을 주지 않는다.
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.dragging)
+                return;
+
+            GameObject pressed = eventData.pointerPressRaycast.gameObject;
+            GameObject released = eventData.pointerCurrentRaycast.gameObject;
+
+            if (pressed == null || pressed != released)
+                return;
+
+            if (_nodesByObject.TryGetValue(pressed, out NodeVisual node))
+            {
+                if (node.Far)
+                    return;
+
+                if (IsTouch(eventData))
+                {
+                    SetSelected(node);
+                    NodeTapped?.Invoke(node.Id, (RectTransform)node.Root.transform);
+                }
+                else if (node.State == NodeState.Purchasable)
+                {
+                    NodeClicked?.Invoke(node.Id);
+                }
+
+                return;
+            }
+
+            if (pressed == gameObject)
+                EmptyTapped?.Invoke();
+        }
+
+        // 입력 장치가 터치스크린인가. Input System의 UI 모듈이 주는 포인터 종류로 가른다(Android 여부가 아니라 — 폰 웹·터치 노트북도 맞게).
+        private static bool IsTouch(PointerEventData eventData) =>
+            eventData is UnityEngine.InputSystem.UI.ExtendedPointerEventData extended
+                ? extended.pointerType == UnityEngine.InputSystem.UI.UIPointerType.Touch
+                : eventData.pointerId >= 0;
+
+        // 페이지가 닫히면(비활성) 올림·선택과 끄는 손가락을 푼다. 다시 열 때 남아 있지 않게 한다.
         private void OnDisable()
         {
             SetHovered(null);
+            SetSelected((NodeVisual)null);
             _drags.Clear();
+        }
+
+        // 보는 곳이 움직이면 선택을 풀고 알린다. 고정 툴팁은 노드 자리에 붙어 있어 따라오지 않으므로 닫는 쪽이 맞다.
+        private void DropSelectionForMove()
+        {
+            if (_selected == null)
+                return;
+
+            SetSelected((NodeVisual)null);
+            ViewMoved?.Invoke();
+        }
+
+        private void SetSelected(NodeVisual node)
+        {
+            if (node == _selected)
+                return;
+
+            NodeVisual before = _selected;
+            _selected = node;
+
+            if (before != null)
+                Paint(before);
+
+            if (node != null)
+                Paint(node);
         }
 
         private void SetHovered(NodeVisual node)
@@ -675,8 +775,9 @@ namespace BlackHole.Unity
                 return;
             }
 
-            node.Image.sprite = _style.SpriteFor(_look.SpriteOf(node.Stat, node.State, node == _hovered));
-            Color tint = _look.TintOf(node.State, node == _hovered);
+            bool lit = node == _hovered || node == _selected;
+            node.Image.sprite = _style.SpriteFor(_look.SpriteOf(node.Stat, node.State, lit));
+            Color tint = _look.TintOf(node.State, lit);
             node.Image.color = partial ? Color.Lerp(tint, OwnedColor, PartialMix) : tint;
 
             bool showPrice = node.State != NodeState.Owned;
@@ -724,14 +825,9 @@ namespace BlackHole.Unity
             var position = new Vector2(item.X * CellSize, item.Y * CellSize);
             rect.anchoredPosition = position;
 
+            // 누름은 트리 영역(OnPointerClick)이 받는다. 노드에 Button을 두면 클릭을 가져가 입력 장치를 가를 수 없다.
             var image = rect.gameObject.AddComponent<Image>();
             image.preserveAspect = true;
-            var button = rect.gameObject.AddComponent<Button>();
-            button.targetGraphic = image;
-            // 색은 상태로 칠한다. 버튼의 눌림·꺼짐 색이 덮지 않게 한다.
-            button.transition = Selectable.Transition.None;
-            string id = item.Id;
-            button.onClick.AddListener(() => NodeClicked?.Invoke(id));
 
             RectTransform badge = null;
             RectTransform labelRect;
@@ -782,7 +878,7 @@ namespace BlackHole.Unity
             label.overflowMode = TextOverflowModes.Ellipsis;
             label.raycastTarget = false;
 
-            return new NodeVisual(item.Id, item.Stat, item.Price, item.MaxRank, item.Start, position, rect.gameObject, image, button, label, badge, rankLabel);
+            return new NodeVisual(item.Id, item.Stat, item.Price, item.MaxRank, item.Start, position, rect.gameObject, image, label, badge, rankLabel);
         }
 
         // Rank 딱지: 노드 오른쪽 위 모서리에 걸친다. 글자는 칠할 때 쓴다("3/10").
@@ -830,6 +926,7 @@ namespace BlackHole.Unity
         private void Clear()
         {
             SetHovered(null);
+            _selected = null;
 
             foreach (NodeVisual node in _nodes.Values)
                 Destroy(node.Root);
@@ -886,7 +983,6 @@ namespace BlackHole.Unity
             public readonly Vector2 Position;
             public readonly GameObject Root;
             public readonly Image Image;
-            public readonly Button Button;
             public readonly TMP_Text Label;
             // 가격 딱지(Look이 있을 때만). 샀으면 숨긴다.
             public readonly RectTransform Badge;
@@ -895,7 +991,7 @@ namespace BlackHole.Unity
             public NodeState State = NodeState.Hidden;
 
             public NodeVisual(string id, string stat, long price, int maxRank, bool start, Vector2 position, GameObject root, Image image,
-                Button button, TMP_Text label, RectTransform badge, TMP_Text rankLabel)
+                TMP_Text label, RectTransform badge, TMP_Text rankLabel)
             {
                 Id = id;
                 Stat = stat;
@@ -906,7 +1002,6 @@ namespace BlackHole.Unity
                 Position = position;
                 Root = root;
                 Image = image;
-                Button = button;
                 Label = label;
                 Badge = badge;
             }

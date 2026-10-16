@@ -55,6 +55,8 @@ node.now,now {0},현재 {0}
 node.maxed,Maxed,최대
 node.cost,Cost {0},비용 {0}
 node.short,Need {0} more Gold,골드 {0} 부족
+node.buy,Buy,구매
+node.locked,Locked,잠김
 # 전투 화면
 BattleScreen.EndBtn_Text,End,종료
 battle.pause,Pause,일시 정지
