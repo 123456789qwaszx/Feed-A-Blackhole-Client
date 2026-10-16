@@ -86,13 +86,10 @@ namespace BlackHole.Unity
         private FrameRateLimiter _frameRate;
         private GameHost _host;
         private IAuthSession _auth;
-        // 로그인이 끝나기 전에는 화면이 없으므로 호스트를 돌리지 않는다.
-        private bool _loggingIn;
-
-        // 추가한 필드
-        private ISyncStore _syncStore;
-        private ISyncApi _syncApi;
+        // 서버를 쓰지 않는 실행(Offline(Disabled))이면 null이다.
         private SyncSender _syncSender;
+        // 로그인·시작 동기화가 끝나기 전에는 화면이 없으므로 호스트를 돌리지 않는다.
+        private bool _loggingIn;
 
         private void Awake()
         {
@@ -143,24 +140,7 @@ namespace BlackHole.Unity
                 loaded.NodeTree.Content,
                 loaded.Content.Growth,
                 _progress);
-            _auth = CreateAuthSession(saveDirectory, profileApplied);
-
-            var transport = new UnityHttpTransport(_server.BaseUrl);
-            var jsonSerializer = new UnityJsonSerializer();
-            // 인증 세션, 진행 저장소, 로그 생성기가 준비된 뒤 생성한다.
-            // 실제 ISyncApi 구현체의 클래스명과 생성자는 확인 후 연결한다.
-            _syncApi = new SyncApi(
-                transport,
-                _auth,
-                jsonSerializer,
-                _server.RequestTimeoutSeconds);
-            _syncSender = new SyncSender(
-                _auth,
-                _syncApi,
-                _progressStore,
-                10, // 시작 동기화 대기 제한 시간(초)
-                Debug.Log);
-
+            CreateServerSession(saveDirectory, profileApplied);
             // 서버 동기화 로그를 만든다. 로그는 빌드 버전과 이 콘텐츠의 서버 콘텐츠 버전을 싣는다.
             SyncLogFactory syncLogs = new(new UnityJsonSerializer(), Application.version, loaded.ServerContentVersion, () => DateTime.UtcNow);
             Localizer localizer = Localizer.Create(_texts, _settings);
@@ -233,8 +213,8 @@ namespace BlackHole.Unity
         }
 #endif
 
-        // 콘텐츠를 읽은 뒤 타이틀로 가기 전에 로그인을 마친다(W2-3). 대기 중에는 아무것도 띄우지 않는다.
-        // StartAsync는 예외를 던지지 않고 loginBudgetSeconds 안에 끝난다.
+        // 콘텐츠를 읽은 뒤 타이틀로 가기 전에 로그인과 시작 동기화를 마친다(W2-3, W3-4, 계약 2.8). 대기 중에는 아무것도 띄우지 않는다.
+        // StartAsync는 예외를 던지지 않고 loginBudgetSeconds 안에, 시작 동기화는 syncTimeoutSeconds 안에 끝난다.
         private IEnumerator Start()
         {
             _loggingIn = true;
@@ -250,15 +230,17 @@ namespace BlackHole.Unity
                 ? "[인증] 온라인"
                 : $"[인증] 오프라인: {_auth.OfflineReason}");
 
-            // 오프라인 상태에서는 전송하지 않고, 온라인 상태라면
-            // 시작 동기화가 끝나거나 대기 제한 시간이 지날 때까지 기다린다.
-            Task sync = _syncSender.SyncOnStartupAsync();
+            // 오프라인이면 보내지 않고 바로 끝난다. 응답의 진행도가 반영된 뒤에 타이틀로 간다.
+            if (_syncSender != null)
+            {
+                Task sync = _syncSender.SyncOnStartupAsync();
 
-            while (!sync.IsCompleted)
-                yield return null;
+                while (!sync.IsCompleted)
+                    yield return null;
 
-            if (sync.IsFaulted)
-                Debug.LogError($"[동기화] 시작 동기화 중 예외: {sync.Exception}");
+                if (sync.IsFaulted)
+                    Debug.LogError($"[동기화] 시작 동기화 중 예외: {sync.Exception}");
+            }
 
             _loggingIn = false;
 
@@ -287,24 +269,33 @@ namespace BlackHole.Unity
             _viewTexts?.Dispose();
             _uiSettings?.Dispose();
             _host?.Dispose();
+            _syncSender?.Dispose();
         }
 
-        // 설정이 없거나 꺼져 있거나 프로필을 적용했으면 요청 없이 오프라인(Disabled)이다. 계정은 진행 저장과 같은 폴더에 둔다(계약 2.5).
-        private IAuthSession CreateAuthSession(string saveDirectory, bool profileApplied)
+        // 설정이 없거나 꺼져 있거나 프로필을 적용했으면 요청 없이 오프라인(Disabled)이고 전송기를 만들지 않는다.
+        // 계정은 진행 저장과 같은 폴더에 둔다(계약 2.5). 전송기는 진행 저장소의 LogAppended를 보고 보낸다(계약 5.8).
+        private void CreateServerSession(string saveDirectory, bool profileApplied)
         {
             if (_server == null || !_server.Enabled || profileApplied)
             {
-                return new OfflineAuthSession(OfflineReason.Disabled);
+                _auth = new OfflineAuthSession(OfflineReason.Disabled);
+                return;
             }
 
-            return new AuthSession(
-                new UnityHttpTransport(_server.BaseUrl),
-                new UnityJsonSerializer(),
+            UnityHttpTransport transport = new(_server.BaseUrl);
+            UnityJsonSerializer json = new();
+
+            _auth = new AuthSession(
+                transport,
+                json,
                 new FileCredentialStore(saveDirectory),
                 _server.RequestTimeoutSeconds,
                 _server.LoginBudgetSeconds,
                 Debug.Log,
                 Debug.LogError);
+
+            SyncApi api = new(transport, _auth, json, _server.SyncTimeoutSeconds, Debug.Log, Debug.LogError);
+            _syncSender = new SyncSender(_auth, api, _progressStore, _server.SyncTimeoutSeconds, Debug.Log, Debug.LogError);
         }
 
         private UIManager CreateUI()
