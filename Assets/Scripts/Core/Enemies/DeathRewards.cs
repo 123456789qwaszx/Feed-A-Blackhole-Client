@@ -20,12 +20,16 @@ namespace BlackHole.Core
 
             if (TryGetGolden(dead, out GoldenDefinition golden) && _goldenCritRandom.Roll(golden.CritChance))
             {
-                long bonus = (long)Math.Round(gold * golden.CritRewardScale, MidpointRounding.AwayFromZero);
-                return new DeathReward(gold, bonus, true);
+                return new DeathReward(gold, CritBonusOf(gold, golden.CritRewardScale), true);
             }
 
             return new DeathReward(gold, 0, false);
         }
+
+        // 황금 치명타의 보너스 Gold: 기본 Gold × 치명타 Gold 배율(반올림, .5는 0에서 먼 쪽).
+        // long × float이므로 곱셈은 float이다(서버도 같아야 한다, 계약 C28). 서버용 기대값 표(W4-1a)가 이 식을 그대로 부른다.
+        internal static long CritBonusOf(long gold, float critRewardScale) =>
+            (long)Math.Round(gold * critRewardScale, MidpointRounding.AwayFromZero);
 
         // 이 적의 성질이 황금이면 그 정의를 준다. 처치 보상(황금 치명타)과 처치 장부의 칸(KillBucket.Golden)이 이 판정 하나를 같이 쓴다.
         internal static bool TryGetGolden(Enemy enemy, out GoldenDefinition golden)
