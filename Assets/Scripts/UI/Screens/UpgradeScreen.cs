@@ -224,24 +224,44 @@ namespace BlackHole.Unity
             _tooltip.SetAsLastSibling();
             LayoutRebuilder.ForceRebuildLayoutImmediate(_tooltip);
 
+            // 자리: 노드 위 → (위로 넘치면) 노드 오른쪽 → (오른쪽으로 넘치면) 노드 아래. 화면 안에 드는 첫 자리를 쓴다.
             node.GetWorldCorners(_corners);
             Vector3 top = (_corners[1] + _corners[2]) * 0.5f;
             Vector3 bottom = (_corners[0] + _corners[3]) * 0.5f;
+            Vector3 right = (_corners[2] + _corners[3]) * 0.5f;
 
-            _tooltip.pivot = new Vector2(0.5f, 0);
-            _tooltip.position = top;
-            _tooltip.anchoredPosition += new Vector2(0, TooltipGap);
+            var screen = (RectTransform)transform;
 
+            Attach(new Vector2(0.5f, 0), top, new Vector2(0, TooltipGap));
+            if (!Overflows(screen, Edge.Top))
+                return;
+
+            Attach(new Vector2(0, 0.5f), right, new Vector2(TooltipGap, 0));
+            if (!Overflows(screen, Edge.Right))
+                return;
+
+            Attach(new Vector2(0.5f, 1), bottom, new Vector2(0, -TooltipGap));
+        }
+
+        private enum Edge { Top, Right }
+
+        // 툴팁의 pivot을 두고 노드의 한 점에 붙인 뒤 틈만큼 띄운다.
+        private void Attach(Vector2 pivot, Vector3 anchor, Vector2 gap)
+        {
+            _tooltip.pivot = pivot;
+            _tooltip.position = anchor;
+            _tooltip.anchoredPosition += gap;
+        }
+
+        // 툴팁이 화면(이 루트)의 그 가장자리 밖으로 나가는가.
+        private bool Overflows(RectTransform screen, Edge edge)
+        {
             _tooltip.GetWorldCorners(_corners);
             float tooltipTop = _corners[1].y;
-            ((RectTransform)transform).GetWorldCorners(_corners);
+            float tooltipRight = _corners[2].x;
+            screen.GetWorldCorners(_corners);
 
-            if (tooltipTop > _corners[1].y)
-            {
-                _tooltip.pivot = new Vector2(0.5f, 1);
-                _tooltip.position = bottom;
-                _tooltip.anchoredPosition += new Vector2(0, -TooltipGap);
-            }
+            return edge == Edge.Top ? tooltipTop > _corners[1].y : tooltipRight > _corners[2].x;
         }
 
         public void HideNodeTooltip()
