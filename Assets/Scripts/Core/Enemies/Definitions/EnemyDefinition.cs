@@ -178,7 +178,8 @@ namespace BlackHole.Core
                 Multiply(row.Exp, scale));
         }
 
-        private static long Multiply(long value, double multiplier) =>
+        // Gold·EXP에 배율을 곱한다(크기 배율, 황금 배율). 서버용 기대값 표(W4-1a)가 이 식을 그대로 부른다.
+        internal static long Multiply(long value, double multiplier) =>
             checked((long)Math.Round(value * multiplier, MidpointRounding.AwayFromZero));
 
         private static T[] Copy<T>(IReadOnlyList<T> source)

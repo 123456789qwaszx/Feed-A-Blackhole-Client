@@ -20,10 +20,18 @@ namespace BlackHole.ContentExport
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    // 이 값은 여러 줄 모드 안에서도 한 줄로 쓴다(숫자 배열처럼 줄이 길어지는 값에 쓴다). 한 줄 쓰기는 WriteInline과 같다.
+    public sealed class JsonInline
+    {
+        public object Value { get; }
+
+        public JsonInline(object value) => Value = value;
+    }
+
     // 서버 묶음의 JSON 쓰기. Python json.dumps(indent=2, ensure_ascii=False)와 같은 글자를 낸다
     // (서버 저장소의 샘플 묶음과 이전 이관 스크립트가 이 형식이다). 같은 값이면 언제나 같은 바이트다 — 콘텐츠 버전이 바이트로 계산되기 때문이다.
     //
-    // 값: JsonObject, IList(배열), string, bool, int, long, float(가장 짧은 왕복 표기), null.
+    // 값: JsonObject, IList(배열), string, bool, int, long, float(가장 짧은 왕복 표기), null, JsonInline.
     public static class PyJson
     {
         public static string Write(object value)
@@ -83,6 +91,9 @@ namespace BlackHole.ContentExport
                     break;
                 case float number:
                     builder.Append(Float(number));
+                    break;
+                case JsonInline inline:
+                    WriteValue(builder, inline.Value, -1);
                     break;
                 case JsonObject obj:
                     WriteObject(builder, obj, indent);
