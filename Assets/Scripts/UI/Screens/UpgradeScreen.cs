@@ -44,7 +44,7 @@ namespace BlackHole.Unity
         private const float BuyFontSize = 26;
 
         public event Action StartBattleClicked;
-        // 고정한 툴팁의 구매 버튼을 꾹 눌러 확정했다.
+        // 고정한 툴팁의 구매 버튼을 눌렀다.
         public event Action BuyConfirmed;
 
         public RectTransform PageRoot => (RectTransform)transform;
@@ -55,11 +55,14 @@ namespace BlackHole.Unity
         private TMP_Text _tooltipTitle;
         private TMP_Text _tooltipBody;
         private Image _tooltipImage;
-        // 툴팁 안 구매 버튼. 프리팹에 없고 코드가 툴팁 아래에 만든다(트리의 노드와 같은 방식).
+        // 툴팁 안 구매 버튼. 프리팹에 없고 코드가 툴팁 아래에 만든다(트리의 노드와 같은 방식). 누르는 즉시 산다.
         private RectTransform _buy;
-        private HoldToConfirmButton _buyHold;
+        private Button _buyButton;
+        private Image _buyBack;
         private TMP_Text _buyLabel;
-        private Image _buyFill;
+        // 구매 버튼 바탕: 살 수 있으면 강조색(초록), 아니면 글자색을 엷게 깐 회색. 팔레트가 없을 때의 기본값.
+        private static readonly Color BuyReadyColor = new(0.34f, 0.59f, 0.41f, 0.9f);
+        private static readonly Color BuyBlockedColor = new(1, 1, 1, 0.12f);
         // 툴팁을 터치로 고정했는가. 고정 중에는 올림으로 바뀌지 않고 레이캐스트를 받아 뒤의 노드를 가린다.
         public bool IsTooltipPinned { get; private set; }
         private NodeState _pinnedState;
@@ -172,6 +175,7 @@ namespace BlackHole.Unity
             Ambient?.Apply(style.ThemeId);
             _styled.SetStyle(style);
             _themed.SetStyle(style);
+            PaintBuyButton();
 
             if (_tooltip != null)
                 _tooltip.sizeDelta = new Vector2(_tooltipWidth * style.Scale, _tooltip.sizeDelta.y);
@@ -267,7 +271,6 @@ namespace BlackHole.Unity
         public void HideNodeTooltip()
         {
             IsTooltipPinned = false;
-            _buyHold?.Cancel();
 
             if (_tooltipImage != null)
                 _tooltipImage.raycastTarget = false;
@@ -276,9 +279,9 @@ namespace BlackHole.Unity
                 _tooltip.gameObject.SetActive(false);
         }
 
-        private void HandleBuyConfirmed() => BuyConfirmed?.Invoke();
+        private void HandleBuyClicked(PointerEventData _) => BuyConfirmed?.Invoke();
 
-        // 구매 버튼: 툴팁의 세로 배치 끝에 들어가는 한 줄. 테두리(바탕) 위에 차오르는 띠, 그 위에 글자.
+        // 구매 버튼: 툴팁의 세로 배치 끝에 들어가는 한 줄. 단색 바탕 위에 글자. 누르는 즉시 산다(꾹 누름은 노드 쪽이다).
         // 그림 없이 단색으로 만들고 테마 색(ThemedImages)과 글꼴(StyledTexts)을 받는다. 올림 툴팁에서는 숨긴다.
         private void CreateBuyButton()
         {
@@ -301,23 +304,10 @@ namespace BlackHole.Unity
             back.sizeDelta = new Vector2(0, BuyHeight);
 
             var backImage = back.gameObject.AddComponent<Image>();
-            backImage.color = new Color(1, 1, 1, 0.12f);
+            backImage.color = BuyBlockedColor;
             backImage.raycastTarget = true;
-            _themed.AddColor(backImage, UIColorRole.TextMain);
-
-            RectTransform fill = Child(back, "Fill");
-            fill.anchorMin = Vector2.zero;
-            fill.anchorMax = Vector2.one;
-            fill.sizeDelta = Vector2.zero;
-
-            _buyFill = fill.gameObject.AddComponent<Image>();
-            _buyFill.color = new Color(1, 1, 1, 0.5f);
-            _buyFill.type = Image.Type.Filled;
-            _buyFill.fillMethod = Image.FillMethod.Horizontal;
-            _buyFill.fillOrigin = (int)Image.OriginHorizontal.Left;
-            _buyFill.fillAmount = 0;
-            _buyFill.raycastTarget = false;
-            _themed.AddColor(_buyFill, UIColorRole.Accent);
+            // 색은 상태에 따라 바뀌므로 ThemedImages에 넣지 않고 PaintBuyButton이 팔레트에서 직접 고른다.
+            _buyBack = backImage;
 
             RectTransform label = Child(back, "Label");
             label.anchorMin = Vector2.zero;
@@ -336,9 +326,10 @@ namespace BlackHole.Unity
             }
             _styled.Add(_buyLabel, UITextRole.Body);
 
-            _buyHold = back.gameObject.AddComponent<HoldToConfirmButton>();
-            _buyHold.Fill = _buyFill;
-            _buyHold.Confirmed += HandleBuyConfirmed;
+            _buyButton = back.gameObject.AddComponent<Button>();
+            _buyButton.targetGraphic = backImage;
+            _buyButton.transition = Selectable.Transition.None;
+            BindEvent(_buyButton, HandleBuyClicked);
 
             _buy.gameObject.SetActive(false);
         }
@@ -348,8 +339,6 @@ namespace BlackHole.Unity
         {
             if (_buy == null)
                 return;
-
-            _buyHold.Cancel();
 
             if (!IsTooltipPinned)
             {
@@ -365,10 +354,25 @@ namespace BlackHole.Unity
                 _ => "node.buy",
             };
 
-            _buyHold.Interactable = interactable;
+            _buyButton.interactable = interactable;
+            _buyBack.color = BuyBackColor(interactable);
             _buyLabel.text = Localized(key);
             _buyLabel.alpha = interactable ? 1 : 0.45f;
             _buy.gameObject.SetActive(true);
+        }
+
+        // 살 수 있으면 팔레트의 강조색(알파는 기본값), 아니면 글자색을 엷게(회색).
+        private Color BuyBackColor(bool ready)
+        {
+            UIStyle style = _themed.Style;
+            Color fallback = ready ? BuyReadyColor : BuyBlockedColor;
+            Color? themed = style.ColorFor(ready ? UIColorRole.Accent : UIColorRole.TextMain);
+
+            if (themed is not Color color)
+                return fallback;
+
+            color.a = fallback.a;
+            return color;
         }
 
         private static RectTransform Child(RectTransform parent, string name)

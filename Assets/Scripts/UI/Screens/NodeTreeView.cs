@@ -30,6 +30,8 @@ namespace BlackHole.Unity
     //   - 마우스·펜: 살 수 있는 노드면 NodeClicked(호스트가 바로 산다). PC는 올림 툴팁으로 읽고 클릭으로 산다.
     //   - 터치: 먼 노드가 아니면 NodeTapped(선택). 호스트가 툴팁을 고정하고 그 안의 구매 버튼으로 산다 — 읽으려고 누른 손가락이 사지 않게.
     //     선택한 노드는 올린 것처럼 칠한다(SetSelected). 빈 곳을 누르면 EmptyTapped(호스트가 선택을 푼다).
+    //   - 터치로 꾹: 살 수 있는 노드를 HoldSeconds 이상 누르고(끌지 않고) 같은 칸에서 떼면 NodeHeld(호스트가 산다).
+    //     시간이 차면 NodeHoldArmed로 먼저 알린다(연출용). 떼거나 끌면 NodeHoldReleased.
     //
     // 업그레이드 화면(UpgradeScreen)을 호스트로 두는 페이지(UIPage)다.
     // ScreenFlow가 업그레이드 화면을 연 뒤 SwitchPage로 염.
@@ -37,7 +39,7 @@ namespace BlackHole.Unity
     //
     // 영역은 가운데 기준(pivot 0.5)이어야 확대 계산이 맞음.
     public sealed class NodeTreeView : UIPage<NodeTreeView.Refs>, IStyleView, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler,
-        IPointerMoveHandler, IPointerExitHandler, IPointerClickHandler
+        IPointerMoveHandler, IPointerExitHandler, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
     {
         public enum Refs { }
 
@@ -54,6 +56,8 @@ namespace BlackHole.Unity
         private const float RankPadding = 12;
         // 일부만 산 노드에 산 색을 섞는 비율.
         private const float PartialMix = 0.35f;
+        // 터치로 노드를 꾹 눌러 사는 데 필요한 시간(초).
+        private const float HoldSeconds = 0.3f;
         private const float MinZoom = 0.3f;
         private const float MaxZoom = 2.5f;
         private const float FitZoomLimit = 1.5f;
@@ -171,6 +175,12 @@ namespace BlackHole.Unity
         public event Action EmptyTapped;
         // 보는 곳을 옮기기 시작했다(끌기·휠·핀치). 선택은 이미 풀린 뒤다 — 고정 툴팁이 옛 자리에 남지 않게 호스트가 닫는다.
         public event Action ViewMoved;
+        // 터치로 살 수 있는 노드를 꾹 눌러 시간이 찼다(노드 ID). 아직 사지 않았다 — 떼면 산다.
+        public event Action<string> NodeHoldArmed;
+        // 꾹 누름이 끝났다(노드 ID): 뗐거나 끌기로 바뀌었거나 페이지가 닫혔다. 산 경우에도 NodeHeld 앞에 온다.
+        public event Action<string> NodeHoldReleased;
+        // 터치로 꾹 눌렀다가 같은 칸에서 뗐다(노드 ID). 호스트가 산다.
+        public event Action<string> NodeHeld;
 
         // 보이는 창의 가운데가 든 구역이 바뀜(구역 열쇠, 구역이 없으면 null). 이동·확대·처음 맞춤 뒤에 알린다.
         public event Action<string> RegionViewed;
@@ -180,6 +190,11 @@ namespace BlackHole.Unity
         public event Action<string> NodeLeft;
 
         private NodeVisual _hovered;
+        // 터치로 누르고 있는 노드(꾹 누름 판정). 끌기가 시작되면 버린다.
+        private NodeVisual _pressed;
+        private int _pressedPointer;
+        private float _pressedAt;
+        private bool _holdArmed;
         // 터치로 고른 노드. 올린 것과 같은 그림·색으로 칠한다. 호스트가 SetSelected·ClearSelection으로 바꾼다.
         private NodeVisual _selected;
 
@@ -510,6 +525,7 @@ namespace BlackHole.Unity
         {
             SetHovered(null);
             DropSelectionForMove();
+            ReleasePress();
             RemoveDrag(eventData.pointerId);
             _drags.Add((eventData.pointerId, eventData.position));
         }
@@ -618,6 +634,57 @@ namespace BlackHole.Unity
                 SetHovered(null);
         }
 
+        // 터치로 살 수 있는 노드를 누르기 시작했다. 시간은 Update가 센다. 다른 손가락이 이미 누르고 있으면 무시한다.
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (_pressed != null || !IsTouch(eventData))
+                return;
+
+            GameObject target = eventData.pointerPressRaycast.gameObject;
+
+            if (target == null || !_nodesByObject.TryGetValue(target, out NodeVisual node) || node.Far || node.State != NodeState.Purchasable)
+                return;
+
+            _pressed = node;
+            _pressedPointer = eventData.pointerId;
+            _pressedAt = Time.unscaledTime;
+            _holdArmed = false;
+        }
+
+        // 시간이 찬 채 같은 칸에서 뗐으면 산다. 클릭(NodeTapped)은 이 뒤에 따로 와서 툴팁을 다시 고정한다.
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            if (_pressed == null || eventData.pointerId != _pressedPointer)
+                return;
+
+            NodeVisual node = _pressed;
+            bool buy = _holdArmed && eventData.pointerCurrentRaycast.gameObject == node.Root;
+            ReleasePress();
+
+            if (buy)
+                NodeHeld?.Invoke(node.Id);
+        }
+
+        private void Update()
+        {
+            if (_pressed == null || _holdArmed || Time.unscaledTime - _pressedAt < HoldSeconds)
+                return;
+
+            _holdArmed = true;
+            NodeHoldArmed?.Invoke(_pressed.Id);
+        }
+
+        private void ReleasePress()
+        {
+            if (_pressed == null)
+                return;
+
+            NodeVisual node = _pressed;
+            _pressed = null;
+            _holdArmed = false;
+            NodeHoldReleased?.Invoke(node.Id);
+        }
+
         // 노드 칸에서 눌러 같은 칸에서 뗀 것만 누름으로 본다(노드에 클릭 핸들러가 없어 눌림·뗌이 모두 이 영역으로 올라온다).
         // 끌기가 시작됐으면 EventSystem이 클릭을 주지 않는다.
         public void OnPointerClick(PointerEventData eventData)
@@ -664,6 +731,7 @@ namespace BlackHole.Unity
         {
             SetHovered(null);
             SetSelected((NodeVisual)null);
+            ReleasePress();
             _drags.Clear();
         }
 

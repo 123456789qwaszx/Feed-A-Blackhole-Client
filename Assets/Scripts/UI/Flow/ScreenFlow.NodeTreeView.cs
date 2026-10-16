@@ -54,6 +54,10 @@ namespace BlackHole.Unity
                 p => p.ViewMoved -= HandleNodeTreeViewMoved);
 
             AddBinding(page,
+                p => p.NodeHeld += HandleNodeTreeNodeHeld,
+                p => p.NodeHeld -= HandleNodeTreeNodeHeld);
+
+            AddBinding(page,
                 p => p.NodeHovered += HandleNodeTreeNodeHovered,
                 p => p.NodeHovered -= HandleNodeTreeNodeHovered);
 
@@ -111,7 +115,7 @@ namespace BlackHole.Unity
         // 지도를 옮기기 시작했다(끌기·휠·핀치). 트리는 선택을 이미 풀었고, 고정 툴팁을 닫는다.
         private void HandleNodeTreeViewMoved() => ClearNodeSelection();
 
-        // 고정 툴팁의 구매 버튼을 꾹 눌러 확정했다. 사고 나서 같은 노드에 툴팁을 다시 고정한다(다음 Rank 비용·최대로 갱신).
+        // 고정 툴팁의 구매 버튼을 눌렀다. 사고 나서 같은 노드에 툴팁을 다시 고정한다(다음 Rank 비용·최대로 갱신).
         private void HandleUpgradeBuyConfirmed()
         {
             if (_selectedNodeId == null)
@@ -119,6 +123,13 @@ namespace BlackHole.Unity
 
             Purchase(_selectedNodeId);
             PinSelectedTooltip();
+        }
+
+        // 터치로 노드를 꾹 눌렀다 뗐다. 산다. 이어서 오는 탭(NodeTapped)이 툴팁을 새 내용으로 고정한다.
+        private void HandleNodeTreeNodeHeld(string id)
+        {
+            _selectedNodeId = id;
+            Purchase(id);
         }
 
         // 고른 노드에 툴팁을 고정한다. 트리가 선택을 풀었으면(숨거나 먼 노드가 됨) 툴팁도 닫는다.
