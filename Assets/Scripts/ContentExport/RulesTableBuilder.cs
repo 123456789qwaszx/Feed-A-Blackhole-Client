@@ -59,7 +59,42 @@ namespace BlackHole.ContentExport
                 { "contentVersion", contentVersion },
                 { "stages", stages },
                 { "loadouts", loadoutJson },
+                { "arithmetic", ArithmeticJson() },
             }) + "\n";
+        }
+
+        // 산술 확인 지점의 입력(계약 1.7a의 arithmetic). 콘텐츠가 아직 쓰지 않는 경우를 덮는다:
+        // 정수 .5가 되는 곱(홀수 × 0.5), float 정밀도(2^24)를 넘는 값, 0.1처럼 float로 정확히 나타낼 수 없는 배율.
+        // 곱 결과가 long을 넘지 않게 값과 배율의 범위를 잡았다.
+        internal static readonly long[] ArithmeticValues =
+        {
+            0, 1, 2, 3, 5, 7, 99, 100, 12345, 16777215, 16777216, 16777217,
+            123456789012, 50000000000, 999999999999999, 9007199254740993,
+        };
+
+        internal static readonly float[] ArithmeticFactors =
+        {
+            0.5f, 0.25f, 0.1f, 0.3f, 0.35f, 1f, 1.5f, 1.7f, 2.5f, 3f, 9.99f, 13f, 32f, 100.5f,
+        };
+
+        // [값, 배율, 결과] 쌍. 결과는 클라이언트의 실제 식이 낸다.
+        // - multiply: EnemyDefinition.Multiply(value, factor). 크기 배율·황금 배율을 곱하는 식(long × double, .5는 0에서 먼 쪽).
+        // - critBonus: DeathRewards.CritBonusOf(gold, scale). 황금 치명 보너스(long × float이라 float 곱셈, C28).
+        internal static JsonObject ArithmeticJson()
+        {
+            var multiply = new List<object>();
+            var critBonus = new List<object>();
+
+            foreach (long value in ArithmeticValues)
+            {
+                foreach (float factor in ArithmeticFactors)
+                {
+                    multiply.Add(new JsonInline(new List<object> { value, factor, EnemyDefinition.Multiply(value, factor) }));
+                    critBonus.Add(new JsonInline(new List<object> { value, factor, DeathRewards.CritBonusOf(value, factor) }));
+                }
+            }
+
+            return new JsonObject { { "multiply", multiply }, { "critBonus", critBonus } };
         }
 
         // 진행 상태를 저장 검사(ProgressSave.Load)를 거쳐 만든다. 게임이 저장을 읽는 길과 같다.
