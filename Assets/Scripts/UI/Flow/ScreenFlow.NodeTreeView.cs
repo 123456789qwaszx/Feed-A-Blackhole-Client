@@ -28,6 +28,7 @@ namespace BlackHole.Unity
                     {
                         root.ShowRegion(null);
                         root.HideNodeTooltip();
+                        root.ShowPendingCost(null);
                     }
                 });
         }
@@ -177,8 +178,15 @@ namespace BlackHole.Unity
             }
 
             string id = _selectedNodeId;
-            root.PinNodeTooltip(rect, page.IconOf(id), NodeTooltipTitle(id), NodeTooltipBody(id, withCost: false), NodeTooltipCost(id),
+            root.PinNodeTooltip(rect, page.IconOf(id), NodeTooltipTitle(id), NodeTooltipBody(id, withCost: false),
                 NodePurchase.StateOf(_progress, _tree, id));
+            // 비용은 골드 칩 옆에 "-70"으로. 다음 Rank가 없거나(최대) 아직 닿지 않은 노드면 없다.
+            long? pendingCost = null;
+
+            if (NodePurchase.StateOf(_progress, _tree, id) != NodeState.Hidden && NodePurchase.TryGetNextCost(_progress, _tree, id, out long cost))
+                pendingCost = cost;
+
+            root.ShowPendingCost(pendingCost);
         }
 
         private void ClearNodeSelection()
@@ -187,7 +195,10 @@ namespace BlackHole.Unity
             _ui.GetUI<NodeTreeView>()?.ClearSelection();
 
             if (_ui.CurrentRoot is UpgradeScreen root)
+            {
                 root.HideNodeTooltip();
+                root.ShowPendingCost(null);
+            }
         }
 
         // 툴팁은 호스트(업그레이드 화면)가 띄운다. 제목은 노드 ID, 본문은 Rank·효과·비용이다.
@@ -241,7 +252,7 @@ namespace BlackHole.Unity
             string titleStat = StatIdOf(node.RankAt(1).Effects[0].Stat);
             if (titleStat != null && _localizer.TryGet($"stat.{titleStat}.desc", out string description))
                 text.Append(description).Append('\n');
-            
+
             if (node.MaxRank > 1)
                 text.Append(_localizer.Format("node.rank", rank, node.MaxRank)).Append('\n');
 
@@ -254,7 +265,7 @@ namespace BlackHole.Unity
                 //추가코드
                 if (named)
                     text.Append(StatName(stat.StatId)).Append(' ');
-                
+
                 text.Append(NumberText.Signed(effect.Value)).Append(unit);
                 //text.Append(stat.StatId).Append(' ').Append(NumberText.Signed(effect.Value)).Append(unit);
 
