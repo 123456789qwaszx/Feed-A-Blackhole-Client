@@ -74,6 +74,66 @@ namespace BlackHole.ContentExport.Tests
         }
 
         [Test]
+        public void ArithmeticCoversEveryValueAndFactorOnce()
+        {
+            JsonObject arithmetic = RulesTableBuilder.ArithmeticJson();
+            int expected = RulesTableBuilder.ArithmeticValues.Length * RulesTableBuilder.ArithmeticFactors.Length;
+
+            Assert.AreEqual(expected, Cases(arithmetic, "multiply").Count);
+            Assert.AreEqual(expected, Cases(arithmetic, "critBonus").Count);
+        }
+
+        // 정확히 .5가 되는 곱은 0에서 먼 쪽(올림)이다. 서버가 HALF_EVEN으로 틀리게 구현하면 이 값에서 어긋난다.
+        [Test]
+        public void HalvesRoundAwayFromZero()
+        {
+            JsonObject arithmetic = RulesTableBuilder.ArithmeticJson();
+
+            Assert.AreEqual(3L, ResultOf(arithmetic, "multiply", 5L, 0.5f));
+            Assert.AreEqual(3L, ResultOf(arithmetic, "critBonus", 5L, 0.5f));
+            Assert.AreEqual(2L, ResultOf(arithmetic, "multiply", 3L, 0.5f));
+        }
+
+        // 곱셈이 double이면 값이 보존되고, float이면 2^24를 넘는 값이 깎인다. 두 식이 갈리는 지점이다(계약 C28).
+        [Test]
+        public void MultiplyKeepsLargeValuesButCritBonusMultipliesAsFloat()
+        {
+            JsonObject arithmetic = RulesTableBuilder.ArithmeticJson();
+
+            Assert.AreEqual(16777217L, ResultOf(arithmetic, "multiply", 16777217L, 1f));
+            Assert.AreEqual(16777216L, ResultOf(arithmetic, "critBonus", 16777217L, 1f));
+        }
+
+        private static List<List<object>> Cases(JsonObject arithmetic, string name)
+        {
+            foreach (KeyValuePair<string, object> entry in arithmetic)
+            {
+                if (entry.Key != name)
+                    continue;
+
+                var cases = new List<List<object>>();
+
+                foreach (object item in (List<object>)entry.Value)
+                    cases.Add((List<object>)((JsonInline)item).Value);
+
+                return cases;
+            }
+
+            throw new AssertionException($"'{name}' 칸이 없다.");
+        }
+
+        private static long ResultOf(JsonObject arithmetic, string name, long value, float factor)
+        {
+            foreach (List<object> triple in Cases(arithmetic, name))
+            {
+                if ((long)triple[0] == value && (float)triple[1] == factor)
+                    return (long)triple[2];
+            }
+
+            throw new AssertionException($"{name}에 ({value}, {factor}) 경우가 없다.");
+        }
+
+        [Test]
         public void InlineValueStaysOnOneLineInsideAMultiLineDocument()
         {
             string json = PyJson.Write(new JsonObject
