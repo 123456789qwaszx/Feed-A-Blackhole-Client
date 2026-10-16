@@ -346,10 +346,11 @@ namespace BlackHole.Unity
             if (_shownHq is not (int stage, int goalLevel))
                 return;
 
-            string shownStage = stage.ToString(CultureInfo.InvariantCulture);
+            // 이정표 이름으로: "소행성대 → 행성계 (목표 Lv 10)". 마지막 이정표 뒤면 이름 하나.
+            string current = Localized($"milestone.{stage}.name");
             _hq.text = goalLevel > 0
-                ? Localized("upgrade.hq.goal", shownStage, goalLevel.ToString(CultureInfo.InvariantCulture))
-                : Localized("upgrade.hq.last", shownStage);
+                ? Localized("upgrade.hq.goal", current, Localized($"milestone.{stage + 1}.name"), goalLevel.ToString(CultureInfo.InvariantCulture))
+                : Localized("upgrade.hq.last", current);
         }
 
         // 마지막으로 보인 Gold·블랙홀 글자를 지금 언어로 다시 쓴다. 노드 툴팁은 닫는다(다시 올리면 새 언어로 뜬다).
