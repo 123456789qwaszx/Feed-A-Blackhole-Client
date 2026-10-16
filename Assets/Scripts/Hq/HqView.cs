@@ -78,6 +78,7 @@ namespace BlackHole.Unity
                 Vector3 center = _blackHole.transform.position;
                 _shockwaves.Spawn(center, strength: 1f, seconds: 1.2f);
                 _shockwaves.Spawn(center, strength: 0.45f, seconds: 1.4f, delay: 0.14f);
+                Haptics.Play();
             }
                
             _shownLevel = level;
