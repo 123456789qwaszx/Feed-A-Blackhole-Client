@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 using BlackHole.Core;
 using BlackHole.Sync;
 using NUnit.Framework;
@@ -29,30 +29,6 @@ namespace BlackHole.Net.Tests
         private static readonly DateTime Now = new(2026, 10, 15, 3, 0, 0, DateTimeKind.Utc);
         private static readonly EnemyDefinition Asteroid =
             new(EnemyType.Asteroid, 1f, 1f, 0f, new[] { new EnemyTier(1f, 1, 1) });
-
-
-        // ---------- 가짜 전송(SyncApiTest의 FakeSyncApi와 같은 모양) ----------
-        private sealed class FakeSyncApi : ISyncApi
-        {
-            private readonly Queue<SyncCallResult> _responses = new();
-            private readonly List<IReadOnlyList<PendingLog>> _batches = new();
-
-            public IReadOnlyList<IReadOnlyList<PendingLog>> Batches => _batches;
-            public int CallCount => _batches.Count;
-
-            public void Enqueue(SyncCallResult response) => _responses.Enqueue(response);
-
-            public Task<SyncCallResult> SendAsync(IReadOnlyList<PendingLog> logs)
-            {
-                // 전송 당시의 배치를 복사해 기록
-                _batches.Add(logs.ToArray());
-
-                if (_responses.Count > 0)
-                    return Task.FromResult(_responses.Dequeue());
-
-                return Task.FromResult(SyncCallResult.Failed(SyncCallOutcome.Unreachable));
-            }
-        }
 
 
         // ---------- ScreenFlow의 로그 지점을 옮긴 흐름 ----------
@@ -258,7 +234,7 @@ namespace BlackHole.Net.Tests
         }
 
         [Test]
-        public async Task 전송_배치에서도_결산이_구매보다_앞선다()
+        public void 전송_배치에서도_결산이_구매보다_앞선다()
         {
             var flow = new PlayerFlow();
             flow.StartNew();
@@ -267,10 +243,23 @@ namespace BlackHole.Net.Tests
             flow.Buy(NodeA, 100);
 
             // 전송(SyncSender, W3-4)은 대기 로그를 seq 오름차순 그대로 보낸다.
-            var api = new FakeSyncApi();
-            await api.SendAsync(flow.Ledger.Pending);
+            SynchronizationContext saved = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(null);
 
-            Assert.That(api.CallCount, Is.EqualTo(1));
+            var api = new FakeSyncApi();
+            api.Enqueue(SyncResults.Applied(4));
+
+            try
+            {
+                using var sender = new SyncSender(new FakeAuthSession(), api, new LedgerSyncStore(flow.Ledger), 10);
+                TestTasks.Done(sender.SyncOnStartupAsync());
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(saved);
+            }
+
+            Assert.That(api.Batches.Count, Is.EqualTo(1));
             string[] sent = TypesOf(api.Batches[0]);
             Assert.That(Array.IndexOf(sent, LogTypes.Settlement),
                 Is.LessThan(Array.IndexOf(sent, LogTypes.NodePurchase)));

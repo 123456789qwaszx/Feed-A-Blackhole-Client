@@ -16,16 +16,17 @@ using UnityEngine.TestTools;
 namespace BlackHole.Net.Tests
 {
     // 로컬 서버를 상대로 M1 시나리오를 본다. 서버를 켜 두고 테스트 러너에서 골라 돌린다(Explicit).
-    //   1) 첫 실행(온라인): 등록·로그인 → 새 게임(RESET) → 판 시작·결산(구매할 Gold) → NODE_PURCHASE → 전송 → 진행도 반영
+    //   1) 첫 실행(온라인): 등록·로그인 → 시작 동기화(빈 요청) → 새 게임(RESET) → 판 시작·결산(구매할 Gold) → NODE_PURCHASE
+    //      → 로그가 생길 때마다 곧바로 전송 → 진행도 반영
     //   2) 두 번째 실행(오프라인): 서버에 닿지 않음 → 계속 → NODE_PURCHASE를 저장에만 쌓는다
-    //   3) 세 번째 실행(온라인): 갱신 로그인 → 저장에 남은 로그를 보낸다 → 진행도 반영 → 다음 실행에도 대기 로그가 없다
+    //   3) 세 번째 실행(온라인): 갱신 로그인 → 시작 동기화가 저장에 남은 로그를 보낸다 → 진행도 반영 → 다음 실행에도 대기 로그가 없다
     //
     // 새 게임 직후 Gold는 0이라 구매가 NOT_ENOUGH_GOLD로 거부된다. 그래서 서버 샘플(계약 3.8)과 같은 판(시드 123456,
-    // 소행성 20개, 20 Gold)의 판 시작·결산을 먼저 보낸다. 결산 → 구매 순서는 ScreenFlow와 같다(SettlementOrderTests).
+    // 소행성 20개, 20 Gold)의 판 시작·결산을 먼저 보낸다. 결산 → 구매 순서는 ScreenFlow와 같다(ScreenFlowLogOrderTests).
     //
-    // 동기화 전송(SyncSender·ISyncApi 구현, W3-4)이 아직 없어 /me/sync를 여기서 직접 보낸다. 장부·응답 반영은 실제 ProgressStore다.
+    // 전송과 응답 반영은 게임과 같은 SyncApi·SyncSender·ProgressStore(W3-4, W3-3)가 한다. 테스트는 로그를 쌓고 결과만 본다.
     // "실행"은 세션·저장소·진행 상태를 새로 만들어 흉내 낸다. 파일만 다음 실행으로 이어진다.
-    // 콘텐츠 버전은 빈 요청의 응답에서 서버 값을 받아 쓴다(게임의 콘텐츠 버전이 서버와 같은지는 이 테스트가 보지 않는다).
+    // 콘텐츠 버전은 시작 동기화 응답에서 서버 값을 받아 쓴다(게임의 콘텐츠 버전이 서버와 같은지는 이 테스트가 보지 않는다).
     // 끝나면 결과 표(마크다운)를 콘솔에 남긴다. 서버 주소는 환경 변수 BLACKHOLE_SERVER_URL, 없으면 http://localhost:8080.
     [Explicit("로컬 서버 필요")]
     [Category("LocalServer")]
@@ -60,6 +61,7 @@ namespace BlackHole.Net.Tests
 
         private string _directory;
         private readonly List<string> _report = new();
+        private readonly List<Launch> _launches = new();
         private string _contentVersion = "";
 
         [OneTimeSetUp]
@@ -99,12 +101,16 @@ namespace BlackHole.Net.Tests
             _directory = Path.Combine(Path.GetTempPath(), "BlackHole.Sync.LocalServer", Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(_directory);
             _report.Clear();
+            _launches.Clear();
             _contentVersion = "";
         }
 
         [TearDown]
         public void TearDown()
         {
+            foreach (Launch launch in _launches)
+                launch.Sender?.Dispose();
+
             var text = new StringBuilder();
             text.AppendLine("[M1 로컬 서버 확인]");
             text.AppendLine($"- 일시(UTC): {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}");
@@ -126,103 +132,127 @@ namespace BlackHole.Net.Tests
         public IEnumerator M1_LoginSyncAndOfflineLogAppliedOnNextRun()
         {
             // ---------- 1) 첫 실행: 온라인 ----------
-            var first = new Launch(BaseUrl, _directory, Debug.LogError);
+            Launch first = Start(BaseUrl, Debug.LogError);
             yield return TestTasks.Wait(first.Session.StartAsync(), 15);
             first.AssertOnline();
             Note(1, "로그인", "Online(등록 -> 로그인)");
 
-            // 새 계정이라 서버 진행도가 비어 있다. 응답의 콘텐츠 버전을 로그에 싣는다.
-            Task<SyncResponseDto> probe = SyncAsync(first, Array.Empty<PendingLog>());
-            yield return TestTasks.Wait(probe, SyncTimeout + 5);
-            Assert.AreEqual(0, probe.Result.progress.lastAppliedSeq, "새 계정의 서버 진행도는 비어 있어야 한다.");
-            Assert.IsNotEmpty(probe.Result.contentVersion, "빈 요청의 응답에 콘텐츠 버전이 있어야 한다.");
-            _contentVersion = probe.Result.contentVersion;
+            // 시작 동기화: 새 계정이라 로그가 없어 빈 배열 하나를 보낸다. 응답의 콘텐츠 버전을 로그에 싣는다.
+            yield return TestTasks.Wait(first.Sender.SyncOnStartupAsync(), SyncTimeout + 5);
+            SyncResponseDto startup = first.Api.SingleResponse();
+            Assert.AreEqual(0, startup.progress.lastAppliedSeq, "새 계정의 서버 진행도는 비어 있어야 한다.");
+            Assert.IsNotEmpty(startup.contentVersion, "빈 요청의 응답에 콘텐츠 버전이 있어야 한다.");
+            _contentVersion = startup.contentVersion;
+            Note(1, "시작 동기화(빈 요청)", Describe(startup.progress));
             SyncLogFactory logs = new(new UnityJsonSerializer(), Application.version, _contentVersion, () => DateTime.UtcNow);
 
-            ProgressStore store = LoadStore(out ProgressState progress);
-            store.StartNew(progress, seq => logs.Reset(seq));
-            PlaySampleRun(store, progress, logs);
-            Buy(store, progress, logs, FirstNode);
+            // 타이틀 → 새 게임 → 판 → 업그레이드에서 구매. 로그가 생길 때마다 전송기가 곧바로 보낸다.
+            first.Store.StartNew(first.Progress, seq => logs.Reset(seq));
+            PlaySampleRun(first.Store, first.Progress, logs);
+            Buy(first.Store, first.Progress, logs, FirstNode);
+            Snapshot local = new(first.Progress);
 
-            CollectionAssert.AreEqual(
-                new[] { LogTypes.Reset, LogTypes.RunStart, LogTypes.Settlement, LogTypes.NodePurchase },
-                store.Pending.Select(l => l.Type).ToArray());
-
-            Task<SyncResponseDto> firstSync = SyncAsync(first, store.Pending);
-            yield return TestTasks.Wait(firstSync, SyncTimeout + 5);
-            SyncResponseDto firstResponse = firstSync.Result;
-            AssertAppliedThrough(firstResponse, 4);
-            Assert.AreEqual(SyncApplyOutcome.Applied, store.ApplyResponse(firstResponse), "로컬과 서버 진행도가 같아야 한다(덮어쓰기 없음).");
-            Assert.IsEmpty(store.Pending, "반영된 로그는 장부에서 지워진다.");
-            AssertSameProgress(progress, firstResponse.progress);
-            Note(1, "RESET·RUN_START·SETTLEMENT·NODE_PURCHASE 전송", $"appliedThroughSeq {firstResponse.appliedThroughSeq}, 거부 없음");
+            yield return WaitUntilSent(first);
+            first.AssertStillOnline();
+            Assert.IsNull(first.Store.LastRejection, "거부 없이 반영되어야 한다.");
+            SyncResponseDto firstResponse = first.Api.Responses.Last();
+            Assert.AreEqual(4, firstResponse.appliedThroughSeq);
+            Assert.AreEqual(4, firstResponse.progress.lastAppliedSeq);
+            local.AssertSameAs(firstResponse.progress, "서버 진행도가 로컬과 같아야 한다(규칙 이식).");
+            AssertSameProgress(first.Progress, firstResponse.progress);
+            Note(1, "RESET·RUN_START·SETTLEMENT·NODE_PURCHASE 즉시 전송",
+                $"요청 {first.Api.Batches.Count - 1}번({string.Join("+", first.Api.Batches.Skip(1).Select(b => b.Count))}), appliedThroughSeq {firstResponse.appliedThroughSeq}, 거부 없음");
             Note(1, "진행도 반영", Describe(firstResponse.progress));
 
             GuestCredentials credentials = new FileCredentialStore(_directory).Load();
 
             // ---------- 2) 두 번째 실행: 오프라인 ----------
             // 오프라인 경로의 오류 로그가 테스트를 깨지 않도록 경고로 남긴다.
-            var offline = new Launch(UnreachableUrl, _directory, Debug.LogWarning);
+            Launch offline = Start(UnreachableUrl, Debug.LogWarning);
             yield return TestTasks.Wait(offline.Session.StartAsync(), 15);
             Assert.AreEqual(ConnectionState.Offline, offline.Session.State);
             Assert.AreEqual(OfflineReason.Unreachable, offline.Session.OfflineReason);
-            Note(2, "로그인", $"Offline({offline.Session.OfflineReason})");
+            yield return TestTasks.Wait(offline.Sender.SyncOnStartupAsync(), 1);
+            Note(2, "로그인", $"Offline({offline.Session.OfflineReason}), 시작 동기화 없음");
 
-            ProgressStore offlineStore = LoadStore(out ProgressState offlineProgress);
-            Assert.IsEmpty(offlineStore.Pending);
-            offlineStore.Continue(offlineProgress);
-            Assert.AreEqual(firstResponse.progress.gold, offlineProgress.Gold, "계속하면 첫 실행의 진행도로 이어진다.");
+            Assert.IsEmpty(offline.Store.Pending);
+            offline.Store.Continue(offline.Progress);
+            Assert.AreEqual(firstResponse.progress.gold, offline.Progress.Gold, "계속하면 첫 실행의 진행도로 이어진다.");
 
-            Buy(offlineStore, offlineProgress, logs, SecondNode);
-            Assert.AreEqual(1, offlineStore.Pending.Count);
-            Assert.AreEqual(5, offlineStore.Pending[0].Seq, "다음 seq는 서버가 반영한 seq 다음이다.");
-            long goldAfterOffline = offlineProgress.Gold;
-            Note(2, "NODE_PURCHASE 저장(전송 없음)", $"대기 로그 seq {offlineStore.Pending[0].Seq}, 로컬 Gold {goldAfterOffline}");
+            Buy(offline.Store, offline.Progress, logs, SecondNode);
+            Assert.IsEmpty(offline.Api.Batches, "오프라인이면 보내지 않는다.");
+            Assert.AreEqual(1, offline.Store.Pending.Count);
+            Assert.AreEqual(5, offline.Store.Pending[0].Seq, "다음 seq는 서버가 반영한 seq 다음이다.");
+            Snapshot afterOffline = new(offline.Progress);
+            Note(2, "NODE_PURCHASE 저장(전송 없음)", $"대기 로그 seq {offline.Store.Pending[0].Seq}, 로컬 Gold {offline.Progress.Gold}");
 
-            GuestCredentials afterOffline = new FileCredentialStore(_directory).Load();
-            Assert.AreEqual(credentials.GuestId, afterOffline.GuestId, "오프라인 실행은 계정 정보를 바꾸지 않는다.");
-            Assert.AreEqual(credentials.RefreshToken, afterOffline.RefreshToken, "오프라인 실행은 계정 정보를 바꾸지 않는다.");
+            GuestCredentials afterOfflineCredentials = new FileCredentialStore(_directory).Load();
+            Assert.AreEqual(credentials.GuestId, afterOfflineCredentials.GuestId, "오프라인 실행은 계정 정보를 바꾸지 않는다.");
+            Assert.AreEqual(credentials.RefreshToken, afterOfflineCredentials.RefreshToken, "오프라인 실행은 계정 정보를 바꾸지 않는다.");
 
             // ---------- 3) 세 번째 실행: 다시 온라인 ----------
-            var third = new Launch(BaseUrl, _directory, Debug.LogError);
+            Launch third = Start(BaseUrl, Debug.LogError);
+            Assert.AreEqual(1, third.Store.Pending.Count, "오프라인에서 쌓은 로그가 다음 실행의 장부에 남아 있어야 한다.");
+            Assert.AreEqual(5, third.Store.Pending[0].Seq);
+            Assert.AreEqual(LogTypes.NodePurchase, third.Store.Pending[0].Type);
+
             yield return TestTasks.Wait(third.Session.StartAsync(), 15);
             third.AssertOnline();
             Note(3, "로그인", "Online(갱신)");
 
-            // 타이틀(새 게임·계속을 고르기 전)에서 보낸다. 장부는 저장 파일에서 불러온 것이다.
-            ProgressStore thirdStore = LoadStore(out ProgressState thirdProgress);
-            Assert.AreEqual(1, thirdStore.Pending.Count, "오프라인에서 쌓은 로그가 다음 실행의 장부에 남아 있어야 한다.");
-            Assert.AreEqual(5, thirdStore.Pending[0].Seq);
-            Assert.AreEqual(LogTypes.NodePurchase, thirdStore.Pending[0].Type);
-
-            Task<SyncResponseDto> thirdSync = SyncAsync(third, thirdStore.Pending);
-            yield return TestTasks.Wait(thirdSync, SyncTimeout + 5);
-            SyncResponseDto thirdResponse = thirdSync.Result;
-            AssertAppliedThrough(thirdResponse, 5);
-            Assert.AreEqual(SyncApplyOutcome.Applied, thirdStore.ApplyResponse(thirdResponse), "로컬과 서버 진행도가 같아야 한다(덮어쓰기 없음).");
-            Assert.IsEmpty(thirdStore.Pending);
-            Assert.AreEqual(goldAfterOffline, thirdResponse.progress.gold, "서버 Gold가 오프라인 구매 뒤의 로컬 Gold와 같아야 한다.");
-            Assert.IsTrue(thirdResponse.progress.nodes.Any(n => n.nodeId == SecondNode && n.rank == 1), $"서버 진행도에 {SecondNode} Rank 1이 있어야 한다.");
-            Note(3, "오프라인 로그 전송", $"appliedThroughSeq {thirdResponse.appliedThroughSeq}, 거부 없음");
+            // 타이틀(새 게임·계속을 고르기 전)에서 시작 동기화가 남은 로그를 보낸다.
+            yield return TestTasks.Wait(third.Sender.SyncOnStartupAsync(), SyncTimeout + 5);
+            third.AssertStillOnline();
+            SyncResponseDto thirdResponse = third.Api.SingleResponse();
+            CollectionAssert.AreEqual(new long[] { 5 }, third.Api.Batches.Single().Select(log => log.Seq));
+            Assert.IsNull(third.Store.LastRejection);
+            Assert.AreEqual(5, thirdResponse.appliedThroughSeq);
+            Assert.IsEmpty(third.Store.Pending);
+            afterOffline.AssertSameAs(thirdResponse.progress, "서버 진행도가 오프라인 구매 뒤의 로컬과 같아야 한다.");
+            Note(3, "시작 동기화(오프라인 로그)", $"appliedThroughSeq {thirdResponse.appliedThroughSeq}, 거부 없음");
             Note(3, "진행도 반영", Describe(thirdResponse.progress));
 
-            thirdStore.Continue(thirdProgress);
-            AssertSameProgress(thirdProgress, thirdResponse.progress);
+            third.Store.Continue(third.Progress);
+            AssertSameProgress(third.Progress, thirdResponse.progress);
 
             // 다음 실행에도 대기 로그가 남지 않는다(반영 결과를 파일에 썼다).
-            ProgressStore fourthStore = LoadStore(out ProgressState fourthProgress);
+            ProgressState fourthProgress = new();
+            ProgressStore fourthStore = ProgressStore.Load(_directory, _nodes, _growth, fourthProgress);
             Assert.IsEmpty(fourthStore.Pending, "반영한 뒤 다음 실행의 장부는 비어 있어야 한다.");
             fourthStore.Continue(fourthProgress);
             AssertSameProgress(fourthProgress, thirdResponse.progress);
             Note(4, "다시 불러오기", "대기 로그 0, 저장 진행도 = 서버 진행도");
         }
 
-        // ---------- 흐름(ScreenFlow와 같은 순서) ----------
-        private ProgressStore LoadStore(out ProgressState progress)
+        // ---------- 실행 ----------
+
+        // 앱 한 번의 실행: 저장소를 불러오고 전송·세션·전송기를 GameBootstrap과 같은 방식으로 새로 만든다.
+        // 계정 정보와 진행 저장은 같은 폴더의 파일로 이어진다.
+        private Launch Start(string baseUrl, Action<string> logError)
         {
-            progress = new ProgressState();
-            return ProgressStore.Load(_directory, _nodes, _growth, progress);
+            var launch = new Launch(baseUrl, _directory, logError);
+            _launches.Add(launch);
+            return launch;
         }
+
+        // 쌓인 로그를 모두 보내고 응답까지 반영할 때까지 기다린다.
+        private static IEnumerator WaitUntilSent(Launch launch)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(SyncTimeout * 2);
+
+            while (launch.Store.Pending.Count > 0 || launch.Sender.IsSending)
+            {
+                if (launch.Sender.FailedThisRun)
+                    Assert.Fail($"전송이 실패했다: {launch.Session.OfflineReason}");
+
+                if (DateTime.UtcNow > deadline)
+                    Assert.Fail($"대기 로그 {launch.Store.Pending.Count}개를 시간 안에 보내지 못했다.");
+
+                yield return null;
+            }
+        }
+
+        // ---------- 흐름(ScreenFlow와 같은 순서) ----------
 
         // ScreenFlow.Battle: 판 시작 로그 → (판) → 결산이 진행도에 Gold를 더함 → 결산 로그.
         private static void PlaySampleRun(ProgressStore store, ProgressState progress, SyncLogFactory logs)
@@ -252,37 +282,7 @@ namespace BlackHole.Net.Tests
             store.Commit(seq => logs.NodePurchase(seq, nodeId, rank, cost));
         }
 
-        // ---------- 전송 ----------
-
-        // /me/sync 하나. 401이면 갱신 후 한 번 다시 보낸다(ISyncApi 계약과 같다).
-        private static async Task<SyncResponseDto> SyncAsync(Launch launch, IReadOnlyList<PendingLog> logs)
-        {
-            string body = SyncJson.ComposeRequest(logs.Select(log => log.Json));
-            HttpResult result = await Send(launch, body);
-
-            if (result.Outcome == HttpOutcome.Response && result.StatusCode == 401 &&
-                await launch.Session.RefreshAfterUnauthorizedAsync())
-                result = await Send(launch, body);
-
-            Assert.IsTrue(result.IsSuccess,
-                $"동기화 요청 실패 : {result.Outcome} {result.StatusCode} {result.Error?.Code} {result.Error?.Message} {result.TransportMessage}");
-
-            SyncResponseDto response = new UnityJsonSerializer().FromJson<SyncResponseDto>(result.Body);
-            Assert.IsNotNull(response, "동기화 응답 본문을 읽지 못했다. " + result.Body);
-            return response;
-        }
-
-        private static Task<HttpResult> Send(Launch launch, string body) =>
-            launch.Http.SendAsync(new HttpRequest(HttpRequest.Post, ApiPaths.Sync, body, launch.Session.AccessToken, SyncTimeout));
-
         // ---------- 검사·기록 ----------
-
-        private static void AssertAppliedThrough(SyncResponseDto response, long seq)
-        {
-            Assert.IsFalse(response.HasRejection,
-                $"seq {response.rejected?.seq} {response.rejected?.type} 거부 : {response.rejected?.code} {response.rejected?.message}");
-            Assert.AreEqual(seq, response.progress.lastAppliedSeq);
-        }
 
         private static void AssertSameProgress(ProgressState local, ProgressDto server) =>
             Assert.IsTrue(ServerProgress.Matches(local, server),
@@ -299,24 +299,85 @@ namespace BlackHole.Net.Tests
 
         private void Note(int launch, string step, string result) => _report.Add($"| {launch} | {step} | {result} |");
 
-        // 앱 한 번의 실행: 전송·세션을 새로 만든다. 계정 정보는 같은 폴더의 파일로 이어진다.
+        // 전송 전에 찍어 둔 로컬 진행도. 반영이 서버 값으로 덮어써도(drift) 비교할 수 있게 값으로 남긴다.
+        private sealed class Snapshot
+        {
+            private readonly long _gold;
+            private readonly int _growthStage;
+            private readonly (string NodeId, int Rank)[] _ranks;
+
+            public Snapshot(ProgressState progress)
+            {
+                _gold = progress.Gold;
+                _growthStage = progress.GrowthStage;
+                _ranks = progress.OwnedNodes.Select(id => (id, progress.RankOf(id))).ToArray();
+            }
+
+            public void AssertSameAs(ProgressDto server, string message) =>
+                Assert.IsTrue(ServerProgress.Matches(_gold, _growthStage, _ranks, server),
+                    $"{message} 로컬 (Gold {_gold}, 성장도 {_growthStage}, 노드 {string.Join(", ", _ranks.Select(r => $"{r.NodeId}:{r.Rank}"))}), " +
+                    $"서버 ({Describe(server)})");
+        }
+
+        // 받은 응답을 기록하는 ISyncApi 감싸개. 전송은 실제 SyncApi가 한다.
+        private sealed class RecordingSyncApi : ISyncApi
+        {
+            private readonly ISyncApi _inner;
+
+            public List<IReadOnlyList<PendingLog>> Batches { get; } = new();
+            public List<SyncResponseDto> Responses { get; } = new();
+
+            public RecordingSyncApi(ISyncApi inner) => _inner = inner;
+
+            public async Task<SyncCallResult> SendAsync(IReadOnlyList<PendingLog> logs)
+            {
+                Batches.Add(logs.ToArray());
+                SyncCallResult result = await _inner.SendAsync(logs);
+
+                if (result.Outcome == SyncCallOutcome.Response)
+                    Responses.Add(result.Response);
+
+                return result;
+            }
+
+            public SyncResponseDto SingleResponse()
+            {
+                Assert.AreEqual(1, Responses.Count, $"응답이 하나여야 한다(요청 {Batches.Count}번).");
+                return Responses[0];
+            }
+        }
+
         private sealed class Launch
         {
-            public readonly IHttpTransport Http;
             public readonly AuthSession Session;
+            public readonly RecordingSyncApi Api;
+            public readonly SyncSender Sender;
+            public readonly ProgressStore Store;
+            public readonly ProgressState Progress = new();
             private readonly string _baseUrl;
 
             public Launch(string baseUrl, string directory, Action<string> logError)
             {
                 _baseUrl = baseUrl;
-                Http = new UnityHttpTransport(baseUrl);
-                Session = new AuthSession(Http, new UnityJsonSerializer(), new FileCredentialStore(directory),
+                Store = ProgressStore.Load(directory, _nodes, _growth, Progress);
+
+                var http = new UnityHttpTransport(baseUrl);
+                var json = new UnityJsonSerializer();
+                Session = new AuthSession(http, json, new FileCredentialStore(directory),
                     RequestTimeout, LoginBudget, Debug.Log, logError);
+                Api = new RecordingSyncApi(new SyncApi(http, Session, json, SyncTimeout, Debug.Log, logError));
+                Sender = new SyncSender(Session, Api, Store, SyncTimeout, Debug.Log, logError);
             }
 
             public void AssertOnline() =>
                 Assert.AreEqual(ConnectionState.Online, Session.State,
                     $"{Session.OfflineReason}. {_baseUrl}에 서버가 켜져 있는지 본다.");
+
+            public void AssertStillOnline()
+            {
+                Assert.IsFalse(Sender.FailedThisRun, $"전송이 실패했다: {Session.OfflineReason}");
+                AssertOnline();
+            }
         }
     }
 }
