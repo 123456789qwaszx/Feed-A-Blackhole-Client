@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BlackHole.Core;
 using BlackHole.Sync;
-using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using UnityEngine;
 
