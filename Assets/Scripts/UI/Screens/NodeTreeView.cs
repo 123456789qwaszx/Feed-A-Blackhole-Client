@@ -28,10 +28,14 @@ namespace BlackHole.Unity
     //   노드 위에서 시작한 끌기를 그것이 가져가 트리가 움직이지 않는다. 끌기·휠이 시작되면 올림을 푼다.
     // 누름: 노드에는 Button을 두지 않고 트리 영역이 클릭을 받는다(노드 칸에서 눌러 같은 칸에서 뗀 것만). 입력 장치로 가른다.
     //   - 마우스·펜: 살 수 있는 노드면 NodeClicked(호스트가 바로 산다). PC는 올림 툴팁으로 읽고 클릭으로 산다.
-    //   - 터치: 먼 노드가 아니면 NodeTapped(선택). 호스트가 툴팁을 고정하고 그 안의 구매 버튼으로 산다 — 읽으려고 누른 손가락이 사지 않게.
+    //   - 터치: 먼 노드가 아니면 누르고 SelectDelaySeconds 뒤에 고르고 NodeTapped. 호스트가 패널을 고정한다 — 읽으려고 누른 손가락이 사지 않게.
+    //     짧은 지연은 노드 위에서 시작한 끌기에 패널이 잠깐 떴다 닫히지 않게 한다(그 안에 끌기가 되면 띄우지 않는다).
+    //     떼면(클릭) 한 번 더 NodeTapped해 산 뒤의 내용으로 갱신한다. 끌기로 바뀌면 선택이 풀리고 패널이 닫힌다(ViewMoved).
     //     선택한 노드는 올린 것처럼 칠한다(SetSelected). 빈 곳을 누르면 EmptyTapped(호스트가 선택을 푼다).
     //   - 터치로 꾹: 살 수 있는 노드를 HoldSeconds 이상 누르고(끌지 않고) 같은 칸에서 떼면 NodeHeld(호스트가 산다).
-    //     시간이 차면 NodeHoldArmed로 먼저 알린다(연출용). 떼거나 끌면 NodeHoldReleased.
+    //     시간이 차면 NodeHoldArmed로 먼저 알린다. 떼거나 끌면 NodeHoldReleased.
+    //   - 연출(터치): 고른 노드는 그림은 평소대로 두고 흰 링만 두른다(아직 사지 않았으니 초록 강조 없음). 시간이 차면 작은 펀치와 함께
+    //     링이 연두색이 되고, 떼서 사면 큰 펀치와 함께 링이 진한 초록에서 흰색으로 돌아온다. 그림은 Show가 산 상태로 칠한다.
     //
     // 업그레이드 화면(UpgradeScreen)을 호스트로 두는 페이지(UIPage)다.
     // ScreenFlow가 업그레이드 화면을 연 뒤 SwitchPage로 염.
@@ -62,6 +66,21 @@ namespace BlackHole.Unity
         private const float SelectRingExtra = 18;
         private const int RingTextureSize = 64;
         private const float RingThickness = 3;
+        // 링 색: 고름(흰, 반투명) · 꾹 눌러 시간이 참(연두) · 샀음(진한 초록, 흰으로 돌아온다).
+        private static readonly Color SelectRingColor = new Color(1, 1, 1, 0.85f);
+        private static readonly Color ArmedRingColor = new Color(0.72f, 0.92f, 0.55f, 1);
+        private static readonly Color ConfirmRingColor = new Color(0.22f, 0.58f, 0.32f, 1);
+        // 펀치: 시간이 찼을 때 작게, 샀을 때 크게. 크기는 sin 곡선으로 올랐다 돌아온다.
+        private const float HoldPunchSeconds = 0.15f;
+        private const float HoldPunchScale = 1.06f;
+        private const float ConfirmPunchSeconds = 0.22f;
+        private const float ConfirmPunchScale = 1.18f;
+        private const float ConfirmRingFadeSeconds = 0.5f;
+        // 터치로 누른 뒤 패널을 띄우기까지의 지연(초). 끌기가 이 안에 시작되면 띄우지 않는다.
+        private const float SelectDelaySeconds = 0.06f;
+        // 눌림: 터치로 노드를 누르는 동안 살짝 작아진다(톡 치는 탭에도). 떼면 돌아온다. 펀치와는 곱으로 합친다.
+        private const float PressScale = 0.94f;
+        private const float PressSeconds = 0.07f;
         private const float MinZoom = 0.3f;
         private const float MaxZoom = 2.5f;
         private const float FitZoomLimit = 1.5f;
@@ -173,7 +192,7 @@ namespace BlackHole.Unity
 
         // 마우스·펜으로 살 수 있는 노드를 눌렀다(노드 ID).
         public event Action<string> NodeClicked;
-        // 터치로 노드를 눌렀다(노드 ID, 노드 칸). 먼 노드는 알리지 않는다. 선택은 이미 바뀐 뒤다.
+        // 터치로 노드를 눌렀다(노드 ID, 노드 칸): 누르는 순간과 떼는 순간에 한 번씩. 먼 노드는 알리지 않는다. 선택은 이미 바뀐 뒤다.
         public event Action<string, RectTransform> NodeTapped;
         // 노드가 아닌 빈 곳을 눌렀다(어느 장치든).
         public event Action EmptyTapped;
@@ -199,6 +218,18 @@ namespace BlackHole.Unity
         private int _pressedPointer;
         private float _pressedAt;
         private bool _holdArmed;
+        // 펀치·링 색 연출 중인 노드. 한 번에 하나다.
+        private NodeVisual _animated;
+        private float _animElapsed;
+        private bool _animConfirm;
+        // 눌림 연출 중인 노드(살 수 없는 노드도). 손가락이 닿아 있으면 PressScale로, 떼면 1로 간다. 1로 돌아오면 비운다.
+        private NodeVisual _downNode;
+        private int _downPointer;
+        private bool _downHeld;
+        private float _downScale = 1;
+        // 지연 뒤에 고를 노드(터치로 누른 직후). 끌기·뗌이 먼저 오면 버린다.
+        private NodeVisual _pendingSelect;
+        private float _pendingAt;
         // 터치로 고른 노드. 올린 것과 같은 그림·색으로 칠한다. 호스트가 SetSelected·ClearSelection으로 바꾼다.
         private NodeVisual _selected;
 
@@ -534,6 +565,8 @@ namespace BlackHole.Unity
             SetHovered(null);
             DropSelectionForMove();
             ReleasePress();
+            _downHeld = false;
+            _pendingSelect = null;
             RemoveDrag(eventData.pointerId);
             _drags.Add((eventData.pointerId, eventData.position));
         }
@@ -650,7 +683,25 @@ namespace BlackHole.Unity
 
             GameObject target = eventData.pointerPressRaycast.gameObject;
 
-            if (target == null || !_nodesByObject.TryGetValue(target, out NodeVisual node) || node.Far || node.State != NodeState.Purchasable)
+            if (target == null || !_nodesByObject.TryGetValue(target, out NodeVisual node) || node.Far)
+                return;
+
+            // 눌림은 누를 수 있는 노드 전부(정보만 보는 잠긴 노드도). 꾹 누름 판정은 살 수 있는 노드만.
+            if (!_downHeld)
+            {
+                if (_downNode != null && _downNode != node)
+                    ApplyScale(_downNode, 1);
+
+                _downNode = node;
+                _downPointer = eventData.pointerId;
+                _downHeld = true;
+            }
+
+            // 잠깐 뒤에 고르고 설명을 띄운다(Update). 그 안에 끌기가 시작되면 OnBeginDrag가 버린다.
+            _pendingSelect = node;
+            _pendingAt = Time.unscaledTime;
+
+            if (node.State != NodeState.Purchasable)
                 return;
 
             _pressed = node;
@@ -662,6 +713,13 @@ namespace BlackHole.Unity
         // 시간이 찬 채 같은 칸에서 뗐으면 산다. 클릭(NodeTapped)은 이 뒤에 따로 와서 툴팁을 다시 고정한다.
         public void OnPointerUp(PointerEventData eventData)
         {
+            if (_downHeld && eventData.pointerId == _downPointer)
+            {
+                _downHeld = false;
+                // 지연 안에 뗀 톡 탭: 이어서 오는 클릭(OnPointerClick)이 고른다.
+                _pendingSelect = null;
+            }
+
             if (_pressed == null || eventData.pointerId != _pressedPointer)
                 return;
 
@@ -669,17 +727,124 @@ namespace BlackHole.Unity
             bool buy = _holdArmed && eventData.pointerCurrentRaycast.gameObject == node.Root;
             ReleasePress();
 
-            if (buy)
-                NodeHeld?.Invoke(node.Id);
+            if (!buy)
+                return;
+
+            StartAnimation(node, confirm: true);
+            RefreshRing(node);
+            NodeHeld?.Invoke(node.Id);
         }
 
         private void Update()
         {
+            AdvanceAnimation();
+
+            if (_pendingSelect != null && Time.unscaledTime - _pendingAt >= SelectDelaySeconds)
+            {
+                NodeVisual node = _pendingSelect;
+                _pendingSelect = null;
+                SetSelected(node);
+                NodeTapped?.Invoke(node.Id, (RectTransform)node.Root.transform);
+            }
+
             if (_pressed == null || _holdArmed || Time.unscaledTime - _pressedAt < HoldSeconds)
                 return;
 
             _holdArmed = true;
+            StartAnimation(_pressed, confirm: false);
+            RefreshRing(_pressed);
             NodeHoldArmed?.Invoke(_pressed.Id);
+        }
+
+        private void StartAnimation(NodeVisual node, bool confirm)
+        {
+            if (_animated != null && _animated != node)
+                ApplyScale(_animated, _animated == _downNode ? _downScale : 1);
+
+            _animated = node;
+            _animElapsed = 0;
+            _animConfirm = confirm;
+        }
+
+        // 눌림(살짝 작게)과 펀치(크게), 샀을 때의 링 색 되돌림. 같은 노드면 눌림 × 펀치. 끝나면 연출을 비운다.
+        private void AdvanceAnimation()
+        {
+            float delta = Time.unscaledDeltaTime;
+
+            // 눌림: 닿아 있으면 PressScale로, 떼면 1로.
+            if (_downNode != null)
+            {
+                float target = _downHeld ? PressScale : 1;
+                _downScale = Mathf.MoveTowards(_downScale, target, delta * (1 - PressScale) / PressSeconds);
+            }
+
+            float punch = 1;
+
+            if (_animated != null)
+            {
+                _animElapsed += delta;
+                float punchSeconds = _animConfirm ? ConfirmPunchSeconds : HoldPunchSeconds;
+                float punchScale = _animConfirm ? ConfirmPunchScale : HoldPunchScale;
+                float t = Mathf.Clamp01(_animElapsed / punchSeconds);
+                punch = 1 + (punchScale - 1) * Mathf.Sin(t * Mathf.PI);
+                RefreshRing(_animated);
+            }
+
+            if (_downNode != null)
+                ApplyScale(_downNode, _downNode == _animated ? _downScale * punch : _downScale);
+
+            if (_animated != null && _animated != _downNode)
+                ApplyScale(_animated, punch);
+
+            if (_downNode != null && !_downHeld && Mathf.Approximately(_downScale, 1))
+            {
+                ApplyScale(_downNode, 1);
+                _downNode = null;
+                _downScale = 1;
+            }
+
+            if (_animated == null)
+                return;
+
+            float total = _animConfirm ? Mathf.Max(ConfirmPunchSeconds, ConfirmRingFadeSeconds) : HoldPunchSeconds;
+
+            if (_animElapsed < total)
+                return;
+
+            NodeVisual done = _animated;
+            _animated = null;
+            ApplyScale(done, done == _downNode ? _downScale : 1);
+            RefreshRing(done);
+        }
+
+        private static void ApplyScale(NodeVisual node, float scale) =>
+            node.Root.transform.localScale = new Vector3(scale, scale, 1);
+
+        // 링의 켜짐과 색. 켜짐: 고른 노드이거나 꾹 눌러 시간이 찬 노드이거나 산 연출 중인 노드.
+        // 색: 산 연출 중이면 진한 초록 → 흰, 시간이 찼으면 연두, 아니면 흰.
+        private void RefreshRing(NodeVisual node)
+        {
+            if (node.SelectRing == null)
+                return;
+
+            bool armed = node == _pressed && _holdArmed;
+            bool confirming = node == _animated && _animConfirm;
+            bool on = node == _selected || armed || confirming;
+
+            if (node.SelectRing.gameObject.activeSelf != on)
+                node.SelectRing.gameObject.SetActive(on);
+
+            if (!on)
+                return;
+
+            Color color = SelectRingColor;
+
+            if (confirming)
+                color = Color.Lerp(ConfirmRingColor, SelectRingColor, Mathf.Clamp01(_animElapsed / ConfirmRingFadeSeconds));
+            else if (armed)
+                color = ArmedRingColor;
+
+            node.SelectRing.color = color;
         }
 
         private void ReleasePress()
@@ -690,6 +855,15 @@ namespace BlackHole.Unity
             NodeVisual node = _pressed;
             _pressed = null;
             _holdArmed = false;
+
+            // 시간이 찬 채 취소되면(끌기·밖에서 뗌) 펀치를 거두고 링을 고름 상태로 되돌린다. 산 경우는 OnPointerUp이 이어서 산 연출을 건다.
+            if (_animated == node && !_animConfirm)
+            {
+                _animated = null;
+                ApplyScale(node, node == _downNode ? _downScale : 1);
+            }
+
+            RefreshRing(node);
             NodeHoldReleased?.Invoke(node.Id);
         }
 
@@ -740,7 +914,29 @@ namespace BlackHole.Unity
             SetHovered(null);
             SetSelected((NodeVisual)null);
             ReleasePress();
+            StopAnimation();
+            _pendingSelect = null;
             _drags.Clear();
+        }
+
+        private void StopAnimation()
+        {
+            if (_downNode != null)
+            {
+                ApplyScale(_downNode, 1);
+                _downNode = null;
+            }
+
+            _downHeld = false;
+            _downScale = 1;
+
+            if (_animated == null)
+                return;
+
+            ApplyScale(_animated, 1);
+            NodeVisual node = _animated;
+            _animated = null;
+            RefreshRing(node);
         }
 
         // 보는 곳이 움직이면 선택을 풀고 알린다. 고정 툴팁은 노드 자리에 붙어 있어 따라오지 않으므로 닫는 쪽이 맞다.
@@ -809,8 +1005,7 @@ namespace BlackHole.Unity
         // 노드 하나를 지금 상태(와 올림)대로 칠한다. 가격은 마지막 Rank까지 사지 않은 노드에만 쓴다.
         private void Paint(NodeVisual node)
         {
-            if (node.SelectRing != null && node.SelectRing.activeSelf != (node == _selected))
-                node.SelectRing.SetActive(node == _selected);
+            RefreshRing(node);
 
             if (node.State == NodeState.Hidden)
             {
@@ -854,7 +1049,8 @@ namespace BlackHole.Unity
                 return;
             }
 
-            bool lit = node == _hovered || node == _selected;
+            // 고른 노드는 그림을 밝히지 않는다(아직 산 게 아니다) — 링이 고름을 보인다. 올림(마우스)만 밝힌다.
+            bool lit = node == _hovered;
             node.Image.sprite = _style.SpriteFor(_look.SpriteOf(node.Stat, node.State, lit));
             Color tint = _look.TintOf(node.State, lit);
             node.Image.color = partial ? Color.Lerp(tint, OwnedColor, PartialMix) : tint;
@@ -969,7 +1165,7 @@ namespace BlackHole.Unity
             label.raycastTarget = false;
 
             return new NodeVisual(item.Id, item.Stat, item.Price, item.MaxRank, item.Start, position, rect.gameObject, image, label, badge, rankLabel,
-                ringRect.gameObject);
+                ringImage);
         }
 
         private static Sprite _ringSprite;
@@ -1047,6 +1243,12 @@ namespace BlackHole.Unity
         {
             SetHovered(null);
             _selected = null;
+            _pressed = null;
+            _animated = null;
+            _downNode = null;
+            _downHeld = false;
+            _downScale = 1;
+            _pendingSelect = null;
 
             foreach (NodeVisual node in _nodes.Values)
                 Destroy(node.Root);
@@ -1108,12 +1310,12 @@ namespace BlackHole.Unity
             public readonly RectTransform Badge;
             // Rank 딱지의 글자(Rank가 둘 이상인 노드만).
             public readonly TMP_Text RankLabel;
-            // 고른 노드의 링. 고를 때만 켠다.
-            public readonly GameObject SelectRing;
+            // 고른·꾹 누른·산 노드의 링(RefreshRing이 켜고 색을 정한다).
+            public readonly Image SelectRing;
             public NodeState State = NodeState.Hidden;
 
             public NodeVisual(string id, string stat, long price, int maxRank, bool start, Vector2 position, GameObject root, Image image,
-                TMP_Text label, RectTransform badge, TMP_Text rankLabel, GameObject selectRing)
+                TMP_Text label, RectTransform badge, TMP_Text rankLabel, Image selectRing)
             {
                 Id = id;
                 Stat = stat;
