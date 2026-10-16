@@ -95,10 +95,11 @@ namespace BlackHole.Unity
         // 누르는 동안 바탕 밝기(기준 색에 곱한다).
         private const float BuyPressedDarken = 0.72f;
         private float _titleMarginLeft;
-        // 툴팁의 프리팹 글자 크기·본문 색. 고정 패널은 키우고 밝히며, 풀면 되돌린다.
+        // 패널로 바꾸기 직전의 글자 크기·본문 색. 고정 패널은 키우고 밝히며, 풀면 되돌린다.
         private float _titleBaseSize;
         private float _bodyBaseSize;
         private Color _bodyBaseColor;
+        private bool _panelLookOn;
         // 고정 패널 바탕(팔레트가 없을 때의 기본값): 바탕보다 살짝 밝은 면.
         private static readonly Color PanelColor = new(0.16f, 0.17f, 0.19f, 0.94f);
         // 구매 탭 바탕: 살 수 있으면 강조색(초록), 아니면 패널과 같은 어두운 면. 팔레트가 없을 때의 기본값.
@@ -296,6 +297,9 @@ namespace BlackHole.Unity
 
             _tooltip.gameObject.SetActive(true);
             _tooltip.SetAsLastSibling();
+            // 글자 크기·여백·내용이 방금 바뀌었다. TMP가 새 줄바꿈으로 선호 높이를 다시 재게 한 뒤 배치해야 제목 칸이 본문과 겹치지 않는다.
+            _tooltipTitle?.ForceMeshUpdate(true, true);
+            _tooltipBody?.ForceMeshUpdate(true, true);
             LayoutRebuilder.ForceRebuildLayoutImmediate(_tooltip);
 
             if (pinned)
@@ -410,8 +414,36 @@ namespace BlackHole.Unity
 
         // 올림 툴팁 ↔ 고정 패널의 모양을 바꾼다. 패널: 테두리 그림 대신 단색 면, 레이캐스트 받음, 그림 켜고, 안내 글자 숨김,
         // 높이는 DockLeft가 정하므로 크기 맞춤을 끈다. 툴팁: 전부 되돌린다.
+        // 되돌릴 값(툴팁 그림·색, 글자 크기·색, 제목 여백)은 패널로 바꾸기 직전의 것을 잡는다 — 테마가 초기화 뒤에 바꾼 값이 그대로 돌아오게.
+        // 패널로 바꾼 적이 없으면 되돌릴 것도 없다(PC의 올림 툴팁은 건드리지 않는다).
         private void SetPanelLook(bool panel)
         {
+            if (panel == _panelLookOn)
+                return;
+
+            _panelLookOn = panel;
+
+            if (panel)
+            {
+                if (_tooltipImage != null)
+                {
+                    _tooltipSprite = _tooltipImage.sprite;
+                    _tooltipColor = _tooltipImage.color;
+                }
+
+                if (_tooltipTitle != null)
+                {
+                    _titleBaseSize = _tooltipTitle.fontSize;
+                    _titleMarginLeft = _tooltipTitle.margin.x;
+                }
+
+                if (_tooltipBody != null)
+                {
+                    _bodyBaseSize = _tooltipBody.fontSize;
+                    _bodyBaseColor = _tooltipBody.color;
+                }
+            }
+
             if (_tooltipImage != null)
             {
                 _tooltipImage.raycastTarget = panel;
@@ -534,21 +566,6 @@ namespace BlackHole.Unity
                 return;
 
             _tooltipFitter = _tooltip.GetComponent<ContentSizeFitter>();
-
-            if (_tooltipImage != null)
-            {
-                _tooltipSprite = _tooltipImage.sprite;
-                _tooltipColor = _tooltipImage.color;
-            }
-
-            if (_tooltipTitle != null)
-                _titleBaseSize = _tooltipTitle.fontSize;
-
-            if (_tooltipBody != null)
-            {
-                _bodyBaseSize = _tooltipBody.fontSize;
-                _bodyBaseColor = _tooltipBody.color;
-            }
 
             if (_tooltipTitle != null)
             {
