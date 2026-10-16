@@ -87,6 +87,10 @@ namespace BlackHole.Unity
         private long? _pendingCost;
         // 구매 준비 중 골드 칩에 미리 보이는 "산 뒤 골드"의 색: 은은한 황금색. 확정값(테마 글자색)과 구분되되 경고색은 아니다.
         private const string PreviewGoldColor = "#E3C985";
+        // 구매 준비에 들어갈 때 골드가 산 뒤 값으로 줄어드는 시간(초).
+        private const float GoldCountSeconds = 0.3f;
+        private bool _goldPreviewing;
+        private Coroutine _goldCount;
         // 구매 탭 바탕의 기준 색(상태별). 누르는 동안은 어둡게, 샀을 때 번쩍인 뒤 기준 색으로 돌아온다.
         private Color _buyBaseColor;
         private bool _buyPressed;
@@ -161,17 +165,60 @@ namespace BlackHole.Unity
             PaintBuyButton();
         }
 
+        // 골드 글자. 구매 준비에 "들어가는 순간"에만 보유 골드에서 산 뒤 골드로 줄어드는 연출을 하고, 그 밖의 모든 갱신(뗌·구매·테마)은
+        // 즉시 쓰며 진행 중인 연출을 끊는다 — 산 뒤 오는 ShowGold(실제 골드)는 연출의 목표값과 같아 숫자가 튀지 않는다.
         private void PaintGold()
         {
             if (_gold == null || !(_shownGold is long gold))
                 return;
 
             bool preview = _buyPressed && _pendingCost is long spend && spend <= gold;
-            // 글자색은 테마가 정하므로 숫자만 리치 텍스트로 칠한다.
-            string amount = preview
-                ? $"<color={PreviewGoldColor}>{GoldText.Of(gold - _pendingCost.Value)}</color>"
-                : GoldText.Of(gold);
-            _gold.text = Localized("upgrade.gold", amount);
+            long target = preview ? gold - _pendingCost.Value : gold;
+            bool entering = preview && !_goldPreviewing;
+            _goldPreviewing = preview;
+
+            StopGoldCount();
+
+            if (entering)
+            {
+                _goldCount = StartCoroutine(CountGold(gold, target));
+                return;
+            }
+
+            WriteGold(target, preview);
+        }
+
+        // 글자색은 테마가 정하므로 숫자만 리치 텍스트로 칠한다.
+        private void WriteGold(long amount, bool preview)
+        {
+            string text = preview ? $"<color={PreviewGoldColor}>{GoldText.Of(amount)}</color>" : GoldText.Of(amount);
+            _gold.text = Localized("upgrade.gold", text);
+        }
+
+        private System.Collections.IEnumerator CountGold(long from, long to)
+        {
+            float elapsed = 0;
+
+            while (elapsed < GoldCountSeconds)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / GoldCountSeconds);
+                t = 1 - (1 - t) * (1 - t);
+                WriteGold(from + (long)((to - from) * (double)t), preview: true);
+                yield return null;
+            }
+
+            WriteGold(to, preview: true);
+            _goldCount = null;
+        }
+
+        private void StopGoldCount()
+        {
+            if (_goldCount == null)
+                return;
+
+            StopCoroutine(_goldCount);
+            _goldCount = null;
         }
 
         // 블랙홀(판 밖 진행): 성장도(도달한 이정표 수)와 다음 판의 목표 Level(다음 이정표의 Level, 0이면 마지막 이정표 뒤).
@@ -295,12 +342,17 @@ namespace BlackHole.Unity
             PaintBuyButton();
             PaintGold();
 
+            // 높이는 먼저 내용에 맞춘다. DockLeft가 최소·최대로 고정하면서 Unconstrained로 바꿔 두므로, 내용이 바뀔 때마다 되돌려야
+            // 이전 높이에 새 내용이 욱여넣어지지(제목 칸이 찌그러져 본문과 겹침) 않는다.
+            if (_tooltipFitter != null)
+                _tooltipFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
             _tooltip.gameObject.SetActive(true);
             _tooltip.SetAsLastSibling();
-            // 글자 크기·여백·내용이 방금 바뀌었다. TMP가 새 줄바꿈으로 선호 높이를 다시 재게 한 뒤 배치해야 제목 칸이 본문과 겹치지 않는다.
-            _tooltipTitle?.ForceMeshUpdate(true, true);
-            _tooltipBody?.ForceMeshUpdate(true, true);
-            LayoutRebuilder.ForceRebuildLayoutImmediate(_tooltip);
+            // 글자 크기·여백·내용이 방금 바뀌었다. 한 번의 배치로는 TMP가 이전 폭·여백 기준의 선호 높이를 줄 수 있어(제목 세 줄이 두 줄 칸에 들어감)
+            // 배치 → 글자 다시 재기 → 배치를 한 번 더 한다.
+            RebuildTooltipLayout();
+            RebuildTooltipLayout();
 
             if (pinned)
             {
@@ -394,6 +446,13 @@ namespace BlackHole.Unity
             return edge == Edge.Top ? tooltipTop > _corners[1].y : tooltipRight > _corners[2].x;
         }
 
+        private void RebuildTooltipLayout()
+        {
+            _tooltipTitle?.ForceMeshUpdate(true, true);
+            _tooltipBody?.ForceMeshUpdate(true, true);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_tooltip);
+        }
+
         public void HideNodeTooltip()
         {
             IsTooltipPinned = false;
@@ -450,10 +509,6 @@ namespace BlackHole.Unity
                 _tooltipImage.sprite = panel ? null : _tooltipSprite;
                 _tooltipImage.color = panel ? PanelBackColor() : _tooltipColor;
             }
-
-            // 높이는 내용에 맞춘다(패널도). 화면보다 길면 DockLeft가 상한으로 자른다.
-            if (_tooltipFitter != null)
-                _tooltipFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             if (_tooltipTitle != null)
             {
