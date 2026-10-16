@@ -141,7 +141,8 @@ namespace BlackHole.Unity
                 text.Append('\n');
             }
 
-            text.Append(maxed ? _localizer.Get("node.maxed") : _localizer.Format("node.cost", NumberText.Compact(shown.Cost)));
+            // 설명·효과와 비용 사이 빈 줄 하나(가독성).
+            text.Append('\n').Append(maxed ? _localizer.Get("node.maxed") : _localizer.Format("node.cost", NumberText.Compact(shown.Cost)));
 
             // 살 조건: Gold가 모자라면 모자란 만큼.
             if (!maxed && _progress.Gold < shown.Cost)
