@@ -1013,7 +1013,7 @@ namespace BlackHole.Unity
                 if (_look != null)
                 {
                     node.Image.sprite = _style.SpriteFor(node.Far ? _look.FarSprite : _look.SpriteOf(node.Stat, node.State, false));
-                    node.Image.color = node.Far ? _look.FarTint : _look.TintOf(node.State, false);
+                    node.Image.color = node.Far ? _look.FarTint : TintOf(node, false);
                     SetSize(node, node.Far ? NodeSize * _look.FarScale : NodeSize);
                     node.Image.raycastTarget = !node.Far;
                 }
@@ -1049,10 +1049,10 @@ namespace BlackHole.Unity
                 return;
             }
 
-            // 고른 노드는 그림을 밝히지 않는다(아직 산 게 아니다) — 링이 고름을 보인다. 올림(마우스)만 밝힌다.
+            // 고른 노드는 그림(초록 강조)은 바꾸지 않고 — 아직 산 게 아니다 — 색만 온전한 밝기로 올린다. 링이 고름을 보인다. 올림(마우스)은 그림도 밝힌다.
             bool lit = node == _hovered;
             node.Image.sprite = _style.SpriteFor(_look.SpriteOf(node.Stat, node.State, lit));
-            Color tint = _look.TintOf(node.State, lit);
+            Color tint = TintOf(node, lit);
             node.Image.color = partial ? Color.Lerp(tint, OwnedColor, PartialMix) : tint;
 
             bool showPrice = node.State != NodeState.Owned;
@@ -1071,6 +1071,10 @@ namespace BlackHole.Unity
             if (node.Badge != null)
                 node.Badge.sizeDelta = new Vector2(node.Label.GetPreferredValues(price).x + PricePadding, PriceHeight);
         }
+
+        // 노드 색: 고른 노드(설명이 떠 있는 노드)는 상태와 무관하게 온전한 흰색(가장 밝고 불투명). 아니면 Look의 상태별 색.
+        private Color TintOf(NodeVisual node, bool lit) =>
+            node == _selected ? Color.white : _look.TintOf(node.State, lit);
 
         // 노드 칸 크기(먼 노드는 점으로 줄인다). 바뀔 때만 쓴다.
         private static void SetSize(NodeVisual node, float size)

@@ -75,9 +75,17 @@ namespace BlackHole.Unity
         // 패널 안 구매 줄. 프리팹에 없고 코드가 툴팁 아래에 만든다(트리의 노드와 같은 방식). 버튼은 누르는 즉시 산다.
         private RectTransform _buy;
         private Button _buyButton;
+        private ButtonAnimation _buyAnimation;
         private Image _buyBack;
         private TMP_Text _buyLabel;
         private TMP_Text _buyCost;
+        // 구매 버튼 바탕의 기준 색(상태별). 누르는 동안은 어둡게, 샀을 때 번쩍인 뒤 기준 색으로 돌아온다.
+        private Color _buyBaseColor;
+        private bool _buyPressed;
+        private Coroutine _buyFlash;
+        private const float BuyFlashSeconds = 0.35f;
+        // 누르는 동안 바탕 밝기(기준 색에 곱한다).
+        private const float BuyPressedDarken = 0.72f;
         private float _titleMarginLeft;
         // 고정 패널 바탕(팔레트가 없을 때의 기본값): 바탕보다 살짝 밝은 면. 구분선은 글자색을 엷게.
         private static readonly Color PanelColor = new(0.16f, 0.17f, 0.19f, 0.94f);
@@ -343,6 +351,14 @@ namespace BlackHole.Unity
         public void HideNodeTooltip()
         {
             IsTooltipPinned = false;
+
+            if (_buyFlash != null)
+            {
+                StopCoroutine(_buyFlash);
+                _buyFlash = null;
+            }
+
+            _buyPressed = false;
             SetPanelLook(false);
 
             if (_tooltip != null)
@@ -395,6 +411,71 @@ namespace BlackHole.Unity
         }
 
         private void HandleBuyClicked(PointerEventData _) => BuyConfirmed?.Invoke();
+        private void HandleBuyPressed(PointerEventData _) => SetBuyPressed(true);
+        private void HandleBuyReleased(PointerEventData _) => SetBuyPressed(false);
+        private void HandleBuyLeft(PointerEventData _) => SetBuyPressed(false);
+
+        // 구매 버튼의 눌림 모양: 작아지고(스프링) 어두워진다. 손가락으로 직접 누를 때와, 노드를 꾹 눌러 살 수 있게 된 순간(호스트가 부른다) 둘 다.
+        public void SetBuyPressed(bool pressed)
+        {
+            if (_buy == null || _buyPressed == pressed)
+                return;
+
+            _buyPressed = pressed;
+
+            if (pressed)
+                _buyAnimation.Press();
+            else
+                _buyAnimation.Release();
+
+            PaintBuyBack();
+        }
+
+        // 바탕 색: 번쩍이는 중이면 코루틴이 맡고, 아니면 눌림이면 어둡게, 아니면 기준 색.
+        private void PaintBuyBack()
+        {
+            if (_buyBack == null || _buyFlash != null)
+                return;
+
+            _buyBack.color = _buyPressed ? Darkened(_buyBaseColor) : _buyBaseColor;
+        }
+
+        private static Color Darkened(Color color) =>
+            new(color.r * BuyPressedDarken, color.g * BuyPressedDarken, color.b * BuyPressedDarken, color.a);
+
+        // 샀다: 구매 버튼이 튀어오르고 바탕이 밝게 번쩍였다가 상태 색으로 돌아온다. 버튼을 눌러 샀든 노드를 꾹 눌러 샀든 같다.
+        // 패널이 고정되어 있을 때만 보인다(올림 툴팁에는 버튼이 없다).
+        public void PlayBuyFeedback()
+        {
+            if (_buy == null || !IsTooltipPinned || !_buy.gameObject.activeInHierarchy)
+                return;
+
+            _buyAnimation.Punch();
+
+            if (_buyFlash != null)
+                StopCoroutine(_buyFlash);
+
+            _buyFlash = StartCoroutine(FlashBuy());
+        }
+
+        private System.Collections.IEnumerator FlashBuy()
+        {
+            float elapsed = 0;
+
+            while (elapsed < BuyFlashSeconds)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / BuyFlashSeconds);
+                // 흰색 쪽으로 섞였다가(처음 70%) 기준 색으로. 기준 색은 그 사이 상태가 바뀌어도 따라간다.
+                Color flash = Color.Lerp(_buyBaseColor, Color.white, 0.7f);
+                flash.a = _buyBaseColor.a;
+                _buyBack.color = Color.Lerp(flash, _buyBaseColor, t * t);
+                yield return null;
+            }
+
+            _buyFlash = null;
+            PaintBuyBack();
+        }
 
         // 고정 패널에서만 쓰는 부품을 프리팹 툴팁 아래에 만든다(트리의 노드와 같은 방식). 그림 없이 단색으로 만들고
         // 테마 색(ThemedImages)과 글꼴(StyledTexts)을 받는다. 올림 툴팁에서는 모두 숨긴다.
@@ -511,7 +592,11 @@ namespace BlackHole.Unity
             _buyButton = back.gameObject.AddComponent<Button>();
             _buyButton.targetGraphic = backImage;
             _buyButton.transition = Selectable.Transition.None;
+            _buyAnimation = ButtonAnimation.Of(_buyButton);
             BindEvent(_buyButton, HandleBuyClicked);
+            BindEvent(_buyButton, HandleBuyPressed, ETouchEvent.PointerDown);
+            BindEvent(_buyButton, HandleBuyReleased, ETouchEvent.PointerUp);
+            BindEvent(_buyButton, HandleBuyLeft, ETouchEvent.PointerExit);
 
             _buy.gameObject.SetActive(false);
         }
@@ -537,7 +622,8 @@ namespace BlackHole.Unity
             };
 
             _buyButton.interactable = interactable;
-            _buyBack.color = BuyBackColor(interactable);
+            _buyBaseColor = BuyBackColor(interactable);
+            PaintBuyBack();
             _buyLabel.text = Localized(key);
             _buyLabel.alpha = interactable ? 1 : 0.45f;
             _buy.gameObject.SetActive(true);

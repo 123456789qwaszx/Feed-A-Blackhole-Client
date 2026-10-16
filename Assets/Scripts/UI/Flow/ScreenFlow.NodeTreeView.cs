@@ -58,6 +58,14 @@ namespace BlackHole.Unity
                 p => p.NodeHeld -= HandleNodeTreeNodeHeld);
 
             AddBinding(page,
+                p => p.NodeHoldArmed += HandleNodeTreeNodeHoldArmed,
+                p => p.NodeHoldArmed -= HandleNodeTreeNodeHoldArmed);
+
+            AddBinding(page,
+                p => p.NodeHoldReleased += HandleNodeTreeNodeHoldReleased,
+                p => p.NodeHoldReleased -= HandleNodeTreeNodeHoldReleased);
+
+            AddBinding(page,
                 p => p.NodeHovered += HandleNodeTreeNodeHovered,
                 p => p.NodeHovered -= HandleNodeTreeNodeHovered);
 
@@ -79,8 +87,8 @@ namespace BlackHole.Unity
         // 마우스·펜: 노드를 누르면 바로 산다(올림 툴팁으로 읽는다).
         private void HandleNodeTreeNodeClicked(string id) => Purchase(id);
 
-        // 구매의 유일한 진입점. 마우스 클릭과 고정 툴팁의 구매 버튼이 같은 길로 온다.
-        private void Purchase(string id)
+        // 구매의 유일한 진입점. 마우스 클릭·고정 패널의 구매 버튼·노드 꾹 누름이 같은 길로 온다. 샀으면 true.
+        private bool Purchase(string id)
         {
             // 비용은 사기 전에 읽는다. 산 뒤에는 다음 Rank의 비용이 된다.
             NodePurchase.TryGetNextCost(_progress, _tree, id, out long cost);
@@ -94,6 +102,7 @@ namespace BlackHole.Unity
             }
 
             RefreshUpgrade();
+            return result == PurchaseResult.Purchased;
         }
 
         // 터치: 노드를 누르면 고르고 툴팁을 고정한다(바로 사지 않는다). 잠긴 노드도 설명은 보인다.
@@ -121,15 +130,35 @@ namespace BlackHole.Unity
             if (_selectedNodeId == null)
                 return;
 
-            Purchase(_selectedNodeId);
+            bool purchased = Purchase(_selectedNodeId);
             PinSelectedTooltip();
+
+            if (purchased && _ui.CurrentRoot is UpgradeScreen root)
+                root.PlayBuyFeedback();
         }
 
-        // 터치로 노드를 꾹 눌렀다 뗐다. 산다. 이어서 오는 탭(NodeTapped)이 툴팁을 새 내용으로 고정한다.
+        // 노드를 꾹 눌러 살 수 있게 된 순간: 패널의 구매 버튼도 눌린 모양으로. 떼거나 끌면 푼다(산 경우 NodeHeld가 이어서 확정 연출을 건다).
+        private void HandleNodeTreeNodeHoldArmed(string id)
+        {
+            if (_ui.CurrentRoot is UpgradeScreen root)
+                root.SetBuyPressed(true);
+        }
+
+        private void HandleNodeTreeNodeHoldReleased(string id)
+        {
+            if (_ui.CurrentRoot is UpgradeScreen root)
+                root.SetBuyPressed(false);
+        }
+
+        // 터치로 노드를 꾹 눌렀다 뗐다. 산다. 패널의 구매 버튼도 누른 것과 같은 연출을 건다. 이어서 오는 탭(NodeTapped)이 패널을 새 내용으로 고정한다.
         private void HandleNodeTreeNodeHeld(string id)
         {
             _selectedNodeId = id;
-            Purchase(id);
+            bool purchased = Purchase(id);
+            PinSelectedTooltip();
+
+            if (purchased && _ui.CurrentRoot is UpgradeScreen root)
+                root.PlayBuyFeedback();
         }
 
         // 고른 노드에 툴팁을 고정한다. 트리가 선택을 풀었으면(숨거나 먼 노드가 됨) 툴팁도 닫는다.
