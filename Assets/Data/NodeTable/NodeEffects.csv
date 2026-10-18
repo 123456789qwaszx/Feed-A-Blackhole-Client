@@ -160,15 +160,15 @@ breaker.radius-11,1,breaker.radius,8,Percent,+8%
 asteroid.respawnChance-04,1,asteroid.respawnChance,13,Percent,+13%
 timer-02,1,timer,3,Flat,+3
 planet.toStar-02,1,planet.toStar,2,Flat,+2
-star.respawnChance-03,1,star.respawnChance,15,Percent,+15%
+star.respawnChance-03,1,star.respawnChance,10,Percent,+10%
 breaker.starBonusDamage-02,1,breaker.starBonusDamage,2000,Flat,+2000
 planet.respawnChance-04,1,planet.respawnChance,10,Percent,+10%
 star.massScale-04,1,star.massScale,125,Percent,+125%
 comet.spawnChance-02,1,comet.spawnChance,30,Percent,+30%
-electricStar.damage-02,1,electricStar.damage,8000,Flat,+8000
+electricStar.damage-02,1,electricStar.damage,6000,Flat,+6000
 laserStar.spawnChance-01,1,laserStar.spawnChance,20,Percent,+20%
 laserStar.critChance-01,1,laserStar.critChance,50,Percent,+50%
-electricStar.critBonus-01,1,electricStar.critBonus,200,Percent,+200%
+electricStar.critBonus-01,1,electricStar.critBonus,150,Percent,+150%
 laserStar.width-01,1,laserStar.width,50,Percent,+50%
 laserStar.damage-01,1,laserStar.damage,500,Flat,+500
 breaker.damage-25,1,breaker.damage,250,Flat,+250
@@ -183,7 +183,7 @@ breaker.radius-12,1,breaker.radius,8,Percent,+8%
 asteroid.respawnChance-05,1,asteroid.respawnChance,13,Percent,+13%
 laserStar.width-02,1,laserStar.width,50,Percent,+50%
 supernovaStar.damage-01,1,supernovaStar.damage,6000,Flat,+6000
-star.respawnChance-04,1,star.respawnChance,15,Percent,+15%
+star.respawnChance-04,1,star.respawnChance,10,Percent,+10%
 laserStar.damage-02,1,laserStar.damage,500,Flat,+500
 supernovaStar.spawnChance-01,1,supernovaStar.spawnChance,10,Percent,+10%
 star.massScale-05,1,star.massScale,75,Percent,+75%

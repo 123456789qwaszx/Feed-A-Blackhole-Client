@@ -844,8 +844,9 @@ MonoBehaviour:
       X: 10
       Y: -17
       Links:
-      - planet.timeChance-01
       - comet.rainChance-04
+      - planet.timeChance-01
+      - breaker.damage-23
     - Id: star.respawnChance-01
       Start: 0
       X: 18
@@ -885,11 +886,11 @@ MonoBehaviour:
       - star.massScale-02
     - Id: planet.timeChance-01
       Start: 0
-      X: 9
+      X: 11
       Y: -17
       Links:
-      - moonPlanet.rangeScale-05
-      - laserStar.spawnChance-01
+      - breaker.speed-09
+      - moonPlanet.speedScale-03
     - Id: electricStar.critChance-01
       Start: 0
       X: 23
@@ -910,10 +911,10 @@ MonoBehaviour:
       - electricStar.spawnChance-01
     - Id: breaker.damage-23
       Start: 0
-      X: 12
+      X: 9
       Y: -17
       Links:
-      - breaker.speed-09
+      - laserStar.spawnChance-01
     - Id: breaker.damage-24
       Start: 0
       X: 18
@@ -922,11 +923,9 @@ MonoBehaviour:
       - star.massScale-02
     - Id: breaker.speed-09
       Start: 0
-      X: 11
+      X: 12
       Y: -17
-      Links:
-      - asteroid.toPlanet-04
-      - moonPlanet.speedScale-03
+      Links: []
     - Id: electricStar.chain-02
       Start: 0
       X: 22
@@ -937,8 +936,9 @@ MonoBehaviour:
     - Id: moonPlanet.rangeScale-05
       Start: 0
       X: 9
-      Y: -16
-      Links: []
+      Y: -29
+      Links:
+      - asteroid.respawnChance-05
     - Id: star.respawnChance-02
       Start: 0
       X: 18
@@ -962,8 +962,8 @@ MonoBehaviour:
       X: 10
       Y: -16
       Links:
-      - moonPlanet.rangeScale-05
       - moonPlanet.speedScale-03
+      - breaker.damage-23
     - Id: electricStar.spawnChance-01
       Start: 0
       X: 21
@@ -1002,11 +1002,9 @@ MonoBehaviour:
       - star.respawnChance-04
     - Id: timer-02
       Start: 0
-      X: 11
-      Y: -25
-      Links:
-      - planet.respawnChance-04
-      - breaker.starBonusDamage-02
+      X: 8
+      Y: -28
+      Links: []
     - Id: planet.toStar-02
       Start: 0
       X: 14
@@ -1017,25 +1015,28 @@ MonoBehaviour:
       X: 15
       Y: -17
       Links:
-      - breaker.damage-23
       - asteroid.respawnChance-04
+      - breaker.speed-09
     - Id: breaker.starBonusDamage-02
       Start: 0
       X: 10
-      Y: -24
-      Links: []
+      Y: -20
+      Links:
+      - laserStar.spawnChance-01
     - Id: planet.respawnChance-04
       Start: 0
       X: 12
       Y: -25
-      Links: []
+      Links:
+      - electricStar.critBonus-01
     - Id: star.massScale-04
       Start: 0
       X: 9
-      Y: -28
+      Y: -27
       Links:
       - laserStar.spawnChance-01
-      - asteroid.respawnChance-05
+      - moonPlanet.rangeScale-05
+      - timer-02
     - Id: comet.spawnChance-02
       Start: 0
       X: 13
@@ -1045,9 +1046,9 @@ MonoBehaviour:
     - Id: electricStar.damage-02
       Start: 0
       X: 14
-      Y: -28
+      Y: -27
       Links:
-      - electricStar.critBonus-01
+      - star.massScale-04
     - Id: laserStar.spawnChance-01
       Start: 0
       X: 9
@@ -1062,10 +1063,10 @@ MonoBehaviour:
       - laserStar.width-02
     - Id: electricStar.critBonus-01
       Start: 0
-      X: 13
+      X: 12
       Y: -28
       Links:
-      - star.massScale-04
+      - timer-02
     - Id: laserStar.width-01
       Start: 0
       X: 8
@@ -1136,7 +1137,7 @@ MonoBehaviour:
     - Id: asteroid.respawnChance-05
       Start: 0
       X: 10
-      Y: -27
+      Y: -29
       Links:
       - breaker.starBonusDamage-02
     - Id: laserStar.width-02

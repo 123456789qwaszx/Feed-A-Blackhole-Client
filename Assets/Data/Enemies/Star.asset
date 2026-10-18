@@ -33,11 +33,11 @@ MonoBehaviour:
     gold: 100000000000
     exp: 1800000
   - color: {r: 0.95, g: 0.85, b: 0.3, a: 1}
-    maxHealth: 16800
+    maxHealth: 17800
     gold: 200000000000
     exp: 2200000
   - color: {r: 0.4, g: 0.68, b: 0.42, a: 1}
-    maxHealth: 36800
+    maxHealth: 38800
     gold: 400000000000
     exp: 2680000
   - color: {r: 0.33, g: 0.46, b: 0.81, a: 1}
@@ -55,7 +55,7 @@ MonoBehaviour:
     critRewardScale: 0
     damage: 5800
     radius: 8.8
-    maxTargets: 8
+    maxTargets: 6
     branches: 2
     branchChance: 0.5
     critChance: 0
