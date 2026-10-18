@@ -26,8 +26,8 @@ namespace BlackHole.Unity
         private const int FlashOrder = 11;
         // 메시가 가장자리 부드럽게 하기까지 담도록 두는 여유 비율.
         private const float MeshMargin = 1.1f;
-        // 번짐이 사실상 사라지는 거리(번짐 폭의 배수). exp(-4) ≈ 2%.
-        private const float GlowReach = 4;
+        // 색 띠가 끝나는 거리(띠 폭의 배수). 띠는 폭 끝에서 딱 끝나므로 사각형을 그 이상 키우면 투명 픽셀만 더 그린다.
+        private const float GlowReach = 1;
         // 카메라를 못 찾을 때 실선·빔이 중심에서 한쪽으로 뻗는 길이(월드 단위).
         private const float FallbackReach = 60;
 
