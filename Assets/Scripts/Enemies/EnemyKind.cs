@@ -40,6 +40,8 @@ namespace BlackHole.Unity
             public float radius;
             [Tooltip("Electric: 한 줄기가 옮겨 가는 최대 횟수.")]
             public int maxTargets;
+            [Tooltip("Electric(별만): 확률과 무관하게 늘 나가는 줄기의 수(1 이상). 소행성은 늘 1이라 읽지 않는다.")]
+            public int branches;
             [Tooltip("Electric: 줄기가 하나 더 나갈 확률(0 ~ 1).")]
             public float branchChance;
             [Tooltip("Electric·Laser·Golden: 치명타 확률(0 ~ 1).")]
@@ -185,6 +187,7 @@ namespace BlackHole.Unity
                         Damage = trait.damage,
                         Radius = trait.radius,
                         MaxTargets = trait.maxTargets,
+                        Branches = trait.branches,
                         BranchChance = trait.branchChance,
                         CritChance = trait.critChance,
                         CritMultiplier = trait.critMultiplier,

@@ -66,7 +66,7 @@ namespace BlackHole.Core
                 }
 
                 int errors = into.Count;
-                List<EnemyTraitDefinition> traits = LoadTraits(item.Traits, at + ".Traits", into);
+                List<EnemyTraitDefinition> traits = LoadTraits(item.Type, item.Traits, at + ".Traits", into);
                 List<EnemyTier> tiers = LoadTiers(item.Tiers, at + ".Tiers", into);
 
                 if (into.Count > errors)
@@ -108,7 +108,7 @@ namespace BlackHole.Core
         }
 
         // 줄마다 성질 종류가 정하는 효과를 만든다. 성질 종류 유일·픽업의 성질 수는 EnemyDefinition이 검사한다.
-        private static List<EnemyTraitDefinition> LoadTraits(List<EnemyTraitData> items, string at, List<ContentDiagnostic> into)
+        private static List<EnemyTraitDefinition> LoadTraits(EnemyType kind, List<EnemyTraitData> items, string at, List<ContentDiagnostic> into)
         {
             var traits = new List<EnemyTraitDefinition>();
 
@@ -124,7 +124,7 @@ namespace BlackHole.Core
                 }
 
                 int errors = into.Count;
-                DeathEffectDefinition effect = LoadDeathEffect(item.Type, item.Effect, itemAt + ".Effect", into);
+                DeathEffectDefinition effect = LoadDeathEffect(kind, item.Type, item.Effect, itemAt + ".Effect", into);
 
                 if (into.Count > errors)
                     continue;
@@ -138,9 +138,9 @@ namespace BlackHole.Core
             return traits;
         }
 
-        // 성질 종류가 사망 효과를 정한다: 황금 → Golden, 전기 → 연쇄 번개, 달 → 달 버프, 레이저 → 레이저, 슈퍼노바 → 폭발, 혜성 → 혜성 버프,
-        // 중력 → 중력장.
-        private static DeathEffectDefinition LoadDeathEffect(EnemyTraitType type, DeathEffectData item, string at, List<ContentDiagnostic> into)
+        // 성질 종류가 사망 효과를 정한다: 황금 → Golden, 전기 → 연쇄 번개(별이면 전기 별 번개 StarLightning), 달 → 달 버프, 레이저 → 레이저,
+        // 슈퍼노바 → 폭발, 혜성 → 혜성 버프, 중력 → 중력장.
+        private static DeathEffectDefinition LoadDeathEffect(EnemyType kind, EnemyTraitType type, DeathEffectData item, string at, List<ContentDiagnostic> into)
         {
             if (item == null)
             {
@@ -152,6 +152,9 @@ namespace BlackHole.Core
             {
                 case EnemyTraitType.Golden:
                     return Guard(at, into, () => new GoldenDefinition(item.Multiplier, item.CritChance, item.CritRewardScale));
+                case EnemyTraitType.Electric when kind == EnemyType.Star:
+                    return Guard(at, into, () => new StarLightningDefinition(
+                        item.Damage, item.Radius, item.MaxTargets, item.Branches, item.BranchChance, item.CritChance, item.CritMultiplier));
                 case EnemyTraitType.Electric:
                     return Guard(at, into, () => new ChainLightningDefinition(
                         item.Damage, item.Radius, item.MaxTargets, item.BranchChance, item.CritChance, item.CritMultiplier));
