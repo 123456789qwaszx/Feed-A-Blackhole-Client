@@ -23,6 +23,7 @@ namespace BlackHole.Unity
         [SerializeField] private BreakerLook _breakerLook;
         [SerializeField] private ExplosionLook _explosionLook;
         [SerializeField] private LightningLook _lightningLook;
+        [SerializeField] private StarLightningLook _starLightningLook;
         [SerializeField] private CometLook _cometLook;
         [SerializeField] private GameObject _blackHole;
 
@@ -131,7 +132,7 @@ namespace BlackHole.Unity
             EnemyLooks enemyLooks = new(_content.Enemies.Kinds());
             EnemyView enemyView = new(transform, enemyLooks, _breakerLook, _cometLook, _settings);
             BreakerView breakerView = new(transform, _breakerLook);
-            DeathEffectView deathEffectView = new(transform, _lightningLook, _explosionLook);
+            DeathEffectView deathEffectView = new(transform, _lightningLook, _starLightningLook, _explosionLook);
             HqView hqView = new(transform, _blackHole, battleCamera, _settings);
 
             _progress = new ProgressState();
@@ -374,6 +375,13 @@ namespace BlackHole.Unity
             {
                 Debug.LogError("[외형] GameBootstrap에 번개 외형(LightningLook)을," +
                                " 번개 외형에 머티리얼을 연결해야 한다.", this);
+                configured = false;
+            }
+
+            if (_starLightningLook == null || _starLightningLook.Material == null)
+            {
+                Debug.LogError("[외형] GameBootstrap에 전기 별 번개 외형(StarLightningLook)을," +
+                               " 그 외형에 머티리얼을 연결해야 한다.", this);
                 configured = false;
             }
 

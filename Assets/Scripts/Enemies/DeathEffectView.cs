@@ -10,15 +10,17 @@ namespace BlackHole.Unity
     internal sealed class DeathEffectView : IDisposable
     {
         private readonly LightningBolts _lightning;
+        private readonly StarLightningBolts _starLightning;
         private readonly ExplosionRings _explosions;
         private readonly LaserBeams _lasers;
         private readonly GravityFieldRings _gravity;
 
         private long _drawn; // 그린 기록의 가장 큰 번호. 번개·폭발·레이저는 같은 번호 줄을 쓴다.
 
-        public DeathEffectView(Transform parent, LightningLook lightningLook, ExplosionLook explosionLook)
+        public DeathEffectView(Transform parent, LightningLook lightningLook, StarLightningLook starLightningLook, ExplosionLook explosionLook)
         {
             _lightning = new LightningBolts(parent, lightningLook);
+            _starLightning = new StarLightningBolts(parent, starLightningLook);
             _explosions = new ExplosionRings(parent, explosionLook);
             _lasers = new LaserBeams(parent);
             _gravity = new GravityFieldRings(parent);
@@ -29,6 +31,7 @@ namespace BlackHole.Unity
             if (!paused)
             {
                 _lightning.Age(delta);
+                _starLightning.Age(delta);
                 _explosions.Age(delta);
                 _lasers.Age(delta);
             }
@@ -48,6 +51,24 @@ namespace BlackHole.Unity
                 hop = chainEnd.HasValue && chainEnd.Value.Equals(hits[i].From) ? hop + 1 : 0;
                 chainEnd = hits[i].To;
                 _lightning.Play(hits[i].From, hits[i].To, hop);
+                SoundManager.Instance?.PlayLightning();
+            }
+
+            // 전기 별 번개: 기록이 따로다(StarLightningHits). 연쇄 홉 추정은 위와 같다.
+            IReadOnlyList<StarLightningHit> starHits = world.DeathEffects.StarLightningHits;
+            float fieldScale = world.Hq.FieldScale;
+            hop = 0;
+            chainEnd = null;
+
+            for (int i = 0; i < starHits.Count; i++)
+            {
+                if (starHits[i].Sequence <= _drawn)
+                    continue;
+
+                drawn = Math.Max(drawn, starHits[i].Sequence);
+                hop = chainEnd.HasValue && chainEnd.Value.Equals(starHits[i].From) ? hop + 1 : 0;
+                chainEnd = starHits[i].To;
+                _starLightning.Play(starHits[i].From, starHits[i].To, hop, fieldScale);
                 SoundManager.Instance?.PlayLightning();
             }
 
@@ -85,6 +106,7 @@ namespace BlackHole.Unity
         public void Reset()
         {
             _lightning.Reset();
+            _starLightning.Reset();
             _explosions.Reset();
             _lasers.Reset();
             _gravity.Reset();
@@ -94,6 +116,7 @@ namespace BlackHole.Unity
         public void Dispose()
         {
             _lightning.Dispose();
+            _starLightning.Dispose();
             _explosions.Dispose();
             _lasers.Dispose();
             _gravity.Dispose();

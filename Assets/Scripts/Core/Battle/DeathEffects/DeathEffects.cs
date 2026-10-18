@@ -29,6 +29,8 @@ namespace BlackHole.Core
         // 번개 연쇄에서 줄기 하나가 다음 홉으로 옮겨 가는 간격(초). 화면(LightningBolts)은 hop × 이 값 뒤에 줄기를 그리고,
         // 규칙은 그 홉이 죽인 특수 적의 효과를 같은 시각에 발동한다 — 둘이 같은 값을 써야 한다.
         public const float ChainHopSeconds = 0.04f;
+        // 전기 별 번개의 홉 간격(초). 화면(StarLightningBolts)과 같은 값. 소행성과 따로 둔다.
+        public const float StarChainHopSeconds = 0.04f;
         // 폭발 링이 0에서 판정 반지름까지 퍼지는 시간(초). 화면(ExplosionRings)은 이 시간에 링을 그 반지름까지 키우고,
         // 규칙은 폭발이 죽인 특수 적의 효과를 링이 그 적에 닿는 시각에 발동한다 — 둘이 같은 값과 같은 퍼짐 식(ExplosionRingReach)을 써야 한다.
         public const float ExplosionRingSeconds = 0.6f;
@@ -52,6 +54,7 @@ namespace BlackHole.Core
         // World.DealDamage → Enqueue 경로는 누가 죽였는지 모르므로 이렇게 넘긴다.
         private float _enqueueDelay;
         private readonly List<LightningHit> _lightningHits = new();
+        private readonly List<StarLightningHit> _starLightningHits = new();
         private readonly List<ExplosionBlast> _explosions = new();
         private readonly List<LaserBurst> _laserBursts = new();
         private readonly List<ChargingLaser> _chargingLasers = new();
@@ -109,8 +112,9 @@ namespace BlackHole.Core
             public int Captured;
         }
 
-        // 이번 Step의 번개 이동, 폭발, 레이저 발동(일어난 순서). 다음 Step이 시작될 때 비운다.
+        // 이번 Step의 번개 이동(전기 소행성), 전기 별 번개 이동, 폭발, 레이저 발동(일어난 순서). 다음 Step이 시작될 때 비운다.
         public IReadOnlyList<LightningHit> LightningHits { get; }
+        public IReadOnlyList<StarLightningHit> StarLightningHits { get; }
         public IReadOnlyList<ExplosionBlast> Explosions { get; }
         public IReadOnlyList<LaserBurst> LaserBursts { get; }
 
@@ -127,6 +131,7 @@ namespace BlackHole.Core
         {
             _random = new BattleRandom(seed, RandomStream.DeathEffect);
             LightningHits = _lightningHits.AsReadOnly();
+            StarLightningHits = _starLightningHits.AsReadOnly();
             Explosions = _explosions.AsReadOnly();
             LaserBursts = _laserBursts.AsReadOnly();
             LaserTelegraphs = _laserTelegraphs.AsReadOnly();
@@ -145,6 +150,7 @@ namespace BlackHole.Core
         internal void BeginStep()
         {
             _lightningHits.Clear();
+            _starLightningHits.Clear();
             _explosions.Clear();
             _laserBursts.Clear();
         }
@@ -188,6 +194,9 @@ namespace BlackHole.Core
                 {
                     case ChainLightningDefinition chain:
                         Chain(chain, pending, world);
+                        break;
+                    case StarLightningDefinition star:
+                        StarChain(star, pending, world);
                         break;
                     case ExplosionDefinition explosion:
                         Explode(explosion, pending, world);
@@ -332,6 +341,63 @@ namespace BlackHole.Core
 
                 // 이 홉이 죽인 특수 적의 효과는 화면에 이 줄기가 나타나는 시각(hop × ChainHopSeconds)에 발동한다.
                 _enqueueDelay = hop * ChainHopSeconds;
+                world.DealDamage(nearest, damage);
+                _enqueueDelay = 0;
+            }
+        }
+
+        // 전기 별 번개: 지금은 연쇄 번개(Chain)와 같은 규칙이다. 정의·기록·피해 출처만 따로다 — 앞으로 규칙이 갈라질 자리.
+        private void StarChain(StarLightningDefinition star, Pending pending, World world)
+        {
+            _struck.Clear();
+            int branches = 1;
+
+            while (branches < StarLightningDefinition.MaxBranches && star.BranchChance > 0 && _random.NextFloat() < star.BranchChance)
+                branches++;
+
+            bool critical = star.CritChance > 0 && _random.NextFloat() < star.CritChance;
+
+            for (int branch = 0; branch < branches; branch++)
+                StarChainBranch(star, pending, world, critical);
+        }
+
+        private void StarChainBranch(StarLightningDefinition star, Pending pending, World world, bool critical)
+        {
+            Point2 origin = pending.Position;
+
+            for (int hop = 0; hop < star.MaxTargets; hop++)
+            {
+                Enemy nearest = null;
+                float nearestGap = 0;
+                IReadOnlyList<Enemy> enemies = world.Enemies;
+
+                for (int i = 0; i < enemies.Count; i++)
+                {
+                    Enemy enemy = enemies[i];
+
+                    if (!CanBeStruck(enemy) || _struck.Contains(enemy) || !enemy.IsWithin(origin, star.Radius))
+                        continue;
+
+                    float gap = (float)Math.Sqrt(origin.DistanceSquared(enemy.Position)) - enemy.Stats.Radius;
+
+                    if (nearest == null || gap < nearestGap)
+                    {
+                        nearest = enemy;
+                        nearestGap = gap;
+                    }
+                }
+
+                if (nearest == null)
+                    break;
+
+                float amount = critical ? star.Damage * star.CritMultiplier : star.Damage;
+                Damage damage = new(amount, DamageSource.StarLightning, critical, pending.EnemyType);
+
+                _struck.Add(nearest);
+                _starLightningHits.Add(new StarLightningHit(_nextSequence++, origin, nearest.Position, critical));
+                origin = nearest.Position;
+
+                _enqueueDelay = hop * StarChainHopSeconds;
                 world.DealDamage(nearest, damage);
                 _enqueueDelay = 0;
             }
