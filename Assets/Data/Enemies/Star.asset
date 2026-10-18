@@ -23,7 +23,7 @@ MonoBehaviour:
   respawnDecay: 0.7
   respawnStages:
   - stage: 3
-    decay: 0.85
+    decay: 0.88
     maxGeneration: 0
   rainCooldown: 0
   rainDelay: 0
@@ -46,12 +46,12 @@ MonoBehaviour:
     exp: 2680000
   - color: {r: 0.33, g: 0.46, b: 0.81, a: 1}
     maxHealth: 67000
-    gold: 600000000000
-    exp: 3200000
+    gold: 580000000000
+    exp: 3600000
   - color: {r: 0.68, g: 0.47, b: 0.93, a: 1}
-    maxHealth: 142000
-    gold: 1100000000000
-    exp: 9800000
+    maxHealth: 132000
+    gold: 2080000000000
+    exp: 7800000
   traits:
   - type: 1
     color: {r: 0.45, g: 0.75, b: 1, a: 1}
@@ -63,7 +63,7 @@ MonoBehaviour:
     branches: 2
     branchChance: 0.5
     critChance: 0
-    critMultiplier: 2
+    critMultiplier: 1.5
     width: 0
     maxActive: 0
     force: 0
@@ -72,7 +72,7 @@ MonoBehaviour:
     color: {r: 1, g: 0.3, b: 0.3, a: 1}
     multiplier: 1
     critRewardScale: 0
-    damage: 12000
+    damage: 8800
     radius: 0
     maxTargets: 0
     branches: 0

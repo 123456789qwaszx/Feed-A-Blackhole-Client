@@ -1067,6 +1067,7 @@ MonoBehaviour:
       Y: -20
       Links:
       - breaker.damage-25
+      - laserStar.width-02
     - Id: electricStar.critBonus-01
       Start: 0
       X: 12
@@ -1088,10 +1089,9 @@ MonoBehaviour:
       - laserStar.spawnChance-01
     - Id: breaker.damage-25
       Start: 0
-      X: 5
-      Y: -22
-      Links:
-      - laserStar.damage-04
+      X: 6
+      Y: -19
+      Links: []
     - Id: laserStar.critBonus-01
       Start: 0
       X: 7
@@ -1100,18 +1100,19 @@ MonoBehaviour:
       - laserStar.damage-02
     - Id: breaker.speed-10
       Start: 0
-      X: -1
-      Y: -28
+      X: 4
+      Y: -24
       Links:
-      - moonPlanet.maxCount-01
       - breaker.damage-26
+      - breaker.radius-13
     - Id: electricStar.splitChance-02
       Start: 0
-      X: -2
-      Y: -29
+      X: -1
+      Y: -25
       Links:
       - electricStar.chain-03
       - moonPlanet.maxCount-01
+      - star.massScale-06
     - Id: supernovaStar.range-01
       Start: 0
       X: -12
@@ -1119,18 +1120,18 @@ MonoBehaviour:
       Links: []
     - Id: moonPlanet.maxCount-01
       Start: 0
-      X: -2
-      Y: -28
+      X: -1
+      Y: -24
       Links: []
     - Id: electricStar.chain-03
       Start: 0
-      X: -2
-      Y: -30
+      X: 0
+      Y: -25
       Links: []
     - Id: breaker.damage-26
       Start: 0
-      X: -1
-      Y: -27
+      X: 4
+      Y: -23
       Links: []
     - Id: breaker.radius-12
       Start: 0
@@ -1148,14 +1149,15 @@ MonoBehaviour:
       - breaker.starBonusDamage-02
     - Id: laserStar.width-02
       Start: 0
-      X: 6
-      Y: -19
+      X: 5
+      Y: -22
       Links:
-      - star.massScale-05
+      - breaker.damage-26
+      - timer-03
     - Id: supernovaStar.damage-01
       Start: 0
       X: -14
-      Y: -28
+      Y: -29
       Links:
       - comet.spawnChance-03
     - Id: star.respawnChance-04
@@ -1169,26 +1171,25 @@ MonoBehaviour:
       X: 5
       Y: -20
       Links:
-      - laserStar.width-02
+      - breaker.damage-25
     - Id: supernovaStar.spawnChance-01
       Start: 0
-      X: -8
-      Y: -28
+      X: -9
+      Y: -27
       Links:
-      - laserStar.critBonus-03
+      - supernovaStar.range-01
     - Id: star.massScale-06
       Start: 0
-      X: -3
-      Y: -28
+      X: -1
+      Y: -27
       Links:
       - supernovaStar.spawnChance-01
-      - moonPlanet.maxCount-01
     - Id: laserStar.critBonus-02
       Start: 0
       X: 4
-      Y: -29
+      Y: -28
       Links:
-      - laserStar.damage-03
+      - laserStar.damage-04
     - Id: supernovaStar.range-02
       Start: 0
       X: -13
@@ -1215,59 +1216,60 @@ MonoBehaviour:
       - supernovaStar.damage-01
     - Id: laserStar.damage-03
       Start: 0
-      X: 2
-      Y: -29
-      Links: []
-    - Id: laserStar.damage-04
-      Start: 0
       X: 5
-      Y: -28
+      Y: -27
       Links:
       - laserStar.width-05
+      - laserStar.width-02
+    - Id: laserStar.damage-04
+      Start: 0
+      X: 2
+      Y: -28
+      Links:
+      - laserStar.width-04
     - Id: laserStar.width-04
       Start: 0
       X: 1
-      Y: -29
+      Y: -28
       Links:
-      - laserStar.damage-03
       - laserStar.width-06
     - Id: laserStar.damage-05
       Start: 0
       X: 0
-      Y: -30
+      Y: -27
       Links:
-      - breaker.radius-13
+      - electricStar.chain-03
+      - star.massScale-06
     - Id: laserStar.width-05
       Start: 0
       X: 5
-      Y: -29
+      Y: -28
       Links:
       - laserStar.critBonus-02
     - Id: breaker.radius-13
       Start: 0
-      X: -1
-      Y: -30
+      X: 4
+      Y: -25
       Links:
       - electricStar.chain-03
     - Id: laserStar.width-06
       Start: 0
       X: 1
-      Y: -30
+      Y: -27
       Links:
       - laserStar.damage-05
     - Id: supernovaStar.damage-03
       Start: 0
-      X: -17
+      X: -18
       Y: -28
       Links:
       - star.timeChance-02
+      - timer-04
     - Id: timer-03
       Start: 0
-      X: -18
-      Y: -32
-      Links:
-      - supernovaStar.damage-03
-      - breaker.critBonus-04
+      X: 6
+      Y: -23
+      Links: []
     - Id: planet.toStar-03
       Start: 0
       X: -13
@@ -1281,10 +1283,11 @@ MonoBehaviour:
       Links: []
     - Id: breaker.critBonus-04
       Start: 0
-      X: -15
+      X: -14
       Y: -33
       Links:
       - comet.spawnChance-04
+      - timer-04
     - Id: planet.timeChance-02
       Start: 0
       X: -14
@@ -1292,26 +1295,26 @@ MonoBehaviour:
       Links: []
     - Id: star.timeChance-02
       Start: 0
-      X: -15
+      X: -18
       Y: -26
       Links:
       - planet.timeChance-02
     - Id: laserStar.width-07
       Start: 0
-      X: -13
+      X: -12
       Y: -26
       Links:
       - supernovaStar.range-01
       - planet.timeChance-02
     - Id: laserStar.damage-06
       Start: 0
-      X: -10
+      X: -9
       Y: -32
       Links:
       - laserStar.critBonus-03
     - Id: planet.toStar-04
       Start: 0
-      X: -12
+      X: -11
       Y: -34
       Links:
       - planet.toStar-03
@@ -1333,7 +1336,7 @@ MonoBehaviour:
       X: -9
       Y: -28
       Links:
-      - supernovaStar.range-01
+      - supernovaStar.spawnChance-01
     - Id: moonPlanet.speedScale-04
       Start: 0
       X: -19
@@ -1348,7 +1351,7 @@ MonoBehaviour:
     - Id: breaker.damage-28
       Start: 0
       X: -11
-      Y: -33
+      Y: -32
       Links:
       - laserStar.damage-06
       - breaker.damage-27
@@ -1366,7 +1369,7 @@ MonoBehaviour:
       Y: -22
       Links:
       - moonPlanet.rangeScale-07
-      - timer-04
+      - laserStar.width-09
     - Id: supernovaStar.damage-04
       Start: 0
       X: -19
@@ -1380,6 +1383,7 @@ MonoBehaviour:
       Links:
       - supernovaStar.damage-04
       - star.massScale-09
+      - laserStar.width-09
     - Id: supernovaStar.damage-05
       Start: 0
       X: -19
@@ -1395,13 +1399,11 @@ MonoBehaviour:
     - Id: timer-04
       Start: 0
       X: -18
-      Y: -22
-      Links:
-      - planet.toStar-05
-      - laserStar.width-09
+      Y: -33
+      Links: []
     - Id: laserStar.width-09
       Start: 0
-      X: -17
+      X: -18
       Y: -22
       Links: []
     - Id: star.massScale-09

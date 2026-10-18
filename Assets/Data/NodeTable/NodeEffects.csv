@@ -193,11 +193,11 @@ supernovaStar.range-02,1,supernovaStar.range,25,Percent,+25%
 comet.spawnChance-03,1,comet.spawnChance,20,Percent,+20%
 supernovaStar.damage-02,1,supernovaStar.damage,6000,Flat,+6000
 breaker.damage-27,1,breaker.damage,1400,Flat,+1400
-laserStar.damage-03,1,laserStar.damage,500,Flat,+500
-laserStar.damage-04,1,laserStar.damage,600,Flat,+600
-laserStar.width-04,1,laserStar.width,100,Percent,+100%
+laserStar.damage-03,1,laserStar.damage,500,Flat,+3000
+laserStar.damage-04,1,laserStar.damage,600,Flat,+3000
+laserStar.width-04,1,laserStar.width,100,Percent,+70%
 laserStar.damage-05,1,laserStar.damage,800,Flat,+800
-laserStar.width-05,1,laserStar.width,50,Percent,+50%
+laserStar.width-05,1,laserStar.width,50,Percent,+80%
 breaker.radius-13,1,breaker.radius,30,Percent,+30%
 laserStar.width-06,1,laserStar.width,100,Percent,+100%
 supernovaStar.damage-03,1,supernovaStar.damage,6000,Flat,+6000
