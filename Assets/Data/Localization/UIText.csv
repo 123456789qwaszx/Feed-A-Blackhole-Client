@@ -73,13 +73,14 @@ SettlementScreen.ContinueBtn_Text,Continue,계속
 settlement.result.milestone,Milestone reached,이정표 도달
 settlement.result.over,Battle over,전투 종료
 settlement.stage,Stage {0} / {1},단계 {0} / {1}
-# 이정표 이름: 0은 시작 자리, 1~5는 Lv 10/20/30/40/50 이정표. 전투 HUD·결산·업그레이드가 같은 키를 쓴다.
+# 이정표 이름: 0은 시작 자리, 1~6은 Lv 10/20/30/35/40/50 이정표. 전투 HUD·결산·업그레이드가 같은 키를 쓴다.
 milestone.0.name,Asteroid Belt,소행성대
 milestone.1.name,Planetary System,행성계
 milestone.2.name,Stellar Cradle,항성 요람
 milestone.3.name,Supernova,초신성
-milestone.4.name,Galactic Core,은하핵
-milestone.5.name,Black Hole,블랙홀
+milestone.4.name,Supernova Remnant,초신성 잔해
+milestone.5.name,Galactic Core,은하핵
+milestone.6.name,Black Hole,블랙홀
 settlement.milestone,{0}  →  {1},{0}  →  {1}
 settlement.milestone.last,{0},{0}
 settlement.milestone.reached,{0} reached!,{0} 도달!
