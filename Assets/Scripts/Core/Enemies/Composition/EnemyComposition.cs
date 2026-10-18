@@ -23,6 +23,9 @@ namespace BlackHole.Core
         // 색 등급마다 나오는 비율(종류의 색 등급 표 순서, 합 1). 질량으로 정해진다.
         public IReadOnlyList<float> TierRatios { get; }
 
+        // 마지막 색 등급의 톤 수(MassRule.LastTierTones). 1이면 톤 없음. 톤은 색만 다르고 수치는 같다.
+        public int LastTierTones { get; }
+
         // 크기(기본 1). 크기 1부터 이 값까지가 같은 몫으로 섞여 나온다(SizeRule).
         public int Size { get; }
 
@@ -82,6 +85,7 @@ namespace BlackHole.Core
 
             Mass = mass;
             TierRatios = tierRatios;
+            LastTierTones = MassRule.LastTierTones(tierRatios);
             Size = size;
             StartSupplyBonus = startSupplyBonus;
             GrowthPercent = growthPercent;

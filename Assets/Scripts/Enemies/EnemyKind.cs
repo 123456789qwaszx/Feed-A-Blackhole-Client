@@ -115,6 +115,33 @@ namespace BlackHole.Unity
         // 색 등급의 색. 없는 번호는 흰색이다.
         public Color ColorOf(int tier) => tier >= 0 && tier < tiers.Count ? tiers[tier].color : Color.white;
 
+        // 색 등급과 톤(Enemy.Tone)의 색. 톤 0은 색 등급 색 그대로. 톤 1부터는 그 색 등급 색에서 색상·채도·밝기만 정해진 폭으로 옮긴 톤온톤이다 —
+        // 질량이 올라 나오는 색이 3개 아래로 줄면(파·보 → 보라만) 규칙이 마지막 색 등급을 톤으로 나눈다(MassRule.LastTierTones, Enemy.Tone).
+        // 톤 1 = 조금 밝고 푸른 쪽, 톤 2 = 조금 깊고 붉은 쪽, 그 뒤는 번갈아 더 벌린다. 알파는 색 등급 색의 것. 에셋에 따로 넣는 값은 없다.
+        public Color ColorOf(int tier, int tone)
+        {
+            Color baseColor = ColorOf(tier);
+
+            if (tone <= 0)
+                return baseColor;
+
+            Color.RGBToHSV(baseColor, out float hue, out float saturation, out float value);
+            int step = (tone + 1) / 2;
+            float sign = tone % 2 == 1 ? -1f : 1f;
+
+            Color color = Color.HSVToRGB(
+                Mathf.Repeat(hue + sign * ToneHueStep * step / 360f, 1f),
+                Mathf.Clamp01(saturation + sign * ToneSaturationStep * step),
+                Mathf.Clamp01(value - sign * ToneValueStep * step));
+            color.a = baseColor.a;
+            return color;
+        }
+
+        // 톤 한 단계가 색 등급 색에서 옮기는 폭: 색상(도), 채도, 밝기. 톤온톤으로 보이되 서로 구분될 만큼.
+        private const float ToneHueStep = 9f;
+        private const float ToneSaturationStep = 0.06f;
+        private const float ToneValueStep = 0.11f;
+
         // 성질의 표식 색. 없는 성질은 투명이다.
         public Color TraitColorOf(EnemyTraitType trait)
         {

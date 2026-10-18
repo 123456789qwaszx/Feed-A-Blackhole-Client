@@ -29,6 +29,8 @@ namespace BlackHole.Core
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _tierPickers = new();
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _traitPickers = new();
         private readonly Dictionary<EnemyDefinition, QuotaPicker> _sizePickers = new();
+        // 마지막 색 등급의 톤을 같은 몫으로 고르는 선택기. 톤이 1개(없음)인 종류는 없다.
+        private readonly Dictionary<EnemyDefinition, QuotaPicker> _tonePickers = new();
 
         // 주기 출현 종류마다 다음 출현 판정까지 누적된 시간.
         private readonly List<SpawnClock> _spawnClocks = new();
@@ -71,11 +73,22 @@ namespace BlackHole.Core
             var tierRandom = new BattleRandom(seed, RandomStream.Tier);
             var traitRandom = new BattleRandom(seed, RandomStream.Trait);
             var sizeRandom = new BattleRandom(seed, RandomStream.Size);
+            var toneRandom = new BattleRandom(seed, RandomStream.Tone);
 
             foreach (EnemyDefinition kind in stats.Kinds)
             {
                 EnemyComposition composition = stats.CompositionOf(kind);
                 _tierPickers.Add(kind, new QuotaPicker(stats.TierRatiosOf(kind), tierRandom));
+
+                if (composition.LastTierTones > 1)
+                {
+                    var tones = new float[composition.LastTierTones];
+
+                    for (int i = 0; i < tones.Length; i++)
+                        tones[i] = 1;
+
+                    _tonePickers.Add(kind, new QuotaPicker(tones, toneRandom));
+                }
 
                 if (kind.IsPickup)
                 {
@@ -140,7 +153,8 @@ namespace BlackHole.Core
                         size,
                         _stats.Of(kind, tier, trait, size),
                         _placement.Pick(_placementRandom),
-                        request.RespawnGeneration);
+                        request.RespawnGeneration,
+                        ToneOf(kind, tier));
                 }
             }
 
@@ -202,7 +216,8 @@ namespace BlackHole.Core
                     trait,
                     SizeRule.Base,
                     _stats.Of(kind, tier, trait),
-                    position);
+                    position,
+                    tone: ToneOf(kind, tier));
             }
         }
 
@@ -223,11 +238,16 @@ namespace BlackHole.Core
                     trait,
                     size,
                     _stats.Of(kind, tier, trait, size),
-                    _placement.Pick(_placementRandom));
+                    _placement.Pick(_placementRandom),
+                    tone: ToneOf(kind, tier));
             }
 
             return made;
         }
+
+        // 이 색 등급 개체의 톤: 마지막 색 등급이고 이 판에 톤이 있으면 같은 몫으로 하나, 아니면 0(색 등급 색 그대로).
+        private int ToneOf(EnemyDefinition kind, int tier) =>
+            tier == kind.Tiers.Count - 1 && _tonePickers.TryGetValue(kind, out QuotaPicker picker) ? picker.Pick() : 0;
 
         private int SuppliedAlive()
         {

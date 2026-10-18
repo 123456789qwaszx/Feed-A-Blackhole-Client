@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace BlackHole.Core
 {
@@ -16,6 +17,28 @@ namespace BlackHole.Core
         public const float Base = 100;
 
         private const float Window = 2;
+
+        // 동시에 나오는 색의 최대 수(구간 길이 2 → 3).
+        public const int MaxConcurrentTiers = 3;
+
+        // 마지막 색의 톤 수(1 이상, 1이면 톤 없음): 지금 비율에서 나오는 색이 최대 수보다 적은 만큼.
+        // 질량이 올라 파:보, 보라만 남으면(600%·700%+) 마지막 색을 톤으로 나눠 나오는 색의 수를 MaxConcurrentTiers로 유지한다 — 후반이 한 색으로 단조로워지지 않게.
+        // 톤은 색만 다르고 수치는 같다(EnemyStatTable·결산 장부는 톤을 모른다). 어느 톤이 붙는지는 출현 때 같은 몫으로 정해진다(EnemySupply).
+        // 색이 MaxConcurrentTiers보다 적은 종류(픽업)는 나눌 것이 없다.
+        public static int LastTierTones(IReadOnlyList<float> ratios)
+        {
+            if (ratios == null) throw new ArgumentNullException(nameof(ratios));
+
+            int active = 0;
+
+            for (int i = 0; i < ratios.Count; i++)
+            {
+                if (ratios[i] > 0)
+                    active++;
+            }
+
+            return Math.Max(1, Math.Min(MaxConcurrentTiers, ratios.Count) - active);
+        }
 
         // 질량 mass(%)에서 색 tierCount개의 비율(합 1).
         public static float[] TierRatios(float mass, int tierCount)
