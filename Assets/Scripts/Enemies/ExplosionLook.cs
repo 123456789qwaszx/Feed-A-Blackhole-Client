@@ -14,14 +14,14 @@ namespace BlackHole.Unity
         [SerializeField] private Material _material;
         [Tooltip("링 굵기(월드 단위). 반지름이 바뀌어도 그대로다.")]
         [Min(0.001f)]
-        [SerializeField] private float _thickness = 0.2f;
+        [SerializeField] private float _thickness = 0.15f;
         [SerializeField] private Color _color = new(1f, 0.55f, 0.2f, 1f);
         [Tooltip("링 바깥으로 번지는 빛의 폭(월드 단위). 이만큼 멀어지면 약 37%로 옅어진다.")]
         [Min(0.001f)]
         [SerializeField] private float _glowWidth = 0.3f;
         [Tooltip("번짐의 세기. 0이면 번지지 않는다.")]
         [Range(0, 1)]
-        [SerializeField] private float _glowStrength = 0.3f;
+        [SerializeField] private float _glowStrength = 0.5f;
         [Tooltip("링 안쪽을 채우는 섬광의 색.")]
         [SerializeField] private Color _flashColor = new(1f, 0.95f, 0.8f, 1f);
 
