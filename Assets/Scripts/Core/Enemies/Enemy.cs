@@ -17,7 +17,7 @@ namespace BlackHole.Core
         // 이 판 구성의 성질 객체다(노드가 반영된 수치 — EnemyComposition.Traits).
         public EnemyTraitDefinition Trait { get; }
 
-        // 특수 적인가(성질이 붙었는가). 특수 적은 사망 때 성질의 효과가 발동하고, 사망 효과의 피해를 받지 않는다.
+        // 특수 적인가(성질이 붙었는가). 특수 적은 사망 때 성질의 효과가 발동한다. 사망 효과의 피해도 받는다(달·픽업 제외) — 효과가 효과를 부른다(DeathEffects).
         public bool IsSpecial => Trait != null;
 
         // 재생성 세대. 0이면 판 공급으로 나온 적, n이면 재생성을 n번 거쳐 나온 적. 다음 재생성 확률은 세대마다 종류의 RespawnDecay만큼 줄어든다(DeathBonuses).

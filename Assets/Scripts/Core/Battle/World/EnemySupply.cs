@@ -5,7 +5,7 @@ namespace BlackHole.Core
 {
     // 한 판의 적 공급을 담당한다.
     // 생성 요청에 따라 일반 적을 만들고, 혜성 같은 주기 출현 적을 별도 주기로 생성한다.
-    // 적 종류의 변환과 시작, 성장 공급량은 판 조립 때 이미 정해져 들어온다.
+    // 적 종류의 변환과 시작 공급량은 판 조립 때 이미 정해져 들어온다. Level업의 성장 공급은 GrowthPacer가 시간차를 두고 여기에 요청한다.
     internal sealed class EnemySupply
     {
         // 일반 공급 적의 성능 보호용 상한. 게임 규칙상의 최대 개체 수는 아니다.
@@ -15,9 +15,6 @@ namespace BlackHole.Core
         private readonly EnemyStatTable _stats;
         private readonly EnemyPlacementDefinition _placement;
         private readonly PeriodicSpawnPlacementDefinition _periodicSpawnPlacement;
-
-        // Level업 한 번마다 요청할 적 종류와 수.
-        private readonly IReadOnlyList<SupplyRequest> _growthSupply;
 
         // 이 성질의 현재 활성 수.
         // 살아 있는 적과 Breaker에 남아 있는 해당 버프 중첩을 함께 센다.
@@ -59,14 +56,12 @@ namespace BlackHole.Core
             EnemyStatTable stats,
             EnemyPlacementDefinition placement,
             PeriodicSpawnPlacementDefinition periodicSpawnPlacement,
-            IReadOnlyList<SupplyRequest> growthSupply,
             Func<EnemyDefinition, EnemyTraitDefinition, int> countActive)
         {
             _enemies = enemies;
             _stats = stats;
             _placement = placement;
             _periodicSpawnPlacement = periodicSpawnPlacement;
-            _growthSupply = growthSupply;
             _countActive = countActive;
             _placementRandom = new BattleRandom(seed, RandomStream.Placement);
             _periodicSpawnPlacementRandom = new BattleRandom(seed, RandomStream.PeriodicSpawnPlacement);
@@ -121,16 +116,6 @@ namespace BlackHole.Core
 
         // 생성 요청: 이 종류를 몇 마리. 다음 공급 처리(ProcessRequests) 때 사용.
         internal void Request(SupplyRequest request) => _requests.Add(request);
-
-        // Level업 한 번마다 성장 공급을 요청).
-        internal void RequestGrowth(int levels)
-        {
-            for (int i = 0; i < levels; i++)
-            {
-                foreach (SupplyRequest request in _growthSupply)
-                    _requests.Add(request);
-            }
-        }
 
         // 쌓인 생성 요청을 요청 순서대로, 요청한 수만큼 한 마리씩 출현 띠 안에 만듬.
         internal void ProcessRequests()
