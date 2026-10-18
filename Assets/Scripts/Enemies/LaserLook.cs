@@ -5,7 +5,8 @@ namespace BlackHole.Unity
     // 현재 아래 값은 모두 [임시].
     // 레이저 별(LaserBurst 사망 효과)의 외형 설정 에셋. 화면(LaserBeams)만 읽는다. 판정 수치(피해·너비)와 시간(예고 DeathEffects.LaserTelegraphSeconds)은 규칙의 것이다.
     // 연출은 세 동작으로 나뉜다 — ① 표식: 별이 터지며 X 표식이 튀어나온다(섬광 + 가로 플레어 + 빔 방향의 짧은 세로 줄기, 튕기듯 한 번 커졌다 자리 잡음).
-    // ② 조준: 거의 동시에 빔 방향의 가는 실선이 중심에서 화면 밖으로 빠르게 뻗어 경로를 조준하고, 발사 직전 표식이 살짝 움츠러들며 실선이 진해진다(예비 동작).
+    // ② 조준: 표식이 자라는 동안 빔의 씨앗은 별 자리에 둥근 빛(LineDotRadius)으로 뭉쳐 있다가, 플레어가 회전하며 줄어들기 시작할 때 가는 실선으로 늘어나
+    //    화면 밖으로 뻗어 경로를 조준한다(LineGrow). 플레어는 거의 일직선이 되는 순간 발사된다(예비 동작, FlareTurn 곡선).
     // ③ 관통: 실선이 판정 너비를 넘겼다가 자리 잡으며 화면을 관통하고, 표식은 파도처럼 가라앉고, 발사 섬광이 터진다.
     // 요소: 섬광(Flash) · 플레어(Flare, 빔 방향에서 FlareAngle만큼 꺾인 가로 줄기) · 표식 세로 줄기(Mark, 빔 방향의 짧은 줄기) · 선(Line) → 빔(Beam).
     // 플레어와 표식 줄기는 같은 FlareGrow 곡선으로 자라고 발사 순간 FlareCollapseSeconds 동안 가라앉는다. 빔 굵기는 BeamWidth 곡선 × 판정 너비(1 = 맞는 범위).
@@ -37,10 +38,10 @@ namespace BlackHole.Unity
         [Tooltip("섬광 바깥으로 번지는 빛의 폭(월드 단위).")]
         [Min(0.001f)]
         [SerializeField] private float _flashGlowWidth = 1.2f;
-        [Tooltip("예고 진행(0 ~ 1)에서 시작 섬광의 세기. 처음에 번쩍이고 곧 꺼져야 한다.")]
+        [Tooltip("예고 진행(0 ~ 1)에서 시작 섬광의 세기. 처음에 번쩍이고 곧 꺼진 뒤, 발사 직전 표식이 점으로 뭉치는 동안 다시 차오른다(발사 섬광이 이어받는다).")]
         [SerializeField]
         private AnimationCurve _flashCurve = new AnimationCurve(
-            new Keyframe(0, 1, 0, -4), new Keyframe(0.45f, 0, 0, 0), new Keyframe(1, 0));
+            new Keyframe(0, 1, 0, -4), new Keyframe(0.3f, 0, 0, 0), new Keyframe(0.6f, 0, 0, 0), new Keyframe(1, 0.6f, 0, 0));
         [Tooltip("발사 섬광의 반지름 = 시작 섬광 반지름 × 이 값.")]
         [Min(0)]
         [SerializeField] private float _burstFlashScale = 1.8f;
@@ -64,10 +65,19 @@ namespace BlackHole.Unity
         [Tooltip("플레어 바깥으로 번지는 빛의 폭(월드 단위).")]
         [Min(0.001f)]
         [SerializeField] private float _flareGlowWidth = 0.6f;
-        [Tooltip("예고 진행(0 ~ 1)에서 플레어·표식 길이의 비율. 튕기듯 1을 넘겼다가(표식 등장) 자리 잡고, 발사 직전 살짝 움츠러든다(예비 동작). 1을 넘어도 된다.")]
+        [Tooltip("예고 진행(0 ~ 1)에서 플레어·표식 길이의 비율. 튕기듯 1을 넘겼다가(표식 등장) 자리 잡고, 발사 직전 회전하며 점으로 뭉치듯 줄어든다(예비 동작). 1을 넘어도 된다.")]
         [SerializeField]
         private AnimationCurve _flareGrow = new AnimationCurve(
-            new Keyframe(0, 0, 0, 12), new Keyframe(0.12f, 1.15f, 0, 0), new Keyframe(0.25f, 1, 0, 0), new Keyframe(0.75f, 1, 0, 0), new Keyframe(1, 0.85f, 0, 0));
+            new Keyframe(0, 0, 0, 12), new Keyframe(0.12f, 1.15f, 0, 0), new Keyframe(0.25f, 1, 0, 0), new Keyframe(0.55f, 1, 0, 0), new Keyframe(1, 0.12f, 0, 0));
+        [Tooltip("예고 진행(0 ~ 1)에서 플레어가 빔 방향에서 꺾인 각의 비율(1 = FlareAngle, 0 = 빔과 일직선). 발사 직전 실선 쪽으로 살짝 돈다 — " +
+                 "두 키의 접선이 0이면 천천히 돌기 시작해 빨라졌다가 천천히 멈춘다(ease in-out). 끝값만큼 꺾인 채 발사되고 가라앉는다(0.8이면 75°의 20%인 15°쯤 돈다).")]
+        [SerializeField]
+        private AnimationCurve _flareTurn = new AnimationCurve(
+            new Keyframe(0, 1, 0, 0), new Keyframe(0.55f, 1, 0, 0), new Keyframe(1, 0.8f, 0, 0));
+        [Tooltip("예고 진행(0 ~ 1)에서 플레어·표식 심 굵기의 비율(번짐 폭도 같이 줄인다). 회전하며 조금씩 얇아진다.")]
+        [SerializeField]
+        private AnimationCurve _flareThin = new AnimationCurve(
+            new Keyframe(0, 1, 0, 0), new Keyframe(0.55f, 1, 0, 0), new Keyframe(1, 0.35f, 0, 0));
         [Tooltip("예고 진행(0 ~ 1)에서 플레어의 세기(0 ~ 1).")]
         [SerializeField]
         private AnimationCurve _flareFade = new AnimationCurve(
@@ -80,17 +90,20 @@ namespace BlackHole.Unity
         [Tooltip("실선의 굵기(월드 단위, 전장 배율을 곱한다).")]
         [Min(0.001f)]
         [SerializeField] private float _lineThickness = 0.05f;
+        [Tooltip("실선이 뻗기 전 별 자리에 뭉쳐 있는 둥근 빛의 반지름(월드 단위, 전장 배율을 곱한다). 실선이 자라는 만큼 이 둥근 빛이 실선 굵기로 가늘어진다.")]
+        [Min(0)]
+        [SerializeField] private float _lineDotRadius = 0.3f;
         [Tooltip("실선 바깥으로 번지는 빛의 폭(월드 단위).")]
         [Min(0.001f)]
         [SerializeField] private float _lineGlowWidth = 0.15f;
-        [Tooltip("예고 진행(0 ~ 1)에서 실선 길이의 비율(0 = 중심, 1 = 화면 밖). 표식과 거의 동시에 출발해 빠르게 뻗는다(조준).")]
+        [Tooltip("예고 진행(0 ~ 1)에서 실선 길이의 비율(0 = 중심의 둥근 빛, 1 = 화면 밖). 플레어가 회전하며 줄어들기 시작할 때(FlareTurn·FlareGrow의 0.55 키) 출발해 빠르게 뻗는다(조준).")]
         [SerializeField]
         private AnimationCurve _lineGrow = new AnimationCurve(
-            new Keyframe(0.06f, 0, 0, 0), new Keyframe(0.4f, 1, 4, 0), new Keyframe(1, 1, 0, 0));
-        [Tooltip("예고 진행(0 ~ 1)에서 실선의 세기(0 ~ 1). 조준 중엔 옅게 머물다 발사 직전 빠르게 진해진다.")]
+            new Keyframe(0.55f, 0, 0, 6), new Keyframe(0.78f, 1, 0, 0), new Keyframe(1, 1, 0, 0));
+        [Tooltip("예고 진행(0 ~ 1)에서 둥근 빛·실선의 세기(0 ~ 1). 조준 중엔 옅게 머물다 발사 직전 빠르게 진해진다.")]
         [SerializeField]
         private AnimationCurve _lineFade = new AnimationCurve(
-            new Keyframe(0, 0.3f, 0, 0), new Keyframe(0.78f, 0.45f, 0, 0), new Keyframe(1, 1, 5, 0));
+            new Keyframe(0, 0.5f, 0, 0), new Keyframe(0.55f, 0.5f, 0, 0), new Keyframe(0.8f, 0.45f, 0, 0), new Keyframe(1, 1, 5, 0));
 
         [Header("빔: 발사. 가로는 발사 뒤 시간의 진행(0 ~ 1, BurstSeconds)")]
         [Tooltip("발사 연출이 보이는 시간(초).")]
@@ -129,6 +142,7 @@ namespace BlackHole.Unity
         public float FlareGlowWidth => _flareGlowWidth;
         public float FlareCollapseSeconds => _flareCollapseSeconds;
         public float LineThickness => _lineThickness;
+        public float LineDotRadius => _lineDotRadius;
         public float LineGlowWidth => _lineGlowWidth;
         public float BurstSeconds => _burstSeconds;
         public float BeamGlowWidth => _beamGlowWidth;
@@ -139,6 +153,10 @@ namespace BlackHole.Unity
         // 플레어·표식 길이의 비율. 튕김을 위해 1을 넘을 수 있다.
         public float FlareGrowth(float progress) => _flareGrow == null ? 1 : Mathf.Max(0, _flareGrow.Evaluate(Mathf.Clamp01(progress)));
         public float FlareStrength(float progress) => Evaluate(_flareFade, progress, 1);
+        // 플레어가 꺾인 각의 비율(0 ~ 1). 곡선이 없으면 끝까지 꺾인 채다.
+        public float FlareTurnFraction(float progress) => Evaluate(_flareTurn, progress, 1);
+        // 플레어·표식 굵기의 비율(0 ~ 1). 곡선이 없으면 그대로다.
+        public float FlareThinness(float progress) => Evaluate(_flareThin, progress, 1);
         public float LineGrowth(float progress) => Evaluate(_lineGrow, progress, 1);
         public float LineStrength(float progress) => Evaluate(_lineFade, progress, 1);
         public float BeamStrength(float progress) => Evaluate(_beamFade, progress, 1 - progress);

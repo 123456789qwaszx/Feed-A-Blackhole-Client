@@ -9,7 +9,8 @@ namespace BlackHole.Unity
     // 레이저 별의 레이저를 그리는 부품. 사망 효과 화면(DeathEffectView)이 예고 목록(LaserTelegraph)과 발사 기록(LaserBurst)을 읽어 부른다.
     // 외형은 LaserLook이 가진다. 셰이더(BlackHole/Laser Beam)가 선 방향으로 돌린 사각형 하나에 곧은 빛줄기를 수식으로 그린다.
     // 연출(세 동작, LaserLook 머리말): ① 표식 — 별이 터지며 섬광과 함께 X 표식(꺾인 가로 플레어 + 빔 방향의 짧은 세로 줄기)이 튕기듯 튀어나온다.
-    // ② 조준 — 거의 동시에 빔 방향의 가는 실선이 중심에서 화면 밖으로 빠르게 뻗고, 발사 직전 표식이 움츠러들며 실선이 진해진다.
+    // ② 조준 — 표식이 자라는 동안 빔의 씨앗은 별 자리에 둥근 빛으로 뭉쳐 있다가, 플레어가 점으로 뭉치듯 줄어들며 실선 쪽으로 살짝 돌기 시작할 때
+    //   가는 실선으로 늘어나 화면 밖으로 뻗는다. 발사 직전 실선이 진해진다.
     // ③ 관통 — 실선이 판정 너비를 넘겼다가 자리 잡으며 화면을 관통하고, 표식은 가라앉고, 발사 섬광이 터진다.
     // - ShowTelegraphs: 예고 중인 레이저마다 섬광·플레어·표식·실선을 그린다. 예고에는 번호가 없어 상태를 두지 않고, 규칙이 주는 남은 시간으로 진행(0 ~ 1)을 구해
     //   매 프레임 모양을 다시 정한다. 플레어의 각과 좌우는 경로 끝점을 씨앗으로 뽑아 예고와 발사가 같은 값을 쓴다.
@@ -63,7 +64,8 @@ namespace BlackHole.Unity
             public float Elapsed;
             public Vector2 Center;
             public float BeamAngle;
-            public float FlareAngle;
+            // 발사 순간 플레어가 빔 방향에서 꺾여 있는 각(라디안). 가라앉는 동안 그대로다.
+            public float FlareTurn;
             // 판정 너비(빔의 다 굵어진 굵기).
             public float Width;
             public bool Critical;
@@ -94,21 +96,27 @@ namespace BlackHole.Unity
                 float progress = telegraph.Duration > 0 ? 1 - Mathf.Clamp01(telegraph.Remaining / telegraph.Duration) : 1;
                 Vector2 center = Center(telegraph.Start, telegraph.End);
                 float beamAngle = Angle(telegraph.Start, telegraph.End);
-                float flareAngle = beamAngle + FlareTurn(telegraph.Start);
+                // 플레어는 꺾인 각에서 출발해 발사 직전 빔 쪽으로 회전한다.
+                float flareAngle = beamAngle + FlareTurn(telegraph.Start) * _look.FlareTurnFraction(progress);
                 float reach = ScreenReach(center);
 
                 // 섬광: 예고 시작에 번쩍이고 곧 꺼진다.
                 Place(view.Flash, center, 0, 0, _look.FlashRadius * 2 * field, _look.FlashGlowWidth * field, 0, _look.Flash(progress));
 
-                // 표식: 가로 플레어와 빔 방향의 짧은 세로 줄기가 같은 곡선으로 튕기듯 자라 X를 만든다.
+                // 표식: 가로 플레어와 빔 방향의 짧은 세로 줄기가 같은 곡선으로 튕기듯 자라 X를 만들고, 발사 직전 회전하며 얇아진다.
                 float growth = _look.FlareGrowth(progress);
                 float strength = _look.FlareStrength(progress);
-                Place(view.Flare, center, flareAngle, _look.FlareReach * field * growth * 2, _look.FlareThickness * field, _look.FlareGlowWidth * field, 1, strength);
-                Place(view.Mark, center, beamAngle, _look.MarkReach * field * growth * 2, _look.FlareThickness * field, _look.FlareGlowWidth * field, 1, strength);
+                float thin = _look.FlareThinness(progress);
+                float thickness = _look.FlareThickness * field * thin;
+                float glow = _look.FlareGlowWidth * field * thin;
+                Place(view.Flare, center, flareAngle, _look.FlareReach * field * growth * 2, thickness, glow, 1, strength);
+                Place(view.Mark, center, beamAngle, _look.MarkReach * field * growth * 2, thickness, glow, 1, strength);
 
-                // 조준: 거의 동시에 실선이 중심에서 화면 밖으로 뻗고, 발사 직전 진해진다.
-                float lineHalf = reach * _look.LineGrowth(progress);
-                Place(view.Line, center, beamAngle, lineHalf * 2, _look.LineThickness * field, _look.LineGlowWidth * field, 0, _look.LineStrength(progress));
+                // 조준: 실선이 뻗기 전엔 별 자리에 둥근 빛으로 뭉쳐 있다가(길이 0, 굵기 = 둥근 빛 지름), 자라는 만큼 실선 굵기로 가늘어지며 화면 밖으로 뻗는다.
+                float lineGrowth = _look.LineGrowth(progress);
+                float lineThickness = Mathf.Lerp(_look.LineDotRadius * 2, _look.LineThickness, lineGrowth) * field;
+                float lineGlow = Mathf.Lerp(_look.LineDotRadius, _look.LineGlowWidth, lineGrowth) * field;
+                Place(view.Line, center, beamAngle, reach * lineGrowth * 2, lineThickness, lineGlow, 0, _look.LineStrength(progress));
             }
 
             for (int i = telegraphs.Count; i < _telegraphs.Count; i++)
@@ -123,7 +131,7 @@ namespace BlackHole.Unity
             burst.Elapsed = 0;
             burst.Center = Center(start, end);
             burst.BeamAngle = Angle(start, end);
-            burst.FlareAngle = burst.BeamAngle + FlareTurn(start);
+            burst.FlareTurn = FlareTurn(start) * _look.FlareTurnFraction(1);
             burst.Width = width;
             burst.Critical = critical;
             burst.Field = Field(fieldScale);
@@ -184,14 +192,18 @@ namespace BlackHole.Unity
             Place(burst.View.Line, burst.Center, burst.BeamAngle, burst.Reach * 2, burst.Width * _look.BeamWidthScale(progress),
                 _look.BeamGlowWidth * burst.Field * boost, 0, _look.BeamStrength(progress));
 
-            // 표식: 예고 끝의 길이(FlareGrowth(1))에서 파도처럼 가라앉는다 — 처음엔 천천히, 끝에 빠르게 줄며 옅어진다.
+            // 표식: 예고 끝의 길이(FlareGrowth(1))와 각에서 파도처럼 가라앉는다 — 처음엔 천천히, 끝에 빠르게 줄며 옅어지고, 남은 각은 빔과 일직선까지 마저 돈다.
             float collapse = Mathf.Clamp01(burst.Elapsed / _look.FlareCollapseSeconds);
+            float settle = 1 - collapse;
             float growth = _look.FlareGrowth(1) * (1 - collapse * collapse);
-            float strength = collapse < 1 ? 1 - collapse : 0;
-            Place(burst.View.Flare, burst.Center, burst.FlareAngle, _look.FlareReach * burst.Field * growth * 2, _look.FlareThickness * burst.Field,
-                _look.FlareGlowWidth * burst.Field, 1, strength);
-            Place(burst.View.Mark, burst.Center, burst.BeamAngle, _look.MarkReach * burst.Field * growth * 2, _look.FlareThickness * burst.Field,
-                _look.FlareGlowWidth * burst.Field, 1, strength);
+            float strength = collapse < 1 ? settle : 0;
+            // 각은 예고 끝의 각 그대로, 굵기는 예고 끝의 굵기에서 더 가늘어진다.
+            float flareAngle = burst.BeamAngle + burst.FlareTurn;
+            float thin = _look.FlareThinness(1) * (0.5f + 0.5f * settle);
+            float thickness = _look.FlareThickness * burst.Field * thin;
+            float glow = _look.FlareGlowWidth * burst.Field * thin;
+            Place(burst.View.Flare, burst.Center, flareAngle, _look.FlareReach * burst.Field * growth * 2, thickness, glow, 1, strength);
+            Place(burst.View.Mark, burst.Center, burst.BeamAngle, _look.MarkReach * burst.Field * growth * 2, thickness, glow, 1, strength);
 
             // 발사 섬광: 시작 섬광보다 크게 터진다.
             float flashRadius = _look.FlashRadius * _look.BurstFlashScale * burst.Field * boost;
