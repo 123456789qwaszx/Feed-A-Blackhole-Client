@@ -8,8 +8,11 @@ namespace BlackHole.Core
     // 늦추는 것은 적의 "생성"과 화면의 "연출"뿐이다.
     // - Level이 n 오르면 바퀴(Wheel) n개를 예약한다. 바퀴 하나는 게이지가 한 바퀴 도는 LevelGaugeSeconds 동안이고, 앞 바퀴의 끝에 이어 붙는다
     //   (시작 시각 = max(지금, 마지막 바퀴의 끝)). 앞 연출이 끝나기 전에 또 Level이 올라도 겹치지 않고 줄을 선다.
-    // - 바퀴가 끝나는 시각(게이지가 찬 순간)부터 그 Level의 성장 공급을 SpawnInterval 간격으로 한 마리씩 요청한다.
-    //   순서는 성장 공급 목록 순서(= 시작 공급 순서, GameSessionFactory.GrowthSupplyOf). 바퀴가 겹치면 앞 바퀴의 개체가 먼저다.
+    // - 바퀴가 끝나는 시각(게이지가 찬 순간)부터 그 Level의 성장 공급을 SpawnInterval 간격으로 한 마리씩 요청한다. 바퀴가 겹치면 앞 바퀴의 개체가 먼저다.
+    //   한 바퀴 안의 순서(Order): 종류별로 몰아서(소행성 전부 → 행성 전부 → 별) 내보내면 어색하므로 종류를 섞는다.
+    //   종류마다 개체를 바퀴 길이에 고르게 펼치고(k번째 = (k − ½) ÷ 그 종류의 수), 성장 공급 목록의 뒤쪽 종류(높은 단계)일수록
+    //   KindStagger씩 뒤로 민다 — 낮은 단계가 먼저 깔리되 높은 단계가 그 사이로 섞여 들어온다. 난수 없이 판마다 같은 순서다(결정성).
+    //   예: 소행성 6·행성 3·별 1 → 소,소,행,소,소,행,소,별,소,행 (별은 뒤쪽이지만 마지막은 아니다).
     // - 화면은 PendingWheels·WheelProgress를 읽어 게이지와 블랙홀을 그린다: 보여줄 Level = Hq.Level − PendingWheels,
     //   바퀴가 도는 중이면 진행도 = WheelProgress, 아니면 Hq.Progress. Hq.Level이 먼저 올라 있고 화면이 뒤따른다.
     // - 재생성·시작 공급·치트 소환은 여기를 거치지 않는다(즉시).
@@ -23,19 +26,20 @@ namespace BlackHole.Core
         public const float LevelGaugeSeconds = 0.3f;
         // 한 바퀴의 성장 공급 안에서 개체 사이의 간격(초). 실기 테스트의 출발값.
         public const float SpawnInterval = 0.03f;
+        // 한 바퀴 안에서 성장 공급 목록의 다음 종류가 앞 종류보다 뒤로 밀리는 정도(바퀴 길이 = 1 기준).
+        private const float KindStagger = 0.2f;
         private const float TimeEpsilon = 1e-5f;
 
-        // 예약된 바퀴 하나. 성장 공급 목록을 요청 순서대로 한 마리씩 내보내며 커서(RequestIndex, CountInRequest)를 옮긴다.
+        // 예약된 바퀴 하나. _order를 앞에서부터 한 마리씩 내보낸다.
         private sealed class Wheel
         {
             public float StartAt;
             public float ReleaseAt => StartAt + LevelGaugeSeconds;
-            public int RequestIndex;
-            public int CountInRequest;
             public int Spawned;
         }
 
-        private readonly IReadOnlyList<SupplyRequest> _growthSupply;
+        // 한 바퀴의 성장 공급을 내보내는 순서(종류를 섞은 것). 판 동안 같다.
+        private readonly IReadOnlyList<EnemyDefinition> _order;
         private readonly List<Wheel> _wheels = new();
         private float _now;
         // 마지막으로 예약한 바퀴의 끝. 다음 바퀴는 이 뒤에 붙는다.
@@ -43,7 +47,32 @@ namespace BlackHole.Core
 
         internal GrowthPacer(IReadOnlyList<SupplyRequest> growthSupply)
         {
-            _growthSupply = growthSupply ?? throw new ArgumentNullException(nameof(growthSupply));
+            if (growthSupply == null) throw new ArgumentNullException(nameof(growthSupply));
+            _order = OrderOf(growthSupply);
+        }
+
+        // 한 바퀴의 순서: (종류 순번 × KindStagger + (k − ½) ÷ 그 종류의 수)가 작은 것부터. 같으면 목록 앞 종류가 먼저(안정 정렬).
+        internal static IReadOnlyList<EnemyDefinition> OrderOf(IReadOnlyList<SupplyRequest> growthSupply)
+        {
+            var slots = new List<(float Key, int Kind, EnemyDefinition Enemy)>();
+
+            for (int kind = 0; kind < growthSupply.Count; kind++)
+            {
+                SupplyRequest request = growthSupply[kind];
+
+                for (int k = 1; k <= request.Count; k++)
+                    slots.Add((kind * KindStagger + (k - 0.5f) / request.Count, kind, request.Enemy));
+            }
+
+            // List.Sort는 안정 정렬이 아니라 종류 순번을 둘째 키로 넣는다.
+            slots.Sort((a, b) => a.Key != b.Key ? a.Key.CompareTo(b.Key) : a.Kind.CompareTo(b.Kind));
+
+            var order = new EnemyDefinition[slots.Count];
+
+            for (int i = 0; i < slots.Count; i++)
+                order[i] = slots[i].Enemy;
+
+            return order;
         }
 
         // 아직 게이지가 다 차지 않은 바퀴의 수. 화면이 보여줄 Level = Hq.Level − 이 수.
@@ -134,19 +163,9 @@ namespace BlackHole.Core
             _lastEnd = _now;
         }
 
-        private bool IsDone(Wheel wheel) => wheel.RequestIndex >= _growthSupply.Count;
+        private bool IsDone(Wheel wheel) => wheel.Spawned >= _order.Count;
 
-        private void RequestNext(Wheel wheel, EnemySupply supply)
-        {
-            SupplyRequest request = _growthSupply[wheel.RequestIndex];
-            supply.Request(new SupplyRequest(request.Enemy, 1));
-            wheel.Spawned++;
-
-            if (++wheel.CountInRequest >= request.Count)
-            {
-                wheel.RequestIndex++;
-                wheel.CountInRequest = 0;
-            }
-        }
+        private void RequestNext(Wheel wheel, EnemySupply supply) =>
+            supply.Request(new SupplyRequest(_order[wheel.Spawned++], 1));
     }
 }
