@@ -53,9 +53,9 @@ MonoBehaviour:
     color: {r: 0.45, g: 0.75, b: 1, a: 1}
     multiplier: 1
     critRewardScale: 0
-    damage: 1800
-    radius: 3
-    maxTargets: 5
+    damage: 5800
+    radius: 8.8
+    maxTargets: 8
     branches: 2
     branchChance: 0.5
     critChance: 0
@@ -71,6 +71,7 @@ MonoBehaviour:
     damage: 12000
     radius: 0
     maxTargets: 0
+    branches: 0
     branchChance: 0
     critChance: 0
     critMultiplier: 2
@@ -85,6 +86,7 @@ MonoBehaviour:
     damage: 12000
     radius: 8.8
     maxTargets: 0
+    branches: 0
     branchChance: 0
     critChance: 0
     critMultiplier: 0

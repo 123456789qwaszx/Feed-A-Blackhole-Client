@@ -128,10 +128,10 @@ breaker.radius-09,1,breaker.radius,75,Percent,+75%
 comet.rainChance-03,1,comet.rainChance,20,Percent,+20%
 asteroid.count-04,1,asteroid.count,92,Flat,+92
 breaker.speed-08,1,breaker.speed,25,Percent,+25%
-electricStar.damage-01,1,electricStar.damage,500,Flat,+500
+electricStar.damage-01,1,electricStar.damage,3000,Flat,+3000
 breaker.radius-10,1,breaker.radius,8,Percent,+8%
 planet.toStar-01,1,planet.toStar,10,Flat,+10
-electricStar.chain-01,1,electricStar.chain,1,Flat,+1
+electricStar.chain-01,1,electricStar.chain,2,Flat,+2
 asteroid.toPlanet-04,1,asteroid.toPlanet,70,Flat,+70
 star.respawnChance-01,1,star.respawnChance,60,Percent,+60%
 breaker.damage-21,1,breaker.damage,200,Flat,+200
@@ -146,7 +146,7 @@ breaker.starBonusDamage-01,1,breaker.starBonusDamage,1000,Flat,+1000
 breaker.damage-23,1,breaker.damage,350,Flat,+350
 breaker.damage-24,1,breaker.damage,500,Flat,+500
 breaker.speed-09,1,breaker.speed,25,Percent,+25%
-electricStar.chain-02,1,electricStar.chain,1,Flat,+1
+electricStar.chain-02,1,electricStar.chain,2,Flat,+2
 moonPlanet.rangeScale-05,1,moonPlanet.rangeScale,10,Percent,+10%
 star.respawnChance-02,1,star.respawnChance,20,Percent,+20%
 star.size-02,1,star.size,1,Flat,+1
@@ -165,7 +165,7 @@ breaker.starBonusDamage-02,1,breaker.starBonusDamage,2000,Flat,+2000
 planet.respawnChance-04,1,planet.respawnChance,10,Percent,+10%
 star.massScale-04,1,star.massScale,125,Percent,+125%
 comet.spawnChance-02,1,comet.spawnChance,30,Percent,+30%
-electricStar.damage-02,1,electricStar.damage,2000,Flat,+2000
+electricStar.damage-02,1,electricStar.damage,8000,Flat,+8000
 laserStar.spawnChance-01,1,laserStar.spawnChance,20,Percent,+20%
 laserStar.critChance-01,1,laserStar.critChance,50,Percent,+50%
 electricStar.critBonus-01,1,electricStar.critBonus,200,Percent,+200%
