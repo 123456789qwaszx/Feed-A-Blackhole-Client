@@ -39,6 +39,7 @@ namespace BlackHole.Core
         public float SpawnPeriod { get; }
 
         // 픽업(혜성): 브레이커로 쳐서 획득하는 것이며, 사망 효과의 피해를 받지 않는다(DeathEffects.CanBeStruck — 달과 함께 특수 적 중 예외). 질량·크기가 없다.
+        // 브레이커에 붙잡히지도 않는다(BreakerSkill.IsHolding) — 공전을 멈추지 않고 지나간다.
         // 지금은 주기 출현 종류만 픽업이다.
         public bool IsPickup => SpawnPeriod > 0;
 
