@@ -26,7 +26,7 @@ MonoBehaviour:
     decay: 0.88
     maxGeneration: 0
   - stage: 5
-    decay: 0.98
+    decay: 0.96
     maxGeneration: 0
   rainCooldown: 0
   rainDelay: 0
