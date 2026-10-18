@@ -1011,11 +1011,11 @@
       "rank": 1
     },
     {
-      "nodeId": "supernovaStar.damage-04",
+      "nodeId": "asteroid.toPlanet-06",
       "rank": 1
     },
     {
-      "nodeId": "supernovaStar.damage-05",
+      "nodeId": "planet.toStar-07",
       "rank": 1
     },
     {
@@ -1055,7 +1055,7 @@
       "rank": 1
     },
     {
-      "nodeId": "timer-04",
+      "nodeId": "asteroid.count-05",
       "rank": 1
     }
   ],

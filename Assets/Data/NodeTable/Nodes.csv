@@ -218,11 +218,11 @@ supernovaStar.range-03,1,초신성 잔해
 breaker.damage-28,1,초신성 잔해
 laserStar.width-08,1,초신성 잔해
 supernovaStar.range-04,1,초신성 잔해
-supernovaStar.damage-04,1,초신성 잔해
+asteroid.toPlanet-06,1,초신성 잔해
 planet.toStar-05,1,초신성 잔해
-supernovaStar.damage-05,1,초신성 잔해
+planet.toStar-07,1,초신성 잔해
 supernovaStar.damage-06,1,초신성 잔해
-timer-04,1,초신성 잔해
+asteroid.count-05,1,초신성 잔해
 laserStar.width-09,1,초신성 잔해
 star.massScale-09,1,초신성 잔해
 star.toGalaxy-01,1,은하핵

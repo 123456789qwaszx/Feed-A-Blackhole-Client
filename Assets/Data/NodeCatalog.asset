@@ -1263,7 +1263,7 @@ MonoBehaviour:
       Y: -28
       Links:
       - star.timeChance-02
-      - timer-04
+      - asteroid.count-05
     - Id: timer-03
       Start: 0
       X: 6
@@ -1286,7 +1286,7 @@ MonoBehaviour:
       Y: -33
       Links:
       - comet.spawnChance-04
-      - timer-04
+      - asteroid.count-05
     - Id: planet.timeChance-02
       Start: 0
       X: -14
@@ -1369,21 +1369,21 @@ MonoBehaviour:
       Links:
       - moonPlanet.rangeScale-07
       - laserStar.width-09
-    - Id: supernovaStar.damage-04
+    - Id: asteroid.toPlanet-06
       Start: 0
       X: -19
       Y: -20
       Links:
-      - supernovaStar.damage-05
+      - planet.toStar-07
     - Id: planet.toStar-05
       Start: 0
       X: -18
       Y: -21
       Links:
-      - supernovaStar.damage-04
+      - asteroid.toPlanet-06
       - star.massScale-09
       - laserStar.width-09
-    - Id: supernovaStar.damage-05
+    - Id: planet.toStar-07
       Start: 0
       X: -19
       Y: -18
@@ -1395,7 +1395,7 @@ MonoBehaviour:
       Y: -23
       Links:
       - supernovaStar.range-04
-    - Id: timer-04
+    - Id: asteroid.count-05
       Start: 0
       X: -18
       Y: -33
@@ -1411,7 +1411,7 @@ MonoBehaviour:
       Y: -20
       Links:
       - galaxy.size-01
-      - supernovaStar.damage-04
+      - asteroid.toPlanet-06
     - Id: star.toGalaxy-01
       Start: 0
       X: -19
@@ -1454,7 +1454,7 @@ MonoBehaviour:
       X: -17
       Y: -18
       Links:
-      - supernovaStar.damage-05
+      - planet.toStar-07
     - Id: gravityGalaxy.radius-01
       Start: 0
       X: -16
@@ -1874,11 +1874,11 @@ MonoBehaviour:
       - breaker.damage-28
       - laserStar.width-08
       - supernovaStar.range-04
-      - supernovaStar.damage-04
+      - asteroid.toPlanet-06
       - planet.toStar-05
-      - supernovaStar.damage-05
+      - planet.toStar-07
       - supernovaStar.damage-06
-      - timer-04
+      - asteroid.count-05
       - laserStar.width-09
       - star.massScale-09
       - supernovaStar.range-01
