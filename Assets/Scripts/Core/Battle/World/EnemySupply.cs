@@ -58,6 +58,7 @@ namespace BlackHole.Core
             EnemyStatTable stats,
             EnemyPlacementDefinition placement,
             PeriodicSpawnPlacementDefinition periodicSpawnPlacement,
+            IReadOnlyList<SupplyRequest> startSupply,
             Func<EnemyDefinition, EnemyTraitDefinition, int> countActive)
         {
             _enemies = enemies;
@@ -80,9 +81,11 @@ namespace BlackHole.Core
                 EnemyComposition composition = stats.CompositionOf(kind);
                 _tierPickers.Add(kind, new QuotaPicker(stats.TierRatiosOf(kind), tierRandom));
 
-                if (composition.LastTierTones > 1)
+                int toneCount = LastTierTonesOf(kind, startSupply);
+
+                if (toneCount > 1)
                 {
-                    var tones = new float[composition.LastTierTones];
+                    var tones = new float[toneCount];
 
                     for (int i = 0; i < tones.Length; i++)
                         tones[i] = 1;
@@ -248,6 +251,32 @@ namespace BlackHole.Core
         // 이 색 등급 개체의 톤: 마지막 색 등급이고 이 판에 톤이 있으면 같은 몫으로 하나, 아니면 0(색 등급 색 그대로).
         private int ToneOf(EnemyDefinition kind, int tier) =>
             tier == kind.Tiers.Count - 1 && _tonePickers.TryGetValue(kind, out QuotaPicker picker) ? picker.Pick() : 0;
+
+        // 이 종류의 마지막 색 등급 톤 수(MassRule.LastTierTones). 화면에 나오는 색 = 이 종류의 색 수 + 변환 사슬에서 다음 종류들 중 이 판에
+        // 공급되는(시작 공급 > 0) 것의 색 수. 상위 종류가 나오면 그만큼 톤이 줄고, 상위가 두 색 이상이면 톤이 없어진다.
+        private int LastTierTonesOf(EnemyDefinition kind, IReadOnlyList<SupplyRequest> startSupply)
+        {
+            int visible = MassRule.ActiveTiers(_stats.TierRatiosOf(kind));
+
+            for (EnemyDefinition next = _stats.UpgradeTargetOf(kind); next != null && next != kind; next = _stats.UpgradeTargetOf(next))
+            {
+                if (IsSupplied(next, startSupply))
+                    visible += MassRule.ActiveTiers(_stats.TierRatiosOf(next));
+            }
+
+            return MassRule.LastTierTones(visible, kind.Tiers.Count);
+        }
+
+        private static bool IsSupplied(EnemyDefinition kind, IReadOnlyList<SupplyRequest> startSupply)
+        {
+            for (int i = 0; i < startSupply.Count; i++)
+            {
+                if (startSupply[i].Enemy == kind && startSupply[i].Count > 0)
+                    return true;
+            }
+
+            return false;
+        }
 
         private int SuppliedAlive()
         {

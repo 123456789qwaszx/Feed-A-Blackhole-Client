@@ -13,7 +13,7 @@ namespace BlackHole.Core
         // 크기(SizeRule.Base부터). 출현 때 그 종류의 열린 크기 중 하나로 정해진다. Stats는 이미 이 크기가 반영된 값이다. 픽업은 SizeRule.Base다.
         public int Size { get; }
 
-        // 마지막 색 등급의 톤(0 = 색 등급 색 그대로, 1부터 = 추가 톤). 판 구성이 톤 수를 정하고(EnemyComposition.LastTierTones) 출현 때 같은 몫으로 정해진다.
+        // 마지막 색 등급의 톤(0 = 색 등급 색 그대로, 1부터 = 추가 톤). 톤 수는 판 구성(이 종류와 상위 종류의 색 수, MassRule.LastTierTones)이 정하고 출현 때 같은 몫으로 정해진다(EnemySupply).
         // 색만 다르고 수치는 같다 — Stats·보상·장부에 들어가지 않는다. 마지막 색 등급이 아니면 늘 0.
         public int Tone { get; }
 
