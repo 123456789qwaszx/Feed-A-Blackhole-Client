@@ -167,7 +167,8 @@ star.massScale-04,1,25000000000000
 comet.spawnChance-02,1,10000000000000
 electricStar.damage-02,1,12000000000000
 laserStar.spawnChance-01,1,80000000000000
-laserStar.critChance-01,1,28000000000000
+laserStar.critChance-01,1,100000000000000
+star.massScale-05,1,300000000000000
 electricStar.critBonus-01,1,14000000000000
 laserStar.width-01,1,100000000000000
 laserStar.damage-01,1,100000000000000
@@ -186,13 +187,12 @@ supernovaStar.damage-01,1,160000000000000
 star.respawnChance-04,1,6000000000000
 laserStar.damage-02,1,120000000000000
 supernovaStar.spawnChance-01,1,160000000000000
-star.massScale-05,1,57000000000000
+star.massScale-06,1,57000000000000
 laserStar.critBonus-02,1,28000000000000
 supernovaStar.range-02,1,160000000000000
 comet.spawnChance-03,1,160000000000000
 supernovaStar.damage-02,1,160000000000000
 breaker.damage-27,1,110000000000000
-laserStar.width-03,1,28000000000000
 laserStar.damage-03,1,28000000000000
 laserStar.damage-04,1,28000000000000
 laserStar.width-04,1,57000000000000

@@ -740,6 +740,10 @@
             "rank": 1
         },
         {
+            "nodeId": "star.massScale-06",
+            "rank": 1
+        },
+        {
             "nodeId": "star.massScale-09",
             "rank": 1
         },
@@ -793,10 +797,6 @@
         },
         {
             "nodeId": "laserStar.width-02",
-            "rank": 1
-        },
-        {
-            "nodeId": "laserStar.width-03",
             "rank": 1
         },
         {

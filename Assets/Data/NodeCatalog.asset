@@ -1060,7 +1060,13 @@ MonoBehaviour:
       X: 7
       Y: -18
       Links:
-      - laserStar.width-02
+      - star.massScale-05
+    - Id: star.massScale-05
+      Start: 0
+      X: 7
+      Y: -20
+      Links:
+      - breaker.damage-25
     - Id: electricStar.critBonus-01
       Start: 0
       X: 12
@@ -1083,7 +1089,7 @@ MonoBehaviour:
     - Id: breaker.damage-25
       Start: 0
       X: 5
-      Y: -20
+      Y: -22
       Links:
       - laserStar.damage-04
     - Id: laserStar.critBonus-01
@@ -1145,7 +1151,7 @@ MonoBehaviour:
       X: 6
       Y: -19
       Links:
-      - breaker.damage-25
+      - star.massScale-05
     - Id: supernovaStar.damage-01
       Start: 0
       X: -14
@@ -1160,17 +1166,17 @@ MonoBehaviour:
       - electricStar.damage-02
     - Id: laserStar.damage-02
       Start: 0
-      X: 6
-      Y: -21
+      X: 5
+      Y: -20
       Links:
-      - breaker.damage-25
+      - laserStar.width-02
     - Id: supernovaStar.spawnChance-01
       Start: 0
       X: -8
       Y: -28
       Links:
       - laserStar.critBonus-03
-    - Id: star.massScale-05
+    - Id: star.massScale-06
       Start: 0
       X: -3
       Y: -28
@@ -1182,7 +1188,7 @@ MonoBehaviour:
       X: 4
       Y: -29
       Links:
-      - laserStar.width-03
+      - laserStar.damage-03
     - Id: supernovaStar.range-02
       Start: 0
       X: -13
@@ -1207,12 +1213,6 @@ MonoBehaviour:
       Y: -29
       Links:
       - supernovaStar.damage-01
-    - Id: laserStar.width-03
-      Start: 0
-      X: 3
-      Y: -29
-      Links:
-      - laserStar.damage-03
     - Id: laserStar.damage-03
       Start: 0
       X: 2
@@ -1223,7 +1223,6 @@ MonoBehaviour:
       X: 5
       Y: -28
       Links:
-      - breaker.speed-10
       - laserStar.width-05
     - Id: laserStar.width-04
       Start: 0
@@ -1828,6 +1827,7 @@ MonoBehaviour:
       - electricStar.damage-02
       - laserStar.spawnChance-01
       - laserStar.critChance-01
+      - star.massScale-05
       - electricStar.critBonus-01
       - laserStar.width-01
       - laserStar.damage-01
@@ -1844,9 +1844,8 @@ MonoBehaviour:
       - star.respawnChance-04
       - laserStar.damage-02
       - supernovaStar.spawnChance-01
-      - star.massScale-05
+      - star.massScale-06
       - laserStar.critBonus-02
-      - laserStar.width-03
       - laserStar.damage-03
       - laserStar.damage-04
       - laserStar.width-04

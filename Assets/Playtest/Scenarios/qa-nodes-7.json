@@ -1,6 +1,6 @@
 {
   "name": "qa-nodes-7",
-  "note": "노드 1~7구역(먼지 띠 ~ 펄서 · 초신성)을 모두 산 상태(노드 195개, Rank 195, 구매 비용 합계 2,112,378,162,546,937 Gold). 성장 단계는 이 구역을 플레이하는 단계(1~3구역 0, 4~5구역 1, 6~7구역 2, 8~9구역 3, 블랙홀 4).",
+  "note": "노드 1~7구역(먼지 띠 ~ 펄서 · 초신성)을 모두 산 상태(노드 194개, Rank 194, 구매 비용 합계 2,456,378,162,546,937 Gold). 성장 단계는 이 구역을 플레이하는 단계(1~3구역 0, 4~5구역 1, 6~7구역 2, 8~9구역 3, 블랙홀 4).",
   "category": "QA/노드 단계",
   "expected": "7단계에서 새로 열리는 것: 레이저 별, 슈퍼노바 별, 전기 별 확장. 확정 정보의 수치와 실제 화면·피해·사운드가 맞는지 확인.",
   "contentFingerprint": "2bb549bb",
@@ -680,6 +680,10 @@
       "rank": 1
     },
     {
+      "nodeId": "star.massScale-05",
+      "rank": 1
+    },
+    {
       "nodeId": "electricStar.critBonus-01",
       "rank": 1
     },
@@ -740,15 +744,11 @@
       "rank": 1
     },
     {
-      "nodeId": "star.massScale-05",
+      "nodeId": "star.massScale-06",
       "rank": 1
     },
     {
       "nodeId": "laserStar.critBonus-02",
-      "rank": 1
-    },
-    {
-      "nodeId": "laserStar.width-03",
       "rank": 1
     },
     {
