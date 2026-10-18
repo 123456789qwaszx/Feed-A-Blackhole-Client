@@ -832,7 +832,6 @@ MonoBehaviour:
       Links:
       - star.respawnChance-01
       - star.timeChance-01
-      - breaker.damage-21
     - Id: electricStar.chain-01
       Start: 0
       X: 22
@@ -857,7 +856,8 @@ MonoBehaviour:
       Start: 0
       X: 19
       Y: -12
-      Links: []
+      Links:
+      - growth.stars-01
     - Id: breaker.damage-22
       Start: 0
       X: 18

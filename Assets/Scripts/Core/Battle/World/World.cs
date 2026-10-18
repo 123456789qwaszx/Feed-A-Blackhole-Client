@@ -52,6 +52,7 @@ namespace BlackHole.Core
             PeriodicSpawnPlacementDefinition periodicSpawnPlacement,
             Hq hq,
             BreakerDefinition breaker,
+            IReadOnlyList<SupplyRequest> startSupply,
             IReadOnlyList<SupplyRequest> growthSupply,
             float killTimeBonus = 0,
             float killTimeCooldown = 0)
@@ -73,6 +74,7 @@ namespace BlackHole.Core
                 stats,
                 placement,
                 periodicSpawnPlacement,
+                startSupply,
                 CountActive);
 
             _deathBonuses = new DeathBonuses(seed, stats, _supply, killTimeBonus, killTimeCooldown);
