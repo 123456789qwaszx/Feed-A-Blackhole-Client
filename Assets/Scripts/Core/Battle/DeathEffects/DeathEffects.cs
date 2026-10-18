@@ -25,7 +25,7 @@ namespace BlackHole.Core
         // (이전 45는 전장 끝의 별이 원점 쪽으로 쏘면 반대쪽 끝이 화면 안에 보였고, 전장 반대편 끝의 적에 닿지 않기도 했다.)
         private const float LaserReach = 300f;
         // 레이저 별의 예고 시간(초).
-        private const float LaserTelegraphSeconds = 0.4f;
+        private const float LaserTelegraphSeconds = 0.6f;
         // 번개 연쇄에서 줄기 하나가 다음 홉으로 옮겨 가는 간격(초). 화면(LightningBolts)은 hop × 이 값 뒤에 줄기를 그리고,
         // 규칙은 그 홉이 죽인 특수 적의 효과를 같은 시각에 발동한다 — 둘이 같은 값을 써야 한다.
         public const float ChainHopSeconds = 0.04f;
