@@ -38,6 +38,7 @@ namespace BlackHole.Unity
         private static readonly int _glowWidthId = Shader.PropertyToID("_GlowWidth");
         private static readonly int _glowStrengthId = Shader.PropertyToID("_GlowStrength");
         private static readonly int _bandsId = Shader.PropertyToID("_Bands");
+        private static readonly int _bandFadeId = Shader.PropertyToID("_BandFade");
         private static readonly int _taperId = Shader.PropertyToID("_Taper");
         private static readonly int _fadeId = Shader.PropertyToID("_Fade");
 
@@ -190,10 +191,11 @@ namespace BlackHole.Unity
             float progress = Mathf.Clamp01(burst.Elapsed / _look.BurstSeconds);
             float boost = burst.Critical ? _look.CriticalBoost : 1;
 
-            // 빔: 판정 너비 × 곡선으로 순식간에 굵어져 관통하고, 가늘어지며 사라진다. 색 띠는 전장 배율(치명타면 더)로 넓힌다.
-            float beam = _look.BeamStrength(progress);
-            Place(burst.View.Line, burst.Center, burst.BeamAngle, burst.Reach * 2, burst.Width * _look.BeamWidthScale(progress) * beam,
-                _look.BeamGlowWidth * burst.Field * boost * beam, 0, 1);
+            // 빔: 판정 너비 × 곡선으로 순식간에 굵어져 관통한다. 색 띠는 전장 배율(치명타면 더)로 넓힌다.
+            // 사라질 때: 띠가 바깥부터 꺼져 심만 남고 → 심이 가는 줄로 납작해져 잠깐 머문 뒤 → 길이는 그대로 둔 채 고르게 가늘어져 안 보이게 된다.
+            float beamThickness = burst.Width * _look.BeamWidthScale(progress) * _look.BeamStrength(progress);
+            Place(burst.View.Line, burst.Center, burst.BeamAngle, burst.Reach * 2, beamThickness, _look.BeamGlowWidth * burst.Field * boost, 0, 1,
+                _look.BeamBandFade(progress));
 
             // 표식: 예고 끝의 길이(FlareGrowth(1))와 각에서 파도처럼 가라앉는다 — 처음엔 천천히, 끝에 빠르게 줄며 옅어지고, 남은 각은 빔과 일직선까지 마저 돈다.
             float collapse = Mathf.Clamp01(burst.Elapsed / _look.FlareCollapseSeconds);
@@ -240,8 +242,10 @@ namespace BlackHole.Unity
         }
 
         // 사각형 하나를 center에 angle(라디안)로 돌려 놓고 셰이더 값을 준다. fade(알파)가 0이거나 굵기가 0이면 숨긴다.
-        // length는 양 끝 사이의 전체 길이(0이면 둥근 섬광), thickness는 심의 굵기, taper는 끝이 뾰족해지는 정도(플레어 1, 나머지 0).
-        private void Place(MeshRenderer renderer, Vector2 center, float angle, float length, float thickness, float glowWidth, float taper, float fade)
+        // length는 양 끝 사이의 전체 길이(0이면 둥근 섬광), thickness는 심의 굵기, taper는 끝이 뾰족해지는 정도(플레어 1, 나머지 0),
+        // bandFade는 색 띠가 바깥부터 꺼진 진행(빔만 쓴다).
+        private void Place(MeshRenderer renderer, Vector2 center, float angle, float length, float thickness, float glowWidth, float taper, float fade,
+            float bandFade = 0)
         {
             if (fade <= 0 || thickness <= 0)
             {
@@ -264,6 +268,7 @@ namespace BlackHole.Unity
             _properties.SetFloat(_glowWidthId, glowWidth);
             _properties.SetFloat(_glowStrengthId, _look.GlowStrength);
             _properties.SetFloat(_bandsId, _look.Bands);
+            _properties.SetFloat(_bandFadeId, bandFade);
             _properties.SetFloat(_taperId, taper);
             _properties.SetFloat(_fadeId, Mathf.Clamp01(fade));
             renderer.SetPropertyBlock(_properties);

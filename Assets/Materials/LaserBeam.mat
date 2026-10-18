@@ -25,6 +25,7 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _BandFade: 0
     - _Bands: 2
     - _Fade: 1
     - _GlowStrength: 1
@@ -33,7 +34,7 @@ Material:
     - _Taper: 0
     - _Thickness: 0.1
     m_Colors:
-    - _Color: {r: 1, g: 0.35, b: 0.3, a: 1}
-    - _CoreColor: {r: 1, g: 0.95, b: 0.9, a: 1}
+    - _Color: {r: 0.78, g: 0.28, b: 0.3, a: 1}
+    - _CoreColor: {r: 0.95, g: 0.62, b: 0.55, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
