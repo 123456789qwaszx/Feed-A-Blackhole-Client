@@ -19,7 +19,7 @@ MonoBehaviour:
     fieldScale: 1.5
   - level: 20
     targetGold: 4000000000000
-    fieldScale: 2.38
+    fieldScale: 2.08
   - level: 30
     targetGold: 760000000000000
     fieldScale: 2.63
