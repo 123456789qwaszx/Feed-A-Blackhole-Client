@@ -10,6 +10,7 @@ namespace BlackHole.Unity
     // ③ 관통: 실선이 판정 너비를 넘겼다가 자리 잡으며 화면을 관통하고, 표식은 파도처럼 가라앉고, 발사 섬광이 터진다.
     // 요소: 섬광(Flash) · 플레어(Flare, 빔 방향에서 FlareAngle만큼 꺾인 가로 줄기) · 표식 세로 줄기(Mark, 빔 방향의 짧은 줄기) · 선(Line) → 빔(Beam).
     // 플레어와 표식 줄기는 같은 FlareGrow 곡선으로 자라고 발사 순간 FlareCollapseSeconds 동안 가라앉는다. 빔 굵기는 BeamWidth 곡선 × 판정 너비(1 = 맞는 범위).
+    // 아트 톤은 플랫(색종이): 번짐 대신 단단한 가장자리의 색 띠(Bands)로 그리고, 사라질 때는 옅어지지 않고 크기가 줄어든다(세기 곡선은 크기 배율이다). 조준 실선만 알파를 쓴다.
     // 선과 빔의 길이는 화면(카메라)의 가장 먼 모서리까지다 — 규칙의 양 끝(±300)을 그대로 그리면 중심에서 자라는 느낌이 나지 않는다.
     // 전장 배율(카메라가 넓어진 만큼)을 굵기·번짐·플레어 길이·섬광 크기에 곱해 화면에서 같은 크기로 보이게 한다(ScaleWithField). 빔의 판정 너비는 곱하지 않는다.
     [CreateAssetMenu(fileName = "LaserLook", menuName = "BlackHole/Laser Look")]
@@ -18,11 +19,14 @@ namespace BlackHole.Unity
         [Header("외형")]
         [Tooltip("BlackHole/Laser Beam 셰이더의 머티리얼.")]
         [SerializeField] private Material _material;
-        [Tooltip("번짐의 색. 레이저 별 표식 색 계열.")]
+        [Tooltip("색 띠의 색. 레이저 별 표식 색 계열.")]
         [SerializeField] private Color _color = new(1f, 0.35f, 0.3f, 1f);
         [Tooltip("심의 색(거의 흰색).")]
         [SerializeField] private Color _coreColor = new(1f, 0.95f, 0.9f, 1f);
-        [Tooltip("번짐의 세기. 0이면 번지지 않는다.")]
+        [Tooltip("심 밖 색 띠의 단 수. 바깥 띠일수록 투명해 어두운 배경 위에서 한 톤씩 어두워진다(2면 두 톤).")]
+        [Range(1, 4)]
+        [SerializeField] private int _bands = 2;
+        [Tooltip("가장 안쪽 띠의 세기(알파). 바깥 띠는 단마다 같은 폭으로 줄어든다. 0이면 심만 그린다.")]
         [Range(0, 1)]
         [SerializeField] private float _glowStrength = 1f;
         [Tooltip("치명타 발사일 때 빔의 번짐 폭과 섬광 크기에 곱하는 배율.")]
@@ -35,17 +39,17 @@ namespace BlackHole.Unity
         [Tooltip("예고 시작 섬광의 반지름(월드 단위).")]
         [Min(0)]
         [SerializeField] private float _flashRadius = 0.9f;
-        [Tooltip("섬광 바깥으로 번지는 빛의 폭(월드 단위).")]
+        [Tooltip("섬광 바깥 색 띠 전체의 폭(월드 단위).")]
         [Min(0.001f)]
         [SerializeField] private float _flashGlowWidth = 1.2f;
-        [Tooltip("예고 진행(0 ~ 1)에서 시작 섬광의 세기. 처음에 번쩍이고 곧 꺼진 뒤, 발사 직전 표식이 점으로 뭉치는 동안 다시 차오른다(발사 섬광이 이어받는다).")]
+        [Tooltip("예고 진행(0 ~ 1)에서 시작 섬광의 크기 배율(1 = 설정 크기, 0 = 없음). 처음에 터졌다 곧 줄어들고, 발사 직전 표식이 점으로 뭉치는 동안 다시 커진다(발사 섬광이 이어받는다).")]
         [SerializeField]
         private AnimationCurve _flashCurve = new AnimationCurve(
             new Keyframe(0, 1, 0, -4), new Keyframe(0.3f, 0, 0, 0), new Keyframe(0.6f, 0, 0, 0), new Keyframe(1, 0.6f, 0, 0));
         [Tooltip("발사 섬광의 반지름 = 시작 섬광 반지름 × 이 값.")]
         [Min(0)]
         [SerializeField] private float _burstFlashScale = 1.8f;
-        [Tooltip("발사 진행(0 ~ 1)에서 발사 섬광의 세기.")]
+        [Tooltip("발사 진행(0 ~ 1)에서 발사 섬광의 크기 배율(1 = 설정 크기, 0 = 없음). 터졌다가 줄어들며 사라진다.")]
         [SerializeField]
         private AnimationCurve _burstFlashCurve = new AnimationCurve(
             new Keyframe(0, 1, 0, -3), new Keyframe(0.5f, 0, 0, 0), new Keyframe(1, 0));
@@ -62,7 +66,7 @@ namespace BlackHole.Unity
         [Tooltip("플레어 가운데의 심 굵기(월드 단위). 끝으로 갈수록 뾰족해진다.")]
         [Min(0.001f)]
         [SerializeField] private float _flareThickness = 0.16f;
-        [Tooltip("플레어 바깥으로 번지는 빛의 폭(월드 단위).")]
+        [Tooltip("플레어 바깥 색 띠 전체의 폭(월드 단위).")]
         [Min(0.001f)]
         [SerializeField] private float _flareGlowWidth = 0.6f;
         [Tooltip("예고 진행(0 ~ 1)에서 플레어·표식 길이의 비율. 튕기듯 1을 넘겼다가(표식 등장) 자리 잡고, 발사 직전 회전하며 점으로 뭉치듯 줄어든다(예비 동작). 1을 넘어도 된다.")]
@@ -78,7 +82,7 @@ namespace BlackHole.Unity
         [SerializeField]
         private AnimationCurve _flareThin = new AnimationCurve(
             new Keyframe(0, 1, 0, 0), new Keyframe(0.55f, 1, 0, 0), new Keyframe(1, 0.35f, 0, 0));
-        [Tooltip("예고 진행(0 ~ 1)에서 플레어의 세기(0 ~ 1).")]
+        [Tooltip("예고 진행(0 ~ 1)에서 플레어·표식 굵기의 배율(1 = 설정 굵기). 등장할 때 가늘게 시작해 굵어진다.")]
         [SerializeField]
         private AnimationCurve _flareFade = new AnimationCurve(
             new Keyframe(0, 0.6f, 0, 3), new Keyframe(0.2f, 1, 0, 0), new Keyframe(1, 1, 0, 0));
@@ -93,7 +97,7 @@ namespace BlackHole.Unity
         [Tooltip("실선이 뻗기 전 별 자리에 뭉쳐 있는 둥근 빛의 반지름(월드 단위, 전장 배율을 곱한다). 실선이 자라는 만큼 이 둥근 빛이 실선 굵기로 가늘어진다.")]
         [Min(0)]
         [SerializeField] private float _lineDotRadius = 0.3f;
-        [Tooltip("실선 바깥으로 번지는 빛의 폭(월드 단위).")]
+        [Tooltip("실선 바깥 색 띠 전체의 폭(월드 단위).")]
         [Min(0.001f)]
         [SerializeField] private float _lineGlowWidth = 0.15f;
         [Tooltip("예고 진행(0 ~ 1)에서 실선 길이의 비율(0 = 중심의 둥근 빛, 1 = 화면 밖). 플레어가 회전하며 줄어들기 시작할 때(FlareTurn·FlareGrow의 0.55 키) 출발해 빠르게 뻗는다(조준).")]
@@ -113,10 +117,10 @@ namespace BlackHole.Unity
         [SerializeField]
         private AnimationCurve _beamWidth = new AnimationCurve(
             new Keyframe(0, 0.05f, 0, 40), new Keyframe(0.08f, 1.4f, 0, 0), new Keyframe(0.25f, 1, 0, 0), new Keyframe(1, 0.8f, 0, 0));
-        [Tooltip("빔 바깥으로 번지는 빛의 폭(월드 단위, 전장 배율을 곱한다).")]
+        [Tooltip("빔 바깥 색 띠 전체의 폭(월드 단위, 전장 배율을 곱한다). 판정 너비 밖으로 색 띠가 이만큼 더 보인다.")]
         [Min(0.001f)]
         [SerializeField] private float _beamGlowWidth = 0.8f;
-        [Tooltip("발사 진행(0 ~ 1)에서 빔의 세기(0 ~ 1). 끝에서 0이어야 한다.")]
+        [Tooltip("발사 진행(0 ~ 1)에서 빔 굵기·띠 폭의 배율(1 = 설정 크기). 옅어지는 대신 가늘어지며 사라진다. 끝에서 0이어야 한다.")]
         [SerializeField]
         private AnimationCurve _beamFade = new AnimationCurve(
             new Keyframe(0, 1, 0, 0), new Keyframe(0.4f, 1, 0, 0), new Keyframe(1, 0, -2, 0));
@@ -129,6 +133,7 @@ namespace BlackHole.Unity
         public Material Material => _material;
         public Color Color => _color;
         public Color CoreColor => _coreColor;
+        public int Bands => Mathf.Clamp(_bands, 1, 4);
         public float GlowStrength => _glowStrength;
         public float CriticalBoost => _criticalBoost;
         public bool ScaleWithField => _scaleWithField;

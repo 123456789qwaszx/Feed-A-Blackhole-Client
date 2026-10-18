@@ -25,6 +25,7 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _Bands: 2
     - _Fade: 1
     - _GlowStrength: 1
     - _GlowWidth: 0.3

@@ -8,6 +8,7 @@ namespace BlackHole.Unity
 {
     // 레이저 별의 레이저를 그리는 부품. 사망 효과 화면(DeathEffectView)이 예고 목록(LaserTelegraph)과 발사 기록(LaserBurst)을 읽어 부른다.
     // 외형은 LaserLook이 가진다. 셰이더(BlackHole/Laser Beam)가 선 방향으로 돌린 사각형 하나에 곧은 빛줄기를 수식으로 그린다.
+    // 아트 톤은 플랫(색종이): 번짐 대신 색 띠, 사라질 때는 옅어지지 않고 크기가 줄어든다(Look의 세기 곡선은 크기 배율). 조준 실선만 알파로 옅게 그린다.
     // 연출(세 동작, LaserLook 머리말): ① 표식 — 별이 터지며 섬광과 함께 X 표식(꺾인 가로 플레어 + 빔 방향의 짧은 세로 줄기)이 튕기듯 튀어나온다.
     // ② 조준 — 표식이 자라는 동안 빔의 씨앗은 별 자리에 둥근 빛으로 뭉쳐 있다가, 플레어가 점으로 뭉치듯 줄어들며 실선 쪽으로 살짝 돌기 시작할 때
     //   가는 실선으로 늘어나 화면 밖으로 뻗는다. 발사 직전 실선이 진해진다.
@@ -36,6 +37,7 @@ namespace BlackHole.Unity
         private static readonly int _coreColorId = Shader.PropertyToID("_CoreColor");
         private static readonly int _glowWidthId = Shader.PropertyToID("_GlowWidth");
         private static readonly int _glowStrengthId = Shader.PropertyToID("_GlowStrength");
+        private static readonly int _bandsId = Shader.PropertyToID("_Bands");
         private static readonly int _taperId = Shader.PropertyToID("_Taper");
         private static readonly int _fadeId = Shader.PropertyToID("_Fade");
 
@@ -100,17 +102,17 @@ namespace BlackHole.Unity
                 float flareAngle = beamAngle + FlareTurn(telegraph.Start) * _look.FlareTurnFraction(progress);
                 float reach = ScreenReach(center);
 
-                // 섬광: 예고 시작에 번쩍이고 곧 꺼진다.
-                Place(view.Flash, center, 0, 0, _look.FlashRadius * 2 * field, _look.FlashGlowWidth * field, 0, _look.Flash(progress));
+                // 섬광: 예고 시작에 터졌다 곧 줄어들고, 발사 직전 다시 커진다(크기 배율).
+                float flash = _look.Flash(progress);
+                Place(view.Flash, center, 0, 0, _look.FlashRadius * 2 * field * flash, _look.FlashGlowWidth * field * flash, 0, 1);
 
                 // 표식: 가로 플레어와 빔 방향의 짧은 세로 줄기가 같은 곡선으로 튕기듯 자라 X를 만들고, 발사 직전 회전하며 얇아진다.
                 float growth = _look.FlareGrowth(progress);
-                float strength = _look.FlareStrength(progress);
-                float thin = _look.FlareThinness(progress);
+                float thin = _look.FlareThinness(progress) * _look.FlareStrength(progress);
                 float thickness = _look.FlareThickness * field * thin;
                 float glow = _look.FlareGlowWidth * field * thin;
-                Place(view.Flare, center, flareAngle, _look.FlareReach * field * growth * 2, thickness, glow, 1, strength);
-                Place(view.Mark, center, beamAngle, _look.MarkReach * field * growth * 2, thickness, glow, 1, strength);
+                Place(view.Flare, center, flareAngle, _look.FlareReach * field * growth * 2, thickness, glow, 1, 1);
+                Place(view.Mark, center, beamAngle, _look.MarkReach * field * growth * 2, thickness, glow, 1, 1);
 
                 // 조준: 실선이 뻗기 전엔 별 자리에 둥근 빛으로 뭉쳐 있다가(길이 0, 굵기 = 둥근 빛 지름), 자라는 만큼 실선 굵기로 가늘어지며 화면 밖으로 뻗는다.
                 float lineGrowth = _look.LineGrowth(progress);
@@ -188,26 +190,27 @@ namespace BlackHole.Unity
             float progress = Mathf.Clamp01(burst.Elapsed / _look.BurstSeconds);
             float boost = burst.Critical ? _look.CriticalBoost : 1;
 
-            // 빔: 판정 너비 × 곡선으로 순식간에 굵어져 관통하고 옅어진다. 번짐은 전장 배율(치명타면 더)로 넓힌다.
-            Place(burst.View.Line, burst.Center, burst.BeamAngle, burst.Reach * 2, burst.Width * _look.BeamWidthScale(progress),
-                _look.BeamGlowWidth * burst.Field * boost, 0, _look.BeamStrength(progress));
+            // 빔: 판정 너비 × 곡선으로 순식간에 굵어져 관통하고, 가늘어지며 사라진다. 색 띠는 전장 배율(치명타면 더)로 넓힌다.
+            float beam = _look.BeamStrength(progress);
+            Place(burst.View.Line, burst.Center, burst.BeamAngle, burst.Reach * 2, burst.Width * _look.BeamWidthScale(progress) * beam,
+                _look.BeamGlowWidth * burst.Field * boost * beam, 0, 1);
 
             // 표식: 예고 끝의 길이(FlareGrowth(1))와 각에서 파도처럼 가라앉는다 — 처음엔 천천히, 끝에 빠르게 줄며 옅어지고, 남은 각은 빔과 일직선까지 마저 돈다.
             float collapse = Mathf.Clamp01(burst.Elapsed / _look.FlareCollapseSeconds);
             float settle = 1 - collapse;
             float growth = _look.FlareGrowth(1) * (1 - collapse * collapse);
-            float strength = collapse < 1 ? settle : 0;
-            // 각은 예고 끝의 각 그대로, 굵기는 예고 끝의 굵기에서 더 가늘어진다.
+            // 각은 예고 끝의 각 그대로, 굵기는 예고 끝의 굵기에서 0까지 가늘어진다.
             float flareAngle = burst.BeamAngle + burst.FlareTurn;
-            float thin = _look.FlareThinness(1) * (0.5f + 0.5f * settle);
+            float thin = _look.FlareThinness(1) * _look.FlareStrength(1) * settle;
             float thickness = _look.FlareThickness * burst.Field * thin;
             float glow = _look.FlareGlowWidth * burst.Field * thin;
-            Place(burst.View.Flare, burst.Center, flareAngle, _look.FlareReach * burst.Field * growth * 2, thickness, glow, 1, strength);
-            Place(burst.View.Mark, burst.Center, burst.BeamAngle, _look.MarkReach * burst.Field * growth * 2, thickness, glow, 1, strength);
+            Place(burst.View.Flare, burst.Center, flareAngle, _look.FlareReach * burst.Field * growth * 2, thickness, glow, 1, 1);
+            Place(burst.View.Mark, burst.Center, burst.BeamAngle, _look.MarkReach * burst.Field * growth * 2, thickness, glow, 1, 1);
 
-            // 발사 섬광: 시작 섬광보다 크게 터진다.
-            float flashRadius = _look.FlashRadius * _look.BurstFlashScale * burst.Field * boost;
-            Place(burst.View.Flash, burst.Center, 0, 0, flashRadius * 2, _look.FlashGlowWidth * burst.Field * boost, 0, _look.BurstFlash(progress));
+            // 발사 섬광: 시작 섬광보다 크게 터졌다가 줄어들며 사라진다.
+            float flash = _look.BurstFlash(progress);
+            float flashRadius = _look.FlashRadius * _look.BurstFlashScale * burst.Field * boost * flash;
+            Place(burst.View.Flash, burst.Center, 0, 0, flashRadius * 2, _look.FlashGlowWidth * burst.Field * boost * flash, 0, 1);
         }
 
         // 쉬는 발사를 먼저 쓴다. 없으면 상한까지 새로 만들고, 상한이면 가장 오래된 발사를 다시 쓴다.
@@ -236,11 +239,11 @@ namespace BlackHole.Unity
             return oldest;
         }
 
-        // 사각형 하나를 center에 angle(라디안)로 돌려 놓고 셰이더 값을 준다. fade가 0이면 숨긴다.
+        // 사각형 하나를 center에 angle(라디안)로 돌려 놓고 셰이더 값을 준다. fade(알파)가 0이거나 굵기가 0이면 숨긴다.
         // length는 양 끝 사이의 전체 길이(0이면 둥근 섬광), thickness는 심의 굵기, taper는 끝이 뾰족해지는 정도(플레어 1, 나머지 0).
         private void Place(MeshRenderer renderer, Vector2 center, float angle, float length, float thickness, float glowWidth, float taper, float fade)
         {
-            if (fade <= 0 || (length <= 0 && thickness <= 0))
+            if (fade <= 0 || thickness <= 0)
             {
                 renderer.enabled = false;
                 return;
@@ -260,6 +263,7 @@ namespace BlackHole.Unity
             _properties.SetColor(_coreColorId, _look.CoreColor);
             _properties.SetFloat(_glowWidthId, glowWidth);
             _properties.SetFloat(_glowStrengthId, _look.GlowStrength);
+            _properties.SetFloat(_bandsId, _look.Bands);
             _properties.SetFloat(_taperId, taper);
             _properties.SetFloat(_fadeId, Mathf.Clamp01(fade));
             renderer.SetPropertyBlock(_properties);
