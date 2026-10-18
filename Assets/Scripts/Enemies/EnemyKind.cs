@@ -59,6 +59,20 @@ namespace BlackHole.Unity
         }
 
         [Serializable]
+        public struct RespawnStage
+        {
+            [Tooltip("이 이정표 단계(성장도)부터 적용한다. 0 = 처음부터, 2 = Lv20 이정표를 넘은 뒤의 판, 3 = Lv30 뒤.")]
+            [Min(0)]
+            public int stage;
+            [Tooltip("이 단계부터의 재생성 세대 감쇠(0~1). n세대 적의 재생성 확률 = 노드 respawnChance × decay^n. 0이면 1세대까지만.")]
+            [Range(0, 1)]
+            public float decay;
+            [Tooltip("최대 세대. 이 세대까지 나오고 더는 재생성하지 않는다. 0이면 제한 없음(감쇠만).")]
+            [Min(0)]
+            public int maxGeneration;
+        }
+
+        [Serializable]
         public struct Tier
         {
             [Tooltip("이 색 등급을 그리는 색. Core는 모른다.")]
@@ -95,6 +109,8 @@ namespace BlackHole.Unity
         [Tooltip("재생성 세대 감쇠(0~1). 재생성으로 나온 적이 죽을 때 재생성 확률(노드 respawnChance)에 세대마다 이 값을 곱한다. 0이면 1세대까지만(사슬 금지), 1이면 감쇠 없음.")]
         [Range(0, 1)]
         [SerializeField] private float respawnDecay;
+        [Tooltip("이정표 단계별 재생성 규칙. 판을 시작할 때 성장도 이하에서 가장 높은 단계의 줄을 쓴다. 맞는 줄이 없으면 위의 respawnDecay(최대 세대 제한 없음). 단계는 겹치면 안 된다.")]
+        [SerializeField] private List<RespawnStage> respawnStages = new List<RespawnStage>();
         [Tooltip("픽업: 혜성 비가 한 번 내린 뒤 다시 내릴 수 있을 때까지의 쿨타임(초). 그동안은 하나씩만 나온다. 0이면 없음.")]
         [Min(0)]
         [SerializeField] private float rainCooldown;
@@ -197,6 +213,9 @@ namespace BlackHole.Unity
                     },
                 });
             }
+
+            foreach (RespawnStage stage in respawnStages)
+                data.RespawnStages.Add(new RespawnStageData { Stage = stage.stage, Decay = stage.decay, MaxGeneration = stage.maxGeneration });
 
             foreach (Tier tier in tiers)
                 data.Tiers.Add(new EnemyTierData { MaxHealth = tier.maxHealth, Gold = tier.gold, Exp = tier.exp });

@@ -77,7 +77,7 @@ namespace BlackHole.Core
                 startSupply,
                 CountActive);
 
-            _deathBonuses = new DeathBonuses(seed, stats, _supply, killTimeBonus, killTimeCooldown);
+            _deathBonuses = new DeathBonuses(seed, stats, _supply, killTimeBonus, killTimeCooldown, hq.Stage);
         }
 
         internal void SetAimPoint(Point2? aimPoint) => AimPoint = aimPoint;
