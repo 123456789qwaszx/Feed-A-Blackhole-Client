@@ -75,14 +75,14 @@ MonoBehaviour:
     color: {r: 1, g: 0.3, b: 0.3, a: 1}
     multiplier: 1
     critRewardScale: 0
-    damage: 8800
+    damage: 8000
     radius: 0
     maxTargets: 0
     branches: 0
     branchChance: 0
     critChance: 0
     critMultiplier: 2
-    width: 2.2
+    width: 2
     maxActive: 0
     force: 0
     duration: 0

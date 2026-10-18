@@ -1410,7 +1410,6 @@ MonoBehaviour:
       X: -18
       Y: -20
       Links:
-      - galaxy.size-01
       - asteroid.toPlanet-06
     - Id: star.toGalaxy-01
       Start: 0
@@ -1439,9 +1438,10 @@ MonoBehaviour:
       - gravityGalaxy.radius-01
     - Id: galaxy.size-01
       Start: 0
-      X: -17
-      Y: -19
+      X: -20
+      Y: -17
       Links:
+      - star.toGalaxy-01
       - galaxy.massScale-01
     - Id: galaxy.timeChance-01
       Start: 0
@@ -1451,10 +1451,9 @@ MonoBehaviour:
       - galaxy.respawnChance-01
     - Id: galaxy.massScale-01
       Start: 0
-      X: -17
-      Y: -18
-      Links:
-      - planet.toStar-07
+      X: -20
+      Y: -16
+      Links: []
     - Id: gravityGalaxy.radius-01
       Start: 0
       X: -16
