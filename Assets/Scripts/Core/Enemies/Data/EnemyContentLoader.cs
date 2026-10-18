@@ -68,13 +68,14 @@ namespace BlackHole.Core
                 int errors = into.Count;
                 List<EnemyTraitDefinition> traits = LoadTraits(item.Type, item.Traits, at + ".Traits", into);
                 List<EnemyTier> tiers = LoadTiers(item.Tiers, at + ".Tiers", into);
+                List<RespawnRule> respawnStages = LoadRespawnStages(item.RespawnStages, at + ".RespawnStages", into);
 
                 if (into.Count > errors)
                     continue;
 
                 EnemyDefinition enemy = Guard(at, into, () =>
                     new EnemyDefinition(item.Type, item.MoveSpeed, item.Radius, item.RadiusStep, tiers, traits, item.UpgradesTo, item.SpawnPeriod,
-                        item.RainCount, item.KillTimeBonus, item.RespawnDecay, item.RainCooldown, item.RainDelay));
+                        item.RainCount, item.KillTimeBonus, item.RespawnDecay, item.RainCooldown, item.RainDelay, respawnStages));
 
                 if (enemy != null)
                     enemies.Add(enemy);
@@ -105,6 +106,30 @@ namespace BlackHole.Core
             }
 
             return tiers;
+        }
+
+        // 줄마다 수치를 검사한다. 단계 중복은 EnemyDefinition이 검사한다.
+        private static List<RespawnRule> LoadRespawnStages(List<RespawnStageData> items, string at, List<ContentDiagnostic> into)
+        {
+            var rules = new List<RespawnRule>();
+
+            for (int i = 0; items != null && i < items.Count; i++)
+            {
+                RespawnStageData item = items[i];
+
+                if (item == null)
+                {
+                    into.Add(new ContentDiagnostic($"{at}[{i}]", "데이터가 없다."));
+                    continue;
+                }
+
+                RespawnRule? rule = GuardValue($"{at}[{i}]", into, () => new RespawnRule(item.Stage, item.Decay, item.MaxGeneration));
+
+                if (rule.HasValue)
+                    rules.Add(rule.Value);
+            }
+
+            return rules;
         }
 
         // 줄마다 성질 종류가 정하는 효과를 만든다. 성질 종류 유일·픽업의 성질 수는 EnemyDefinition이 검사한다.

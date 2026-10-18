@@ -21,6 +21,10 @@ MonoBehaviour:
   rainCount: 0
   killTimeBonus: 0.2
   respawnDecay: 0
+  respawnStages:
+  - stage: 2
+    decay: 0.1
+    maxGeneration: 3
   rainCooldown: 0
   rainDelay: 0
   tiers:
