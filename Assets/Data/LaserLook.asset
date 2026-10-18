@@ -64,8 +64,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   _flareAngleDegrees: {x: 70, y: 80}
-  _flareReach: 5
-  _markReach: 3
+  _flareReach: 4
+  _markReach: 2.4
   _flareThickness: 0.16
   _flareGlowWidth: 0.6
   _flareGrow:
