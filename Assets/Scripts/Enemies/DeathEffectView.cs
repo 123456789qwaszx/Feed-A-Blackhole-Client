@@ -17,12 +17,12 @@ namespace BlackHole.Unity
 
         private long _drawn; // 그린 기록의 가장 큰 번호. 번개·폭발·레이저는 같은 번호 줄을 쓴다.
 
-        public DeathEffectView(Transform parent, LightningLook lightningLook, StarLightningLook starLightningLook, ExplosionLook explosionLook)
+        public DeathEffectView(Transform parent, LightningLook lightningLook, StarLightningLook starLightningLook, ExplosionLook explosionLook, LaserLook laserLook)
         {
             _lightning = new LightningBolts(parent, lightningLook);
             _starLightning = new StarLightningBolts(parent, starLightningLook);
             _explosions = new ExplosionRings(parent, explosionLook);
-            _lasers = new LaserBeams(parent);
+            _lasers = new LaserBeams(parent, laserLook);
             _gravity = new GravityFieldRings(parent);
         }
 
@@ -92,12 +92,12 @@ namespace BlackHole.Unity
                     continue;
 
                 drawn = Math.Max(drawn, lasers[i].Sequence);
-                _lasers.Play(lasers[i].Start, lasers[i].End, lasers[i].Definition.Width);
+                _lasers.Play(lasers[i].Start, lasers[i].End, lasers[i].Definition.Width, lasers[i].Critical, fieldScale);
                 SoundManager.Instance?.PlayLazer();
             }
 
             _drawn = drawn;
-            _lasers.ShowTelegraphs(world.DeathEffects.LaserTelegraphs);
+            _lasers.ShowTelegraphs(world.DeathEffects.LaserTelegraphs, fieldScale);
 
             // 중력장은 한 번 일어나는 기록이 아니라 지금 상태라, 번호로 거르지 않고 매 프레임 목록 그대로 넘긴다.
             _gravity.Show(world.DeathEffects.GravityFields, paused, delta);
