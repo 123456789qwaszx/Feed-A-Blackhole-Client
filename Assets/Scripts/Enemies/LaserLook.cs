@@ -7,7 +7,7 @@ namespace BlackHole.Unity
     // 연출은 세 동작으로 나뉜다 — ① 표식: 별이 터지며 X 표식이 튀어나온다(섬광 + 가로 플레어 + 빔 방향의 짧은 세로 줄기, 튕기듯 한 번 커졌다 자리 잡음).
     // ② 조준: 표식이 자라는 동안 빔의 씨앗은 별 자리에 둥근 빛(LineDotRadius)으로 뭉쳐 있다가, 플레어가 회전하며 줄어들기 시작할 때 가는 실선으로 늘어나
     //    화면 밖으로 뻗어 경로를 조준한다(LineGrow). 플레어는 거의 일직선이 되는 순간 발사된다(예비 동작, FlareTurn 곡선).
-    // ③ 관통: 실선이 판정 너비를 넘겼다가 자리 잡으며 화면을 관통하고, 표식은 파도처럼 가라앉고, 발사 섬광이 터진다.
+    // ③ 관통: 실선이 판정 너비를 넘겼다가 자리 잡으며 화면을 관통하고, 표식은 파도처럼 가라앉는다. 섬광은 그리지 않는다 — 빔 위에 원이 남지 않게.
     //    사라지는 모양: 색 띠가 바깥 띠부터 꺼져 심만 남고(BeamBandFade) → 심이 가는 한 줄로 납작해져(BeamFade) 잠깐 머문 뒤 → 길이는 그대로 둔 채
     //    전체가 고르게 점점 가늘어져 안 보이게 된다. 어느 쪽이 먼저 사라지지 않는다.
     // 요소: 섬광(Flash) · 플레어(Flare, 빔 방향에서 FlareAngle만큼 꺾인 가로 줄기) · 표식 세로 줄기(Mark, 빔 방향의 짧은 줄기) · 선(Line) → 빔(Beam).
@@ -44,17 +44,10 @@ namespace BlackHole.Unity
         [Tooltip("섬광 바깥 색 띠 전체의 폭(월드 단위).")]
         [Min(0.001f)]
         [SerializeField] private float _flashGlowWidth = 1.2f;
-        [Tooltip("예고 진행(0 ~ 1)에서 시작 섬광의 크기 배율(1 = 설정 크기, 0 = 없음). 처음에 터졌다 곧 줄어들고, 발사 직전 표식이 점으로 뭉치는 동안 다시 커진다(발사 섬광이 이어받는다).")]
+        [Tooltip("예고 진행(0 ~ 1)에서 시작 섬광의 크기 배율(1 = 설정 크기, 0 = 없음). 처음에 터졌다 곧 줄어들고, 발사 직전 표식이 점으로 뭉치는 동안 다시 커진다(발사와 함께 사라진다).")]
         [SerializeField]
         private AnimationCurve _flashCurve = new AnimationCurve(
             new Keyframe(0, 1, 0, -4), new Keyframe(0.3f, 0, 0, 0), new Keyframe(0.6f, 0, 0, 0), new Keyframe(1, 0.6f, 0, 0));
-        [Tooltip("발사 섬광의 반지름 = 시작 섬광 반지름 × 이 값.")]
-        [Min(0)]
-        [SerializeField] private float _burstFlashScale = 1.8f;
-        [Tooltip("발사 진행(0 ~ 1)에서 발사 섬광의 크기 배율(1 = 설정 크기, 0 = 없음). 터졌다가 줄어들며 사라진다.")]
-        [SerializeField]
-        private AnimationCurve _burstFlashCurve = new AnimationCurve(
-            new Keyframe(0, 1, 0, -3), new Keyframe(0.5f, 0, 0, 0), new Keyframe(1, 0));
 
         [Header("플레어: 빔 방향에서 꺾인 가로 줄기")]
         [Tooltip("빔 방향에서 꺾이는 각(도)의 범위. 레이저마다 이 안에서 뽑고 좌우는 무작위(같은 레이저는 예고와 발사가 같은 각을 쓴다).")]
@@ -102,36 +95,37 @@ namespace BlackHole.Unity
         [Tooltip("실선 바깥 색 띠 전체의 폭(월드 단위).")]
         [Min(0.001f)]
         [SerializeField] private float _lineGlowWidth = 0.15f;
-        [Tooltip("예고 진행(0 ~ 1)에서 실선 길이의 비율(0 = 중심의 둥근 빛, 1 = 화면 밖). 플레어가 회전하며 줄어들기 시작할 때(FlareTurn·FlareGrow의 0.55 키) 출발해 빠르게 뻗는다(조준).")]
+        [Tooltip("예고 진행(0 ~ 1)에서 실선 길이의 비율(0 = 중심의 둥근 빛, 1 = 화면 밖). 플레어가 회전하며 줄어들기 시작하고(FlareTurn·FlareGrow의 0.55 키) " +
+                 "한 박자(예고 0.6초 기준 약 0.1초 = 진행 0.17) 쉰 뒤 출발해 빠르게 뻗는다(조준).")]
         [SerializeField]
         private AnimationCurve _lineGrow = new AnimationCurve(
-            new Keyframe(0.55f, 0, 0, 6), new Keyframe(0.78f, 1, 0, 0), new Keyframe(1, 1, 0, 0));
+            new Keyframe(0.72f, 0, 0, 8), new Keyframe(0.9f, 1, 0, 0), new Keyframe(1, 1, 0, 0));
         [Tooltip("예고 진행(0 ~ 1)에서 둥근 빛·실선의 세기(0 ~ 1). 조준 중엔 옅게 머물다 발사 직전 빠르게 진해진다.")]
         [SerializeField]
         private AnimationCurve _lineFade = new AnimationCurve(
-            new Keyframe(0, 0.5f, 0, 0), new Keyframe(0.55f, 0.5f, 0, 0), new Keyframe(0.8f, 0.45f, 0, 0), new Keyframe(1, 1, 5, 0));
+            new Keyframe(0, 0.5f, 0, 0), new Keyframe(0.72f, 0.5f, 0, 0), new Keyframe(0.9f, 0.5f, 0, 0), new Keyframe(1, 1, 5, 0));
 
         [Header("빔: 발사. 가로는 발사 뒤 시간의 진행(0 ~ 1, BurstSeconds)")]
         [Tooltip("발사 연출이 보이는 시간(초).")]
         [Min(0.01f)]
-        [SerializeField] private float _burstSeconds = 0.4f;
-        [Tooltip("빔 굵기 = 판정 너비 × 이 값. 순식간에 1을 넘겼다가(관통) 1로 가라앉는다. 보이는 굵기 = 맞는 범위가 되려면 1 근처에 머물러야 한다.")]
+        [SerializeField] private float _burstSeconds = 0.45f;
+        [Tooltip("빔 굵기 = 판정 너비 × 이 값(BeamFade를 곱하기 전). 순식간에 최대로 굵어진 뒤 그 굵기를 유지한다 — 줄어드는 건 BeamFade가 맡는다. 1 근처가 맞는 범위다.")]
         [SerializeField]
         private AnimationCurve _beamWidth = new AnimationCurve(
-            new Keyframe(0, 0.05f, 0, 40), new Keyframe(0.08f, 1.4f, 0, 0), new Keyframe(0.25f, 1, 0, 0), new Keyframe(1, 0.8f, 0, 0));
+            new Keyframe(0, 0.05f, 0, 40), new Keyframe(0.053f, 1.4f, 0, 0), new Keyframe(1, 1.4f, 0, 0));
         [Tooltip("빔 바깥 색 띠 전체의 폭(월드 단위, 전장 배율을 곱한다). 판정 너비 밖으로 색 띠가 이만큼 더 보인다.")]
         [Min(0.001f)]
         [SerializeField] private float _beamGlowWidth = 0.8f;
         [Tooltip("발사 진행(0 ~ 1)에서 색 띠가 바깥 띠부터 차례로 꺼지는 진행(0 = 다 보임, 1 = 심만 남음). 심이 납작해지기 전에 끝나야 순서가 산다.")]
         [SerializeField]
         private AnimationCurve _beamBandFade = new AnimationCurve(
-            new Keyframe(0, 0, 0, 0), new Keyframe(0.12f, 0, 0, 0), new Keyframe(0.4f, 1, 0, 0), new Keyframe(1, 1, 0, 0));
-        [Tooltip("발사 진행(0 ~ 1)에서 심 굵기의 배율(1 = 설정 굵기). 띠가 꺼진 뒤 가는 한 줄로 납작해지고(세로 수축), 그 굵기로 잠깐 머문 뒤(0.4초 기준 약 0.1초), " +
-                 "선형으로 고르게 0까지 가늘어져 사라진다. 끝에서 0이어야 한다.")]
+            new Keyframe(0, 0, 0, 0), new Keyframe(0.276f, 0, 0, 0), new Keyframe(0.467f, 1, 0, 0), new Keyframe(1, 1, 0, 0));
+        [Tooltip("발사 진행(0 ~ 1)에서 심 굵기의 배율(1 = 설정 굵기). 최대 굵기를 잠깐(0.45초 기준 6프레임 = 0.1초) 유지한 뒤 가는 한 줄로 납작해지고(세로 수축), " +
+                 "그 굵기로 잠깐 머문 뒤(약 0.1초) 선형으로 고르게 0까지 가늘어져 사라진다. 끝에서 0이어야 한다.")]
         [SerializeField]
         private AnimationCurve _beamFade = new AnimationCurve(
-            new Keyframe(0, 1, 0, 0), new Keyframe(0.3f, 1, 0, 0), new Keyframe(0.55f, 0.08f, 0, 0), new Keyframe(0.8f, 0.08f, 0, -0.4f),
-            new Keyframe(1, 0, -0.4f, 0));
+            new Keyframe(0, 1, 0, 0), new Keyframe(0.276f, 1, 0, 0), new Keyframe(0.507f, 0.08f, 0, 0), new Keyframe(0.729f, 0.08f, 0, -0.295f),
+            new Keyframe(1, 0, -0.295f, 0));
 
         [Header("성능")]
         [Tooltip("동시에 보이는 발사의 상한. 넘치면 가장 오래된 발사를 다시 쓴다. 예고는 규칙이 주는 만큼 그린다.")]
@@ -147,7 +141,6 @@ namespace BlackHole.Unity
         public bool ScaleWithField => _scaleWithField;
         public float FlashRadius => _flashRadius;
         public float FlashGlowWidth => _flashGlowWidth;
-        public float BurstFlashScale => _burstFlashScale;
         public Vector2 FlareAngleDegrees => _flareAngleDegrees;
         public float FlareReach => _flareReach;
         public float MarkReach => _markReach;
@@ -162,7 +155,6 @@ namespace BlackHole.Unity
         public int MaxBursts => _maxBursts;
 
         public float Flash(float progress) => Evaluate(_flashCurve, progress, 0);
-        public float BurstFlash(float progress) => Evaluate(_burstFlashCurve, progress, 0);
         // 플레어·표식 길이의 비율. 튕김을 위해 1을 넘을 수 있다.
         public float FlareGrowth(float progress) => _flareGrow == null ? 1 : Mathf.Max(0, _flareGrow.Evaluate(Mathf.Clamp01(progress)));
         public float FlareStrength(float progress) => Evaluate(_flareFade, progress, 1);

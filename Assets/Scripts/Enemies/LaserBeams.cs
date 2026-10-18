@@ -12,10 +12,10 @@ namespace BlackHole.Unity
     // 연출(세 동작, LaserLook 머리말): ① 표식 — 별이 터지며 섬광과 함께 X 표식(꺾인 가로 플레어 + 빔 방향의 짧은 세로 줄기)이 튕기듯 튀어나온다.
     // ② 조준 — 표식이 자라는 동안 빔의 씨앗은 별 자리에 둥근 빛으로 뭉쳐 있다가, 플레어가 점으로 뭉치듯 줄어들며 실선 쪽으로 살짝 돌기 시작할 때
     //   가는 실선으로 늘어나 화면 밖으로 뻗는다. 발사 직전 실선이 진해진다.
-    // ③ 관통 — 실선이 판정 너비를 넘겼다가 자리 잡으며 화면을 관통하고, 표식은 가라앉고, 발사 섬광이 터진다.
+    // ③ 관통 — 실선이 판정 너비를 넘겼다가 자리 잡으며 화면을 관통하고, 표식은 가라앉는다(발사 섬광은 없다).
     // - ShowTelegraphs: 예고 중인 레이저마다 섬광·플레어·표식·실선을 그린다. 예고에는 번호가 없어 상태를 두지 않고, 규칙이 주는 남은 시간으로 진행(0 ~ 1)을 구해
     //   매 프레임 모양을 다시 정한다. 플레어의 각과 좌우는 경로 끝점을 씨앗으로 뽑아 예고와 발사가 같은 값을 쓴다.
-    // - Play: 발사 하나를 BurstSeconds 동안 그린다 — 빔이 굵어지고 옅어지며, 플레어는 FlareCollapseSeconds 동안 가라앉고, 발사 섬광이 터진다.
+    // - Play: 발사 하나를 BurstSeconds 동안 그린다 — 빔이 굵어졌다 납작해져 사라지고, 플레어·표식은 FlareCollapseSeconds 동안 가라앉는다.
     // - Age: 시간을 흘린다. 부르지 않으면(일시정지) 멈춘 채 보이고, 다시 부르면 이어간다.
     // 실선·빔의 길이는 규칙의 양 끝(화면 밖 ±300)이 아니라 카메라의 가장 먼 모서리까지다 — 중심에서 자라는 느낌을 내기 위해서다. 규칙 평면은 장면의 z = 0이다.
     internal sealed class LaserBeams : IDisposable
@@ -209,10 +209,7 @@ namespace BlackHole.Unity
             Place(burst.View.Flare, burst.Center, flareAngle, _look.FlareReach * burst.Field * growth * 2, thickness, glow, 1, 1);
             Place(burst.View.Mark, burst.Center, burst.BeamAngle, _look.MarkReach * burst.Field * growth * 2, thickness, glow, 1, 1);
 
-            // 발사 섬광: 시작 섬광보다 크게 터졌다가 줄어들며 사라진다.
-            float flash = _look.BurstFlash(progress);
-            float flashRadius = _look.FlashRadius * _look.BurstFlashScale * burst.Field * boost * flash;
-            Place(burst.View.Flash, burst.Center, 0, 0, flashRadius * 2, _look.FlashGlowWidth * burst.Field * boost * flash, 0, 1);
+            // 발사에는 섬광이 없다(빔 위에 원이 남지 않게). 발사용 Trio의 Flash는 만들어만 두고 쓰지 않는다.
         }
 
         // 쉬는 발사를 먼저 쓴다. 없으면 상한까지 새로 만들고, 상한이면 가장 오래된 발사를 다시 쓴다.
