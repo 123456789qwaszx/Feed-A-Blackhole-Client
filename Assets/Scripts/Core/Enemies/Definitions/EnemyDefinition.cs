@@ -38,7 +38,7 @@ namespace BlackHole.Core
         // 주기 출현 종류는 적 공급·성장 공급·변환과 무관하다: 주기마다 등장 확률(판 구성의 SpawnChance)로 하나가 나온다.
         public float SpawnPeriod { get; }
 
-        // 픽업(혜성): 브레이커로 쳐서 획득하는 것이며, 사망 효과의 피해를 받지 않는다(성질이 언제나 붙으므로). 질량·크기가 없다.
+        // 픽업(혜성): 브레이커로 쳐서 획득하는 것이며, 사망 효과의 피해를 받지 않는다(DeathEffects.CanBeStruck — 특수 적 중 유일한 예외). 질량·크기가 없다.
         // 지금은 주기 출현 종류만 픽업이다.
         public bool IsPickup => SpawnPeriod > 0;
 

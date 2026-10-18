@@ -8,7 +8,10 @@ namespace BlackHole.Core
     // 처리: 넣은 순서(사망 순서)대로 효과를 실행하고 대기열을 비움.
     // 레이저 별은 죽는 순간 경로를 정해 예고를 시작하고, 예고 시간이 지난 Step에 쏜다(피해는 그때 준다).
     // 중력장 은하는 죽는 순간 그 자리에 중력장을 연다. 중력장은 다음 Step의 이동부터 범위 안의 적을 나선으로 끌어 작은 원반에 머물게 한다(World.Step 1, Pull·GravityPull).
-    // 효과의 피해는 특수 적(성질이 붙은 적, 픽업 포함)에게 가지 않는다 — 효과가 효과를 부르지 않는다.
+    // 효과의 피해는 픽업(혜성)을 뺀 모든 적에게 간다 — 특수 적도 맞고, 맞아 죽으면 그 성질의 효과가 또 발동한다(연쇄).
+    // 연쇄는 Step 단위로 한 세대씩 진행한다: 이번 Step의 처리(Resolve) 중에 죽은 특수 적의 효과는 다음 Step에 처리한다.
+    // 한 프레임의 비용을 한 세대분으로 나누고, 연쇄가 도미노처럼 보이게 하기 위해서다. 적은 한 번만 죽고 생존 수에 상한이 있어 무한 연쇄는 없다.
+    // (이전에는 특수 적이 효과의 피해를 받지 않았다 — 처음엔 연쇄 폭주 우려 때문이었는데, 측정 결과 비용이 크지 않아 풀었다. 원작도 면역이지만 따르지 않는다.)
     public sealed class DeathEffects
     {
         // 레이저가 죽은 자리에서 양쪽으로 뻗는 길이(판정도 이 길이 전체). 양 끝이 늘 화면 밖에 있도록 어떤 화면보다 훨씬 길게 둔다:
@@ -19,7 +22,10 @@ namespace BlackHole.Core
         private const float LaserTelegraphSeconds = 0.4f;
         private const float TimeEpsilon = 1e-5f;
 
-        private readonly List<Pending> _pending = new();
+        // 다음 처리(Resolve)를 기다리는 효과. 처리에 들어갈 때 _resolving과 맞바꾼다(둘 다 readonly가 아닌 이유).
+        private List<Pending> _pending = new();
+        // 이번 Step에 처리 중인 효과. 처리 중에 들어온 효과(연쇄)는 _pending에 쌓여 다음 Step에 처리한다.
+        private List<Pending> _resolving = new();
         private readonly List<LightningHit> _lightningHits = new();
         private readonly List<ExplosionBlast> _explosions = new();
         private readonly List<LaserBurst> _laserBursts = new();
@@ -99,6 +105,7 @@ namespace BlackHole.Core
 
         // 막 죽은 적(피해·파괴로 처음 죽음)이 특수 적이면 그 성질의 효과를 대기열에 추가.
         // 효과의 피해 출처는 효과 자신이다(번개·폭발·레이저) — 누가 그 특수 적을 죽였는지와 무관하다.
+        // 처리(Resolve) 중에 효과가 죽인 특수 적도 여기로 들어오고, 다음 Step의 처리에서 발동한다.
         internal void Enqueue(Enemy enemy)
         {
             if (enemy.Trait != null)
@@ -116,6 +123,7 @@ namespace BlackHole.Core
         internal void Clear()
         {
             _pending.Clear();
+            _resolving.Clear();
             _chargingLasers.Clear();
             _laserTelegraphs.Clear();
             _openFields.Clear();
@@ -124,13 +132,17 @@ namespace BlackHole.Core
 
         // 먼저 예고가 끝난 레이저를 쏘고, 그다음 이번 Step의 사망 효과를 처리한다.
         // 이번 Step에 예고를 시작한 레이저와 연 중력장은 다음 Step부터 시간이 흐른다.
+        // 처리할 효과는 처리에 들어가기 전에 쌓인 것까지다. 레이저·번개·폭발이 이 처리 중에 죽인 특수 적의 효과는 다음 Step에 처리한다.
         internal void Resolve(World world, float delta)
         {
+            (_resolving, _pending) = (_pending, _resolving);
+            _pending.Clear();
+
             FireChargedLasers(delta, world);
 
-            for (int i = 0; i < _pending.Count; i++)
+            for (int i = 0; i < _resolving.Count; i++)
             {
-                Pending pending = _pending[i];
+                Pending pending = _resolving[i];
 
                 switch (pending.Effect)
                 {
@@ -158,7 +170,7 @@ namespace BlackHole.Core
                 }
             }
 
-            _pending.Clear();
+            _resolving.Clear();
             RefreshTelegraphs();
             RefreshFields();
         }
@@ -212,8 +224,9 @@ namespace BlackHole.Core
             }
         }
 
-        // 효과 피해를 받을 수 있는 적: 살아 있고 특수 적이 아닌 적(World.Enemies는 살아 있는 적뿐이다).
-        private static bool CanBeStruck(Enemy enemy) => !enemy.IsSpecial;
+        // 효과 피해를 받을 수 있는 적: 살아 있고 픽업이 아닌 적(World.Enemies는 살아 있는 적뿐이다). 특수 적도 맞는다 — 머리말 참고.
+        // 픽업(혜성)은 브레이커로 쳐서 얻는 것이라 효과로 터뜨리지 않는다.
+        private static bool CanBeStruck(Enemy enemy) => !enemy.Definition.IsPickup;
 
         // 줄기 하나를 내보내고, 갈래 확률로 성공할 때마다 하나를 더 내보낸다(최대 MaxBranches). 줄기마다 MaxTargets만큼 연쇄한다.
         // 맞힌 적 목록은 한 발동의 모든 줄기가 함께 쓴다 — 같은 적을 두 번 맞히지 않는다.

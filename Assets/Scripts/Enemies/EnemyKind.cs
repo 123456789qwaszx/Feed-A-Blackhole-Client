@@ -18,7 +18,7 @@ namespace BlackHole.Unity
     //   (노드 asteroid.size 등, SizeRule)가 정한다. 둘 다 종류마다 따로이고 이 에셋에는 칸이 없다.
     // - 특수 성질: 황금·전기·달·레이저·슈퍼노바·중력장은 종류가 아니라 출현 때 한 마리에 붙는 성질이다(최대 하나, 배타).
     //   성질 종류(EnemyTraitType)가 사망 효과를 정하고, 성질마다 효과 수치와 표식 색이 있다. 붙는 확률은 노드(electricAsteroid.spawnChance 등)가 정하고 기본 0%다.
-    //   성질이 붙은 적(특수 적)은 사망 효과의 피해를 받지 않는다.
+    //   성질이 붙은 적(특수 적)도 사망 효과의 피해를 받는다(픽업 제외). 효과가 특수 적을 죽이면 연쇄한다(DeathEffects).
     // - 출현 주기: 0보다 크면 공급되지 않는 픽업(혜성)이다. 주기마다 등장 확률(노드 comet.spawnChance)로 나오고, 성질 하나가 언제나 붙는다.
     [CreateAssetMenu(fileName = "EnemyKind", menuName = "BlackHole/Enemy Kind")]
     public sealed class EnemyKind : ScriptableObject
