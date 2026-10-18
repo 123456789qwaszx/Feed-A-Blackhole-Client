@@ -29,8 +29,6 @@ namespace BlackHole.Core
         // 번개 연쇄에서 줄기 하나가 다음 홉으로 옮겨 가는 간격(초). 화면(LightningBolts)은 hop × 이 값 뒤에 줄기를 그리고,
         // 규칙은 그 홉이 죽인 특수 적의 효과를 같은 시각에 발동한다 — 둘이 같은 값을 써야 한다.
         public const float ChainHopSeconds = 0.04f;
-        // 전기 별 번개의 홉 간격(초). 화면(StarLightningBolts)과 같은 값. 소행성과 따로 둔다.
-        public const float StarChainHopSeconds = 0.04f;
         // 폭발 링이 0에서 판정 반지름까지 퍼지는 시간(초). 화면(ExplosionRings)은 이 시간에 링을 그 반지름까지 키우고,
         // 규칙은 폭발이 죽인 특수 적의 효과를 링이 그 적에 닿는 시각에 발동한다 — 둘이 같은 값과 같은 퍼짐 식(ExplosionRingReach)을 써야 한다.
         public const float ExplosionRingSeconds = 0.6f;
@@ -346,11 +344,14 @@ namespace BlackHole.Core
             }
         }
 
-        // 전기 별 번개: 지금은 연쇄 번개(Chain)와 같은 규칙이다. 정의·기록·피해 출처만 따로다 — 앞으로 규칙이 갈라질 자리.
+        // 전기 별 번개: 터지는 순간 줄기 Branches개가 한꺼번에 나가고(갈래 확률로 성공할 때마다 하나 더, 최대 MaxBranches), 모든 적중이 같은 순간에 들어간다.
+        // 줄기마다 가장 가까운 적으로 옮겨 가며 잡되 맞힌 적 목록을 함께 써서 서로 다른 적을 잡아 주변에 넓게 퍼진다.
+        // 소행성(Chain)과 달리 홉 사이에 시간을 두지 않는다 — 번개가 죽인 특수 적의 효과도 지연 없이 다음 처리에서 바로 발동한다.
+        // 치명타는 발동 한 번에 한 번 판정하고 모든 줄기·적중이 같은 결과를 쓴다.
         private void StarChain(StarLightningDefinition star, Pending pending, World world)
         {
             _struck.Clear();
-            int branches = 1;
+            int branches = star.Branches;
 
             while (branches < StarLightningDefinition.MaxBranches && star.BranchChance > 0 && _random.NextFloat() < star.BranchChance)
                 branches++;
@@ -396,10 +397,7 @@ namespace BlackHole.Core
                 _struck.Add(nearest);
                 _starLightningHits.Add(new StarLightningHit(_nextSequence++, origin, nearest.Position, critical));
                 origin = nearest.Position;
-
-                _enqueueDelay = hop * StarChainHopSeconds;
                 world.DealDamage(nearest, damage);
-                _enqueueDelay = 0;
             }
         }
 

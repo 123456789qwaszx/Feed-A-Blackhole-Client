@@ -154,7 +154,7 @@ namespace BlackHole.Core
                     return Guard(at, into, () => new GoldenDefinition(item.Multiplier, item.CritChance, item.CritRewardScale));
                 case EnemyTraitType.Electric when kind == EnemyType.Star:
                     return Guard(at, into, () => new StarLightningDefinition(
-                        item.Damage, item.Radius, item.MaxTargets, item.BranchChance, item.CritChance, item.CritMultiplier));
+                        item.Damage, item.Radius, item.MaxTargets, item.Branches, item.BranchChance, item.CritChance, item.CritMultiplier));
                 case EnemyTraitType.Electric:
                     return Guard(at, into, () => new ChainLightningDefinition(
                         item.Damage, item.Radius, item.MaxTargets, item.BranchChance, item.CritChance, item.CritMultiplier));

@@ -81,9 +81,9 @@ namespace BlackHole.Unity
         [SerializeField] private float _twigLife = 0.6f;
 
         [Header("움직임: 가로는 진행(0 ~ 1)")]
-        [Tooltip("From에서 To 쪽으로 칸 하나씩 늦게 나타나는 간격(초). 나무가 자라는 느낌. 0이면 한꺼번에 나타난다.")]
+        [Tooltip("나무 안에서 From 쪽 칸부터 하나씩 늦게 나타나는 간격(초). 0이면 한꺼번에 나타난다(별 번개는 적중이 동시라 기본 0).")]
         [Min(0)]
-        [SerializeField] private float _growSeconds = 0.01f;
+        [SerializeField] private float _growSeconds = 0;
         [Tooltip("줄기 한 칸이 보이는 시간(초). 소행성(0.45)보다 조금 길게.")]
         [Min(0.01f)]
         [SerializeField] private float _duration = 0.6f;

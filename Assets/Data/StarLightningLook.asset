@@ -32,7 +32,7 @@ MonoBehaviour:
   _twigTurnDegrees: {x: 25, y: 65}
   _twigThickness: 0.45
   _twigLife: 0.6
-  _growSeconds: 0.01
+  _growSeconds: 0
   _duration: 0.6
   _fadeCurve:
     serializedVersion: 2

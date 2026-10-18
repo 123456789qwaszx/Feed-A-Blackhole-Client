@@ -56,7 +56,8 @@ MonoBehaviour:
     damage: 1800
     radius: 3
     maxTargets: 5
-    branchChance: 0
+    branches: 2
+    branchChance: 0.5
     critChance: 0
     critMultiplier: 2
     width: 0

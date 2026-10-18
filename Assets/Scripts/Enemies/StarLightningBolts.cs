@@ -15,8 +15,8 @@ namespace BlackHole.Unity
     // - 잔가지: 줄기·갈래의 마디에서 진행 방향으로 비스듬히 뻗어 허공에서 끝나는 짧은 가닥. 더 가늘고 먼저 사라진다.
     // 마디 좌표를 여기서 정하므로 모든 가닥이 마디에서 정확히 이어진다(셰이더의 꺾임은 양 끝에서 0이라 칸의 두 끝이 마디에 붙는다).
     // 나무의 얼개(갈래가 어느 마디에서 어느 쪽으로, 잔가지가 어디서)는 Play에서 한 번 정하고, 마디의 자리와 잔떨림은 깜빡임마다 다시 뽑는다.
-    // - Play: 홉 하나의 나무를 hop × DeathEffects.StarChainHopSeconds초 뒤에 From 쪽 칸부터 GrowSeconds 간격으로 나타나게 한다.
-    //   hop은 연쇄에서 몇 번째 홉인가(0부터), fieldScale은 이 판의 전장 배율.
+    // - Play: 홉 하나(From에서 To까지)의 나무를 바로 보인다. 별 번개는 모든 적중이 같은 순간이라 홉 순서를 두지 않고, 한 발동의 나무가 모두 같은 프레임에
+    //   나타난다. GrowSeconds가 0보다 크면 나무 안에서만 From 쪽 칸부터 그 간격으로 자란다. fieldScale은 이 판의 전장 배율.
     // - Age: 시간을 흘린다. 부르지 않으면(일시정지) 멈춘 채 보이고, 다시 부르면 이어간다.
     // - 나무는 사각형을 통째로 들고 있다. 끝난 나무는 숨겨 두었다가 다음 Play에 다시 쓴다. 동시에 보이는 나무는 MaxHops까지이고, 넘치면 가장 오래된 나무를 다시 쓴다.
     // 만든 사각형은 모두 이 부품의 뿌리 아래에 있고 Reset이 모두 지운다. 규칙 평면은 장면의 z = 0이다.
@@ -74,7 +74,6 @@ namespace BlackHole.Unity
         private sealed class Tree
         {
             public bool Playing;
-            // 음수면 아직 나타나기 전(연쇄 지연)이다.
             public float Elapsed;
             // 마지막으로 마디를 뽑은 깜빡임 단계. -1이면 아직 뽑지 않았다.
             public int Step;
@@ -113,13 +112,13 @@ namespace BlackHole.Unity
             _quad = CreateQuad();
         }
 
-        public void Play(Point2 from, Point2 to, int hop, float fieldScale)
+        public void Play(Point2 from, Point2 to, float fieldScale)
         {
             float field = _look.ScaleWithField ? Mathf.Max(1f, fieldScale) : 1f;
             Tree tree = Take();
 
             tree.Playing = true;
-            tree.Elapsed = -Mathf.Max(hop, 0) * DeathEffects.StarChainHopSeconds;
+            tree.Elapsed = 0;
             tree.Step = -1;
             tree.From = new Vector2(from.X, from.Y);
             tree.To = new Vector2(to.X, to.Y);
@@ -240,12 +239,6 @@ namespace BlackHole.Unity
         // 지금 시각의 나무를 보인다: 깜빡임 단계가 바뀌면 마디를 다시 뽑고, 칸마다 아직 전·보이는 중·끝남을 가른다. 모두 끝나면 나무를 쉬게 한다.
         private void Update(Tree tree)
         {
-            if (tree.Elapsed < 0)
-            {
-                Hide(tree);
-                return;
-            }
-
             int step = Mathf.FloorToInt(tree.Elapsed * _look.FlickerRate);
 
             if (step != tree.Step)

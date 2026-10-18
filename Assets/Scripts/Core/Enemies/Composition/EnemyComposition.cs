@@ -277,7 +277,7 @@ namespace BlackHole.Core
 
                     bool same = damage == star.Damage && radius == star.Radius && maxTargets == star.MaxTargets
                                 && branch == star.BranchChance && crit == star.CritChance && critMultiplier == star.CritMultiplier;
-                    return same ? null : new StarLightningDefinition(damage, radius, maxTargets, branch, crit, critMultiplier);
+                    return same ? null : new StarLightningDefinition(damage, radius, maxTargets, star.Branches, branch, crit, critMultiplier);
                 }
                 case LaserBurstDefinition laser:
                 {

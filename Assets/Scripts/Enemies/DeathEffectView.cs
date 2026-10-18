@@ -54,11 +54,10 @@ namespace BlackHole.Unity
                 SoundManager.Instance?.PlayLightning();
             }
 
-            // 전기 별 번개: 기록이 따로다(StarLightningHits). 연쇄 홉 추정은 위와 같다.
+            // 전기 별 번개: 기록이 따로다(StarLightningHits). 모든 적중이 같은 순간이라 홉 순서가 없다 — 한 발동의 줄기를 한꺼번에 그리고 소리는 한 번만 낸다.
             IReadOnlyList<StarLightningHit> starHits = world.DeathEffects.StarLightningHits;
             float fieldScale = world.Hq.FieldScale;
-            hop = 0;
-            chainEnd = null;
+            bool starStruck = false;
 
             for (int i = 0; i < starHits.Count; i++)
             {
@@ -66,11 +65,12 @@ namespace BlackHole.Unity
                     continue;
 
                 drawn = Math.Max(drawn, starHits[i].Sequence);
-                hop = chainEnd.HasValue && chainEnd.Value.Equals(starHits[i].From) ? hop + 1 : 0;
-                chainEnd = starHits[i].To;
-                _starLightning.Play(starHits[i].From, starHits[i].To, hop, fieldScale);
-                SoundManager.Instance?.PlayLightning();
+                _starLightning.Play(starHits[i].From, starHits[i].To, fieldScale);
+                starStruck = true;
             }
+
+            if (starStruck)
+                SoundManager.Instance?.PlayLightning();
 
             IReadOnlyList<ExplosionBlast> explosions = world.DeathEffects.Explosions;
 
