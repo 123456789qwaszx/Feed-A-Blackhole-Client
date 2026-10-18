@@ -30,8 +30,16 @@ namespace BlackHole.Core
         // 규칙은 그 홉이 죽인 특수 적의 효과를 같은 시각에 발동한다 — 둘이 같은 값을 써야 한다.
         public const float ChainHopSeconds = 0.04f;
         // 폭발 링이 0에서 판정 반지름까지 퍼지는 시간(초). 화면(ExplosionRings)은 이 시간에 링을 그 반지름까지 키우고,
-        // 규칙은 폭발이 죽인 특수 적의 효과를 링이 그 적에 닿는 시각에 발동한다 — 둘이 같은 값을 써야 한다.
+        // 규칙은 폭발이 죽인 특수 적의 효과를 링이 그 적에 닿는 시각에 발동한다 — 둘이 같은 값과 같은 퍼짐 식(ExplosionRingReach)을 써야 한다.
         public const float ExplosionRingSeconds = 0.6f;
+
+        // 링의 퍼짐: 진행(0 ~ 1, 흐른 시간 ÷ ExplosionRingSeconds)에서 링 반지름의 비율(0 ~ 1). 처음에 빠르고 끝에 느리다(충격파처럼) — 1 − (1 − t)³.
+        // 화면은 이 식으로 링을 그리고, 규칙은 역함수(ExplosionRingDelay)로 닿는 시각을 구한다.
+        public static float ExplosionRingReach(float progress) => 1f - (float)Math.Pow(1f - Math.Clamp(progress, 0f, 1f), 3);
+
+        // 링이 반지름의 fraction(0 ~ 1)에 닿기까지의 시간(초): ExplosionRingReach의 역함수 × ExplosionRingSeconds.
+        internal static float ExplosionRingDelay(float fraction) =>
+            ExplosionRingSeconds * (1f - (float)Math.Cbrt(1f - Math.Clamp(fraction, 0f, 1f)));
         private const float TimeEpsilon = 1e-5f;
 
         // 다음 처리(Resolve)를 기다리는 효과(들어온 순서). 처리에 들어갈 때 _resolving과 맞바꾼다(둘 다 readonly가 아닌 이유).
@@ -346,9 +354,9 @@ namespace BlackHole.Core
             {
                 Damage damage = new(explosion.DamageTo(target), DamageSource.Explosion, false, pending.EnemyType);
 
-                // 이 적이 죽으면 그 효과는 링이 이 적의 가장자리에 닿는 시각에 발동한다: 링 시간 × (가장자리까지의 거리 ÷ 반지름). 0 ~ 링 시간.
+                // 이 적이 죽으면 그 효과는 링이 이 적의 가장자리에 닿는 시각에 발동한다(ExplosionRingDelay, 0 ~ 링 시간).
                 float gap = (float)Math.Sqrt(pending.Position.DistanceSquared(target.Position)) - target.Stats.Radius;
-                _enqueueDelay = ExplosionRingSeconds * Math.Clamp(gap / radius, 0f, 1f);
+                _enqueueDelay = ExplosionRingDelay(gap / radius);
                 world.DealDamage(target, damage);
                 _enqueueDelay = 0;
             }
