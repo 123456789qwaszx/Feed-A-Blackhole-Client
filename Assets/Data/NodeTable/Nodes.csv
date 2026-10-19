@@ -225,35 +225,9 @@ supernovaStar.damage-06,1,초신성 잔해
 asteroid.count-05,1,초신성 잔해
 laserStar.width-09,1,초신성 잔해
 star.massScale-09,1,초신성 잔해
-star.toGalaxy-01,1,은하핵
-growth.galaxies-01,1,은하핵
 breaker.galaxyBonusDamage-01,1,은하핵
-gravityGalaxy.spawnChance-01,1,은하핵
-galaxy.size-01,1,초신성 잔해
-galaxy.timeChance-01,1,은하핵
-galaxy.massScale-01,1,초신성 잔해
-gravityGalaxy.radius-01,1,은하핵
-gravityGalaxy.force-01,1,은하핵
-gravityGalaxy.duration-01,1,은하핵
-galaxy.size-02,1,은하핵
-galaxy.respawnChance-01,1,은하핵
-star.toGalaxy-02,1,은하핵
-galaxy.massScale-02,1,은하핵
 breaker.galaxyBonusDamage-02,1,은하핵
-gravityGalaxy.radius-02,1,은하핵
-gravityGalaxy.spawnChance-02,1,은하핵
-gravityGalaxy.duration-02,1,은하핵
-growth.galaxies-02,1,은하핵
-gravityGalaxy.force-02,1,은하핵
-galaxy.massScale-03,1,은하핵
-galaxy.respawnChance-02,1,은하핵
-star.toGalaxy-03,1,은하핵
 breaker.galaxyBonusDamage-03,1,은하핵
-gravityGalaxy.spawnChance-03,1,은하핵
-galaxy.size-03,1,은하핵
-gravityGalaxy.radius-03,1,은하핵
-gravityGalaxy.duration-03,1,은하핵
-galaxy.massScale-04,1,은하핵
 breaker.speed-12,10,블랙홀
 breaker.critBonus-05,10,블랙홀
 asteroid.toPlanet-05,10,블랙홀

@@ -1387,8 +1387,7 @@ MonoBehaviour:
       Start: 0
       X: -19
       Y: -18
-      Links:
-      - star.toGalaxy-01
+      Links: []
     - Id: supernovaStar.damage-06
       Start: 0
       X: -18
@@ -1411,184 +1410,25 @@ MonoBehaviour:
       Y: -20
       Links:
       - asteroid.toPlanet-06
-    - Id: star.toGalaxy-01
-      Start: 0
-      X: -19
-      Y: -17
-      Links:
-      - growth.galaxies-01
-    - Id: growth.galaxies-01
-      Start: 0
-      X: -18
-      Y: -17
-      Links:
-      - breaker.galaxyBonusDamage-01
     - Id: breaker.galaxyBonusDamage-01
       Start: 0
       X: -18
       Y: -16
       Links:
-      - galaxy.timeChance-01
-      - gravityGalaxy.spawnChance-01
-    - Id: gravityGalaxy.spawnChance-01
-      Start: 0
-      X: -16
-      Y: -16
-      Links:
-      - gravityGalaxy.radius-01
-    - Id: galaxy.size-01
-      Start: 0
-      X: -20
-      Y: -17
-      Links:
-      - star.toGalaxy-01
-      - galaxy.massScale-01
-    - Id: galaxy.timeChance-01
-      Start: 0
-      X: -18
-      Y: -11
-      Links:
-      - galaxy.respawnChance-01
-    - Id: galaxy.massScale-01
-      Start: 0
-      X: -20
-      Y: -16
-      Links: []
-    - Id: gravityGalaxy.radius-01
-      Start: 0
-      X: -16
-      Y: -13
-      Links:
-      - gravityGalaxy.force-01
-    - Id: gravityGalaxy.force-01
-      Start: 0
-      X: -15
-      Y: -13
-      Links:
-      - gravityGalaxy.duration-01
-      - gravityGalaxy.radius-02
-    - Id: gravityGalaxy.duration-01
-      Start: 0
-      X: -15
-      Y: -14
-      Links: []
-    - Id: galaxy.size-02
-      Start: 0
-      X: -12
-      Y: -11
-      Links: []
-    - Id: galaxy.respawnChance-01
-      Start: 0
-      X: -17
-      Y: -11
-      Links:
-      - star.toGalaxy-02
-      - galaxy.massScale-02
-    - Id: star.toGalaxy-02
-      Start: 0
-      X: -17
-      Y: -10
-      Links: []
-    - Id: galaxy.massScale-02
-      Start: 0
-      X: -13
-      Y: -11
-      Links:
-      - galaxy.size-02
+      - planet.toStar-07
+      - breaker.galaxyBonusDamage-02
     - Id: breaker.galaxyBonusDamage-02
       Start: 0
-      X: -12
-      Y: -7
-      Links:
-      - growth.galaxies-02
-    - Id: gravityGalaxy.radius-02
-      Start: 0
       X: -14
       Y: -13
       Links:
-      - gravityGalaxy.spawnChance-02
-    - Id: gravityGalaxy.spawnChance-02
-      Start: 0
-      X: -14
-      Y: -16
-      Links:
-      - gravityGalaxy.duration-02
-    - Id: gravityGalaxy.duration-02
-      Start: 0
-      X: -12
-      Y: -16
-      Links:
-      - gravityGalaxy.force-02
-      - galaxy.size-02
-    - Id: growth.galaxies-02
-      Start: 0
-      X: -11
-      Y: -7
-      Links:
-      - galaxy.massScale-03
-    - Id: gravityGalaxy.force-02
-      Start: 0
-      X: -11
-      Y: -16
-      Links:
-      - star.toGalaxy-03
-    - Id: galaxy.massScale-03
-      Start: 0
-      X: -11
-      Y: -8
-      Links:
-      - star.toGalaxy-03
-    - Id: galaxy.respawnChance-02
-      Start: 0
-      X: -10
-      Y: -8
-      Links:
-      - galaxy.size-03
-      - galaxy.massScale-04
-    - Id: star.toGalaxy-03
-      Start: 0
-      X: -11
-      Y: -9
-      Links:
-      - galaxy.respawnChance-02
       - breaker.galaxyBonusDamage-03
     - Id: breaker.galaxyBonusDamage-03
       Start: 0
       X: -10
       Y: -10
       Links:
-      - gravityGalaxy.radius-03
-      - gravityGalaxy.duration-03
-    - Id: gravityGalaxy.spawnChance-03
-      Start: 0
-      X: -7
-      Y: -9
-      Links:
       - breaker.speed-12
-    - Id: galaxy.size-03
-      Start: 0
-      X: -9
-      Y: -7
-      Links:
-      - galaxy.massScale-04
-    - Id: gravityGalaxy.radius-03
-      Start: 0
-      X: -9
-      Y: -11
-      Links:
-      - gravityGalaxy.duration-03
-    - Id: gravityGalaxy.duration-03
-      Start: 0
-      X: -8
-      Y: -10
-      Links:
-      - gravityGalaxy.spawnChance-03
-    - Id: galaxy.massScale-04
-      Start: 0
-      X: -8
-      Y: -8
-      Links:
-      - gravityGalaxy.spawnChance-03
     - Id: breaker.speed-12
       Start: 0
       X: -6
@@ -1886,37 +1726,11 @@ MonoBehaviour:
       - comet.spawnChance-03
       - supernovaStar.damage-02
       - supernovaStar.range-02
-      - galaxy.size-01
-      - galaxy.massScale-01
     - Id: core
       Nodes:
-      - star.toGalaxy-01
-      - growth.galaxies-01
       - breaker.galaxyBonusDamage-01
-      - gravityGalaxy.spawnChance-01
-      - galaxy.timeChance-01
-      - gravityGalaxy.radius-01
-      - gravityGalaxy.force-01
-      - gravityGalaxy.duration-01
-      - galaxy.size-02
-      - galaxy.respawnChance-01
-      - star.toGalaxy-02
-      - galaxy.massScale-02
       - breaker.galaxyBonusDamage-02
-      - gravityGalaxy.radius-02
-      - gravityGalaxy.spawnChance-02
-      - gravityGalaxy.duration-02
-      - growth.galaxies-02
-      - gravityGalaxy.force-02
-      - galaxy.massScale-03
-      - galaxy.respawnChance-02
-      - star.toGalaxy-03
       - breaker.galaxyBonusDamage-03
-      - gravityGalaxy.spawnChance-03
-      - galaxy.size-03
-      - gravityGalaxy.radius-03
-      - gravityGalaxy.duration-03
-      - galaxy.massScale-04
     - Id: blackhole
       Nodes:
       - breaker.speed-12
