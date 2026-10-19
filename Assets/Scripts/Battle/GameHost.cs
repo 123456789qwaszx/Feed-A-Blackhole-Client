@@ -170,6 +170,7 @@ namespace BlackHole.Unity
             return new GalaxyHealthState(
                 _galaxy.Id.Value,
                 _galaxy.Tier,
+                _galaxy.Size,
                 _galaxy.Health,
                 _galaxy.Stats.MaxHealth,
                 _enemyLooks.ColorOf(EnemyType.Galaxy, _galaxy.Tier));

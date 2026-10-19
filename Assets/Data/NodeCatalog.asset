@@ -1384,7 +1384,7 @@ MonoBehaviour:
       X: -9
       Y: -7
       Links:
-      - breaker.speed-12
+      - breaker.galaxyBonusDamage-01
     - Id: supernovaStar.damage-06
       Start: 0
       X: -12
@@ -1408,25 +1408,37 @@ MonoBehaviour:
       Y: -9
       Links:
       - asteroid.toPlanet-06
+    - Id: breaker.galaxyBonusDamage-01
+      Start: 0
+      X: -5
+      Y: -7
+      Links:
+      - breaker.speed-12
+      - breaker.radius-14
     - Id: breaker.speed-12
       Start: 0
       X: -3
       Y: -7
       Links:
+      - breaker.damage-29
       - breaker.critBonus-05
-      - laserStar.width-10
-    - Id: galaxy.size-01
-      Start: 0
-      X: -1
-      Y: -7
-      Links:
-      - breaker.speed-12
-    - Id: breaker.critBonus-05
+    - Id: breaker.damage-29
       Start: 0
       X: -3
       Y: -5
       Links:
       - asteroid.toPlanet-05
+    - Id: breaker.critBonus-05
+      Start: 0
+      X: -3
+      Y: -9
+      Links:
+      - electricStar.damage-03
+    - Id: breaker.radius-14
+      Start: 0
+      X: -5
+      Y: -5
+      Links: []
     - Id: asteroid.toPlanet-05
       Start: 0
       X: -1
@@ -1441,26 +1453,44 @@ MonoBehaviour:
       - star.size-03
     - Id: star.size-03
       Start: 0
-      X: 1
-      Y: -7
-      Links:
-      - star.massScale-10
-    - Id: star.massScale-10
-      Start: 0
-      X: 1
-      Y: -9
-      Links:
-      - electricStar.critBonus-02
-    - Id: electricStar.critBonus-02
-      Start: 0
-      X: -1
-      Y: -9
+      X: 3
+      Y: -5
       Links:
       - laserStar.width-10
     - Id: laserStar.width-10
       Start: 0
-      X: -3
+      X: 3
+      Y: -7
+      Links:
+      - supernovaStar.range-05
+      - laserStar.damage-07
+    - Id: supernovaStar.range-05
+      Start: 0
+      X: 3
       Y: -9
+      Links: []
+    - Id: electricStar.damage-03
+      Start: 0
+      X: -1
+      Y: -9
+      Links:
+      - supernovaStar.damage-07
+    - Id: supernovaStar.damage-07
+      Start: 0
+      X: 1
+      Y: -9
+      Links:
+      - supernovaStar.range-05
+    - Id: laserStar.damage-07
+      Start: 0
+      X: 1
+      Y: -7
+      Links:
+      - galaxy.size-01
+    - Id: galaxy.size-01
+      Start: 0
+      X: -1
+      Y: -7
       Links: []
     - Id: planet.massScale-05
       Start: 0
@@ -1713,12 +1743,17 @@ MonoBehaviour:
       - supernovaStar.range-02
     - Id: blackhole
       Nodes:
+      - breaker.galaxyBonusDamage-01
       - breaker.speed-12
-      - galaxy.size-01
+      - breaker.damage-29
       - breaker.critBonus-05
+      - breaker.radius-14
       - asteroid.toPlanet-05
       - planet.toStar-06
       - star.size-03
-      - star.massScale-10
-      - electricStar.critBonus-02
       - laserStar.width-10
+      - supernovaStar.range-05
+      - electricStar.damage-03
+      - supernovaStar.damage-07
+      - laserStar.damage-07
+      - galaxy.size-01

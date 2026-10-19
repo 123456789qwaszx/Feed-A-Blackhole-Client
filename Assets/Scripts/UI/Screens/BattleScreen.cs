@@ -108,7 +108,10 @@ namespace BlackHole.Unity
             RectTransform safeArea = View.Rect(Refs.SafeAreaRoot);
 
             if (safeArea != null)
+            {
                 _galaxyBar = new GalaxyHealthBar(safeArea, _pauseLabel != null ? _pauseLabel.font : null, _styledTexts, _themedImages);
+                _galaxyBar.ApplyStyle(_styledTexts.Style);
+            }
 
             BindEvent(View.Button(Refs.PauseBtn_Button), HandlePauseClicked);
             BindEvent(View.Button(Refs.EndBtn_Button), HandleEndClicked);
@@ -133,6 +136,7 @@ namespace BlackHole.Unity
         {
             _styledTexts.SetStyle(style);
             _themedImages.SetStyle(style);
+            _galaxyBar?.ApplyStyle(style);
         }
 
         // 이 판의 은하 상태(GameHost가 매 프레임). 은하가 없는 판이면 null — 막대를 숨긴다.

@@ -29,27 +29,27 @@ MonoBehaviour:
     maxGeneration: 0
   tiers:
   - color: {r: 0.62, g: 0.32, b: 0.26, a: 1}
-    maxHealth: 10000000
+    maxHealth: 13000000
     gold: 1000000000000
     exp: 600000000000
   - color: {r: 0.93, g: 0.55, b: 0.2, a: 1}
-    maxHealth: 40000000
+    maxHealth: 44000000
     gold: 2000000000000
     exp: 3600000000000
   - color: {r: 0.95, g: 0.85, b: 0.3, a: 1}
-    maxHealth: 160000000
+    maxHealth: 100000000
     gold: 4000000000000
     exp: 22000000000000
   - color: {r: 0.4, g: 0.75, b: 0.4, a: 1}
-    maxHealth: 640000000
+    maxHealth: 190000000
     gold: 8000000000000
     exp: 130000000000000
   - color: {r: 0.3, g: 0.45, b: 0.9, a: 1}
-    maxHealth: 2500000000
+    maxHealth: 330000000
     gold: 12000000000000
     exp: 780000000000000
   - color: {r: 0.6, g: 0.35, b: 0.85, a: 1}
-    maxHealth: 10000000000
+    maxHealth: 520000000
     gold: 22000000000000
     exp: 4700000000000000
   traits: []
