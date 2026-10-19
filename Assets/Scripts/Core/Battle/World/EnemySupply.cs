@@ -128,8 +128,11 @@ namespace BlackHole.Core
                 {
                     var sizes = new float[size - SizeRule.Base + 1];
 
+                    // 1 ~ size가 같은 몫. 별은 큰 쪽 몇 개만(SizeRule.MinSize) — 칸 수는 그대로라 난수 소비가 바뀌지 않는다.
+                    int min = SizeRule.MinSize(kind.Type, size);
+
                     for (int i = 0; i < sizes.Length; i++)
-                        sizes[i] = 1;
+                        sizes[i] = i + SizeRule.Base >= min ? 1 : 0;
 
                     _sizePickers.Add(kind, new QuotaPicker(sizes, sizeRandom));
                 }

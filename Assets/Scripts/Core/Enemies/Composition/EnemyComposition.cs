@@ -23,7 +23,7 @@ namespace BlackHole.Core
         // 색 등급마다 나오는 비율(종류의 색 등급 표 순서, 합 1). 질량으로 정해진다.
         public IReadOnlyList<float> TierRatios { get; }
 
-        // 크기(기본 1). 크기 1부터 이 값까지가 같은 몫으로 섞여 나온다(SizeRule).
+        // 크기(기본 1). 크기 1부터 이 값까지가 같은 몫으로 섞여 나온다(별은 큰 쪽 3개만, SizeRule.MinSize).
         public int Size { get; }
 
         // 콘텐츠의 전투 시작 공급에 더해 이 종류를 몇 마리 더 공급하는가.

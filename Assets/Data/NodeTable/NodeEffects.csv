@@ -72,7 +72,7 @@ asteroid.massScale-10,1,asteroid.massScale,300,Percent,+300%
 growth.planets-01,1,growth.planets,60,Percent,+60%
 asteroid.toPlanet-01,1,asteroid.toPlanet,52,Flat,+52
 moonPlanet.rangeScale-01,1,moonPlanet.rangeScale,15,Percent,+15%
-planet.size-01,1,planet.size,2,Flat,+2
+planet.size-01,1,planet.size,1,Flat,+1
 moonPlanet.speedScale-01,1,moonPlanet.speedScale,26,Percent,+26%
 moonPlanet.duration-01,1,moonPlanet.duration,1,Flat,+1
 breaker.damage-13,1,breaker.damage,25,Flat,+25
