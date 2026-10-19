@@ -126,6 +126,10 @@ namespace BlackHole.Core
         // 테스트 도구(BattleCheats)가 부른다. 살아 있는 적만 치운다. 처치가 아니다(사망 기록·처치 수·Gold 없음).
         internal void ClearAliveEnemies() => _enemies.ClearAlive();
 
+        // 정한 자리에 한 마리를 만든다(성질 없음). GameSession.BeginStaged가 판의 처음 모습을 놓을 때 쓴다.
+        internal void SpawnAt(EnemyDefinition kind, int tier, int size, Point2 position) =>
+            _supply.SpawnAt(kind, tier, size, position);
+
         // 테스트 도구(BattleCheats)가 부른다. 예약된 성장 공급을 지금 모두 만든다.
         internal void FlushGrowthNow()
         {

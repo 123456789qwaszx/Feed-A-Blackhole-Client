@@ -187,7 +187,13 @@ namespace BlackHole.Unity
                 }
             }
 
-            int tenths = Mathf.CeilToInt(remainingSeconds * 10);
+            // 시간 제한이 없는 판(튜토리얼, remainingSeconds가 무한대)은 남은 시간을 숨기고 숫자를 고치지 않는다.
+            bool timed = !float.IsPositiveInfinity(remainingSeconds);
+
+            if (_remaining != null && _remaining.gameObject.activeSelf != timed)
+                _remaining.gameObject.SetActive(timed);
+
+            int tenths = timed ? Mathf.CeilToInt(remainingSeconds * 10) : _shownTenths;
             bool remainingChanged = false;
 
             if (tenths != _shownTenths && _remaining != null)
