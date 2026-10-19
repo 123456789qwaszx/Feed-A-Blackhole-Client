@@ -63,12 +63,13 @@ battle.pause,Pause,일시 정지
 battle.resume,Resume,계속
 battle.earned,+{0} Gold,+{0} 골드
 battle.galaxy,Galaxy,은하
-battle.galaxy.0,Red Galaxy,붉은 은하
-battle.galaxy.1,Orange Galaxy,주황 은하
-battle.galaxy.2,Yellow Galaxy,노란 은하
-battle.galaxy.3,Green Galaxy,초록 은하
-battle.galaxy.4,Blue Galaxy,푸른 은하
-battle.galaxy.5,Violet Galaxy,보랏빛 은하
+# 은하 이름(전투 HP 막대). 0~5 = 빨강·주황·노랑·초록·파랑·보라. 이정표 7~12 이름과 같게 둔다.
+battle.galaxy.0,Fireworks Galaxy,불꽃놀이 은하
+battle.galaxy.1,Sunflower Galaxy,해바라기 은하
+battle.galaxy.2,Pinwheel Galaxy,바람개비 은하
+battle.galaxy.3,Cartwheel Galaxy,수레바퀴 은하
+battle.galaxy.4,Whirlpool Galaxy,소용돌이 은하
+battle.galaxy.5,Andromeda Galaxy,안드로메다 은하
 # 결산 화면
 SettlementScreen.DestroyedCaption_Text,DESTROYED,파괴
 SettlementScreen.AsteroidName_Text,ASTEROID,소행성
@@ -80,7 +81,7 @@ SettlementScreen.ContinueBtn_Text,Continue,계속
 settlement.result.milestone,Milestone reached,이정표 도달
 settlement.result.over,Battle over,전투 종료
 settlement.stage,Stage {0} / {1},단계 {0} / {1}
-# 이정표 이름: 0은 시작 자리, 1~6은 Lv 10/20/30/35/40/50 이정표. 전투 HUD·결산·업그레이드가 같은 키를 쓴다.
+# 이정표 이름: 0은 시작 자리, 1~6은 Lv 10/20/30/35/40/50 이정표, 7~12는 Lv 51~56 이정표(은하 0~5를 삼키면 닿는다 — 그 은하 이름을 쓴다). 전투 HUD·결산·업그레이드가 같은 키를 쓴다.
 milestone.0.name,Asteroid Belt,소행성대
 milestone.1.name,Planetary System,행성계
 milestone.2.name,Stellar Cradle,항성 요람
@@ -88,6 +89,12 @@ milestone.3.name,Supernova,초신성
 milestone.4.name,Supernova Remnant,초신성 잔해
 milestone.5.name,Galactic Core,은하핵
 milestone.6.name,Black Hole,블랙홀
+milestone.7.name,Fireworks Galaxy,불꽃놀이 은하
+milestone.8.name,Sunflower Galaxy,해바라기 은하
+milestone.9.name,Pinwheel Galaxy,바람개비 은하
+milestone.10.name,Cartwheel Galaxy,수레바퀴 은하
+milestone.11.name,Whirlpool Galaxy,소용돌이 은하
+milestone.12.name,Andromeda Galaxy,안드로메다 은하
 milestone.tutorial.name,Tutorial,튜토리얼
 # 엔딩·크레딧 [임시 문구] (마지막 이정표 = 보라 은하 격파 뒤 EndingScreen). 줄·크레딧 묶음은 1부터 번호가 끊길 때까지 읽는다. 이름 칸은 | 로 사람을 나눈다(한 줄에 한 사람).
 ending.line.1,The last galaxy has fallen.,마지막 은하가 무너졌습니다.
@@ -180,7 +187,7 @@ stat.asteroid.respawnChance.name,Asteroid Respawn Chance,소행성 재생성
 stat.asteroid.respawnChance.desc,Increases the chance a new asteroid spawns when an asteroid is destroyed.,소행성을 파괴하면 새 소행성이 나타날 확률이 증가합니다.
 stat.asteroid.toPlanet.name,Upgrade Asteroids to Planets,소행성 → 행성 전환
 stat.asteroid.toPlanet.desc,More planets appear.,더 많은 행성이 등장합니다.
-stat.planet.toStar.name,Upgrade Planets to Stars,행성 -> 별
+stat.planet.toStar.name,Upgrade Planets to Stars,행성 → 별 전환
 stat.planet.toStar.desc,More stars appear.,더 많은 별이 등장합니다.
 stat.electricAsteroid.spawnChance.name,Electric Asteroid Spawn Chance,전기 소행성 생성 확률
 stat.electricAsteroid.spawnChance.desc,Increases the chance electric asteroids spawn.,전기 소행성이 생성되는 확률을 높입니다.
@@ -218,8 +225,8 @@ stat.planet.respawnChance.name,Planet Respawn Chance,행성 재생성
 stat.planet.respawnChance.desc,Increases the chance a new planet spawns when a planet is destroyed.,행성을 파괴하면 다른 위치에 새 행성이 나타날 확률이 높아집니다.
 stat.planet.massScale.name,Planet Mass,행성 질량
 stat.planet.massScale.desc,"Increases planet mass, changing which enemy colors appear.",더 높은 색 등급의 행성이 섞여 나옵니다.\n등급이 높을수록 색 종류와 체력과 보상이 큽니다.
-stat.planet.timeChance.name,Time Chance on Planet Destroy,행성이 파괴될 때 시간이 추가될 확률
-stat.planet.timeChance.desc,Increases the chance to add time when a planet is destroyed.,행성을 파괴하면 다른 위치에 새 행성이 나타날 확률이 높아집니다.
+stat.planet.timeChance.name,Time Chance on Planet Destroy,행성 파괴 시 시간 추가
+stat.planet.timeChance.desc,Increases the chance to add time when a planet is destroyed.,행성을 파괴할 때 남은 시간이 늘어날 확률이 증가합니다.
 stat.comet.spawnChance.name,Crit Comet Spawn Chance,치명타 혜성 등장 확률
 stat.comet.spawnChance.desc,Increases the chance crit comets spawn.,치명타 혜성이 생성되는 확률을 높입니다.
 stat.comet.duration.name,Crit Comet Buff Duration,치명타 혜성 버프 지속시간
@@ -273,7 +280,7 @@ stat.galaxy.size.desc,Makes the galaxy larger.,은하가 더 커집니다.
 stat.galaxy.massScale.name,Galaxy Mass,은하 질량
 stat.galaxy.massScale.desc,"Increases galaxy mass, changing the mix of color tiers.",더 높은 색 등급의 은하가 섞여 나옵니다.\n등급이 높을수록 체력과 보상이 큽니다.
 stat.galaxy.respawnChance.name,Galaxy Respawn Chance,은하 재생성
-stat.galaxy.respawnChance.desc,Increases the chance a new galaxy spawns when a galaxy is destroyed.,은하를 파괴하면 일정 확률로 새 은하가 나타날 확률이 높아집니다.
+stat.galaxy.respawnChance.desc,Increases the chance a new galaxy spawns when a galaxy is destroyed.,은하를 파괴하면 일정 확률로 새 은하가 나타납니다.
 stat.galaxy.timeChance.name,Time Chance on Galaxy Destroy,은하 파괴 시 시간 추가
 stat.galaxy.timeChance.desc,Increases the chance to add time when a galaxy is destroyed.,은하를 파괴하면 일정 확률로 남은 시간이 늘어납니다.
 stat.breaker.galaxyBonusDamage.name,Breaker Bonus Damage vs Galaxies,은하 추가 피해

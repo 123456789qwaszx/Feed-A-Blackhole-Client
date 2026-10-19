@@ -16,13 +16,14 @@ namespace BlackHole.Unity
         }
 
         /// <summary>
-        /// 결산 화면, 노드 트리에서 Continue. 창(설정 등)이 열려 있으면 무시한다. 엔딩 중에는 엔딩 화면 건너뛰기.
+        /// 결산 화면, 노드 트리에서 Continue. 창(설정 등)이 열려 있으면 무시한다.
+        /// 엔딩 중에는 누르고 있는 동안 문구·크레딧 빨리 감기(ScreenFlow.TickEnding), 감사 문구에서 누르면 타이틀로.
         /// </summary>
         private void HandleKeyActionSpace()
         {
             if (IsEndingPlaying)
             {
-                SkipEnding();
+                ContinueEnding();
                 return;
             }
 

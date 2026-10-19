@@ -11,7 +11,7 @@ namespace BlackHole.Unity
     // 1. 붕괴(전투 화면): 판은 이미 끝났다. 남은 적이 블랙홀로 빨려 들어가고 블랙홀이 커진다(BattleSystem.TryBeginCollapse). 버튼·키는 받지 않는다.
     // 2. 엔딩 화면(EndingScreen)이 검게 덮는다. 다 덮이면 판을 정리·결산하고 결산 로그와 함께 저장한다 — 일반 판 끝과 같은 길이라 서버 진행도가 맞는다.
     //    결산 화면은 보이지 않는다(보상은 다음에 업그레이드 화면에서 쓴다).
-    // 3. 엔딩 문구 → 크레딧 → 감사 문구. 누르면 화면 전환과 함께 타이틀로.
+    // 3. 엔딩 문구 → 크레딧 → 감사 문구. 문구·크레딧은 누르고 있으면(클릭·터치, Space) 빨리 흐른다. 감사 문구에서 누르면 화면 전환과 함께 타이틀로.
     // 엔딩 뒤 이어하기는 마지막 이정표 뒤의 판(성장도 = MaxStage, 은하는 보라로 고정, 더 이상 이정표 없음)이다.
     internal sealed partial class ScreenFlow
     {
@@ -42,10 +42,15 @@ namespace BlackHole.Unity
             return true;
         }
 
-        // GameHost가 매 프레임 부른다. 붕괴가 끝나면 엔딩 화면을 연다.
+        // GameHost가 매 프레임 부른다. 붕괴가 끝나면 엔딩 화면을 열고, 연 뒤에는 빨리 감기 키(Space)를 누르고 있는지 넘긴다.
         internal void TickEnding()
         {
-            if (_endingPlaying && _endingScreen == null && _endingSettlement == null && _battle.HasCollapsed)
+            if (!_endingPlaying)
+                return;
+
+            if (_endingScreen != null)
+                _endingScreen.FastForwardKeyHeld = _keyInput.ContinueHeld;
+            else if (_endingSettlement == null && _battle.HasCollapsed)
                 OpenEndingScreen();
         }
 
@@ -100,11 +105,18 @@ namespace BlackHole.Unity
             ShowTitle();
         }
 
-        // 엔딩 화면 건너뛰기(키). 엔딩 화면이 없으면(붕괴 중) 아무것도 하지 않는다.
+        // 엔딩 화면 건너뛰기(Esc). 엔딩 화면이 없으면(붕괴 중) 아무것도 하지 않는다.
         private void SkipEnding()
         {
             if (_endingScreen != null)
                 _endingScreen.Skip();
+        }
+
+        // 계속 키(Space)를 눌렀다: 감사 문구에서 끝낸다. 문구·크레딧 중에는 누르고 있는 동안 빨리 감는다(TickEnding).
+        private void ContinueEnding()
+        {
+            if (_endingScreen != null)
+                _endingScreen.Continue();
         }
 
         private void CloseEnding()
