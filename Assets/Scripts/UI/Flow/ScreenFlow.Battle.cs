@@ -44,7 +44,8 @@ namespace BlackHole.Unity
         }
 
         // 끝: 덮인 뒤 판을 정리·결산하고 결산 화면으로 바꾼다. 적이 치워지는 모습이 보이지 않는다.
-        private void RequestEnd() => _transition.Play(EndBattleAsync);
+        // 튜토리얼 판은 결산하지 않고 첫 판으로 넘어간다(EndTutorialAsync).
+        private void RequestEnd() => _transition.Play(_battle.IsTutorial ? EndTutorialAsync : EndBattleAsync);
 
         private void StartBattle()
         {
@@ -58,6 +59,23 @@ namespace BlackHole.Unity
                 _progressStore.Commit(seq => _syncLogs.RunStart(seq, runId, startInfo, startGold));
                 ShowBattle();
             }
+        }
+
+        // 튜토리얼 판: 새 게임의 첫 화면(TutorialStage). 판 시작 로그를 남기지 않는다 — 서버에 보내는 판이 아니고,
+        // 결산도 하지 않아(EndTutorialAsync) 진행도(Gold·성장도)가 바뀌지 않는다.
+        private void StartTutorial()
+        {
+            _runId = null;
+
+            if (_battle.TryStartTutorial(NodePurchase.StatsFor(_progress, _tree)))
+                ShowBattle();
+        }
+
+        // 튜토리얼을 마친다: 결산 없이 판을 버리고 첫 판을 시작한다. 지금은 종료 버튼(건너뛰기)으로만 온다.
+        private async Task EndTutorialAsync()
+        {
+            if (await _battle.TryAbandonAsync())
+                StartBattle();
         }
 
         // 결산 로그를 남기고 저장한다. 판 시작 로그 없이 시작한 판(테스트 도구)은 서버가 결산을 받아들이지 않으므로(RUN_NOT_OPEN),

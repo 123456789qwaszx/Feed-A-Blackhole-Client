@@ -10,6 +10,7 @@ namespace BlackHole.Unity
     // - 시작: 판을 조립하고(GameSessionFactory) 카메라를 이 판의 전장 배율에 맞춘 뒤 판을 시작.
     // - 시작 연출: 카메라가 블랙홀 가까이에서 머물다가 전장 전체로 천천히 넓어지고, 적은 블랙홀에 가까운 것부터 바깥쪽으로 차례로 나타난다.
     //   연출 동안 판은 진행하지 않는다(시간·조준·피해 없음, IsRunning이 false). 정지하면 연출도 멈춘다. 화면에서만 하는 일이다.
+    // - 튜토리얼 판: 정해 둔 적만 두고 시간 제한 없이 시작한다(TutorialStage). 시작 연출 없이 좁은 카메라에서 머문다.
     // - 진행: 판을 한 Step 진행하고, 적·Breaker·사망 효과·블랙홀 화면을 판의 지금 상태에 맞춤.
     // - 정지: 판의 일이 아니라 여기의 상태다. 정지 중에는 판을 진행하지 않고 화면만 멈춘 채 맞춤.
     // - 종료: 남은 적을 치우고(처치 아님) 결산한 뒤 판을 버림. 포기는 결산하지 않음.
@@ -59,6 +60,9 @@ namespace BlackHole.Unity
         // 마지막으로 시작한 판의 업그레이드 수치(노드로 정해진 값). 테스트 도구가 메모에 계산된 수치를 남길 때 읽는다.
         public UpgradeStatValues Upgrades { get; private set; }
 
+        // 지금 판이 튜토리얼 판인가. 판이 없으면 false.
+        public bool IsTutorial { get; private set; }
+
         // 판이 있는가(진행 또는 정지). 종료·포기는 이때만 한다.
         private bool HasBattle => _state == State.Running || _state == State.Paused;
 
@@ -80,7 +84,12 @@ namespace BlackHole.Unity
             _cameraFit = cameraFit;
         }
 
-        public bool TryStart(UpgradeStatValues upgrades)
+        public bool TryStart(UpgradeStatValues upgrades) => TryStart(upgrades, tutorial: false);
+
+        // 튜토리얼 판을 시작한다(TutorialStage). 판 구성·Breaker는 일반 판과 같은 길로 만든다.
+        public bool TryStartTutorial(UpgradeStatValues upgrades) => TryStart(upgrades, tutorial: true);
+
+        private bool TryStart(UpgradeStatValues upgrades, bool tutorial)
         {
             if (_state != State.Idle)
                 return false;
@@ -88,16 +97,29 @@ namespace BlackHole.Unity
             LastSeed = _nextSeed ?? Environment.TickCount;
             _nextSeed = null;
             Upgrades = upgrades;
+            IsTutorial = tutorial;
             Session = GameSessionFactory.Create(_content, _progress, LastSeed, upgrades);
 
             _cameraFit.SetFieldScale(Session.World.Hq.FieldScale);
 
             ResetViews();
-            Session.Begin();
 
-            _intro = true;
-            _introElapsed = 0;
-            ApplyIntro();
+            if (tutorial)
+            {
+                // 시작 연출 없이 블랙홀 가까이에 머문다. 적은 처음부터 모두 보인다(출현 팝 연출은 그대로).
+                Session.BeginStaged(TutorialStage.EnemiesFrom(_content.Enemies));
+                _intro = false;
+                _cameraFit.SetZoom(TutorialStage.CameraZoom);
+                _enemyView.RevealRadius = float.PositiveInfinity;
+            }
+            else
+            {
+                Session.Begin();
+                _intro = true;
+                _introElapsed = 0;
+                ApplyIntro();
+            }
+
             _enemyView.Synchronize(Session.World, false, 0f);
 
             _state = State.Running;
@@ -181,6 +203,7 @@ namespace BlackHole.Unity
             await Awaitable.NextFrameAsync();
 
             Session = null;
+            IsTutorial = false;
             _state = State.Idle;
             return raw;
         }

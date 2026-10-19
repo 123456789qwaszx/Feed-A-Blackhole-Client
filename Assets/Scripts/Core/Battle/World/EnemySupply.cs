@@ -248,6 +248,13 @@ namespace BlackHole.Core
             return made;
         }
 
+        // 정한 자리에 한 마리를 만든다(성질 없음). 판의 처음 모습을 정해 둘 때 쓴다(GameSession.BeginStaged).
+        // 안전 상한(SafetyMaxAlive)보다 훨씬 적은 수만 오므로 상한을 보지 않는다.
+        internal void SpawnAt(EnemyDefinition kind, int tier, int size, Point2 position)
+        {
+            _enemies.Spawn(kind, tier, null, size, _stats.Of(kind, tier, null, size), position, tone: ToneOf(kind, tier));
+        }
+
         // 이 색 등급 개체의 톤: 마지막 색 등급이고 이 판에 톤이 있으면 같은 몫으로 하나, 아니면 0(색 등급 색 그대로).
         private int ToneOf(EnemyDefinition kind, int tier) =>
             tier == kind.Tiers.Count - 1 && _tonePickers.TryGetValue(kind, out QuotaPicker picker) ? picker.Pick() : 0;
