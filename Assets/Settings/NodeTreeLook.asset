@@ -70,18 +70,6 @@ MonoBehaviour:
     available: {fileID: 21300000, guid: e12b994944fe3d02e18c692a6f16564d, type: 3}
     purchased: {fileID: 21300000, guid: c769b9b6187d62ce83ad2e68da2175af, type: 3}
     locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.moon.mass-level
-    available: {fileID: 21300000, guid: 85aebab86cf460849b3fecc9776c009a, type: 3}
-    purchased: {fileID: 21300000, guid: f80ac93d5204f1da9d241269bf86519d, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.moon.start-supply
-    available: {fileID: 21300000, guid: bef07fa31f87065e2400d9cced55a57e, type: 3}
-    purchased: {fileID: 21300000, guid: a187aa0fd59b9a91544296569b0e2a48, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.moon.growth-supply
-    available: {fileID: 21300000, guid: d508c8dba74ec2ee1024a28019c2a722, type: 3}
-    purchased: {fileID: 21300000, guid: 26f9a881f7c2b495d9377f89a423a578, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
   - stat: moonPlanet.spawnChance
     available: {fileID: 21300000, guid: f2ec28d6953f086cebd004e09e229dda, type: 3}
     purchased: {fileID: 21300000, guid: 9f52910f24fbc68152c234a2eaada638, type: 3}
@@ -89,10 +77,6 @@ MonoBehaviour:
   - stat: planet.massScale
     available: {fileID: 21300000, guid: 56186855c8498720feccaecabef79056, type: 3}
     purchased: {fileID: 21300000, guid: 0d0d3313f2aa91d924673f83d8bcf8dd, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.planet.start-supply
-    available: {fileID: 21300000, guid: 075ba6854895f0ff1eac512ba76eecfc, type: 3}
-    purchased: {fileID: 21300000, guid: f12fe8ada3f55c5a8fed5464bfa3792d, type: 3}
     locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
   - stat: growth.planets
     available: {fileID: 21300000, guid: 6b254423ad6962a2162d5d54088ace1b, type: 3}
@@ -106,57 +90,17 @@ MonoBehaviour:
     available: {fileID: 21300000, guid: e397d54dbce7b12dd0ec1081dba9e347, type: 3}
     purchased: {fileID: 21300000, guid: 7242ca83aa3b22eb423055cf87955dd6, type: 3}
     locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.star.start-supply
-    available: {fileID: 21300000, guid: 2c5d77e5f38a32e9b37b579c34d69f9d, type: 3}
-    purchased: {fileID: 21300000, guid: 49499bcb28e8fd4bc53d50f0cd82119a, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
   - stat: growth.stars
     available: {fileID: 21300000, guid: 2004048cc72f94353900969c820f86c8, type: 3}
     purchased: {fileID: 21300000, guid: 6d76ba7a43a2319ddadc95d21c35f68d, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.comet.mass-level
-    available: {fileID: 21300000, guid: fc1465b63ca8f6076a9030bcc053734a, type: 3}
-    purchased: {fileID: 21300000, guid: 69bc4a0e9ce737dc1718cfc608b37866, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.comet.start-supply
-    available: {fileID: 21300000, guid: 49ce69c54a09bfef75a55515e1dfb8f6, type: 3}
-    purchased: {fileID: 21300000, guid: 89088e32f9b53b7b18f5f607feb158f2, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.comet.growth-supply
-    available: {fileID: 21300000, guid: 5670e2c647fcd0c20a86fe72f1bbe31d, type: 3}
-    purchased: {fileID: 21300000, guid: 497a60d293b2b36757de238eebc5aed4, type: 3}
     locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
   - stat: comet.spawnChance
     available: {fileID: 21300000, guid: b83856f63de1d01300fdf121f7815f52, type: 3}
     purchased: {fileID: 21300000, guid: 0174828afd2446f28dc23a17be53e115, type: 3}
     locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.electric-asteroid.mass-level
-    available: {fileID: 21300000, guid: 81c01958d916ddd54deb2e3f2b66a29a, type: 3}
-    purchased: {fileID: 21300000, guid: dbf3ea3d4918febd9b6c25c9621600fc, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.electric-asteroid.start-supply
-    available: {fileID: 21300000, guid: 6100ca5b357478b1d2f4651be7676b6a, type: 3}
-    purchased: {fileID: 21300000, guid: 263f076b4223f1742e1a5bad072a5640, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.electric-asteroid.growth-supply
-    available: {fileID: 21300000, guid: 8eea9f1f46d206b26ff0e5d37ab19d0a, type: 3}
-    purchased: {fileID: 21300000, guid: ce1214bda1b56f0283da371b986ab08a, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
   - stat: electricAsteroid.spawnChance
     available: {fileID: 21300000, guid: af428646a5500ce5d6337a5afad013ab, type: 3}
     purchased: {fileID: 21300000, guid: eea216825f67629818eb99dcb90c0c2d, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.supernova.mass-level
-    available: {fileID: 21300000, guid: f96201b0a35fbcd7fb0d8dccb6eafe29, type: 3}
-    purchased: {fileID: 21300000, guid: 2f970b1408568d955a40b389917f9dda, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.supernova.start-supply
-    available: {fileID: 21300000, guid: a9a9433ece10d0d47e3c581af140a391, type: 3}
-    purchased: {fileID: 21300000, guid: b489888b787a784a4dc042c35565b8e6, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: enemy.supernova.growth-supply
-    available: {fileID: 21300000, guid: e714596e993a19dcabb69ddb33c19472, type: 3}
-    purchased: {fileID: 21300000, guid: 8a07fb4fc4f31a6b1f4b2742fc95e11f, type: 3}
     locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
   - stat: supernovaStar.spawnChance
     available: {fileID: 21300000, guid: 3e26546ae8418b6f94735e60ad670b8b, type: 3}
@@ -250,22 +194,6 @@ MonoBehaviour:
     available: {fileID: 21300000, guid: 11908491c2e1686fee7dcd4dd6fe4e91, type: 3}
     purchased: {fileID: 21300000, guid: 0160dbd902cb775975a560788ec2d05d, type: 3}
     locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: galaxy.massScale
-    available: {fileID: 21300000, guid: 708aed5d9e543a3979daae5a9d20eed0, type: 3}
-    purchased: {fileID: 21300000, guid: 32b42b7a1144999355e1910925800dee, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: galaxy.respawnChance
-    available: {fileID: 21300000, guid: e13c1dc0df48bfb23ee69782d3f67394, type: 3}
-    purchased: {fileID: 21300000, guid: 40b8798a28dec4761d53ee4eb4405b00, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: galaxy.size
-    available: {fileID: 21300000, guid: 3e4503beb28cac1cb4297709d0fa7eb3, type: 3}
-    purchased: {fileID: 21300000, guid: e0f493c167ef18673d5acce3fd81e218, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: galaxy.timeChance
-    available: {fileID: 21300000, guid: 76b2b9448e04ec1cd9b9f98a0cac882a, type: 3}
-    purchased: {fileID: 21300000, guid: 43fd23979f8e29f2b10716a9d4ecd50f, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
   - stat: goldenAsteroid.critChance
     available: {fileID: 21300000, guid: 208d64647dbcab56e210c89dc1780706, type: 3}
     purchased: {fileID: 21300000, guid: 15571d6bb15a7a5c0272924ddb9a58ae, type: 3}
@@ -273,26 +201,6 @@ MonoBehaviour:
   - stat: goldenAsteroid.critRewardScale
     available: {fileID: 21300000, guid: 9fcdc3adbcb49bbe81ad646fcd633bcf, type: 3}
     purchased: {fileID: 21300000, guid: f70443b93c02b21a8ce672589142f954, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: gravityGalaxy.duration
-    available: {fileID: 21300000, guid: 34f8cf3cafe2f70ef277114b65ad7e71, type: 3}
-    purchased: {fileID: 21300000, guid: 29947ad3ff230797760c4fb6a5fa6802, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: gravityGalaxy.force
-    available: {fileID: 21300000, guid: 4c9d8b6132906e06f95449d3f48a7684, type: 3}
-    purchased: {fileID: 21300000, guid: 3531535cd3bb72115c3cd768a311612d, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: gravityGalaxy.radius
-    available: {fileID: 21300000, guid: 9ad2b57a96c79e6fce5110dac39705de, type: 3}
-    purchased: {fileID: 21300000, guid: f05945ae7d3d57ffc30db56a3daa029e, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: gravityGalaxy.spawnChance
-    available: {fileID: 21300000, guid: ba0995fd9628281eac4550ac33242a2d, type: 3}
-    purchased: {fileID: 21300000, guid: 1b8ee7b7afbcdddffaf8dcc589d10956, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: growth.galaxies
-    available: {fileID: 21300000, guid: 6b758ba8c8b3bc2235675226d8c75e22, type: 3}
-    purchased: {fileID: 21300000, guid: e9fd72306f36956ad356ad8db8bb1a64, type: 3}
     locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
   - stat: laserStar.critBonus
     available: {fileID: 21300000, guid: b61d60421e39bf10adcd4581606d4433, type: 3}
@@ -353,10 +261,6 @@ MonoBehaviour:
   - stat: star.timeChance
     available: {fileID: 21300000, guid: fc529f5fa4a13c949b3fe5843e8a660c, type: 3}
     purchased: {fileID: 21300000, guid: 5c04a25c619d1aa5d6150ed2c65bf253, type: 3}
-    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
-  - stat: star.toGalaxy
-    available: {fileID: 21300000, guid: a5e9117dd2069d115876812a312cc7e1, type: 3}
-    purchased: {fileID: 21300000, guid: 3e5f16b842b8df89c10593768ebd4137, type: 3}
     locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
   - stat: supernovaStar.damage
     available: {fileID: 21300000, guid: 22a536af3dd7a64f6b942d0b59c562e4, type: 3}
