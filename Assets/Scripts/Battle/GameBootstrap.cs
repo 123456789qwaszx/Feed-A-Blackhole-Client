@@ -7,6 +7,7 @@ using BlackHole.Net;
 using BlackHole.Net.Unity;
 using BlackHole.Sync;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace BlackHole.Unity
 {
@@ -57,6 +58,10 @@ namespace BlackHole.Unity
         // UI 글자 표(Assets/Data/Localization/UIText.csv). 형식과 키 규칙은 Localizer에 적었다.
         [Header("Localization")]
         [SerializeField] private TextAsset _texts;
+
+        //파동
+        [Header("BlackHole")]
+        [SerializeField] private ScriptableRendererData _rendererData;
 
         // 테스트 도구(개발 패널)의 밸런스 프로필·시나리오 목록. 에디터와 개발 빌드만 쓴다. 비워 두면 기기 폴더의 파일만 읽는다.
         // 장면 직렬화가 빌드마다 같도록 #if로 감싸지 않는다. 릴리스 빌드는 읽지 않는다(CS0169).
@@ -132,7 +137,7 @@ namespace BlackHole.Unity
             EnemyView enemyView = new(transform, enemyLooks, _breakerLook, _cometLook, _settings);
             BreakerView breakerView = new(transform, _breakerLook);
             DeathEffectView deathEffectView = new(transform, _lightningLook, _explosionLook);
-            HqView hqView = new(transform, _blackHole, battleCamera, _settings);
+            HqView hqView = new(transform, _blackHole, battleCamera, _settings, FindShockwaveFeature());
 
             _progress = new ProgressState();
             _progressStore = ProgressStore.Load(
@@ -469,6 +474,20 @@ namespace BlackHole.Unity
             }
 
             return configured;
+        }
+
+        private ScriptableRendererFeature FindShockwaveFeature()
+        {
+            if (_rendererData == null)
+                return null;
+            
+            foreach (ScriptableRendererFeature feature in _rendererData.rendererFeatures)
+            {
+                if (feature is FullScreenPassRendererFeature)
+                    return feature;
+            }
+
+            return null;
         }
     }
 }

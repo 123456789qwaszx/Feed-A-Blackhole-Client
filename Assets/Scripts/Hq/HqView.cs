@@ -1,6 +1,7 @@
 using System;
 using BlackHole.Core;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace BlackHole.Unity
 {
@@ -42,11 +43,11 @@ namespace BlackHole.Unity
         private int _shownLevel = -1;
 
         //public HqView(Transform parent) => _strokes = new LineStrokes(parent, "Hq View");
-        public HqView(Transform parent, GameObject blackHole, Camera camera, GameSettings settings)
+        public HqView(Transform parent, GameObject blackHole, Camera camera, GameSettings settings, ScriptableRendererFeature shockwaveFeature = null)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _strokes = new LineStrokes(parent, "Hq View");
-            _shockwaves = new Shockwaves(camera);
+            _shockwaves = new Shockwaves(camera, shockwaveFeature);
             _blackHole = blackHole != null ? blackHole : throw new ArgumentNullException(nameof(blackHole));
             _blackHoleScale = _blackHole.transform.localScale;
             _blackHoleCoreRadius = CoreRadiusOf(_blackHole);
