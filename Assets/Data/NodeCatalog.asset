@@ -1492,6 +1492,18 @@ MonoBehaviour:
       X: -1
       Y: -7
       Links: []
+    - Id: laserStar.galaxyBonusDamage-01
+      Start: 0
+      X: 5
+      Y: -7
+      Links:
+      - laserStar.width-10
+    - Id: supernovaStar.galaxyBonusDamage-01
+      Start: 0
+      X: 5
+      Y: -9
+      Links:
+      - supernovaStar.range-05
     - Id: planet.massScale-05
       Start: 0
       X: 18
@@ -1757,3 +1769,5 @@ MonoBehaviour:
       - supernovaStar.damage-07
       - laserStar.damage-07
       - galaxy.size-01
+      - laserStar.galaxyBonusDamage-01
+      - supernovaStar.galaxyBonusDamage-01

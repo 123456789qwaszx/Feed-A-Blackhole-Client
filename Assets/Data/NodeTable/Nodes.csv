@@ -239,3 +239,5 @@ electricStar.damage-03,10,블랙홀
 supernovaStar.damage-07,10,블랙홀
 laserStar.damage-07,10,블랙홀
 galaxy.size-01,10,블랙홀
+laserStar.galaxyBonusDamage-01,10,블랙홀
+supernovaStar.galaxyBonusDamage-01,10,블랙홀

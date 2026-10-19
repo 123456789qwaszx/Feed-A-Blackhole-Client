@@ -285,17 +285,20 @@ namespace BlackHole.Core
                     float width = Scale(EnemyUpgradeStats.TraitWidth, laser.Width);
                     float crit = Math.Min(1, AddPercent(EnemyUpgradeStats.TraitCritChance, laser.CritChance));
                     float critMultiplier = AddPercent(EnemyUpgradeStats.TraitCritMultiplier, laser.CritMultiplier);
+                    float galaxyBonus = Add(EnemyUpgradeStats.TraitGalaxyBonusDamage, laser.GalaxyBonusDamage);
 
-                    bool same = damage == laser.Damage && width == laser.Width && crit == laser.CritChance && critMultiplier == laser.CritMultiplier;
-                    return same ? null : new LaserBurstDefinition(damage, width, crit, critMultiplier);
+                    bool same = damage == laser.Damage && width == laser.Width && crit == laser.CritChance && critMultiplier == laser.CritMultiplier
+                                && galaxyBonus == laser.GalaxyBonusDamage;
+                    return same ? null : new LaserBurstDefinition(damage, width, crit, critMultiplier, galaxyBonus);
                 }
                 case ExplosionDefinition explosion:
                 {
                     float damage = Add(EnemyUpgradeStats.TraitDamage, explosion.Damage);
                     float radius = Scale(EnemyUpgradeStats.TraitRadius, explosion.Radius);
+                    float galaxyBonus = Add(EnemyUpgradeStats.TraitGalaxyBonusDamage, explosion.GalaxyBonusDamage);
 
-                    bool same = damage == explosion.Damage && radius == explosion.Radius;
-                    return same ? null : new ExplosionDefinition(damage, radius);
+                    bool same = damage == explosion.Damage && radius == explosion.Radius && galaxyBonus == explosion.GalaxyBonusDamage;
+                    return same ? null : new ExplosionDefinition(damage, radius, galaxyBonus);
                 }
                 case GravityFieldDefinition gravity:
                 {

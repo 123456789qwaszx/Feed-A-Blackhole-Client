@@ -264,6 +264,10 @@ stat.galaxy.timeChance.name,Time Chance on Galaxy Destroy,은하가 파괴될 �
 stat.galaxy.timeChance.desc,Increases the chance to add time when a galaxy is destroyed.,은하가 파괴될 때 남은 시간이 추가될 확률을 높입니다.
 stat.breaker.galaxyBonusDamage.name,Breaker Bonus Damage vs Galaxies,은하에 대한 브레이커의 보너스 피해
 stat.breaker.galaxyBonusDamage.desc,Increases the extra damage the Breaker deals to galaxies.,은하에 대한 브레이커의 추가 피해를 늘립니다.
+stat.laserStar.galaxyBonusDamage.name,Laser Bonus Damage vs Galaxies,은하에 대한 레이저의 보너스 피해
+stat.laserStar.galaxyBonusDamage.desc,Increases the extra damage lasers deal to galaxies.,레이저가 은하에 주는 추가 피해를 늘립니다.
+stat.supernovaStar.galaxyBonusDamage.name,Supernova Bonus Damage vs Galaxies,은하에 대한 슈퍼노바의 보너스 피해
+stat.supernovaStar.galaxyBonusDamage.desc,Increases the extra damage supernovas deal to galaxies.,슈퍼노바가 은하에 주는 추가 피해를 늘립니다.
 stat.gravityGalaxy.spawnChance.name,Gravity Galaxy Spawn Chance,중력장 은하 생성 확률
 stat.gravityGalaxy.spawnChance.desc,Increases the chance galaxies with a gravity field spawn.,중력장 성질을 가진 은하가 생성될 확률을 높입니다.
 stat.gravityGalaxy.radius.name,Gravity Field Range,중력장 범위

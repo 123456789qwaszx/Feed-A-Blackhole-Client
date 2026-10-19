@@ -655,6 +655,10 @@
       "rank": 7
     },
     {
+      "nodeId": "laserStar.galaxyBonusDamage-01",
+      "rank": 7
+    },
+    {
       "nodeId": "laserStar.spawnChance-01",
       "rank": 1
     },
@@ -928,6 +932,10 @@
     },
     {
       "nodeId": "supernovaStar.damage-07",
+      "rank": 7
+    },
+    {
+      "nodeId": "supernovaStar.galaxyBonusDamage-01",
       "rank": 7
     },
     {
