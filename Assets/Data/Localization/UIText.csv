@@ -63,12 +63,13 @@ battle.pause,Pause,일시 정지
 battle.resume,Resume,계속
 battle.earned,+{0} Gold,+{0} 골드
 battle.galaxy,Galaxy,은하
-battle.galaxy.0,Red Galaxy,붉은 은하
-battle.galaxy.1,Orange Galaxy,주황 은하
-battle.galaxy.2,Yellow Galaxy,노란 은하
-battle.galaxy.3,Green Galaxy,초록 은하
-battle.galaxy.4,Blue Galaxy,푸른 은하
-battle.galaxy.5,Violet Galaxy,보랏빛 은하
+# 은하 이름(전투 HP 막대). 0~5 = 빨강·주황·노랑·초록·파랑·보라. 이정표 7~12 이름과 같게 둔다.
+battle.galaxy.0,Fireworks Galaxy,불꽃놀이 은하
+battle.galaxy.1,Sunflower Galaxy,해바라기 은하
+battle.galaxy.2,Pinwheel Galaxy,바람개비 은하
+battle.galaxy.3,Cartwheel Galaxy,수레바퀴 은하
+battle.galaxy.4,Whirlpool Galaxy,소용돌이 은하
+battle.galaxy.5,Andromeda Galaxy,안드로메다 은하
 # 결산 화면
 SettlementScreen.DestroyedCaption_Text,DESTROYED,파괴
 SettlementScreen.AsteroidName_Text,ASTEROID,소행성
@@ -80,7 +81,7 @@ SettlementScreen.ContinueBtn_Text,Continue,계속
 settlement.result.milestone,Milestone reached,이정표 도달
 settlement.result.over,Battle over,전투 종료
 settlement.stage,Stage {0} / {1},단계 {0} / {1}
-# 이정표 이름: 0은 시작 자리, 1~6은 Lv 10/20/30/35/40/50 이정표. 전투 HUD·결산·업그레이드가 같은 키를 쓴다.
+# 이정표 이름: 0은 시작 자리, 1~6은 Lv 10/20/30/35/40/50 이정표, 7~12는 Lv 51~56 이정표(은하 0~5를 삼키면 닿는다 — 그 은하 이름을 쓴다). 전투 HUD·결산·업그레이드가 같은 키를 쓴다.
 milestone.0.name,Asteroid Belt,소행성대
 milestone.1.name,Planetary System,행성계
 milestone.2.name,Stellar Cradle,항성 요람
@@ -88,6 +89,12 @@ milestone.3.name,Supernova,초신성
 milestone.4.name,Supernova Remnant,초신성 잔해
 milestone.5.name,Galactic Core,은하핵
 milestone.6.name,Black Hole,블랙홀
+milestone.7.name,Fireworks Galaxy,불꽃놀이 은하
+milestone.8.name,Sunflower Galaxy,해바라기 은하
+milestone.9.name,Pinwheel Galaxy,바람개비 은하
+milestone.10.name,Cartwheel Galaxy,수레바퀴 은하
+milestone.11.name,Whirlpool Galaxy,소용돌이 은하
+milestone.12.name,Andromeda Galaxy,안드로메다 은하
 milestone.tutorial.name,Tutorial,튜토리얼
 # 엔딩·크레딧 [임시 문구] (마지막 이정표 = 보라 은하 격파 뒤 EndingScreen). 줄·크레딧 묶음은 1부터 번호가 끊길 때까지 읽는다. 이름 칸은 | 로 사람을 나눈다(한 줄에 한 사람).
 ending.line.1,The last galaxy has fallen.,마지막 은하가 무너졌습니다.
