@@ -62,7 +62,7 @@ namespace BlackHole.Unity
         }
 
         // 튜토리얼 판: 새 게임의 첫 화면(TutorialStage). 판 시작 로그를 남기지 않는다 — 서버에 보내는 판이 아니고,
-        // 결산도 하지 않아(EndTutorialAsync) 진행도(Gold·성장도)가 바뀌지 않는다.
+        // 진행 상태에 결산하지도 않아(EndTutorialAsync) 진행도(Gold·성장도)가 바뀌지 않는다.
         private void StartTutorial()
         {
             _runId = null;
@@ -71,10 +71,20 @@ namespace BlackHole.Unity
                 ShowBattle();
         }
 
-        // 튜토리얼을 마친다: 결산 없이 판을 버리고 첫 판을 시작한다. 지금은 종료 버튼(건너뛰기)으로만 온다.
+        // 튜토리얼을 마친다.
+        // - 이정표(소행성 셋을 모두 부숨)에 닿았으면 결산 화면을 보여 준다. 진행 상태는 바뀌지 않고 결산 로그도 없다.
+        //   결산 화면의 업그레이드·계속부터는 일반 흐름이다.
+        // - 이정표 전에 끝냈으면(종료 버튼 = 건너뛰기) 곧바로 첫 판을 시작한다.
         private async Task EndTutorialAsync()
         {
-            if (await _battle.TryAbandonAsync())
+            BattleRawData raw = await _battle.TryEndTutorialAsync();
+
+            if (raw == null)
+                return;
+
+            if (raw.ReachedMilestone)
+                ShowSettlement(raw, tutorial: true);
+            else
                 StartBattle();
         }
 

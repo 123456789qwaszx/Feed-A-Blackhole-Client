@@ -42,6 +42,9 @@ namespace BlackHole.Unity
         private readonly Vector3 _blackHoleScale;
         private readonly float _blackHoleCoreRadius;
         private int _shownLevel = -1;
+
+        // 블랙홀 크기 배율(1 = Level 실측 크기). 튜토리얼 판이 작게 보이려고 정한다. Reset이 1로 되돌린다.
+        public float SizeScale { get; set; } = 1f;
         // 마지막으로 적용한 크기의 Level(바퀴 진행도를 더한 값). 바뀔 때만 크기를 고친다.
         private float _shownLevelF = -1;
 
@@ -74,7 +77,7 @@ namespace BlackHole.Unity
             if (levelF == _shownLevelF)
                 return;
 
-            float radius = RadiusOf(levelF);
+            float radius = RadiusOf(levelF) * SizeScale;
             _blackHole.transform.localScale = _blackHoleScale * (radius / _blackHoleCoreRadius);
 
             if (_shownLevel >= 0 && level > _shownLevel && _settings.IsOn(GameSettings.BlackHolePulse))
@@ -97,6 +100,7 @@ namespace BlackHole.Unity
             _shockwaves.Reset();
             _shownLevel = -1;
             _shownLevelF = -1;
+            SizeScale = 1f;
             _blackHole.SetActive(false);
         }
 

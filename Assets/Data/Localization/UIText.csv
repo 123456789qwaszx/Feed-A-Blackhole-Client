@@ -81,6 +81,7 @@ milestone.3.name,Supernova,초신성
 milestone.4.name,Supernova Remnant,초신성 잔해
 milestone.5.name,Galactic Core,은하핵
 milestone.6.name,Black Hole,블랙홀
+milestone.tutorial.name,Tutorial,튜토리얼
 settlement.milestone,{0}  →  {1},{0}  →  {1}
 settlement.milestone.last,{0},{0}
 settlement.milestone.reached,{0} reached!,{0} 도달!

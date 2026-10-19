@@ -98,7 +98,9 @@ namespace BlackHole.Unity
             _nextSeed = null;
             Upgrades = upgrades;
             IsTutorial = tutorial;
-            Session = GameSessionFactory.Create(_content, _progress, LastSeed, upgrades);
+            Session = tutorial
+                ? GameSessionFactory.CreateWithGrowth(_content, _progress, LastSeed, upgrades, TutorialStage.GrowthFrom(_content.Enemies))
+                : GameSessionFactory.Create(_content, _progress, LastSeed, upgrades);
 
             _cameraFit.SetFieldScale(Session.World.Hq.FieldScale);
 
@@ -106,11 +108,12 @@ namespace BlackHole.Unity
 
             if (tutorial)
             {
-                // 시작 연출 없이 블랙홀 가까이에 머문다. 적은 처음부터 모두 보인다(출현 팝 연출은 그대로).
+                // 시작 연출 없이 블랙홀 가까이에 머문다. 적은 처음부터 모두 보인다(출현 팝 연출은 그대로). 블랙홀은 작게.
                 Session.BeginStaged(TutorialStage.EnemiesFrom(_content.Enemies));
                 _intro = false;
                 _cameraFit.SetZoom(TutorialStage.CameraZoom);
                 _enemyView.RevealRadius = float.PositiveInfinity;
+                _hqView.SizeScale = TutorialStage.BlackHoleScale;
             }
             else
             {
@@ -171,6 +174,15 @@ namespace BlackHole.Unity
             return await ShutDownAsync(settle: true);
         }
 
+        // 튜토리얼 판을 끝낸다. 결과(원자료)는 만들지만 진행 상태에 결산하지 않는다 — 튜토리얼의 이정표는 콘텐츠의 것이 아니다.
+        public async Task<BattleRawData> TryEndTutorialAsync()
+        {
+            if (!HasBattle || !IsTutorial)
+                return null;
+
+            return await ShutDownAsync(settle: true, applyToProgress: false);
+        }
+
         // 판을 포기. 결산하지 않음.
         public async Task<bool> TryAbandonAsync()
         {
@@ -182,7 +194,8 @@ namespace BlackHole.Unity
         }
 
         // 판 종료(이미 끝났으면 결과 유지) -> 남은 적 정리 -> (결산이면) 집계·결산 -> 화면 정리 -> 판을 버림.
-        private async Task<BattleRawData> ShutDownAsync(bool settle)
+        // applyToProgress가 false면 원자료만 만들고 진행 상태(Gold·성장도)는 바꾸지 않는다(튜토리얼).
+        private async Task<BattleRawData> ShutDownAsync(bool settle, bool applyToProgress = true)
         {
             _state = State.ShuttingDown;
             EndIntro();
@@ -195,7 +208,9 @@ namespace BlackHole.Unity
             if (settle)
             {
                 raw = Session.CreateRawData();
-                Session.Settle();
+
+                if (applyToProgress)
+                    Session.Settle();
             }
 
             // 지운 객체는 프레임 끝에 사라지므로 한 프레임 기다린 뒤 판을 버린다.
