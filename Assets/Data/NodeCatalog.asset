@@ -1383,7 +1383,8 @@ MonoBehaviour:
       Start: 0
       X: -9
       Y: -7
-      Links: []
+      Links:
+      - breaker.speed-12
     - Id: supernovaStar.damage-06
       Start: 0
       X: -12
@@ -1407,72 +1408,59 @@ MonoBehaviour:
       Y: -9
       Links:
       - asteroid.toPlanet-06
-    - Id: breaker.galaxyBonusDamage-01
-      Start: 0
-      X: -7
-      Y: -7
-      Links:
-      - planet.toStar-07
-      - breaker.galaxyBonusDamage-02
-    - Id: breaker.galaxyBonusDamage-02
-      Start: 0
-      X: -7
-      Y: -9
-      Links:
-      - breaker.galaxyBonusDamage-03
-    - Id: breaker.galaxyBonusDamage-03
-      Start: 0
-      X: -5
-      Y: -9
-      Links:
-      - breaker.speed-12
     - Id: breaker.speed-12
       Start: 0
       X: -3
-      Y: -9
+      Y: -7
       Links:
       - breaker.critBonus-05
       - laserStar.width-10
+    - Id: galaxy.size-01
+      Start: 0
+      X: -1
+      Y: -7
+      Links:
+      - breaker.speed-12
     - Id: breaker.critBonus-05
       Start: 0
       X: -3
-      Y: -7
+      Y: -5
       Links:
       - asteroid.toPlanet-05
     - Id: asteroid.toPlanet-05
       Start: 0
       X: -1
-      Y: -7
+      Y: -5
       Links:
       - planet.toStar-06
     - Id: planet.toStar-06
       Start: 0
       X: 1
-      Y: -7
+      Y: -5
       Links:
       - star.size-03
     - Id: star.size-03
       Start: 0
       X: 1
-      Y: -9
+      Y: -7
       Links:
       - star.massScale-10
     - Id: star.massScale-10
       Start: 0
       X: 1
-      Y: -11
+      Y: -9
       Links:
       - electricStar.critBonus-02
     - Id: electricStar.critBonus-02
       Start: 0
       X: -1
-      Y: -11
+      Y: -9
       Links:
       - laserStar.width-10
     - Id: laserStar.width-10
       Start: 0
       X: -3
-      Y: -11
+      Y: -9
       Links: []
     - Id: planet.massScale-05
       Start: 0
@@ -1723,14 +1711,10 @@ MonoBehaviour:
       - comet.spawnChance-03
       - supernovaStar.damage-02
       - supernovaStar.range-02
-    - Id: core
-      Nodes:
-      - breaker.galaxyBonusDamage-01
-      - breaker.galaxyBonusDamage-02
-      - breaker.galaxyBonusDamage-03
     - Id: blackhole
       Nodes:
       - breaker.speed-12
+      - galaxy.size-01
       - breaker.critBonus-05
       - asteroid.toPlanet-05
       - planet.toStar-06

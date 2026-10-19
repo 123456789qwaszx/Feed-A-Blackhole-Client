@@ -28,9 +28,13 @@ namespace BlackHole.Core
 
         public int MaxStage => StartStage + Milestones.Count;
 
+        // 은하가 나오기 시작하는 성장도. 0이면 은하가 없다(GalaxyTierAt은 늘 NoGalaxy).
+        public int GalaxyStage { get; }
+
         public HqGrowthDefinition(
             IReadOnlyList<long> levelExp,
-            IReadOnlyList<HqMilestone> milestones = null)
+            IReadOnlyList<HqMilestone> milestones = null,
+            int galaxyStage = 0)
         {
             if (levelExp == null)
                 throw new ArgumentNullException(nameof(levelExp));
@@ -85,6 +89,21 @@ namespace BlackHole.Core
             }
 
             Milestones = Array.AsReadOnly(marks);
+
+            if (galaxyStage < 0 || galaxyStage > MaxStage)
+                throw new ArgumentOutOfRangeException(nameof(galaxyStage), $"은하 시작 성장도는 0(없음)부터 {MaxStage}까지다. 받은 값: {galaxyStage}.");
+
+            GalaxyStage = galaxyStage;
+        }
+
+        public const int NoGalaxy = -1;
+
+        // 성장도 stage의 판에 나오는 은하의 색 등급(0 = 빨강, 이정표마다 +1). 은하가 없는 판이면 NoGalaxy.
+        // 색 수를 넘으면 마지막 색(보라)이다 — 마지막 이정표 뒤의 판도 보라 은하가 나온다.
+        public int GalaxyTierAt(int stage)
+        {
+            RequireStage(stage);
+            return GalaxyStage > 0 && stage >= GalaxyStage ? stage - GalaxyStage : NoGalaxy;
         }
 
         // 성장도 stage의 판이 시작하는 Level.

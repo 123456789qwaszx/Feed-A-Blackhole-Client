@@ -51,7 +51,7 @@ namespace BlackHole.Core
                 CompositionsOf(enemies, upgrades));
 
             // 전투 시작 공급(변환 반영). Level업마다의 성장 공급은 이 시작 수로 정해진다.
-            IReadOnlyList<SupplyRequest> startSupply = StartSupplyOf(enemies, stats);
+            IReadOnlyList<SupplyRequest> startSupply = StartSupplyOf(enemies, stats, hq.GalaxyTier);
 
             // 출현 띠(혜성 띠 포함)는 이 판의 전장 배율만큼 넓힌다: 이정표마다 카메라와 함께 넓어진다.
             var world = new World(
@@ -94,10 +94,13 @@ namespace BlackHole.Core
         // 1. 콘텐츠의 시작 적 목록을 종류마다 합치고, 업그레이드로 추가된 시작 적 수를 더한다(콘텐츠에 없는 종류는 뒤에 붙는다).
         // 2. 변환 사슬 앞쪽부터(소행성 → 행성을 먼저, 그다음 행성 → 별) 종류마다 변환 수만큼 다음 종류로 옮긴다.
         //    가진 수보다 많이 옮기지 않는다. 그래서 행성 → 별은 소행성에서 바뀐 행성까지 센다.
+        // 3. 은하가 나오는 판(galaxyTier ≥ 0, HqGrowthDefinition.GalaxyTierAt)이면 은하 1마리를 더한다 — 판마다 하나뿐인 목표.
+        //    은하는 변환으로 늘지 않고(star.toGalaxy 노드 없음) Level업 성장 공급에도 들지 않는다(growth.galaxies 없음).
         // 수가 0이 된 종류는 빠진다.
         private static IReadOnlyList<SupplyRequest> StartSupplyOf(
             EnemyContent enemies,
-            EnemyStatTable stats)
+            EnemyStatTable stats,
+            int galaxyTier = HqGrowthDefinition.NoGalaxy)
         {
             var order = new List<EnemyDefinition>();
             var counts = new Dictionary<EnemyDefinition, int>();
@@ -131,6 +134,15 @@ namespace BlackHole.Core
 
                 counts[kind] = have - moved;
                 Add(stats.UpgradeTargetOf(kind), moved);
+            }
+
+            if (galaxyTier != HqGrowthDefinition.NoGalaxy)
+            {
+                foreach (EnemyDefinition kind in stats.Kinds)
+                {
+                    if (kind.Type == EnemyType.Galaxy && !counts.ContainsKey(kind))
+                        Add(kind, 1);
+                }
             }
 
             var supply = new List<SupplyRequest>();

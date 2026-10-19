@@ -28,11 +28,16 @@ namespace BlackHole.Unity
         [Header("이정표 (Level이 커지는 순서)")]
         [SerializeField] private List<Milestone> milestones = new List<Milestone>();
 
+        [Header("은하")]
+        [Tooltip("은하가 나오기 시작하는 성장도(0 = 없음). 이 성장도부터 판마다 은하 1개가 시작에 나오고, 색은 이정표마다 빨강부터 한 색씩 올라간다.")]
+        [SerializeField] private int galaxyStage;
+
         public HqGrowthData ToData()
         {
             var data = new HqGrowthData
             {
                 LevelExp = levelExp != null ? new List<long>(levelExp) : new List<long>(),
+                GalaxyStage = galaxyStage,
             };
 
             foreach (Milestone milestone in milestones)

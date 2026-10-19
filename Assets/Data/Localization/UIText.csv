@@ -248,7 +248,7 @@ stat.growth.galaxies.desc,Increases the number of galaxies spawned when the blac
 stat.star.toGalaxy.name,Upgrade Stars to Galaxies,별을 은하로 업그레이드
 stat.star.toGalaxy.desc,Turns some stars into galaxies at the start of a run.,판 시작 시 별 일부를 은하로 바꿉니다.
 stat.galaxy.size.name,Galaxy Size,은하 크기
-stat.galaxy.size.desc,Adds larger galaxy size tiers to the spawn pool.,등장 가능한 은하의 크기 단계를 추가합니다.
+stat.galaxy.size.desc,Makes the galaxy larger.,은하가 더 커집니다.
 stat.galaxy.massScale.name,Galaxy Mass,은하 질량
 stat.galaxy.massScale.desc,"Increases galaxy mass, changing the mix of color tiers.",은하의 질량을 높여 색 등급별 출현 비율을 바꿉니다.
 stat.galaxy.respawnChance.name,Galaxy Respawn Chance,은하가 파괴될 때 새로운 은하를 생성할 확률

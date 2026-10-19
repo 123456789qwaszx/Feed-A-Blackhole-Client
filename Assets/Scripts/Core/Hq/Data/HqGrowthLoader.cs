@@ -50,7 +50,7 @@ namespace BlackHole.Core
             // Level 사다리의 오류는 LevelExp에, 이정표가 사다리 밖·순서가 틀린 것은 Milestones에 붙인다.
             try
             {
-                return new HqGrowthDefinition(levelExp, milestones);
+                return new HqGrowthDefinition(levelExp, milestones, item.GalaxyStage);
             }
             catch (ArgumentException error)
             {

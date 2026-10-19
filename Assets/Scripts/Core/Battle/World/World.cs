@@ -75,7 +75,8 @@ namespace BlackHole.Core
                 placement,
                 periodicSpawnPlacement,
                 startSupply,
-                CountActive);
+                CountActive,
+                hq.GalaxyTier);
 
             _deathBonuses = new DeathBonuses(seed, stats, _supply, killTimeBonus, killTimeCooldown, hq.Stage);
         }

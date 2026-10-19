@@ -225,9 +225,6 @@ supernovaStar.damage-06,1,supernovaStar.damage,4000,Flat,+4000
 asteroid.count-05,1,asteroid.count,42,Flat,+42
 laserStar.width-09,1,laserStar.width,80,Percent,+80%
 star.massScale-09,1,star.massScale,150,Percent,+150%
-breaker.galaxyBonusDamage-01,1,breaker.galaxyBonusDamage,5000,Flat,+5000
-breaker.galaxyBonusDamage-02,1,breaker.galaxyBonusDamage,10000,Flat,+10000
-breaker.galaxyBonusDamage-03,1,breaker.galaxyBonusDamage,20000,Flat,+20000
 breaker.speed-12,1,breaker.speed,50,Percent,+50%
 breaker.speed-12,2,breaker.speed,50,Percent,+50%
 breaker.speed-12,3,breaker.speed,50,Percent,+50%
@@ -238,6 +235,16 @@ breaker.speed-12,7,breaker.speed,50,Percent,+50%
 breaker.speed-12,8,breaker.speed,50,Percent,+50%
 breaker.speed-12,9,breaker.speed,50,Percent,+50%
 breaker.speed-12,10,breaker.speed,50,Percent,+50%
+galaxy.size-01,1,galaxy.size,1,Flat,+1
+galaxy.size-01,2,galaxy.size,1,Flat,+1
+galaxy.size-01,3,galaxy.size,1,Flat,+1
+galaxy.size-01,4,galaxy.size,1,Flat,+1
+galaxy.size-01,5,galaxy.size,1,Flat,+1
+galaxy.size-01,6,galaxy.size,1,Flat,+1
+galaxy.size-01,7,galaxy.size,1,Flat,+1
+galaxy.size-01,8,galaxy.size,1,Flat,+1
+galaxy.size-01,9,galaxy.size,1,Flat,+1
+galaxy.size-01,10,galaxy.size,1,Flat,+1
 breaker.critBonus-05,1,breaker.critBonus,100,Percent,+100%
 breaker.critBonus-05,2,breaker.critBonus,100,Percent,+100%
 breaker.critBonus-05,3,breaker.critBonus,100,Percent,+100%
