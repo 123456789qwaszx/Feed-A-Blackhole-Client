@@ -34,7 +34,8 @@ namespace BlackHole.Core
 
                 try
                 {
-                    milestones.Add(new HqMilestone(mark.Level, mark.TargetGold, mark.FieldScale));
+                    var orbit = new OrbitShape(mark.OrbitStretch, mark.OrbitTilt, mark.OrbitInward, mark.OrbitSpeed);
+                    milestones.Add(new HqMilestone(mark.Level, mark.TargetGold, mark.FieldScale, orbit));
                 }
                 catch (ArgumentException error)
                 {

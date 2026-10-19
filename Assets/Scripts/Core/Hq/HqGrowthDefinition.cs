@@ -130,6 +130,13 @@ namespace BlackHole.Core
             return stage == StartStage ? StartFieldScale : Milestones[stage - StartStage - 1].FieldScale;
         }
 
+        // 성장도 stage의 판의 공전 모양: 성장도 0이면 기본, 아니면 마지막으로 도달한 이정표의 모양(HqMilestone.Orbit).
+        public OrbitShape OrbitAt(int stage)
+        {
+            RequireStage(stage);
+            return stage == StartStage ? OrbitShape.Default : Milestones[stage - StartStage - 1].Orbit;
+        }
+
         // 이 Level에 닿는 누적 EXP. Level 0은 0이다. 사다리 밖이면 null이다.
         public long? ExpToReach(int level)
         {

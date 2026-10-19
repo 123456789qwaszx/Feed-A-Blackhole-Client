@@ -23,6 +23,9 @@ namespace BlackHole.Core
         // 이 판의 은하 색 등급(HqGrowthDefinition.GalaxyTierAt). 은하가 없는 판이면 HqGrowthDefinition.NoGalaxy.
         public int GalaxyTier { get; }
 
+        // 이 판의 적 공전 모양(HqGrowthDefinition.OrbitAt). 판 동안 같다.
+        public OrbitShape Orbit { get; }
+
         public long Exp { get; private set; } // 누적 EXP(시작 Level에 닿는 EXP부터 센다).
 
         public int Level { get; private set; }
@@ -58,6 +61,7 @@ namespace BlackHole.Core
             GoalLevel = growth.GoalLevelAt(stage);
             FieldScale = growth.FieldScaleAt(stage);
             GalaxyTier = growth.GalaxyTierAt(stage);
+            Orbit = growth.OrbitAt(stage);
             Level = StartLevel;
             Exp = growth.ExpToReach(StartLevel) ?? 0;
         }
