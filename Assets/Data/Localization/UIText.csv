@@ -89,6 +89,20 @@ milestone.4.name,Supernova Remnant,초신성 잔해
 milestone.5.name,Galactic Core,은하핵
 milestone.6.name,Black Hole,블랙홀
 milestone.tutorial.name,Tutorial,튜토리얼
+# 엔딩·크레딧 [임시 문구] (마지막 이정표 = 보라 은하 격파 뒤 EndingScreen). 줄·크레딧 묶음은 1부터 번호가 끊길 때까지 읽는다. 이름 칸은 | 로 사람을 나눈다(한 줄에 한 사람).
+ending.line.1,The last galaxy has fallen.,마지막 은하가 무너졌습니다.
+ending.line.2,"Stars, planets and every drifting speck of dust have become one.","별도, 행성도, 떠돌던 먼지까지도 모두 하나로 모였습니다."
+ending.line.3,Nothing remains outside the black hole now.,이제 블랙홀 바깥에는 아무것도 남지 않았습니다.
+ending.line.4,"The universe is once again a single, silent point.",우주는 다시 고요한 한 점이 되었습니다.
+ending.credits.title,Feed-A-Blackhole,Feed-A-Blackhole
+ending.credits.1.role,Team,팀
+ending.credits.1.names,Anyway-WeMadeIt,Anyway-WeMadeIt
+ending.credits.2.role,Made by,만든 사람들
+ending.credits.2.names,jkh|RCO8|Hicanos|Cabbagggggggge,jkh|RCO8|Hicanos|Cabbagggggggge
+ending.credits.3.role,And,그리고
+ending.credits.3.names,"You, for feeding the black hole to the very end",끝까지 블랙홀을 먹여 준 당신
+ending.thanks,Thank you for playing,플레이해 주셔서 감사합니다
+ending.prompt,Click or tap to return to the title,화면을 누르면 타이틀로 돌아갑니다
 tutorial.hint.hold,Press and hold to break it,꾹 눌러서 부숴 보세요
 settlement.milestone,{0}  →  {1},{0}  →  {1}
 settlement.milestone.last,{0},{0}

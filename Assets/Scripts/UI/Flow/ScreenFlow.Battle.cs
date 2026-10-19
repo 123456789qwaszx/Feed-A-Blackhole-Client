@@ -45,7 +45,14 @@ namespace BlackHole.Unity
 
         // 끝: 덮인 뒤 판을 정리·결산하고 결산 화면으로 바꾼다. 적이 치워지는 모습이 보이지 않는다.
         // 튜토리얼 판은 결산하지 않고 첫 판으로 넘어간다(EndTutorialAsync).
-        private void RequestEnd() => _transition.Play(_battle.IsTutorial ? EndTutorialAsync : EndBattleAsync);
+        // 엔딩 중(마지막 이정표 뒤 붕괴·엔딩 화면)에는 받지 않는다 — 엔딩이 판을 결산하고 타이틀로 간다(ScreenFlow.Ending).
+        private void RequestEnd()
+        {
+            if (IsEndingPlaying)
+                return;
+
+            _transition.Play(_battle.IsTutorial ? EndTutorialAsync : EndBattleAsync);
+        }
 
         private void StartBattle()
         {

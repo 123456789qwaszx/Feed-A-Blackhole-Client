@@ -14,6 +14,8 @@ namespace BlackHole.Unity
     // - 진행: 판을 한 Step 진행하고, 적·Breaker·사망 효과·블랙홀 화면을 판의 지금 상태에 맞춤.
     // - 정지: 판의 일이 아니라 여기의 상태다. 정지 중에는 판을 진행하지 않고 화면만 멈춘 채 맞춤.
     // - 종료: 남은 적을 치우고(처치 아님) 결산한 뒤 판을 버림. 포기는 결산하지 않음.
+    // - 붕괴(엔딩): 마지막 이정표로 끝난 판에서만. 판은 이미 끝나 규칙은 멈췄고, 화면에서 남은 적이 소용돌이치며 블랙홀로 빨려 들어가고
+    //   블랙홀이 커지며 카메라가 다가간다(TryBeginCollapse → HasCollapsed). 결산은 그 뒤 엔딩 흐름이 한다(ScreenFlow.Ending).
     internal sealed class BattleSystem
     {
         private enum State { Idle, Running, Paused, ShuttingDown }
@@ -25,6 +27,16 @@ namespace BlackHole.Unity
         private const float IntroWidenSeconds = 2f;
         // 시작 카메라 배율(전장 전체 = 1). 작을수록 블랙홀에 더 다가간 채 시작한다.
         private const float IntroStartZoom = 0.3f;
+
+        // 붕괴 연출(엔딩) [임시].
+        // 기다림: 마지막 은하가 나선으로 말려 사라지는 동안(GalaxyCollapses 0.7초) 나머지는 멈춰 있다.
+        private const float CollapseDelaySeconds = 0.9f;
+        // 빨려 들어감: 가까운 적부터 먼 적까지 이 시간 안에 모두 블랙홀에 닿는다(EnemyView.Collapse).
+        private const float CollapseSeconds = 3.4f;
+        // 다 빨아들인 뒤 블랙홀이 번쩍이고 엔딩 화면이 덮기 시작할 때까지.
+        private const float CollapseHoldSeconds = 1.0f;
+        // 끝날 때의 카메라 배율(전장 전체 = 1). 블랙홀 쪽으로 다가간다.
+        private const float CollapseZoom = 0.55f;
 
         private readonly GameContent _content;
         private readonly ProgressState _progress;
@@ -43,6 +55,10 @@ namespace BlackHole.Unity
         // 시작 연출 중인가와 그 연출이 흐른 시간(초, 정지 중에는 흐르지 않는다).
         private bool _intro;
         private float _introElapsed;
+        // 붕괴 연출 중인가와 그 연출이 흐른 시간(초).
+        private bool _collapse;
+        private float _collapseElapsed;
+        private bool _collapseBurst;
 
         // 진행 중인 판. 판이 없으면 null.
         public GameSession Session { get; private set; }
@@ -66,6 +82,9 @@ namespace BlackHole.Unity
 
         // 튜토리얼 판에서 마지막으로 무리를 놓은 Level(TutorialStage.WaveAt).
         private int _tutorialWaveLevel;
+
+        // 붕괴 연출(엔딩)을 다 보였는가. 엔딩 흐름이 이때 엔딩 화면을 연다.
+        public bool HasCollapsed => _collapse && _collapseElapsed >= CollapseDelaySeconds + CollapseSeconds + CollapseHoldSeconds;
 
         // 판이 있는가(진행 또는 정지). 종료·포기는 이때만 한다.
         private bool HasBattle => _state == State.Running || _state == State.Paused;
@@ -137,6 +156,19 @@ namespace BlackHole.Unity
             return true;
         }
 
+        // 이미 끝난 판(마지막 이정표)에서 붕괴 연출을 시작한다. 판이 없거나 끝나지 않았거나 이미 시작했으면 false.
+        // 정리·결산은 하지 않는다 — 연출이 끝난 뒤 TryEndAsync로 한다.
+        public bool TryBeginCollapse()
+        {
+            if (!HasBattle || !Session.IsEnded || _collapse)
+                return false;
+
+            _collapse = true;
+            _collapseElapsed = 0;
+            _collapseBurst = false;
+            return true;
+        }
+
         // 다음 판 하나만 이 시드로 시작한다(테스트 도구: 시나리오의 시드, 같은 시드로 다시).
         public void UseSeedForNextBattle(int seed) => _nextSeed = seed;
 
@@ -155,6 +187,9 @@ namespace BlackHole.Unity
                 AdvanceIntro(delta);
             else if (!paused)
                 result = Session.Advance(delta);
+
+            if (!paused && _collapse)
+                AdvanceCollapse(delta);
 
             if (!paused && IsTutorial)
                 StageNextTutorialWave();
@@ -211,6 +246,7 @@ namespace BlackHole.Unity
         {
             _state = State.ShuttingDown;
             EndIntro();
+            _collapse = false;
 
             Session.End();
             Session.ClearRemainingEnemies();
@@ -287,6 +323,24 @@ namespace BlackHole.Unity
             _intro = false;
             _cameraFit.SetZoom(1);
             _enemyView.RevealRadius = float.PositiveInfinity;
+        }
+
+        // 붕괴: 기다린 뒤 적을 빨아들이고(0 → 1) 블랙홀을 키우며 카메라를 다가가게 한다. 다 빨아들이는 순간 한 번 터지는 소리.
+        private void AdvanceCollapse(float delta)
+        {
+            _collapseElapsed += delta;
+            float t = Mathf.Clamp01((_collapseElapsed - CollapseDelaySeconds) / CollapseSeconds);
+            float eased = t * t * (3 - 2 * t);
+
+            _enemyView.Collapse = t;
+            _hqView.Collapse = t;
+            _cameraFit.SetZoom(Mathf.Lerp(1, CollapseZoom, eased));
+
+            if (t >= 1 && !_collapseBurst)
+            {
+                _collapseBurst = true;
+                SoundManager.Instance?.PlaySuperNova();
+            }
         }
 
         // 원점(HQ)에서 가장 가까운·먼 적 중심까지의 거리. 적이 없으면 둘 다 0.

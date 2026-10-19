@@ -14,6 +14,8 @@ namespace BlackHole.Unity
     // 1 unit = C0 54px(카메라 크기 10)로 바꾼 반지름을 Level 사이에서 직선으로 잇고, 마지막 점 뒤는 그대로 둔다.
     // 블랙홀 오브젝트는 검은 중심 원의 반지름이 이 값이 되도록 처음 크기에 비례해 키운다(배경 소용돌이도 같은 비율).
     // 번쩍임 선 굵기는 화면에서 고정이라 판의 전장 배율을 곱한다(오브젝트는 월드 크기라 카메라가 넓어지면 작아 보인다).
+    // 붕괴(엔딩, Collapse 0 → 1): 적을 빨아들이는 동안 블랙홀이 CollapseGrowth배까지 커지고, 시작할 때 충격파, 다 빨아들이면 크게 한 번 번쩍인다.
+    //   Black Hole Pulse 설정과 무관하게 낸다(엔딩의 마무리라서).
     internal sealed class HqView : IDisposable
     {
         // (Level, 반지름) 실측점. Level이 커지는 순서.
@@ -34,6 +36,12 @@ namespace BlackHole.Unity
         private const float FlashSeconds = 0.5f;
         private static readonly Color FlashColor = new Color(0.9f, 0.85f, 1f, 1f);
 
+        // 붕괴 연출 [임시]: 다 빨아들였을 때 반지름 배율(1 + 이 값), 마지막 번쩍임의 굵기·시간·크기(블랙홀 반지름 배).
+        private const float CollapseGrowth = 0.9f;
+        private const float BurstWidth = 0.3f;
+        private const float BurstSeconds = 1.2f;
+        private const float BurstRadius = 2.2f;
+
         private readonly LineStrokes _strokes;
         private readonly Shockwaves _shockwaves;
         // Black Hole Pulse 설정. 끄면 레벨업 때의 원형 플래시·충격파를 내지 않는다(블랙홀이 커지는 것은 그대로).
@@ -49,6 +57,14 @@ namespace BlackHole.Unity
         public IReadOnlyList<(int Level, float Radius)> Radii { get; set; } = MeasuredRadii;
         // 마지막으로 적용한 크기의 Level(바퀴 진행도를 더한 값). 바뀔 때만 크기를 고친다.
         private float _shownLevelF = -1;
+        // 지금 Level의 검은 중심 반지름(월드 단위). 붕괴 배율을 곱해 오브젝트 크기를 정한다.
+        private float _radius;
+        // 마지막으로 적용한 붕괴 진행도와, 마지막 번쩍임을 냈는가.
+        private float _shownCollapse;
+        private bool _collapseBurst;
+
+        // 붕괴(엔딩) 진행도(0 ~ 1). BattleSystem이 넣는다. Reset이 0으로 되돌린다.
+        public float Collapse { get; set; }
 
         //public HqView(Transform parent) => _strokes = new LineStrokes(parent, "Hq View");
         public HqView(Transform parent, GameObject blackHole, Camera camera, GameSettings settings)
@@ -76,23 +92,56 @@ namespace BlackHole.Unity
             int level = world.Hq.Level - pacer.PendingWheels;
             float levelF = pacer.IsAnimating ? level + pacer.WheelProgress : level;
 
-            if (levelF == _shownLevelF)
+            bool levelChanged = levelF != _shownLevelF;
+            bool collapseChanged = Collapse != _shownCollapse;
+
+            if (!levelChanged && !collapseChanged)
                 return;
 
-            float radius = RadiusOf(levelF);
-            _blackHole.transform.localScale = _blackHoleScale * (radius / _blackHoleCoreRadius);
-
-            if (_shownLevel >= 0 && level > _shownLevel && _settings.IsOn(GameSettings.BlackHolePulse))
+            if (levelChanged)
             {
-                LineStrokes.SetCircle(_strokes.Flash("Level Up", FlashWidth * fieldScale, FlashColor, FlashSeconds), BattleSpace.Origin, radius * 1.4f);
+                float radius = RadiusOf(levelF);
+                _radius = radius;
 
-                Vector3 center = _blackHole.transform.position;
-                _shockwaves.Spawn(center, strength: 1f, seconds: 1.2f);
-                _shockwaves.Spawn(center, strength: 0.45f, seconds: 1.4f, delay: 0.14f);
+                if (_shownLevel >= 0 && level > _shownLevel && _settings.IsOn(GameSettings.BlackHolePulse))
+                {
+                    LineStrokes.SetCircle(_strokes.Flash("Level Up", FlashWidth * fieldScale, FlashColor, FlashSeconds), BattleSpace.Origin, radius * 1.4f);
+
+                    Vector3 center = _blackHole.transform.position;
+                    _shockwaves.Spawn(center, strength: 1f, seconds: 1.2f);
+                    _shockwaves.Spawn(center, strength: 0.45f, seconds: 1.4f, delay: 0.14f);
+                }
+
+                _shownLevel = level;
+                _shownLevelF = levelF;
             }
 
-            _shownLevel = level;
-            _shownLevelF = levelF;
+            if (collapseChanged)
+                AdvanceCollapse(fieldScale);
+
+            float t = Mathf.Clamp01(_shownCollapse);
+            float grow = 1 + CollapseGrowth * t * t * (3 - 2 * t);
+            _blackHole.transform.localScale = _blackHoleScale * (_radius * grow / _blackHoleCoreRadius);
+        }
+
+        // 붕괴가 시작되는 순간 충격파, 다 빨아들이는 순간 큰 번쩍임과 충격파를 한 번씩 낸다.
+        private void AdvanceCollapse(float fieldScale)
+        {
+            Vector3 center = _blackHole.transform.position;
+
+            if (_shownCollapse <= 0 && Collapse > 0)
+                _shockwaves.Spawn(center, strength: 0.7f, seconds: 1.6f);
+
+            _shownCollapse = Collapse;
+
+            if (_collapseBurst || Collapse < 1)
+                return;
+
+            _collapseBurst = true;
+            float radius = _radius * (1 + CollapseGrowth);
+            LineStrokes.SetCircle(_strokes.Flash("Collapse", BurstWidth * fieldScale, FlashColor, BurstSeconds), BattleSpace.Origin, radius * BurstRadius);
+            _shockwaves.Spawn(center, strength: 1.6f, seconds: 1.8f, maxRadius: 2f);
+            _shockwaves.Spawn(center, strength: 0.8f, seconds: 2.0f, delay: 0.2f, maxRadius: 2f);
         }
 
         // 판이 바뀌거나 판을 정리할 때 지운다. 다음 판의 블랙홀은 Level 0에서 다시 그린다.
@@ -102,6 +151,10 @@ namespace BlackHole.Unity
             _shockwaves.Reset();
             _shownLevel = -1;
             _shownLevelF = -1;
+            _radius = 0;
+            _shownCollapse = 0;
+            _collapseBurst = false;
+            Collapse = 0;
             Radii = MeasuredRadii;
             _blackHole.SetActive(false);
         }
