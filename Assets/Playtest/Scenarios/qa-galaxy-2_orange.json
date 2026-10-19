@@ -1,8 +1,8 @@
 {
   "name": "qa-galaxy-2_orange",
   "category": "QA/은하",
-  "note": "주황 은하 판(성장도 7, Lv60→70). 블랙홀 구역 이전 노드는 모두 산 상태, 블랙홀 구역은 보스 화력 4개(은하 추가 피해·속도·피해·치명 보너스) 10 Rank, 나머지 10 Rank 노드 3 Rank. 노드 240개, Rank 296, 구매 비용 합계 75,261,378,162,546,937 Gold. 보스 수치 표의 가정: Breaker DPS(은하) 약 1.46M/초, 은하 HP 44M = DPS × 20초 × 1.5(연쇄 몫).",
-  "expected": "주황 은하(HP 44M)이 판 시작부터 하나 나오고, 집중해서 치면 연쇄와 함께 대략 15~25초에 잡힌다. 잡는 순간 Lv70 이정표로 판이 끝난다. 체력바 x60부터 줄어드는지, 별 연쇄가 이어지는지 확인. 빨리 보려면 테스트 패널의 \"목표 직전\"으로 Lv69까지 올린다.",
+  "note": "주황 은하 판(성장도 7, Lv60→70). 블랙홀 구역 이전 노드는 모두 산 상태, 블랙홀 구역은 보스 화력 3개(은하 추가 피해·속도·치명 보너스) 10 Rank, 나머지 10 Rank 노드 3 Rank. 노드 240개, Rank 296, 구매 비용 합계 75,261,378,162,546,937 Gold. 보스 수치 표의 가정: Breaker DPS(은하) 약 0.75M/초, 은하 HP 22M = DPS × 20초 × 1.5(연쇄 몫).",
+  "expected": "주황 은하(HP 22M)이 판 시작부터 하나 나오고, 집중해서 치면 연쇄와 함께 대략 15~25초에 잡힌다. 잡는 순간 Lv70 이정표로 판이 끝난다. 체력바 x60부터 줄어드는지, 별 연쇄가 이어지는지 확인. 빨리 보려면 테스트 패널의 \"목표 직전\"으로 Lv69까지 올린다.",
   "growthStage": 7,
   "gold": 0,
   "nodes": [
@@ -117,10 +117,6 @@
     {
       "nodeId": "asteroid.toPlanet-04",
       "rank": 1
-    },
-    {
-      "nodeId": "asteroid.toPlanet-05",
-      "rank": 3
     },
     {
       "nodeId": "asteroid.toPlanet-06",
@@ -263,10 +259,6 @@
       "rank": 1
     },
     {
-      "nodeId": "breaker.damage-29",
-      "rank": 10
-    },
-    {
       "nodeId": "breaker.galaxyBonusDamage-01",
       "rank": 10
     },
@@ -337,10 +329,6 @@
     {
       "nodeId": "breaker.radius-13",
       "rank": 1
-    },
-    {
-      "nodeId": "breaker.radius-14",
-      "rank": 3
     },
     {
       "nodeId": "breaker.speed-01",
@@ -507,10 +495,6 @@
       "rank": 1
     },
     {
-      "nodeId": "electricStar.damage-03",
-      "rank": 3
-    },
-    {
       "nodeId": "electricStar.spawnChance-01",
       "rank": 1
     },
@@ -651,10 +635,6 @@
       "rank": 1
     },
     {
-      "nodeId": "laserStar.damage-07",
-      "rank": 3
-    },
-    {
       "nodeId": "laserStar.galaxyBonusDamage-01",
       "rank": 3
     },
@@ -693,10 +673,6 @@
     {
       "nodeId": "laserStar.width-09",
       "rank": 1
-    },
-    {
-      "nodeId": "laserStar.width-10",
-      "rank": 3
     },
     {
       "nodeId": "moonPlanet.duration-01",
@@ -843,10 +819,6 @@
       "rank": 1
     },
     {
-      "nodeId": "planet.toStar-06",
-      "rank": 3
-    },
-    {
       "nodeId": "planet.toStar-07",
       "rank": 1
     },
@@ -903,10 +875,6 @@
       "rank": 1
     },
     {
-      "nodeId": "star.size-03",
-      "rank": 3
-    },
-    {
       "nodeId": "star.timeChance-01",
       "rank": 1
     },
@@ -931,10 +899,6 @@
       "rank": 1
     },
     {
-      "nodeId": "supernovaStar.damage-07",
-      "rank": 3
-    },
-    {
       "nodeId": "supernovaStar.galaxyBonusDamage-01",
       "rank": 3
     },
@@ -953,10 +917,6 @@
     {
       "nodeId": "supernovaStar.range-04",
       "rank": 1
-    },
-    {
-      "nodeId": "supernovaStar.range-05",
-      "rank": 3
     },
     {
       "nodeId": "supernovaStar.spawnChance-01",

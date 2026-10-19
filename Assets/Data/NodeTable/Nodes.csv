@@ -227,17 +227,7 @@ laserStar.width-09,1,초신성 잔해
 star.massScale-09,1,초신성 잔해
 breaker.galaxyBonusDamage-01,30,블랙홀
 breaker.speed-12,30,블랙홀
-breaker.damage-29,30,블랙홀
 breaker.critBonus-05,30,블랙홀
-breaker.radius-14,10,블랙홀
-asteroid.toPlanet-05,10,블랙홀
-planet.toStar-06,10,블랙홀
-star.size-03,10,블랙홀
-laserStar.width-10,10,블랙홀
-supernovaStar.range-05,10,블랙홀
-electricStar.damage-03,10,블랙홀
-supernovaStar.damage-07,10,블랙홀
-laserStar.damage-07,10,블랙홀
 galaxy.size-01,10,블랙홀
 laserStar.galaxyBonusDamage-01,10,블랙홀
 supernovaStar.galaxyBonusDamage-01,10,블랙홀
