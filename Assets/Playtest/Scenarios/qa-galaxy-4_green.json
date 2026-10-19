@@ -1,8 +1,8 @@
 {
   "name": "qa-galaxy-4_green",
   "category": "QA/은하",
-  "note": "초록 은하 판(성장도 9, Lv53→54, 은하 처치 = 다음 레벨·이정표). 블랙홀 구역 이전 노드는 모두 산 상태, 블랙홀 구역은 보스 화력 3개(은하 추가 피해·속도·치명 보너스) 20 Rank, 나머지 10 Rank 노드 7 Rank. 노드 240개, Rank 376, 구매 비용 합계 510,861,378,162,546,937 Gold. 보스 수치 표의 가정: Breaker DPS(은하) 약 3.03M/초, 은하 HP 91M = DPS × 20초 × 1.5(연쇄 몫).",
-  "expected": "초록 은하(HP 91M)이 판 시작부터 하나 나오고, 집중해서 치면 연쇄와 함께 대략 15~25초에 잡힌다. 잡는 순간 Lv54 이정표로 판이 끝난다(일반 처치로는 Lv54에 닿지 않는다). 체력바 x120부터 줄어드는지, 별 연쇄가 이어지는지 확인.",
+  "note": "초록 은하 판(성장도 9, Lv53→54, 은하 처치 = 다음 레벨·이정표). 블랙홀 구역 이전 노드는 모두 산 상태, 블랙홀 구역 7노드는 이 은하를 잡는 기준 구성: 30 Rank 노드 3개 13 Rank, 10 Rank 노드 4개 4 Rank(블랙홀 Rank의 42%). 노드 233개, Rank 281, 구매 비용 합계 85,301,378,162,546,937 Gold. 시뮬(은하에 집중하는 봇, 60판): 은하가 받는 피해 중앙값 187M, HP 170M = 그 90%.",
+  "expected": "초록 은하(HP 170M)이 판 시작부터 하나 나오고, 은하 위에 머물며 겹친 별을 함께 치면 판 후반(봇 기준 35초 안팎)에 잡힌다. 봇 처치율 약 73% — 사람은 이보다 조금 낮다. 한 단계 아래 구성으로는 잡히지 않는다. 잡는 순간 Lv54 이정표로 판이 끝난다(일반 처치로는 Lv54에 닿지 않는다). 체력바 x120부터 줄어드는지 확인.",
   "growthStage": 9,
   "gold": 0,
   "nodes": [
@@ -132,7 +132,7 @@
     },
     {
       "nodeId": "breaker.critBonus-05",
-      "rank": 20
+      "rank": 13
     },
     {
       "nodeId": "breaker.critChance-01",
@@ -260,7 +260,7 @@
     },
     {
       "nodeId": "breaker.galaxyBonusDamage-01",
-      "rank": 20
+      "rank": 13
     },
     {
       "nodeId": "breaker.planetBonusDamage-01",
@@ -372,7 +372,7 @@
     },
     {
       "nodeId": "breaker.speed-12",
-      "rank": 20
+      "rank": 13
     },
     {
       "nodeId": "breaker.starBonusDamage-01",
@@ -496,7 +496,7 @@
     },
     {
       "nodeId": "electricStar.galaxyBonusDamage-01",
-      "rank": 7
+      "rank": 4
     },
     {
       "nodeId": "electricStar.spawnChance-01",
@@ -636,7 +636,7 @@
     },
     {
       "nodeId": "laserStar.galaxyBonusDamage-01",
-      "rank": 7
+      "rank": 4
     },
     {
       "nodeId": "laserStar.spawnChance-01",
@@ -900,7 +900,7 @@
     },
     {
       "nodeId": "supernovaStar.galaxyBonusDamage-01",
-      "rank": 7
+      "rank": 4
     },
     {
       "nodeId": "supernovaStar.range-01",
@@ -936,7 +936,7 @@
     },
     {
       "nodeId": "timer-04",
-      "rank": 7
+      "rank": 4
     }
   ],
   "autoBuyBudget": 0,
