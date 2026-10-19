@@ -174,6 +174,18 @@ MonoBehaviour:
     available: {fileID: 21300000, guid: bddcea0939c6fde5810dda8a9adfd72d, type: 3}
     purchased: {fileID: 21300000, guid: 236017d43c9ca7991cfe3e53bc723fd0, type: 3}
     locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
+  - stat: laserStar.galaxyBonusDamage
+    available: {fileID: 21300000, guid: d3596e453d5d4c0db2a42d957a082b15, type: 3}
+    purchased: {fileID: 21300000, guid: b0ed0e95034d42bc8c41f79857e3886a, type: 3}
+    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
+  - stat: supernovaStar.galaxyBonusDamage
+    available: {fileID: 21300000, guid: 0566a2f819144a658c5a159bfcc76a0e, type: 3}
+    purchased: {fileID: 21300000, guid: 9c0a55562cec4b1fb96d4128eb239f72, type: 3}
+    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
+  - stat: electricStar.galaxyBonusDamage
+    available: {fileID: 21300000, guid: b90e573b6c8643e3a4476cfaf2d764e8, type: 3}
+    purchased: {fileID: 21300000, guid: d96360f9bb3744478f41ffa1dbd7334e, type: 3}
+    locked: {fileID: 21300000, guid: 4f16c09eddf02e7ab55192f57cce4839, type: 3}
   - stat: breaker.planetBonusDamage
     available: {fileID: 21300000, guid: 2fa1e14fc38d222cf8248d1443cf8c6f, type: 3}
     purchased: {fileID: 21300000, guid: f205a1e8c75b439e34370194aa893a92, type: 3}
