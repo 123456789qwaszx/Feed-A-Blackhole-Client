@@ -77,15 +77,26 @@ namespace BlackHole.Unity
             else if (_endAwaitsMilestoneEffect)
                 RequestEndAfterMilestoneEffect();
 
+            _screens.TickEnding();
+
             RefreshCursor();
         }
 
         // 판이 이번 프레임에 끝났다. 전투 규칙상 종료는 이미 적용됐다(판이 더 흐르지 않는다).
         // 이정표 도달이면 전투 화면의 달성 연출을 먼저 보여 주고, 연출이 끝난 뒤 결산 전환을 요청한다. 시간 만료는 곧바로 요청한다.
+        // 마지막 이정표(보라 은하를 부순 판)면 결산 화면 대신 엔딩으로 간다(ScreenFlow.Ending). 달성 연출은 붕괴와 함께 보인다.
         private void HandleBattleEnded()
         {
             GameSession session = _battle.Session;
             bool milestone = session != null && session.World.Hq.ReachedMilestone;
+
+            if (milestone && !_battle.IsTutorial && IsFinalMilestone(session.World.Hq) && _screens.TryBeginEnding())
+            {
+                if (_ui.CurrentRoot is BattleScreen ending)
+                    ending.TryPlayMilestoneReached();
+
+                return;
+            }
 
             if (milestone && _ui.CurrentRoot is BattleScreen screen && screen.TryPlayMilestoneReached())
             {
@@ -95,6 +106,9 @@ namespace BlackHole.Unity
 
             _screens.HandleBattleTimeExpired();
         }
+
+        // 이 이정표를 넘으면 더 이상 이정표가 없다(엔딩). 튜토리얼 판은 자기 성장 표를 쓰므로 부르는 쪽이 뺀다.
+        private static bool IsFinalMilestone(Hq hq) => hq.NextStage >= hq.Growth.MaxStage;
 
         // 달성 연출이 끝났거나 전투 화면이 다른 이유로 닫혔으면 결산 전환을 한 번 요청한다. 판이 이미 없으면(다른 경로로 끝남) 요청하지 않는다.
         private void RequestEndAfterMilestoneEffect()

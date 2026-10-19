@@ -180,6 +180,7 @@ namespace BlackHole.Unity
                 loaded.Content.Growth,
                 _settings,
                 localizer,
+                _fonts,
                 transition,
                 keyInput,
                 syncLogs);
