@@ -79,10 +79,18 @@ namespace BlackHole.Core
         // - 시간이 줄지 않고, 블랙홀 성장·파괴로 시간을 더하지도 않는다.
         public void BeginStaged(IReadOnlyList<StagedEnemy> enemies)
         {
+            IsTimeless = true;
+            Stage(enemies);
+        }
+
+        // 판 중에 정한 자리에 적을 더 놓는다(튜토리얼의 다음 무리). 끝난 판에는 놓지 않는다.
+        public void Stage(IReadOnlyList<StagedEnemy> enemies)
+        {
             if (enemies == null)
                 throw new ArgumentNullException(nameof(enemies));
 
-            IsTimeless = true;
+            if (_ended)
+                return;
 
             foreach (StagedEnemy enemy in enemies)
                 World.SpawnAt(enemy.Kind, enemy.Tier, enemy.Size, enemy.Position);

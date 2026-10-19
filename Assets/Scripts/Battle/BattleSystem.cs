@@ -63,6 +63,9 @@ namespace BlackHole.Unity
         // 지금 판이 튜토리얼 판인가. 판이 없으면 false.
         public bool IsTutorial { get; private set; }
 
+        // 튜토리얼 판에서 마지막으로 무리를 놓은 Level(TutorialStage.WaveAt).
+        private int _tutorialWaveLevel;
+
         // 판이 있는가(진행 또는 정지). 종료·포기는 이때만 한다.
         private bool HasBattle => _state == State.Running || _state == State.Paused;
 
@@ -108,12 +111,14 @@ namespace BlackHole.Unity
 
             if (tutorial)
             {
-                // 시작 연출 없이 블랙홀 가까이에 머문다. 적은 처음부터 모두 보인다(출현 팝 연출은 그대로). 블랙홀은 작게.
-                Session.BeginStaged(TutorialStage.EnemiesFrom(_content.Enemies));
+                // 시작 연출 없이 블랙홀 가까이에 머문다. 적은 처음부터 모두 보인다(출현 팝 연출은 그대로).
+                // 블랙홀은 튜토리얼 크기 표를 따른다(처음엔 거의 보이지 않음).
+                _tutorialWaveLevel = HqGrowthDefinition.StartLevel;
+                Session.BeginStaged(TutorialStage.WaveAt(_content.Enemies, _tutorialWaveLevel));
                 _intro = false;
                 _cameraFit.SetZoom(TutorialStage.CameraZoom);
                 _enemyView.RevealRadius = float.PositiveInfinity;
-                _hqView.SizeScale = TutorialStage.BlackHoleScale;
+                _hqView.Radii = TutorialStage.BlackHoleRadii;
             }
             else
             {
@@ -147,6 +152,9 @@ namespace BlackHole.Unity
                 AdvanceIntro(delta);
             else if (!paused)
                 result = Session.Advance(delta);
+
+            if (!paused && IsTutorial)
+                StageNextTutorialWave();
 
             _enemyView.Synchronize(Session.World, paused, delta);
             _breakerView.Synchronize(Session.World, HoverPoint, paused, delta);
@@ -221,6 +229,19 @@ namespace BlackHole.Unity
             IsTutorial = false;
             _state = State.Idle;
             return raw;
+        }
+
+        // 튜토리얼: Level이 올랐으면 그 Level의 무리를 놓는다. 게이지 바퀴가 다 돈 뒤(일반 판의 성장 공급과 같은 시각)에 놓는다.
+        private void StageNextTutorialWave()
+        {
+            World world = Session.World;
+            int level = world.Hq.Level;
+
+            if (Session.IsEnded || level <= _tutorialWaveLevel || world.GrowthPacer.IsAnimating)
+                return;
+
+            _tutorialWaveLevel = level;
+            Session.Stage(TutorialStage.WaveAt(_content.Enemies, level));
         }
 
         private void AdvanceIntro(float delta)

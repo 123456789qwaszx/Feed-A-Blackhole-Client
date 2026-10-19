@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BlackHole.Core;
 using UnityEngine;
 
@@ -16,7 +17,7 @@ namespace BlackHole.Unity
     internal sealed class HqView : IDisposable
     {
         // (Level, 반지름) 실측점. Level이 커지는 순서.
-        private static readonly (int Level, float Radius)[] _radiusPoints =
+        private static readonly (int Level, float Radius)[] MeasuredRadii =
         {
             (0, 0.111f),
             (10, 0.435f),
@@ -43,8 +44,9 @@ namespace BlackHole.Unity
         private readonly float _blackHoleCoreRadius;
         private int _shownLevel = -1;
 
-        // 블랙홀 크기 배율(1 = Level 실측 크기). 튜토리얼 판이 작게 보이려고 정한다. Reset이 1로 되돌린다.
-        public float SizeScale { get; set; } = 1f;
+        // 지금 쓰는 (Level, 반지름) 표. Level이 커지는 순서. 튜토리얼 판은 자기 표를 넣는다(TutorialStage.BlackHoleRadii).
+        // Reset이 실측 표로 되돌린다.
+        public IReadOnlyList<(int Level, float Radius)> Radii { get; set; } = MeasuredRadii;
         // 마지막으로 적용한 크기의 Level(바퀴 진행도를 더한 값). 바뀔 때만 크기를 고친다.
         private float _shownLevelF = -1;
 
@@ -77,7 +79,7 @@ namespace BlackHole.Unity
             if (levelF == _shownLevelF)
                 return;
 
-            float radius = RadiusOf(levelF) * SizeScale;
+            float radius = RadiusOf(levelF);
             _blackHole.transform.localScale = _blackHoleScale * (radius / _blackHoleCoreRadius);
 
             if (_shownLevel >= 0 && level > _shownLevel && _settings.IsOn(GameSettings.BlackHolePulse))
@@ -100,7 +102,7 @@ namespace BlackHole.Unity
             _shockwaves.Reset();
             _shownLevel = -1;
             _shownLevelF = -1;
-            SizeScale = 1f;
+            Radii = MeasuredRadii;
             _blackHole.SetActive(false);
         }
 
@@ -131,24 +133,26 @@ namespace BlackHole.Unity
             return radius > 0 ? radius : DefaultCoreRadius;
         }
 
-        // Level의 반지름: 실측점 사이는 직선, 첫 점 앞·마지막 점 뒤는 끝 점의 값. 소수 Level(바퀴 진행 중)도 같은 직선 위다.
-        private static float RadiusOf(float level)
+        // Level의 반지름(지금 표 Radii): 점 사이는 직선, 첫 점 앞·마지막 점 뒤는 끝 점의 값. 소수 Level(바퀴 진행 중)도 같은 직선 위다.
+        private float RadiusOf(float level)
         {
-            if (level <= _radiusPoints[0].Level)
-                return _radiusPoints[0].Radius;
+            IReadOnlyList<(int Level, float Radius)> points = Radii;
 
-            for (int i = 1; i < _radiusPoints.Length; i++)
+            if (level <= points[0].Level)
+                return points[0].Radius;
+
+            for (int i = 1; i < points.Count; i++)
             {
-                (int toLevel, float toRadius) = _radiusPoints[i];
+                (int toLevel, float toRadius) = points[i];
 
                 if (level > toLevel)
                     continue;
 
-                (int fromLevel, float fromRadius) = _radiusPoints[i - 1];
+                (int fromLevel, float fromRadius) = points[i - 1];
                 return fromRadius + (toRadius - fromRadius) * (level - fromLevel) / (toLevel - fromLevel);
             }
 
-            return _radiusPoints[_radiusPoints.Length - 1].Radius;
+            return points[points.Count - 1].Radius;
         }
     }
 }
