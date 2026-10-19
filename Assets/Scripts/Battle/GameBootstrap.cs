@@ -90,6 +90,7 @@ namespace BlackHole.Unity
         private IAuthSession _auth;
         // 서버를 쓰지 않는 실행(Offline(Disabled))이면 null이다.
         private SyncSender _syncSender;
+        private TutorialHintView _tutorialHint;
         // 로그인·시작 동기화가 끝나기 전에는 화면이 없으므로 호스트를 돌리지 않는다.
         private bool _loggingIn;
 
@@ -146,6 +147,7 @@ namespace BlackHole.Unity
             // 서버 동기화 로그를 만든다. 로그는 빌드 버전과 이 콘텐츠의 서버 콘텐츠 버전을 싣는다.
             SyncLogFactory syncLogs = new(new UnityJsonSerializer(), Application.version, loaded.ServerContentVersion, () => DateTime.UtcNow);
             Localizer localizer = Localizer.Create(_texts, _settings);
+            _tutorialHint = new TutorialHintView(transform, localizer);
 
             BattleSystem battle = new(
                 loaded.Content,
@@ -154,6 +156,7 @@ namespace BlackHole.Unity
                 breakerView,
                 deathEffectView,
                 hqView,
+                _tutorialHint,
                 cameraFit);
             AimInput aim = new(battle);
 
@@ -272,6 +275,7 @@ namespace BlackHole.Unity
             _uiSettings?.Dispose();
             _host?.Dispose();
             _syncSender?.Dispose();
+            _tutorialHint?.Dispose();
         }
 
         // 설정이 없거나 꺼져 있거나 프로필을 적용했으면 요청 없이 오프라인(Disabled)이고 전송기를 만들지 않는다.

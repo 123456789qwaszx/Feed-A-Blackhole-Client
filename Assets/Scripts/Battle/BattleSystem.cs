@@ -35,6 +35,7 @@ namespace BlackHole.Unity
         public Point2? HoverPoint { get; set; }
         private readonly DeathEffectView _deathEffectView;
         private readonly HqView _hqView;
+        private readonly TutorialHintView _tutorialHint;
         private readonly BattleCameraFit _cameraFit;
         private State _state = State.Idle;
         // 다음 판에 쓸 시드. 테스트 도구만 정한다(UseSeedForNextBattle). 없으면 시각으로 정한다.
@@ -76,6 +77,7 @@ namespace BlackHole.Unity
             BreakerView breakerView,
             DeathEffectView deathEffectView,
             HqView hqView,
+            TutorialHintView tutorialHint,
             BattleCameraFit cameraFit)
         {
             _content = content;
@@ -84,6 +86,7 @@ namespace BlackHole.Unity
             _breakerView = breakerView;
             _deathEffectView = deathEffectView;
             _hqView = hqView;
+            _tutorialHint = tutorialHint;
             _cameraFit = cameraFit;
         }
 
@@ -160,6 +163,7 @@ namespace BlackHole.Unity
             _breakerView.Synchronize(Session.World, HoverPoint, paused, delta);
             _deathEffectView.Synchronize(Session.World, paused, delta);
             _hqView.Synchronize(Session.World, delta);
+            _tutorialHint.Synchronize(Session.World, IsTutorial && !Session.IsEnded, paused, delta);
 
             return result;
         }
@@ -310,6 +314,7 @@ namespace BlackHole.Unity
             _breakerView.Reset();
             _deathEffectView.Reset();
             _hqView.Reset();
+            _tutorialHint.Reset();
         }
     }
 }
