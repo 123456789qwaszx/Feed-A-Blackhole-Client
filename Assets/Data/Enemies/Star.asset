@@ -90,8 +90,8 @@ MonoBehaviour:
     color: {r: 1, g: 0.55, b: 0.2, a: 1}
     multiplier: 1
     critRewardScale: 0
-    damage: 12000
-    radius: 8.8
+    damage: 10000
+    radius: 8
     maxTargets: 0
     branches: 0
     branchChance: 0
