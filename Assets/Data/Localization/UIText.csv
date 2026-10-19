@@ -62,6 +62,13 @@ BattleScreen.EndBtn_Text,End,종료
 battle.pause,Pause,일시 정지
 battle.resume,Resume,계속
 battle.earned,+{0} Gold,+{0} 골드
+battle.galaxy,Galaxy,은하
+battle.galaxy.0,Red Galaxy,붉은 은하
+battle.galaxy.1,Orange Galaxy,주황 은하
+battle.galaxy.2,Yellow Galaxy,노란 은하
+battle.galaxy.3,Green Galaxy,초록 은하
+battle.galaxy.4,Blue Galaxy,푸른 은하
+battle.galaxy.5,Violet Galaxy,보랏빛 은하
 # 결산 화면
 SettlementScreen.DestroyedCaption_Text,DESTROYED,파괴
 SettlementScreen.AsteroidName_Text,ASTEROID,소행성

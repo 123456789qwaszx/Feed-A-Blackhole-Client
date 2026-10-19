@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BlackHole.Core;
 using UnityEngine;
 
@@ -19,6 +20,9 @@ namespace BlackHole.Unity
         private readonly GameSettings _settings;
         // 이정표에 닿아 판이 끝났고, 전투 화면의 달성 연출이 끝나기를 기다리는 중. 끝나면 한 번만 결산 전환을 요청한다.
         private bool _endAwaitsMilestoneEffect;
+        // 이 판의 은하(체력바가 따라가는 적). 죽은 뒤에도 남겨 0이 된 막대를 보인다. 판이 바뀌면 다시 찾는다.
+        private World _galaxyWorld;
+        private Enemy _galaxy;
 
         public GameHost(
             UIManager ui,
@@ -141,6 +145,47 @@ namespace BlackHole.Unity
                 wheeling,
                 hq.StartLevel,
                 hq.GoalLevel);
+
+            screen.ShowGalaxy(GalaxyStateOf(session.World));
+        }
+
+        // 이 판의 은하 상태. 은하가 없는 판이면 null. 판에 은하는 하나뿐이다(HqGrowthDefinition.GalaxyTierAt).
+        // 살아 있는 동안 한 번 찾아 두고, 죽으면(목록에서 빠져도) 그 적의 마지막 상태(체력 0)를 보인다.
+        private GalaxyHealthState? GalaxyStateOf(World world)
+        {
+            if (world != _galaxyWorld)
+            {
+                _galaxyWorld = world;
+                _galaxy = null;
+            }
+
+            if (world.Hq.GalaxyTier == HqGrowthDefinition.NoGalaxy)
+                return null;
+
+            _galaxy ??= FindGalaxy(world);
+
+            if (_galaxy == null)
+                return null;
+
+            return new GalaxyHealthState(
+                _galaxy.Id.Value,
+                _galaxy.Tier,
+                _galaxy.Health,
+                _galaxy.Stats.MaxHealth,
+                _enemyLooks.ColorOf(EnemyType.Galaxy, _galaxy.Tier));
+        }
+
+        private static Enemy FindGalaxy(World world)
+        {
+            IReadOnlyList<Enemy> enemies = world.Enemies;
+
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                if (enemies[i].Definition.Type == EnemyType.Galaxy)
+                    return enemies[i];
+            }
+
+            return null;
         }
 
         public void Dispose()
