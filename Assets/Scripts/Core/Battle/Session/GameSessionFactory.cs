@@ -14,12 +14,34 @@ namespace BlackHole.Core
             GameContent content,
             ProgressState progress,
             int seed,
-            UpgradeStatValues upgrades)
+            UpgradeStatValues upgrades) =>
+            Create(content, progress, seed, upgrades, content.Growth, progress.GrowthStage, levelUpSupply: true);
+
+        // 블랙홀 성장(Level 사다리·이정표)만 따로 정한 판. 성장도는 처음(StartStage)에서 시작한다. 튜토리얼 판이 쓴다.
+        // 판 구성·Breaker·제한 시간은 Create와 같이 진행 상태와 노드로 정한다.
+        // Level업의 성장 공급은 없다 — 부르는 쪽이 정한 적을 놓는다(GameSession.Stage). 게이지 바퀴(GrowthPacer)는 그대로 돈다.
+        // 콘텐츠의 성장과 다른 이정표라 진행 상태에 결산하면 안 된다 — 부르는 쪽이 Settle을 부르지 않는다.
+        public static GameSession CreateWithGrowth(
+            GameContent content,
+            ProgressState progress,
+            int seed,
+            UpgradeStatValues upgrades,
+            HqGrowthDefinition growth) =>
+            Create(content, progress, seed, upgrades, growth ?? throw new ArgumentNullException(nameof(growth)), HqGrowthDefinition.StartStage, levelUpSupply: false);
+
+        private static GameSession Create(
+            GameContent content,
+            ProgressState progress,
+            int seed,
+            UpgradeStatValues upgrades,
+            HqGrowthDefinition growth,
+            int stage,
+            bool levelUpSupply)
         {
             EnemyContent enemies = content.Enemies;
 
             // 이 판의 블랙홀: 성장도가 시작 Level(마지막 이정표)과 목표 Level(다음 이정표)을 정한다.
-            var hq = new Hq(content.Growth, HqUpgradeStats.GrowthTimeFrom(upgrades), progress.GrowthStage);
+            var hq = new Hq(growth, HqUpgradeStats.GrowthTimeFrom(upgrades), stage);
 
             // 전투 Session이 시작되기 전,
             // 적의 수치(Gold 포함)와 색·크기·성질 비율을 결정해둠.
@@ -40,7 +62,7 @@ namespace BlackHole.Core
                 hq,
                 content.Breaker.Upgraded(upgrades),
                 startSupply,
-                GrowthSupplyOf(startSupply, stats),
+                levelUpSupply ? GrowthSupplyOf(startSupply, stats) : Array.Empty<SupplyRequest>(),
                 content.TimeLimit.KillTimeBonus,
                 content.TimeLimit.KillTimeCooldown);
 
@@ -52,7 +74,7 @@ namespace BlackHole.Core
                 seed,
                 progress,
                 startSupply,
-                new RunStartInfo(seed, progress.GrowthStage, hq.StartLevel, timeLimit.Definition.Duration, startSupply));
+                new RunStartInfo(seed, stage, hq.StartLevel, timeLimit.Definition.Duration, startSupply));
         }
 
         // 적 종류마다의 판 구성.
