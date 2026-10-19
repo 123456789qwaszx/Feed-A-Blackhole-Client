@@ -180,7 +180,7 @@ stat.asteroid.respawnChance.name,Asteroid Respawn Chance,소행성 재생성
 stat.asteroid.respawnChance.desc,Increases the chance a new asteroid spawns when an asteroid is destroyed.,소행성을 파괴하면 새 소행성이 나타날 확률이 증가합니다.
 stat.asteroid.toPlanet.name,Upgrade Asteroids to Planets,소행성 → 행성 전환
 stat.asteroid.toPlanet.desc,More planets appear.,더 많은 행성이 등장합니다.
-stat.planet.toStar.name,Upgrade Planets to Stars,행성 -> 별
+stat.planet.toStar.name,Upgrade Planets to Stars,행성 → 별 전환
 stat.planet.toStar.desc,More stars appear.,더 많은 별이 등장합니다.
 stat.electricAsteroid.spawnChance.name,Electric Asteroid Spawn Chance,전기 소행성 생성 확률
 stat.electricAsteroid.spawnChance.desc,Increases the chance electric asteroids spawn.,전기 소행성이 생성되는 확률을 높입니다.
@@ -218,8 +218,8 @@ stat.planet.respawnChance.name,Planet Respawn Chance,행성 재생성
 stat.planet.respawnChance.desc,Increases the chance a new planet spawns when a planet is destroyed.,행성을 파괴하면 다른 위치에 새 행성이 나타날 확률이 높아집니다.
 stat.planet.massScale.name,Planet Mass,행성 질량
 stat.planet.massScale.desc,"Increases planet mass, changing which enemy colors appear.",더 높은 색 등급의 행성이 섞여 나옵니다.\n등급이 높을수록 색 종류와 체력과 보상이 큽니다.
-stat.planet.timeChance.name,Time Chance on Planet Destroy,행성이 파괴될 때 시간이 추가될 확률
-stat.planet.timeChance.desc,Increases the chance to add time when a planet is destroyed.,행성을 파괴하면 다른 위치에 새 행성이 나타날 확률이 높아집니다.
+stat.planet.timeChance.name,Time Chance on Planet Destroy,행성 파괴 시 시간 추가
+stat.planet.timeChance.desc,Increases the chance to add time when a planet is destroyed.,행성을 파괴할 때 남은 시간이 늘어날 확률이 증가합니다.
 stat.comet.spawnChance.name,Crit Comet Spawn Chance,치명타 혜성 등장 확률
 stat.comet.spawnChance.desc,Increases the chance crit comets spawn.,치명타 혜성이 생성되는 확률을 높입니다.
 stat.comet.duration.name,Crit Comet Buff Duration,치명타 혜성 버프 지속시간
@@ -273,7 +273,7 @@ stat.galaxy.size.desc,Makes the galaxy larger.,은하가 더 커집니다.
 stat.galaxy.massScale.name,Galaxy Mass,은하 질량
 stat.galaxy.massScale.desc,"Increases galaxy mass, changing the mix of color tiers.",더 높은 색 등급의 은하가 섞여 나옵니다.\n등급이 높을수록 체력과 보상이 큽니다.
 stat.galaxy.respawnChance.name,Galaxy Respawn Chance,은하 재생성
-stat.galaxy.respawnChance.desc,Increases the chance a new galaxy spawns when a galaxy is destroyed.,은하를 파괴하면 일정 확률로 새 은하가 나타날 확률이 높아집니다.
+stat.galaxy.respawnChance.desc,Increases the chance a new galaxy spawns when a galaxy is destroyed.,은하를 파괴하면 일정 확률로 새 은하가 나타납니다.
 stat.galaxy.timeChance.name,Time Chance on Galaxy Destroy,은하 파괴 시 시간 추가
 stat.galaxy.timeChance.desc,Increases the chance to add time when a galaxy is destroyed.,은하를 파괴하면 일정 확률로 남은 시간이 늘어납니다.
 stat.breaker.galaxyBonusDamage.name,Breaker Bonus Damage vs Galaxies,은하 추가 피해
