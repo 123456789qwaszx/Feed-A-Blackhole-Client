@@ -391,8 +391,8 @@ namespace BlackHole.Core
                 if (nearest == null)
                     break;
 
-                float amount = critical ? star.Damage * star.CritMultiplier : star.Damage;
-                Damage damage = new(amount, DamageSource.StarLightning, critical, pending.EnemyType);
+                // 은하에는 보너스가 더해진다(StarLightningDefinition.DamageTo).
+                Damage damage = new(star.DamageTo(nearest, critical), DamageSource.StarLightning, critical, pending.EnemyType);
 
                 _struck.Add(nearest);
                 _starLightningHits.Add(new StarLightningHit(_nextSequence++, origin, nearest.Position, critical));

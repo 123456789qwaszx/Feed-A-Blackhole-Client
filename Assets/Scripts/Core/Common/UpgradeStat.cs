@@ -82,5 +82,6 @@ namespace BlackHole.Core
         // 신규: 은하(블랙홀 구역의 보스)에 대한 연쇄 효과의 보너스 피해.
         LaserStarGalaxyBonusDamage, // laserStar.galaxyBonusDamage · 은하에 대한 레이저의 보너스 피해
         SupernovaStarGalaxyBonusDamage, // supernovaStar.galaxyBonusDamage · 은하에 대한 슈퍼노바의 보너스 피해
+        ElectricStarGalaxyBonusDamage, // electricStar.galaxyBonusDamage · 은하에 대한 전기 별 번개의 보너스 피해
     }
 }

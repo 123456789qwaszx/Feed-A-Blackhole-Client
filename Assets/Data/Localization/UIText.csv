@@ -268,6 +268,8 @@ stat.laserStar.galaxyBonusDamage.name,Laser Bonus Damage vs Galaxies,은하에 �
 stat.laserStar.galaxyBonusDamage.desc,Increases the extra damage lasers deal to galaxies.,레이저가 은하에 주는 추가 피해를 늘립니다.
 stat.supernovaStar.galaxyBonusDamage.name,Supernova Bonus Damage vs Galaxies,은하에 대한 슈퍼노바의 보너스 피해
 stat.supernovaStar.galaxyBonusDamage.desc,Increases the extra damage supernovas deal to galaxies.,슈퍼노바가 은하에 주는 추가 피해를 늘립니다.
+stat.electricStar.galaxyBonusDamage.name,Electric Star Bonus Damage vs Galaxies,은하에 대한 전기 별의 보너스 피해
+stat.electricStar.galaxyBonusDamage.desc,Increases the extra damage electric star lightning deals to galaxies.,전기 별의 번개가 은하에 주는 추가 피해를 늘립니다.
 stat.gravityGalaxy.spawnChance.name,Gravity Galaxy Spawn Chance,중력장 은하 생성 확률
 stat.gravityGalaxy.spawnChance.desc,Increases the chance galaxies with a gravity field spawn.,중력장 성질을 가진 은하가 생성될 확률을 높입니다.
 stat.gravityGalaxy.radius.name,Gravity Field Range,중력장 범위

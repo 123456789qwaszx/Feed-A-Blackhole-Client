@@ -226,8 +226,9 @@ asteroid.count-05,1,초신성 잔해
 laserStar.width-09,1,초신성 잔해
 star.massScale-09,1,초신성 잔해
 breaker.galaxyBonusDamage-01,30,블랙홀
+timer-04,10,블랙홀
+electricStar.galaxyBonusDamage-01,10,블랙홀
 breaker.speed-12,30,블랙홀
 breaker.critBonus-05,30,블랙홀
-galaxy.size-01,10,블랙홀
 laserStar.galaxyBonusDamage-01,10,블랙홀
 supernovaStar.galaxyBonusDamage-01,10,블랙홀

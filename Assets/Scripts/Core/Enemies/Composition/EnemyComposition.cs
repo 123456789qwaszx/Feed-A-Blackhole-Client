@@ -274,10 +274,12 @@ namespace BlackHole.Core
                     float branch = Math.Min(1, AddPercent(EnemyUpgradeStats.TraitBranchChance, star.BranchChance));
                     float crit = Math.Min(1, AddPercent(EnemyUpgradeStats.TraitCritChance, star.CritChance));
                     float critMultiplier = AddPercent(EnemyUpgradeStats.TraitCritMultiplier, star.CritMultiplier);
+                    float galaxyBonus = Add(EnemyUpgradeStats.TraitGalaxyBonusDamage, star.GalaxyBonusDamage);
 
                     bool same = damage == star.Damage && radius == star.Radius && maxTargets == star.MaxTargets
-                                && branch == star.BranchChance && crit == star.CritChance && critMultiplier == star.CritMultiplier;
-                    return same ? null : new StarLightningDefinition(damage, radius, maxTargets, star.Branches, branch, crit, critMultiplier);
+                                && branch == star.BranchChance && crit == star.CritChance && critMultiplier == star.CritMultiplier
+                                && galaxyBonus == star.GalaxyBonusDamage;
+                    return same ? null : new StarLightningDefinition(damage, radius, maxTargets, star.Branches, branch, crit, critMultiplier, galaxyBonus);
                 }
                 case LaserBurstDefinition laser:
                 {
