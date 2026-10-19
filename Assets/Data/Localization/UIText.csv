@@ -45,39 +45,76 @@ confirm.newGame.confirm,START,시작
 confirm.cancel,CANCEL,취소
 # 업그레이드 화면
 UpgradeScreen.StartBattleBtn_Text,Start Battle,전투 시작
-UpgradeScreen.Hint_Text,Tap a lit node to buy it  ·  drag to move  ·  scroll to zoom,밝은 노드를 눌러 구매  ·  끌어서 이동  ·  스크롤로 확대·축소
+UpgradeScreen.Hint_Text,Tap a node for details  ·  hold a lit node to buy  ·  drag to move  ·  scroll to zoom,노드를 눌러 설명  ·  밝은 노드를 길게 눌러 구매  ·  끌어서 이동  ·  스크롤로 확대·축소
 upgrade.gold,Gold {0},골드 {0}
-upgrade.hq.goal,Black hole  Stage {0}  (goal Lv {1}),블랙홀  {0}단계  (목표 Lv {1})
-upgrade.hq.last,Black hole  Stage {0}  (last stage),블랙홀  {0}단계  (마지막 단계)
+upgrade.hq.goal,{0}  →  {1}  (goal Lv {2}),{0}  →  {1}  (목표 Lv {2})
+upgrade.hq.last,{0}  (last milestone),{0}  (마지막 이정표)
 # 노드 툴팁 (효과 이름은 아직 수치 ID를 그대로 보인다)
 node.rank,Rank {0}/{1},랭크 {0}/{1}
 node.now,now {0},현재 {0}
 node.maxed,Maxed,최대
 node.cost,Cost {0},비용 {0}
 node.short,Need {0} more Gold,골드 {0} 부족
+node.buy,Buy,구매
+node.locked,Locked,잠김
 # 전투 화면
 BattleScreen.EndBtn_Text,End,종료
 battle.pause,Pause,일시 정지
 battle.resume,Resume,계속
 battle.earned,+{0} Gold,+{0} 골드
+battle.galaxy,Galaxy,은하
+battle.galaxy.0,Red Galaxy,붉은 은하
+battle.galaxy.1,Orange Galaxy,주황 은하
+battle.galaxy.2,Yellow Galaxy,노란 은하
+battle.galaxy.3,Green Galaxy,초록 은하
+battle.galaxy.4,Blue Galaxy,푸른 은하
+battle.galaxy.5,Violet Galaxy,보랏빛 은하
 # 결산 화면
 SettlementScreen.DestroyedCaption_Text,DESTROYED,파괴
 SettlementScreen.AsteroidName_Text,ASTEROID,소행성
 SettlementScreen.PlanetName_Text,PLANET,행성
 SettlementScreen.StarName_Text,STAR,별
 SettlementScreen.GoldCaption_Text,GOLD,골드
-SettlementScreen.GrowthCaption_Text,GROWTH,성장
+SettlementScreen.GrowthCaption_Text,MILESTONE,이정표
 SettlementScreen.ContinueBtn_Text,Continue,계속
 settlement.result.milestone,Milestone reached,이정표 도달
 settlement.result.over,Battle over,전투 종료
 settlement.stage,Stage {0} / {1},단계 {0} / {1}
+# 이정표 이름: 0은 시작 자리, 1~6은 Lv 10/20/30/35/40/50 이정표. 전투 HUD·결산·업그레이드가 같은 키를 쓴다.
+milestone.0.name,Asteroid Belt,소행성대
+milestone.1.name,Planetary System,행성계
+milestone.2.name,Stellar Cradle,항성 요람
+milestone.3.name,Supernova,초신성
+milestone.4.name,Supernova Remnant,초신성 잔해
+milestone.5.name,Galactic Core,은하핵
+milestone.6.name,Black Hole,블랙홀
+milestone.tutorial.name,Tutorial,튜토리얼
+# 엔딩·크레딧 [임시 문구] (마지막 이정표 = 보라 은하 격파 뒤 EndingScreen). 줄·크레딧 묶음은 1부터 번호가 끊길 때까지 읽는다. 이름 칸은 | 로 사람을 나눈다(한 줄에 한 사람).
+ending.line.1,The last galaxy has fallen.,마지막 은하가 무너졌습니다.
+ending.line.2,"Stars, planets and every drifting speck of dust have become one.","별도, 행성도, 떠돌던 먼지까지도 모두 하나로 모였습니다."
+ending.line.3,Nothing remains outside the black hole now.,이제 블랙홀 바깥에는 아무것도 남지 않았습니다.
+ending.line.4,"The universe is once again a single, silent point.",우주는 다시 고요한 한 점이 되었습니다.
+ending.credits.title,Feed-A-Blackhole,Feed-A-Blackhole
+ending.credits.1.role,Team,팀
+ending.credits.1.names,"Anyway, We Made It","Anyway, We Made It"
+ending.credits.2.role,Made by,만든 사람들
+ending.credits.2.names,Hicanos|RCO8|healthcabbage|123456789qwaszx|gwangmin-kim|JKH201020,Hicanos|RCO8|healthcabbage|123456789qwaszx|gwangmin-kim|JKH201020
+ending.credits.3.role,And,그리고
+ending.credits.3.names,"You, for feeding the black hole to the very end",끝까지 블랙홀을 먹여 준 당신
+ending.thanks,Thank you for playing,플레이해 주셔서 감사합니다
+ending.prompt,Click or tap to return to the title,화면을 누르면 타이틀로 돌아갑니다
+tutorial.hint.hold,Press and hold to break it,꾹 눌러서 부숴 보세요
+settlement.milestone,{0}  →  {1},{0}  →  {1}
+settlement.milestone.last,{0},{0}
+settlement.milestone.reached,{0} reached!,{0} 도달!
+settlement.milestone.short,{0} to {1},{1}까지 {0} 남음
 settlement.total,TOTAL,합계
 settlement.reward,REWARD,보상
 settlement.upgrade,Upgrade,업그레이드
 settlement.upgrade.count,Upgrade ({0}),업그레이드 ({0})
-settlement.row.asteroid,Asteroid,소행성
-settlement.row.planet,Planet,행성
-settlement.row.star,Star,별
+settlement.row.asteroid,Asteroid Matter,소행성 물질
+settlement.row.planet,Planet Fragments,행성 파편
+settlement.row.star,Star Plasma,별 플라즈마
 # 결산 통계 칸 툴팁
 settlement.stat.electricStarDamage,Electric Star Damage,전기 별 피해
 settlement.stat.laserDamage,Laser Damage,레이저 피해
@@ -116,7 +153,7 @@ stat.growth.asteroids.desc,Increases the number of asteroids spawned when the bl
 stat.growth.planets.name,Planets Spawned on Growth,성장 시 행성 추가
 stat.growth.planets.desc,Increases the number of planets spawned when the black hole grows.,블랙홀이 성장할 때마다 새 행성이 나타납니다.\n판 시작 시 행성이 많을수록 더 많이 나타납니다.
 stat.growth.stars.name,Stars Spawned on Growth,성장 시 별 추가
-stat.growth.stars.desc,Increases the number of stars spawned when the black hole grows.,블랙홀이 성장할 때마다 새 별이 나타납니다.\n판 시작 시 별이 많을수록 더 많이 나타나며, 없으면 효과가 없습니다.
+stat.growth.stars.desc,Increases the number of stars spawned when the black hole grows.,"블랙홀이 성장할 때마다 새 별이 나타납니다.\n판 시작 시 별이 많을수록 더 많이 나타나며, 없으면 효과가 없습니다."
 stat.breaker.damage.name,Breaker Damage,브레이커 피해
 stat.breaker.damage.desc,Increases the base damage of Breaker attacks.,브레이커 공격의 기본 피해가 증가합니다.
 stat.breaker.radius.name,Breaker Range,브레이커 범위
@@ -232,7 +269,7 @@ stat.growth.galaxies.desc,Increases the number of galaxies spawned when the blac
 stat.star.toGalaxy.name,Upgrade Stars to Galaxies,별 → 은하 전환
 stat.star.toGalaxy.desc,Turns some stars into galaxies at the start of a run.,판 시작 시 별 일부를 은하로 바꿉니다.
 stat.galaxy.size.name,Galaxy Size,은하 크기
-stat.galaxy.size.desc,Adds larger galaxy size tiers to the spawn pool.,등장 가능한 은하의 크기 단계를 추가합니다.
+stat.galaxy.size.desc,Makes the galaxy larger.,은하가 더 커집니다.
 stat.galaxy.massScale.name,Galaxy Mass,은하 질량
 stat.galaxy.massScale.desc,"Increases galaxy mass, changing the mix of color tiers.",더 높은 색 등급의 은하가 섞여 나옵니다.\n등급이 높을수록 체력과 보상이 큽니다.
 stat.galaxy.respawnChance.name,Galaxy Respawn Chance,은하 재생성
@@ -241,6 +278,12 @@ stat.galaxy.timeChance.name,Time Chance on Galaxy Destroy,은하 파괴 시 시�
 stat.galaxy.timeChance.desc,Increases the chance to add time when a galaxy is destroyed.,은하를 파괴하면 일정 확률로 남은 시간이 늘어납니다.
 stat.breaker.galaxyBonusDamage.name,Breaker Bonus Damage vs Galaxies,은하 추가 피해
 stat.breaker.galaxyBonusDamage.desc,Increases the extra damage the Breaker deals to galaxies.,브레이커의 은하 고정 추가 피해가 증가합니다.
+stat.laserStar.galaxyBonusDamage.name,Laser Bonus Damage vs Galaxies,은하에 대한 레이저의 보너스 피해
+stat.laserStar.galaxyBonusDamage.desc,Increases the extra damage lasers deal to galaxies.,레이저가 은하에 주는 추가 피해를 늘립니다.
+stat.supernovaStar.galaxyBonusDamage.name,Supernova Bonus Damage vs Galaxies,은하에 대한 슈퍼노바의 보너스 피해
+stat.supernovaStar.galaxyBonusDamage.desc,Increases the extra damage supernovas deal to galaxies.,슈퍼노바가 은하에 주는 추가 피해를 늘립니다.
+stat.electricStar.galaxyBonusDamage.name,Electric Star Bonus Damage vs Galaxies,은하에 대한 전기 별의 보너스 피해
+stat.electricStar.galaxyBonusDamage.desc,Increases the extra damage electric star lightning deals to galaxies.,전기 별의 번개가 은하에 주는 추가 피해를 늘립니다.
 stat.gravityGalaxy.spawnChance.name,Gravity Galaxy Spawn Chance,중력장 은하 생성 확률
 stat.gravityGalaxy.spawnChance.desc,Increases the chance galaxies with a gravity field spawn.,파괴되면 주변 적을 끌어모으는 중력장을 남기는 은하가 더 자주 등장합니다.
 stat.gravityGalaxy.radius.name,Gravity Field Range,중력장 범위
