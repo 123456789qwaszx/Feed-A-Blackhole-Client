@@ -6,6 +6,12 @@ namespace BlackHole.Net
     {
         public const string OtherKey = "sync.rejection.kind.other";
 
+        // 콘텐츠 버전이 서버와 맞지 않을 때의 전용 문구 키. 이 경우 모든 동기화가 거부되고 진행도가 서버 값으로 덮어써지므로
+        // 종류·코드 대신 업데이트 안내를 보인다(계약 3.6).
+        public const string ContentOutdatedKey = "sync.rejection.contentOutdated";
+
+        public static bool IsContentOutdated(string code) => code == RejectCodes.ContentVersionMismatch;
+
         public static string TextKeyOf(string logType)
         {
             switch (logType)
