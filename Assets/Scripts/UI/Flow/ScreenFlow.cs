@@ -66,6 +66,9 @@ namespace BlackHole.Unity
             _keyInput.ContinuePressed += HandleKeyActionSpace;
             _keyInput.UpgradePressed += HandleKeyActionShift;
             _keyInput.PausePressed += HandleKeyActionEsc;
+
+            if (_auth != null)
+                _auth.StateChanged += HandleConnectionStateChanged;
         }
 
         private void BindView<T>(T screen, Action<T> apply) where T : UIBase
@@ -111,6 +114,9 @@ namespace BlackHole.Unity
             _keyInput.ContinuePressed -= HandleKeyActionSpace;
             _keyInput.UpgradePressed -= HandleKeyActionShift;
             _keyInput.PausePressed -= HandleKeyActionEsc;
+
+            if (_auth != null)
+                _auth.StateChanged -= HandleConnectionStateChanged;
 
             CloseEnding();
             DisposeNotice();
