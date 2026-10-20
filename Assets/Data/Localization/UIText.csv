@@ -299,3 +299,10 @@ stat.gravityGalaxy.force.name,Gravity Field Pull,중력장 세기
 stat.gravityGalaxy.force.desc,Increases how fast gravity fields pull enemies toward the center.,중력장이 적을 중심으로 끌어당기는 속도를 높입니다.
 stat.gravityGalaxy.duration.name,Gravity Field Duration,중력장 지속 시간
 stat.gravityGalaxy.duration.desc,Increases the duration of the gravity field left by a destroyed galaxy.,은하 처치로 발생하는 중력장의 지속 시간을 늘립니다.
+# 서버 동기화 거부 알림 (계약 5.9). {0}=종류(sync.rejection.kind.*), {1}=서버 거부 코드(번역하지 않는다)
+sync.rejection,"The server rejected some records, so your progress was synced to the server. ({0}, {1})","서버에서 일부 기록을 받아들이지 않아 진행도를 서버 기준으로 맞춥니다. ({0}, {1})"
+sync.rejection.kind.runStart,Run start,판 시작
+sync.rejection.kind.settlement,Run settlement,판 결산
+sync.rejection.kind.nodePurchase,Node purchase,노드 구매
+sync.rejection.kind.reset,New game,새 게임
+sync.rejection.kind.other,Record,기록
