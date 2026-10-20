@@ -19,7 +19,7 @@ namespace BlackHole.Unity
                     BindView(root, ApplyBindings);
                     SwitchToNodeTreePage(root);
                     RefreshUpgrade();
-                    ShowRejectionNoticeIfDue();
+                    ShowNoticesIfDue();
                 },
                 afterClosed: Unbind);
         }

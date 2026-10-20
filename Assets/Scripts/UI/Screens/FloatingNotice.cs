@@ -1,18 +1,19 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BlackHole.Unity
 {
-    // 서버가 기록을 받아들이지 않았을 때 화면 위쪽에 잠깐 띄우는 알림 글자(W3-5, 계약 5.9). 프리팹 없이 코드로 만든다.
+    // 화면 위쪽에 잠깐 뜨는 알림 글자(서버 연결 결과, 동기화 거부; 계약 2.8, 5.9). 프리팹 없이 코드로 만든다.
     // 나타남 → 머묾 → 사라짐 순서로 혼자 끝나고, 입력을 가로채지 않는다. 실제 시간으로 흐른다(timeScale과 무관).
-    // 새로 Show하면 지금 것을 처음부터 다시 보인다. 글자는 호출하는 쪽이 번역해서 넘긴다.
+    // 알림은 하나씩만 보인다. 보이는 중에 Enqueue하면 줄을 서서 앞의 알림이 사라진 뒤 차례로 보인다(글자가 겹치지 않는다).
+    // 글자는 호출하는 쪽이 번역해서 넘긴다.
     [DisallowMultipleComponent]
-    internal sealed class RejectionNotice : MonoBehaviour
+    internal sealed class FloatingNotice : MonoBehaviour
     {
         private const float FadeInSeconds = 0.3f;
-        private const float HoldSeconds = 5f;
         private const float FadeOutSeconds = 0.8f;
 
         // 배치(기준 해상도 1920×1080).
@@ -26,20 +27,23 @@ namespace BlackHole.Unity
         private static readonly Color PanelColor = new(0.04f, 0.03f, 0.08f, 0.82f);
         private static readonly Color TextColor = new(1f, 0.9f, 0.82f, 1f);
 
+        private readonly Queue<(string Text, float Hold)> _pending = new();
         private CanvasGroup _group;
         private TMP_Text _text;
+        private float _hold;
         private float _elapsed = -1f;
 
-        public bool IsShowing => _elapsed >= 0f;
+        // 지금 보이는 알림이 있거나 줄 서 있는 알림이 있는가.
+        public bool IsBusy => _elapsed >= 0f || _pending.Count > 0;
 
-        public static RejectionNotice Create(Transform canvas, int siblingIndex, TMP_FontAsset font, float scale)
+        public static FloatingNotice Create(Transform canvas, int siblingIndex, TMP_FontAsset font, float scale)
         {
             if (canvas == null)
                 throw new ArgumentNullException(nameof(canvas));
 
             scale = scale > 0 ? scale : 1;
 
-            var view = new GameObject("Rejection Notice", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
+            var view = new GameObject("Floating Notice", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
             view.layer = canvas.gameObject.layer;
             var rect = (RectTransform)view.transform;
             rect.SetParent(canvas, false);
@@ -72,7 +76,7 @@ namespace BlackHole.Unity
             if (font != null)
                 text.font = font;
 
-            var notice = view.AddComponent<RejectionNotice>();
+            var notice = view.AddComponent<FloatingNotice>();
             notice._group = view.GetComponent<CanvasGroup>();
             notice._group.alpha = 0f;
             notice._group.blocksRaycasts = false;
@@ -82,18 +86,38 @@ namespace BlackHole.Unity
             return notice;
         }
 
-        public void Show(string message)
+        // 알림을 줄 세운다. 보이는 알림이 없으면 바로 보인다. holdSeconds는 다 나타난 뒤 머무는 시간이다.
+        public void Enqueue(string message, float holdSeconds)
         {
-            _text.text = message ?? string.Empty;
+            _pending.Enqueue((message ?? string.Empty, Mathf.Max(0f, holdSeconds)));
+
+            if (_elapsed < 0f)
+                ShowNext();
+        }
+
+        // 보이는 알림과 줄 서 있는 알림을 모두 지운다.
+        public void Clear()
+        {
+            _pending.Clear();
+            _elapsed = -1f;
+            gameObject.SetActive(false);
+        }
+
+        private void ShowNext()
+        {
+            if (_pending.Count == 0)
+            {
+                _elapsed = -1f;
+                gameObject.SetActive(false);
+                return;
+            }
+
+            (string text, float hold) = _pending.Dequeue();
+            _text.text = text;
+            _hold = hold;
             _elapsed = 0f;
             _group.alpha = 0f;
             gameObject.SetActive(true);
-        }
-
-        public void Hide()
-        {
-            _elapsed = -1f;
-            gameObject.SetActive(false);
         }
 
         private void Update()
@@ -103,11 +127,11 @@ namespace BlackHole.Unity
 
             _elapsed += Time.unscaledDeltaTime;
 
-            float outStart = FadeInSeconds + HoldSeconds;
+            float outStart = FadeInSeconds + _hold;
 
             if (_elapsed >= outStart + FadeOutSeconds)
             {
-                Hide();
+                ShowNext();
                 return;
             }
 

@@ -14,7 +14,7 @@ namespace BlackHole.Unity
                 afterPresented: root =>
                 {
                     BindView(root, ApplyBindings);
-                    ShowRejectionNoticeIfDue();
+                    ShowNoticesIfDue();
                 },
                 afterClosed: Unbind);
         }
