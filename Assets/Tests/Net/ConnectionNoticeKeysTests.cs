@@ -24,6 +24,7 @@ namespace BlackHole.Net.Tests
         {
             Assert.IsNull(ConnectionNoticeKeys.TextKeyOf(ConnectionState.Offline, OfflineReason.Disabled));
             Assert.IsNull(ConnectionNoticeKeys.TextKeyOf(ConnectionState.Connecting, OfflineReason.None));
+            Assert.IsNull(ConnectionNoticeKeys.TextKeyOf(ConnectionState.Offline, OfflineReason.ContentOutdated), "콘텐츠 버전 불일치는 거부 알림이 알린다.");
         }
 
         [Test]

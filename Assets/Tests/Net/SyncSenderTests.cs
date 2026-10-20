@@ -314,17 +314,64 @@ namespace BlackHole.Net.Tests
         }
 
         [Test]
-        public void ContentVersionMismatchIsHandledLikeOtherRejections()
+        public void ContentVersionMismatchIsAppliedLikeOtherRejectionsThenGoesOfflineAsContentOutdated()
         {
             _store.Append();
             _api.Enqueue(SyncResults.Rejected(0, RejectCodes.ContentVersionMismatch));
             SyncSender sender = Sender();
+            var received = new List<RejectedLogDto>();
+            sender.RejectionReceived += received.Add;
 
             TestTasks.Done(sender.SyncOnStartupAsync());
 
-            Assert.IsEmpty(_store.Pending);
+            Assert.IsEmpty(_store.Pending, "다른 거부처럼 남은 로그를 폐기한다.");
             Assert.AreEqual(RejectCodes.ContentVersionMismatch, _store.LastRejection.code);
-            Assert.IsEmpty(_auth.GoOfflineCalls, "ContentOutdated 전환은 추후 구현이다(계약 3.6).");
+            Assert.AreEqual(1, received.Count, "알림은 다른 거부처럼 한 번 온다.");
+            CollectionAssert.AreEqual(new[] { OfflineReason.ContentOutdated }, _auth.GoOfflineCalls);
+            Assert.AreEqual(OfflineReason.ContentOutdated, _auth.OfflineReason);
+            Assert.IsTrue(sender.FailedThisRun);
+        }
+
+        [Test]
+        public void AfterContentOutdatedNothingMoreIsSentThisRun()
+        {
+            _store.Append();
+            _api.Enqueue(SyncResults.Rejected(0, RejectCodes.ContentVersionMismatch));
+            SyncSender sender = Sender();
+            TestTasks.Done(sender.SyncOnStartupAsync());
+            int sent = _api.Batches.Count;
+
+            // 오프라인 진행: 로그는 쌓이지만 보내지 않는다. 다음 실행(업데이트 뒤)이 보내면 다시 거부되어 진행도가 서버 값으로 돌아간다.
+            _store.Append();
+
+            Assert.AreEqual(sent, _api.Batches.Count);
+            Assert.AreEqual(1, _store.Pending.Count);
+        }
+
+        [Test]
+        public void RejectionHandlerExceptionDoesNotStopTheContentOutdatedSwitch()
+        {
+            _store.Append();
+            _api.Enqueue(SyncResults.Rejected(0, RejectCodes.ContentVersionMismatch));
+            SyncSender sender = Sender();
+            sender.RejectionReceived += _ => throw new InvalidOperationException("알림 오류");
+
+            TestTasks.Done(sender.SyncOnStartupAsync());
+
+            CollectionAssert.AreEqual(new[] { OfflineReason.ContentOutdated }, _auth.GoOfflineCalls);
+        }
+
+        [Test]
+        public void OtherRejectionsKeepTheRunOnline()
+        {
+            _store.Append();
+            _api.Enqueue(SyncResults.Rejected(0, RejectCodes.NotEnoughGold));
+            SyncSender sender = Sender();
+
+            TestTasks.Done(sender.SyncOnStartupAsync());
+
+            Assert.IsEmpty(_auth.GoOfflineCalls);
+            Assert.IsFalse(sender.FailedThisRun);
         }
 
         [Test]

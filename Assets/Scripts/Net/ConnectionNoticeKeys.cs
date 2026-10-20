@@ -10,6 +10,7 @@ namespace BlackHole.Net
         // 이 상태에서 알릴 글자 키. 알릴 것이 없으면 null.
         // - Connecting: 타이틀은 로그인이 끝난 뒤에 열리므로 알리지 않는다.
         // - Offline(Disabled): 서버를 쓰지 않는 실행이라 표시 없음.
+        // - Offline(ContentOutdated): 콘텐츠 버전 불일치 거부 알림(RejectionKinds.ContentOutdatedKey)이 같은 내용을 알리므로 여기서는 알리지 않는다.
         public static string TextKeyOf(ConnectionState state, OfflineReason reason)
         {
             switch (state)
