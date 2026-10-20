@@ -109,6 +109,7 @@ namespace BlackHole.Unity
             _keyInput.PausePressed -= HandleKeyActionEsc;
 
             CloseEnding();
+            DisposeRejectionNotice();
 
             foreach (List<Action> cleanups in _cleanupByScreen.Values)
                 RunCleanups(cleanups);

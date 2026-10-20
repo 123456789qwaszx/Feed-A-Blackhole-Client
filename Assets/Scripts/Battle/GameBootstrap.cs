@@ -190,6 +190,10 @@ namespace BlackHole.Unity
                 keyInput,
                 syncLogs);
 
+            // 거부를 받으면 알림을 띄운다(W3-5). 화면이 아직 없는 시작 동기화 중이면 타이틀에 들어갈 때 보인다. 전송기는 Dispose에서 구독을 푼다.
+            if (_syncSender != null)
+                _syncSender.RejectionReceived += _ => screens.HandleSyncRejection();
+
             _host = new GameHost(
                 ui,
                 battle,
