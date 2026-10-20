@@ -306,3 +306,10 @@ sync.rejection.kind.settlement,Run settlement,판 결산
 sync.rejection.kind.nodePurchase,Node purchase,노드 구매
 sync.rejection.kind.reset,New game,새 게임
 sync.rejection.kind.other,Record,기록
+
+# 서버 연결 결과 알림 (타이틀, 계약 2.8). 서버를 쓰지 않는 실행(Disabled)은 알리지 않는다.
+sync.connection.online,Connected to the server,서버에 연결되었습니다
+sync.connection.unreachable,Offline - your records will be synced the next time you connect,오프라인 - 기록은 다음 접속 때 반영됩니다
+sync.connection.account,Offline - your account could not be verified,오프라인 - 계정을 확인할 수 없습니다
+# 콘텐츠 버전 불일치 알림: 모든 동기화가 거부되어 진행도가 서버 값으로 되돌아간다. 코드는 넣지 않는다.
+sync.rejection.contentOutdated,"Your game data does not match the server, so your progress cannot be saved. Please update to the latest version.",게임 데이터가 서버와 달라 진행 내용이 서버에 반영되지 않습니다. 최신 버전으로 업데이트해 주세요.
