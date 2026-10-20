@@ -45,7 +45,7 @@ namespace BlackHole.ContentExport
                         { "killTimeBonusSeconds", content.BattleRules.KillTimeBonus },
                     }
                 },
-                { "growth", new JsonObject { { "levelExp", levelExp }, { "milestones", milestones } } },
+                { "growth", new JsonObject { { "levelExp", levelExp }, { "milestones", milestones }, { "galaxyStage", content.Growth.GalaxyStage } } },
                 { "stats", new JsonObject
                     {
                         { "timer", StatId(UpgradeStat.Timer) },
