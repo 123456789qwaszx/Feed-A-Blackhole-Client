@@ -200,6 +200,7 @@ namespace BlackHole.ContentExport
                 { "growthStage", stage },
                 { "startLevel", startLevel },
                 { "goalLevel", growth.GoalLevelAt(stage) },
+                { "galaxyTier", growth.GalaxyTierAt(stage) },
                 { "startExp", startExp },
                 { "nextMilestone", next == null ? null : new JsonInline(new JsonObject { { "level", next.Level }, { "targetGold", next.TargetGold } }) },
                 { "levelForExp", levelForExp },
