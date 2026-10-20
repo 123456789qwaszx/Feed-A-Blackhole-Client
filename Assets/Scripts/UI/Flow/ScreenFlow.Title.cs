@@ -11,7 +11,11 @@ namespace BlackHole.Unity
         {
             _ui.SwitchRoot<TitleScreen>(
                 _presentations.Title,
-                afterPresented: root => BindView(root, ApplyBindings),
+                afterPresented: root =>
+                {
+                    BindView(root, ApplyBindings);
+                    ShowNoticesIfDue();
+                },
                 afterClosed: Unbind);
         }
 

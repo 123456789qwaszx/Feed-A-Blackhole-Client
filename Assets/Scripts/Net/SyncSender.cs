@@ -183,7 +183,7 @@ namespace BlackHole.Net
             if (_store.ApplyResponse(result.Response) != SyncApplyOutcome.Rejected)
                 return true;
 
-            // CONTENT_VERSION_MISMATCH도 다른 거부와 똑같이 처리한다(계약 3.6, ContentOutdated 전환은 추후).
+            // CONTENT_VERSION_MISMATCH도 다른 거부와 똑같이 반영한다(대기 로그 폐기, 서버 진행도 채택). 아래에서 이번 실행을 오프라인으로 바꾼다.
             RejectedLogDto rejection = _store.LastRejection;
             _log($"[동기화] seq {rejection?.seq} {rejection?.type} 거부: {rejection?.code}. 남은 로그를 버리고 서버 진행도를 따른다.");
 
@@ -198,6 +198,14 @@ namespace BlackHole.Net
                 {
                     _logError("[동기화] 거부 알림 처리 중 예외: " + error);
                 }
+            }
+
+            // 콘텐츠 버전이 다르면 이후 모든 로그가 거부되어 진행도가 매번 서버 값으로 돌아간다. 이번 실행은 더 보내지 않고 오프라인으로 둔다
+            // (계약 3.6). 알림을 이미 보였든 아니든 전환은 한다. 오프라인 진행의 로그는 쌓아 두지만 버전이 맞는 업데이트 뒤 보내면 다시 거부된다.
+            if (rejection != null && RejectionKinds.IsContentOutdated(rejection.code))
+            {
+                _log("[동기화] 콘텐츠 버전이 서버와 달라 이번 실행은 오프라인으로 전환한다. 업데이트가 필요하다.");
+                StopForThisRun(OfflineReason.ContentOutdated);
             }
 
             return false;
@@ -230,9 +238,6 @@ namespace BlackHole.Net
             if (_failedThisRun)
                 return;
 
-            _failedThisRun = true;
-            _sendRequested = false;
-
             if (outcome == SyncCallOutcome.ProtocolError)
                 _logError("[동기화] " + message);
             else
@@ -240,7 +245,18 @@ namespace BlackHole.Net
 
             // 갱신 실패로 끝난 Unauthorized는 IAuthSession이 이미 오프라인이고 처음 사유를 유지한다.
             // 갱신한 뒤에도 401인 경우만 아직 온라인이며, 예상하지 못한 응답이므로 ProtocolError다.
-            _auth.GoOffline(outcome == SyncCallOutcome.Unreachable ? OfflineReason.Unreachable : OfflineReason.ProtocolError);
+            StopForThisRun(outcome == SyncCallOutcome.Unreachable ? OfflineReason.Unreachable : OfflineReason.ProtocolError);
+        }
+
+        // 이번 실행은 더 보내지 않고 오프라인으로 알린다.
+        private void StopForThisRun(OfflineReason reason)
+        {
+            if (_failedThisRun)
+                return;
+
+            _failedThisRun = true;
+            _sendRequested = false;
+            _auth.GoOffline(reason);
         }
 
         private void ThrowIfDisposed()
