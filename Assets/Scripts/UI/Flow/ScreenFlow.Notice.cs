@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace BlackHole.Unity
 {
-    // 타이틀·업그레이드 화면의 알림 글자(FloatingNotice). 알림은 하나씩만 보이고, 겹치지 않게 줄을 세운다.
+    // 타이틀·업그레이드 화면의 알림 글자(FloatingNotice). 알림은 세로 목록으로 한꺼번에 보이고, 알림마다 제 수명을 가진다.
     //
     // 1. 서버 연결 결과(계약 2.8): 타이틀에 처음 들어갈 때 한 번. 로그인과 시작 동기화가 끝난 뒤의 상태를 알린다.
-    //    - 온라인: "서버에 연결되었습니다"(짧게). 이어서 거부 알림이 있으면 건너뛴다 — 연결은 됐지만 진행도가 서버 기준으로 바뀐 것이 알릴 일이다.
+    //    - 온라인: "서버에 연결되었습니다"(짧게). 같이 알릴 거부가 있으면 건너뛴다 — 연결은 됐지만 진행도가 서버 기준으로 바뀐 것이 알릴 일이다.
     //    - 오프라인: 까닭에 따라 문구가 다르다. 서버를 쓰지 않는 실행(Disabled)은 알리지 않는다.
-    // 2. 서버 거부(계약 5.9): 마지막 동기화에 거부가 있고 아직 보여 주지 않았으면 한 번. 연결 결과 뒤에 보인다.
+    // 2. 서버 거부(계약 5.9): 마지막 동기화에 거부가 있고 아직 보여 주지 않았으면 한 번. 연결 결과 아래에 보인다.
     //    - 콘텐츠 버전 불일치(CONTENT_VERSION_MISMATCH)는 전용 문구다. 이 경우 모든 동기화가 거부되어 진행도가 서버 값으로 덮어써지므로
     //      업데이트하라고 알린다.
     //
@@ -47,14 +47,14 @@ namespace BlackHole.Unity
             if (atTitle && !_connectionNoticeDone)
             {
                 _connectionNoticeDone = true;
-                EnqueueConnectionNotice(rejectionDue);
+                ShowConnectionNotice(rejectionDue);
             }
 
             if (rejectionDue)
-                EnqueueRejectionNotice(rejection);
+                ShowRejectionNotice(rejection);
         }
 
-        private void EnqueueConnectionNotice(bool rejectionFollows)
+        private void ShowConnectionNotice(bool rejectionFollows)
         {
             if (_auth == null)
                 return;
@@ -69,10 +69,10 @@ namespace BlackHole.Unity
             if (online && rejectionFollows)
                 return;
 
-            EnsureNotice().Enqueue(_localizer.Get(key), online ? ConnectedHoldSeconds : WarningHoldSeconds);
+            EnsureNotice().Show(_localizer.Get(key), online ? ConnectedHoldSeconds : WarningHoldSeconds);
         }
 
-        private void EnqueueRejectionNotice(RejectedLogDto rejection)
+        private void ShowRejectionNotice(RejectedLogDto rejection)
         {
             bool outdated = RejectionKinds.IsContentOutdated(rejection.code);
 
@@ -80,7 +80,7 @@ namespace BlackHole.Unity
                 ? _localizer.Get(RejectionKinds.ContentOutdatedKey)
                 : _localizer.Format("sync.rejection", _localizer.Get(RejectionKinds.TextKeyOf(rejection.type)), rejection.code);
 
-            EnsureNotice().Enqueue(text, outdated ? ContentOutdatedHoldSeconds : WarningHoldSeconds);
+            EnsureNotice().Show(text, outdated ? ContentOutdatedHoldSeconds : WarningHoldSeconds);
             _progressStore.MarkLastRejectionShown();
         }
 
